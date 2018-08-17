@@ -256,7 +256,7 @@ int foo(float x, float y)
 
 int main(void)
 {
-  // Declare fp to be a pointer to a function that takes a float and
+  // Declare fp to be a pointer to a function that takes two floats and
   // returns an int:
 
   int (*fp)(float, float); // points at garbage until initialized
@@ -265,10 +265,10 @@ int main(void)
   fp = foo;
 
   // Now you can call foo() like this:
-  fp();
+  int x = fp(2.0, 4.5);
 
   // Or normally like this:
-  foo();
+  int y = foo(2.0, 4.5);
 
   return 0;
 }
