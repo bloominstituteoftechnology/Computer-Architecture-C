@@ -1,8 +1,6 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-#include <sys/time.h>
-
 // Holds all information about the CPU
 struct cpu {
   // TODO
