@@ -215,11 +215,11 @@ function? Is there a way to better modularize your code?
 If you haven't done so, consider having independent handler functions, one per
 instruction, that does each instruction's work.
 
-Another option is to use something called a _branch table_ to simplify the
-instruction handler dispatch code. This is an array of functions that you can
-index by opcode value. The upshot is that you fetch the instruction value from
-RAM, then use that value to look up the handler function in the branch table.
-Then call it.
+Another option is to use something called a _branch table_ or _dispatch table_
+to simplify the instruction handler dispatch code. This is an array of functions
+that you can index by opcode value. The upshot is that you fetch the instruction
+value from RAM, then use that value to look up the handler function in the
+branch table. Then call it.
 
 ```js
 // !PSEUDOCODE!
@@ -239,6 +239,52 @@ let handler = branchTable[IR]; // Look up handler in branch table
 handler(); // Call it
 
 // etc.
+```
+
+This solution involves _pointers to functions_. This is something you've already
+likely used for callbacks in other languages, but in C, the syntax is somewhat
+**insane**.
+
+Some examples in C:
+
+```c
+// Normal function to take two floats and return an int
+int foo(float x, float y)
+{
+  return x * y;
+}
+
+int main(void)
+{
+  // Declare fp to be a pointer to a function that takes a float and
+  // returns an int:
+
+  int (*fp)(float, float); // points at garbage until initialized
+
+  // Initialize fp to point to function foo()
+  fp = foo;
+
+  // Now you can call foo() like this:
+  fp();
+
+  // Or normally like this:
+  foo();
+
+  return 0;
+}
+```
+
+Arrays of pointers to functions are even zanier:
+
+```c
+// Declare an array, bar, of 10 pointers to functions that take an int and
+// a float, and return void:
+
+void (*bar[10])(int, float); // Array as yet uninitialized!
+
+// Do the same with an array baz, but also init all the pointers to NULL:
+
+void (*baz[10])(int, float) = {0};
 ```
 
 Whether you do a `switch` or a branch table or anything else is up to you.
