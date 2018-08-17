@@ -63,10 +63,21 @@ but you'll have to implement those three above instructions first!
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
+* Read this whole file.
+* Skim the spec.
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
+
+The type for a single unsigned byte in C is:
+
+```c
+unsigned char x;
+```
+
+(Weirdly in C, if you don't specific `signed` or `unsigned` with a `char`, it's
+up to the compiler which it uses.)
 
 ## Step 2: Add RAM functions
 
@@ -230,6 +241,8 @@ handler(); // Call it
 // etc.
 ```
 
+Whether you do a `switch` or a branch table or anything else is up to you.
+
 ##  Implement System Stack
 
 All CPUs manage a _stack_ that can be used to store information temporarily.
@@ -240,6 +253,13 @@ exception to this.
 * Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
   the beginning of the spec to see which register is the stack pointer, and
   where the stack starts in memory.
+
+If you run `./ls8 examples/stack.ls8` you should see the output:
+
+```
+1
+2
+```
 
 ## Implement Subroutine Calls
 
@@ -260,10 +280,20 @@ specific address.
 
 In **any** case where the instruction handler sets the `PC` directly, you
 _don't_ want to advance the PC to the next instruction. So you'll have to set up
-a special case for those types of instructions.
+a special case for those types of instructions. This can be a flag you
+explicitly set per-instruction... but can also be computed from the value in
+`IR`. Check out the spec for more.
 
+If you run `./ls8 examples/call.ls8` you should see the output:
 
-## Stretch Goal
+```
+20
+30
+36
+60
+```
+
+## Stretch Goal: Timer Interrupts
 
 Add interrupts to the LS-8 emulator.
 
@@ -363,3 +393,17 @@ for (int i = 0; i < 8; i++) {
 executing the current instruction as per usual.)
 
 If `interrupt_happened`, check the LS-8 spec for details on what to do.
+
+
+## Stretch Goal: Keyboard Interrupts
+
+This gets into some serious Unix system programming esoterica. Google for
+`tcsetattr` and `raw mode` and `non-blocking`.
+
+If you find the command line is no longer showing what you type after your
+program exits, you should type this command (in the blind) to return it to
+normal:
+
+```
+stty sane
+```
