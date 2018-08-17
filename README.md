@@ -1,4 +1,4 @@
-# Computer Architecture One
+# Computer Architecture
 
 ## Project
 
