@@ -5,8 +5,8 @@
  */
 void cpu_load(struct cpu *cpu)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  const unsigned int DATA_LEN = 6;
+  char data[6] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -32,7 +32,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
       break;
 
     // TODO: implement more ALU ops

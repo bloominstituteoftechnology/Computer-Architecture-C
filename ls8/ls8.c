@@ -7,10 +7,11 @@
 int main(void)
 {
   struct cpu cpu;
-
+  
   cpu_init(&cpu);
   cpu_load(&cpu);
   cpu_run(&cpu);
+  alu(&cpu, &alu_op, &regA, &regB);
 
   return 0;
 }
