@@ -67,6 +67,23 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+//list files
+*asm.js file -> our operands are defined, regex for matching lines
+*buildall file -> outfile
+*call.asm -> demonstrate calls, multiply numbers by 2 and print them
+*interrupts.asm -> prints out sequence of As
+keyboard.asm -> moves the cursor to the start of the line
+*mult.asm -> performs math by comparing R0 and R1 and puts result in R0
+*print8.asm -> performs math with R0
+*printstr.asm -> Declares a subroutine that prints a string at a given address
+*sctest.asm -> Code to test the Sprint Challenge
+stack.asm -> Stack tester
+
+*cup.c -> CPU components
+*cpu.h -> holds info about CPU
+*ls8.c -> holds int main function
+
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
