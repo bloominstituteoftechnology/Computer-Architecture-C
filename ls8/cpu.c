@@ -8,12 +8,12 @@ void cpu_load(struct cpu *cpu)
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
+    0b10000010, // LDI R0,8  /* instruction */
+    0b00000000, /* argument 1 */
+    0b00001000, /* argument 2 */
+    0b01000111, // PRN R0 /* instruction */
+    0b00000000, /* argument 1 */
+    0b00000001  // HLT /* instruction */
   };
 
   int address = 0;
