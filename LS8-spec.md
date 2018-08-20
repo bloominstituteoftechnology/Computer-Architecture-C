@@ -43,6 +43,9 @@ The register is made up of 8 bits. If a particular bit is set, that flag is "tru
 
 The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
 
+memory address in array of RAM
+
+
 Memory map:
 
 ```
@@ -147,6 +150,7 @@ Machine code values shown in both binary and hexadecimal.
 ### ADD
 
 `ADD registerA registerB`
+implies registerA = registerA + registerB
 
 Add the value in two registers and store the result in registerA.
 

@@ -61,6 +61,57 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+```
+__asm__
+  / asm.js
+      --- defining a bunch of stuff here...
+    call.asm
+      --- loads reg 1 with subroutine. 
+       --- Mult2Print = add R0 to R0 and return it
+        --- Call (invoke) reg number after loading input to return number multiplied by two....or added to itself. 
+    interrupts.asm
+    keyboard.asm
+      --- tests the keyboard and echoes the console.
+    mult.asm
+      --- multiplies reg 0 by reg 1 and puts result into reg 0. prints reg 0 and then halts. 
+    print8.asm
+      --- loads reg 0 immediately with 8 and then prints it. Halts.
+    printstr.asm
+      --- loads reg 0 with address of Hello. 
+       --- allocates (?) reg 1 with number of bytes to print
+        --- loads reg 2 with address of printstr
+         --- call (invoke ?) printstr 
+          --- halts
+    sctest.asm
+      --- code to test Sprint Challenge
+       --- loads reg 0 with 10, reg 1 with 20, reg 2 with Test 1
+        --- compare (?) reg 0 with reg 1
+         --- JEQ === jump if equal... 
+          --- load reg 3 with 1
+           --- print reg 3...
+           --- JNE === jump if not equal...
+    stack.asm
+     --- stack tester
+
+
+__ls8__
+  / cpu.c
+   --- this is where the funcs in ls8.c are being implemented. 
+    cpu.h
+     --- header for cpu.c
+      --- this is where the funcs in ls8.c are declared. 
+    ls8.c
+     --- 
+     main for....
+      cpu_init(&cpu);
+      cpu_load(&cpu);
+      cpu_run(&cpu);
+    Makefile
+     --- compiles ls8
+
+
+```
+
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
