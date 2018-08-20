@@ -27,7 +27,6 @@ struct cpu
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI 0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
 
 /**
