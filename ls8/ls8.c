@@ -10,8 +10,7 @@ int main(void)
   
   cpu_init(&cpu);
   cpu_load(&cpu);
-  cpu_run(&cpu);
-  alu(&cpu, &alu_op, &regA, &regB);
+  cpu_run(&cpu); 
 
   return 0;
 }

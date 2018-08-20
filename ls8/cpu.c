@@ -30,6 +30,9 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->registers;
+  unsigned char b = reg[regB];
+
   switch (op) {
     case ALU_MUL:
       break;
@@ -41,6 +44,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
+
+void cpu_ram_read(struct cpu *cpu, int address) {
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char write, int address) {
+  cpu->ram[address] = write;
+  return write;
+}
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -48,7 +61,16 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+        unsigned char IR = cpu->ram[cpu->PC];
+
+        unsigned char operandA = cpu->ram[(cpu->PC + 1)];
+        unsigned char operandB = cpu->ram[(cpu->PC + 2)];
     // 2. switch() over it to decide on a course of action.
+        switch(IR) {
+          case HTL:
+          running = 0;
+          break;
+        }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
