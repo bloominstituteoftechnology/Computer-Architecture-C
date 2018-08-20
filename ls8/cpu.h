@@ -5,8 +5,13 @@
 struct cpu {
   // TODO
   unsigned char PC;
-  unsigned char registers[8];
-  unsigned char ram[8];
+  unsigned char *registers;
+  unsigned char *ram;
+};
+
+enum alu_op
+{
+    ALU_MUL
 };
 
 // Instructions
