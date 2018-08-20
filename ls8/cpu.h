@@ -5,8 +5,11 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char PC;
   // registers (array)
+  unsigned char reg[8];
   // ram (array)
+  unsigned char ram[256];
 };
 
 // Instructions
@@ -14,7 +17,9 @@ struct cpu {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI  0b10000010   
+#define PRN  0b01000111 // PRN R0   
+#define HLT  0b00000001  // HLT
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
