@@ -5,7 +5,7 @@
 struct cpu {
   // TODO
   // PC
-  int pc[8];
+  unsigned char PC;
   // registers (array)
   unsigned char reg[8];
   // ram (array)
@@ -19,14 +19,14 @@ struct cpu {
 
 #define LDI  0b10000010 //represents 8-bit value in binary literal
 // TODO: more instructions here. These can be used in cpu_run().
-#define ADD  10100000
-#define SUB  10100001
-#define MUL  10100010
-#define DIV  10100011
-#define MOD  10100100
-#define INC  01100101
-#define DEC  01100110
-#define CMP  10100111
+#define ADD  0b10100000
+#define SUB  0b10100001
+#define MUL  0b10100010
+#define DIV  0b10100011
+#define MOD  0b10100100
+#define INC  0b01100101
+#define DEC  0b01100110
+#define CMP  0b10100111
 
 // Function declarations
 extern void cpu_load(struct cpu *cpu);
