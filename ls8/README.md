@@ -66,6 +66,10 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+** cpu.h is the cpu structure and also a few function with extern
+** cpu.c is where all the function's definition are at for the cpu
+** ls8.c is where the where you execute the functions to initialize and run the cpu.
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
