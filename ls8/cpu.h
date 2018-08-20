@@ -19,7 +19,7 @@
 // Holds all information about the CPU
 
 
-struct cpu {
+struct CPU {
   // TODO
   // PC  PC = program counter...address of current instruction
   // IR = instruction register
@@ -87,8 +87,10 @@ struct cpu {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
-extern void cpu_init(struct cpu *cpu);
-extern void cpu_run(struct cpu *cpu);
+extern void cpu_load(struct CPU *cpu);
+extern void cpu_init(struct CPU *cpu);
+extern void cpu_run(struct CPU *cpu);
+extern void cpu_ram_read(struct CPU *cpu);
+extern void cpu_ram_write(struct CPU *cpu);
 
 #endif

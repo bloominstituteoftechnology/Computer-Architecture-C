@@ -15,16 +15,16 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct CPU *cpu)
 {
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
+    0b00000000, // NOP
+    0b00001000, //
     0b01000111, // PRN R0
-    0b00000000,
+    0b00000000, // NOP
     0b00000001  // HLT
   };
 
@@ -40,21 +40,21 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct CPU *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
  */
-void cpu_run(struct cpu *cpu)
+void cpu_run(struct CPU *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
@@ -70,9 +70,31 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
-void cpu_init(struct cpu *cpu)
+void cpu_init(struct CPU *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  
   // TODO: Zero registers and RAM
+}
+
+// In `cpu.c`, add functions `cpu_ram_read()` and `cpu_ram_write()` that access the
+// RAM inside the `struct cpu`.
+
+// We'll make use of these helper function later.
+
+// MAR = memory address ... holds the memory address of what we're reading or writing
+
+// MDR = memory data register ... holds the VALUE to write or the VALUE just read
+
+void cpu_ram_read(struct CPU *cpu) 
+{
+  // TODO: access RAM and read it
+  
+
+}
+
+void cpu_ram_write(struct CPU *cpu) 
+{
+  //TODO: access RAM to write to it. 
+
 }
