@@ -78,9 +78,9 @@ void cpu_run(struct cpu *cpu)
     // printf("cpu->PC is: %i\n", cpu->PC);
     IR = cpu_ram_read(cpu, cpu->PC);
     // printf("IR is: %d\n", IR);
-    // IR 8 bits AA B C DDDD (AABCDDDD)
+
     switch (IR) {
-      case 0b10000010: // LDI
+      case LDI:
         addrLDI = cpu_ram_read(cpu, cpu->PC + 1);
         val = cpu_ram_read(cpu, cpu->PC + 2);
         // printf("val is: %i\n, addrLDI is: %i\n", val, addrLDI);
@@ -88,18 +88,16 @@ void cpu_run(struct cpu *cpu)
         // printf("cpu->registers[addrLDI] is: %i\n", cpu->registers[addrLDI]);
         cpu->PC += 3;
         break;
-      case 0b01000111: // PRN
+      case PRN:
         addrPRN = cpu_ram_read(cpu, cpu->PC + 1);
         // printf("addrPRN is: %i\n", addrPRN);
         printf("%i\n", cpu->registers[addrPRN]);
         cpu->PC += 2;
         break;
-      case 0b00000001: //HLT
+      case HLT:
         running = 0;
         break;
     }
-
-  }
 }
 
 /**
