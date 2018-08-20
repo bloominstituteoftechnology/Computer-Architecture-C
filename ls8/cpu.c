@@ -56,6 +56,22 @@ void cpu_run(struct cpu *cpu)
 }
 
 /**
+ * read data from RAM
+ */
+void cpu_ram_read(struct cpu *cpu)
+{
+
+}
+
+/**
+ * write data to RAM
+ */
+void cpu_ram_write(struct cpu *cpu)
+{
+
+}
+
+/**
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)
