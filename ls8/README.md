@@ -133,6 +133,27 @@ __ls8__
 ```
 * Read this whole file.
 * Skim the spec.
+```
+8 registers
+  ---R5 is reserved for interrupt mask
+  ---R6 is reserved for interrupt status
+  ---R7 is reserved for stack pointer
+
+unsigned ints
+
+PC = program counter...address of current instruction
+IR = instruction register ... contains a copy of the currently executing instruction
+
+MAR = memory address ... holds the memory address of what we're reading or writing
+
+MDR = memory data register ... holds the VALUE to write or the VALUE just read
+
+FL = flags ...
+  L = less than
+  G = greater than
+  E = equal
+
+```
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
