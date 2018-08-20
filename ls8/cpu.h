@@ -1,12 +1,22 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-// Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // Internal Registers
+  unsigned char pc;
+  unsigned char ir;
+  unsigned char mar;
+  unsigned char mdr;
+  unsigned char fl;
+
+  // Registers
+  unsigned char registers[8];
+
+  // Memory
+  unsigned char ram[256];
+
+  // Stack
+  unsigned char sp;
 };
 
 // Instructions
