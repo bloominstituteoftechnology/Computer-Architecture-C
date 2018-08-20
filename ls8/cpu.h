@@ -2,20 +2,15 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-struct guts
+struct cpu
 {
+  // TODO
+  // PC
   unsigned char PC;
   unsigned char IR;
   unsigned char MAR;
   unsigned char MDR;
   unsigned char FL;
-};
-
-struct cpu
-{
-  // TODO
-  // PC
-  struct guts *guts;
   // registers (array)
   unsigned char reg[8];
   // ram (array)

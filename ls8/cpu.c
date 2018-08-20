@@ -47,15 +47,16 @@ void cpu_load(struct cpu *cpu)
  */
 void cpu_run(struct cpu *cpu)
 {
+
   int running = 1; // True until we get a HLT instruction
   char *rgstr = cpu->reg;
   char *ram = cpu->ram;
 
-  char PC = cpu->guts->PC;
-  char IR = cpu->guts->IR;
-  char MAR = cpu->guts->MAR;
-  char MDR = cpu->guts->MDR;
-  char FL = cpu->guts->FL;
+  char PC = cpu->PC;
+  char IR = cpu->IR;
+  char MAR = cpu->MAR;
+  char MDR = cpu->MDR;
+  char FL = cpu->FL;
 
   while (running)
   {
@@ -74,7 +75,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->guts->PC = 0;
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
@@ -86,6 +87,7 @@ void cpu_init(struct cpu *cpu)
 */
 void handle_instruction(struct cpu *cpu, char IR)
 {
+  printf("IR %s", IR);
   switch (IR)
   {
     // ALU
@@ -126,6 +128,6 @@ void handle_instruction(struct cpu *cpu, char IR)
   case PRN:
   case PRA:
   default:
-    printf("The %s IR instruction has no handler", IR);
+    printf("The %s IR instruction has no handler\n", IR);
   }
 };
