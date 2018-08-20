@@ -2,11 +2,15 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
+
 struct cpu {
   // TODO
   // PC
+  char pc[266];
   // registers (array)
+  char reg[8];
   // ram (array)
+  char ram[266];
 };
 
 // Instructions
