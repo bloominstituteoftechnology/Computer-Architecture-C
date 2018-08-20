@@ -5,8 +5,16 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char PC; // program counter: address of the currently executing instruction
+  unsigned char IR; // instruction register: contains a copy of the currently executing instruction
+  unsigned char MAR; // Memory Address Register: holds the memory address we're reading/writing
+  unsigned char MDR; // Memory Data Register: holds the value to write or the value we just read
+  unsigned char FL; // Flags: holds current status 00000LGE
+
   // registers (array)
+  unsigned char registers[8]; // registers R0-R7
   // ram (array)
+  unsigned char ram[256];
 };
 
 // Instructions
