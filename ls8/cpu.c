@@ -64,3 +64,23 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Zero registers and RAM
 }
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index){
+  int dec = 0;
+  while (index != '\n') {
+    scanf("%c", &index);
+    if (index == '1') dec = dec * 2 + 1;
+    else if (index == '0') dec *= 2;
+  }
+  return cpu->ram[dec];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char data){
+  int dec = 0;
+  while (index != '\n') {
+    scanf("%c", &index);
+    if (index == '1') dec = dec * 2 + 1;
+    else if (index == '0') dec *= 2;
+  }
+  cpu->ram[dec] = data;
+}
