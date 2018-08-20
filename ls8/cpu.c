@@ -31,7 +31,11 @@ unsigned char cpu_ram_read(struct cpu *cpu, int address)
   return cpu->ram[address];
 }
 
-
+// write RAM
+unsigned char cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
+{
+  return cpu->ram[address] = value;
+}
 /**
  * ALU
  */
