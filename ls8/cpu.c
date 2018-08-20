@@ -50,22 +50,26 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu->ram[PC];
-    unsigned char operandA = cpu->ram[PC+1];
-    unsigned char operandB = cpu->ram[PC+2];
+    unsigned char IR = cpu_ram_read(cpu, PC);
+    unsigned char operandA = cpu_ram_read(cpu, PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, PC+2);
     
     // 2. switch() over it to decide on a course of action.
     switch(IR)
     {
-      case LDI: 
-        
+      case LDI: cpu_ram_write(cpu, operandA, operandB);
+        PC += 2;
+        break;
+
       case HLT: running = 0;
         PC += 1;
         break;
+        
       default: break;
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
   }
 }
 
@@ -79,10 +83,16 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int PC){
-  return cpu->ram[PC];
+unsigned char cpu_ram_read(struct cpu *cpu, int index){
+  return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int PC, unsigned char data){
-  cpu->ram[PC] = data;
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char data){
+  int dec = 0;
+  while (index != '\n') {
+    scanf("%c", &index);
+    if (index == '1') dec = dec * 2 + 1;
+    else if (index == '0') dec *= 2;
+  }
+  cpu->ram[dec] = data;
 }
