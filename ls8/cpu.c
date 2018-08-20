@@ -25,6 +25,16 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+char cpu_ram_read(char address)
+{
+
+}
+
+void cpu_ram_write(char input)
+{
+
+}
+
 /**
  * ALU
  */
@@ -45,6 +55,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char IR;
 
   while (running) {
     // TODO
@@ -52,6 +63,9 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    IR = cpu->PC;
+    cpu_ram_read(IR);
+    
   }
 }
 

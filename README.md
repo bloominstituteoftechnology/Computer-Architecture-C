@@ -32,6 +32,6 @@
 
 ---
 
-Student: Ronald Libago
-Class: CS10
-PM: Ronnie Miksch
+**Student**: Ronald Libago<br/>
+**Class**: CS10<br/>
+**PM**: Ronnie Miksch<br/>

@@ -60,11 +60,25 @@ but you'll have to implement those three above instructions first!
 
 ## Step 0: IMPORTANT: inventory what is here!
 
-* Make a list of files here.
-* Write a short 3-10-word description of what each file does.
-* Note what has been implemented, and what hasn't.
-* Read this whole file.
-* Skim the spec.
+* Make a list of files here. ✔️
+* Write a short 3-10-word description of what each file does. ✔️
+* Note what has been implemented, and what hasn't. ✔️
+* Read this whole file. ❓
+* Skim the spec. ✔️
+
+|File               |Description                                |Implementation         |
+|:---:              |:---:                                      |:---:                  |
+|cpu.h              |CPU struct definition<sup>1</sup>          |❌                     |
+|cpu.c              |CPU operating instructions<sup>2</sup>     |Partial. Read prompts. |
+|ls8.c              |Main cpu emulation script                  |✔️                     |
+|ls8/examples/*.ls8 |Sample machine code programs               |✔️                     |
+|asm.js             |JS program to compile ASM to machine code  |️️️✔️                     |
+|*.asm              |Sample ASM programs                        |✔️                     |
+|buildall           |Script to compile all ASMs to machine code |✔️                     |
+|makefile           |Compile script for ls8                     |️✔️                     |
+
+<sup>1</sup>: This is a representation of the physical structure/layout of the CPU.<br/>
+<sup>2</sup>: This is a representation of how the CPU operates.
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
