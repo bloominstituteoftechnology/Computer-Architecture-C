@@ -83,7 +83,6 @@ stack.asm -> Stack tester
 *cpu.h -> holds info about CPU
 *ls8.c -> holds int main function
 
-
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
