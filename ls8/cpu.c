@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-void handle_instruction(struct cpu *cpu, char IR);
+void handle_instruction(struct cpu *cpu);
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -47,25 +47,30 @@ void cpu_load(struct cpu *cpu)
  */
 void cpu_run(struct cpu *cpu)
 {
-
+  printf("CPU_RUN running\n");
   int running = 1; // True until we get a HLT instruction
-  char *rgstr = cpu->reg;
-  char *ram = cpu->ram;
+  unsigned char *rgstr = cpu->reg;
+  unsigned char *ram = cpu->ram;
 
-  char PC = cpu->PC;
-  char IR = cpu->IR;
-  char MAR = cpu->MAR;
-  char MDR = cpu->MDR;
-  char FL = cpu->FL;
+  unsigned char PC = cpu->PC;
+  unsigned char *IR = cpu->IR;
+  unsigned char *MAR = cpu->MAR;
+  unsigned char *MDR = cpu->MDR;
+  unsigned char *FL = cpu->FL;
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    cpu->IR = ram[PC];
+    printf("PC %d\nIRd %d\n", PC, cpu->IR);
+    printf("PC %d\nIRc %c\n", PC, cpu->IR);
+
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    handle_instruction(cpu, IR);
+    handle_instruction(cpu);
+    running = 0;
   }
 }
 
@@ -76,6 +81,10 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->IR = 0;
+  cpu->MAR = 0;
+  cpu->MDR = 0;
+  cpu->FL = 0;
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
@@ -85,10 +94,10 @@ void cpu_init(struct cpu *cpu)
 /**
  * HELPERS
 */
-void handle_instruction(struct cpu *cpu, char IR)
+void handle_instruction(struct cpu *cpu)
 {
-  printf("IR %s", IR);
-  switch (IR)
+  printf("IR %d\n", cpu->IR);
+  switch (cpu->IR)
   {
     // ALU
   case ADD:
@@ -121,6 +130,8 @@ void handle_instruction(struct cpu *cpu, char IR)
   case NOP:
   case HLT:
   case LDI:
+    printf("LDI HANDLER FOUND\n");
+    break;
   case LD:
   case ST:
   case PUSH:
@@ -128,6 +139,6 @@ void handle_instruction(struct cpu *cpu, char IR)
   case PRN:
   case PRA:
   default:
-    printf("The %s IR instruction has no handler\n", IR);
+    printf("The %d IR instruction has no handler\n", cpu->IR);
   }
 };
