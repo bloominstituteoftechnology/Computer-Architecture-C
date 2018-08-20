@@ -58,13 +58,17 @@ void cpu_run(struct cpu *cpu)
     switch(IR)
     {
       case LDI: cpu_ram_write(cpu, operandA, operandB);
+        PC += 3;
+        break;
+
+      case PRN: printf("%d", (int)operandA);
         PC += 2;
         break;
 
       case HLT: running = 0;
         PC += 1;
         break;
-        
+
       default: break;
     }
     // 3. Do whatever the instruction should do according to the spec.
