@@ -16,6 +16,7 @@ void cpu_load(struct cpu *cpu)
     0b00000001  // HLT
   };
 
+
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
