@@ -7,8 +7,17 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
+  int PC;
+  unsigned char *registers;
+  unsigned char *ram;
 };
 
+// struct cpu *cpu_create(void)
+// {
+//   cpu *c = malloc(sizeof(cpu));
+//   c->PC = 0;
+//   return c;
+// }
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
