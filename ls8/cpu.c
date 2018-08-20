@@ -68,6 +68,9 @@ void cpu_run(struct cpu *cpu)
         case PRN:
             printf("%d\n", cpu->registers[x]);
             break;
+        case LDI:
+            cpu->registers[x] = y;
+            break;
         default:
             break;
     }
