@@ -4,8 +4,8 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
-  // registers (array)
+  unsigned char PC;
+  unsigned char *registers
   // ram (array)
 };
 
