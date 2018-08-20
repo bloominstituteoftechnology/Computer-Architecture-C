@@ -114,6 +114,23 @@ __ls8__
 
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
+
+```
+// TODO: cpu.c cpu_load:  Replace this with something less hard-coded
+  // TODO: cpu.c line 41: implement ALU ops
+  // TODO: cpu.c while running:
+          // 1. Get the value of the current instruction (in address PC).
+          // 2. switch() over it to decide on a course of action.
+          // 3. Do whatever the instruction should do according to the spec.
+          // 4. Move the PC to the next instruction.
+  // line 75 -- TODO: cpu.c Initialize the PC and other special registers
+  // line 77 -- TODO: cpu.c Zero registers and RAM
+
+  -----
+
+  // TODO: line 19  cpu.h -- more instructions
+
+```
 * Read this whole file.
 * Skim the spec.
 

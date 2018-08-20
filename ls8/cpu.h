@@ -1,6 +1,9 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+// TODO: line 19  cpu.h -- more instructions
+
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
