@@ -49,6 +49,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    ir = *pc;
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -63,4 +64,9 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
+}
+
+void cpu_ram_read(char *ram)
+{
+
 }
