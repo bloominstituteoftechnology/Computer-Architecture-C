@@ -6,7 +6,7 @@
 void cpu_load(struct cpu *cpu)
 {
   const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  char data[6] = { // I cannot get this to work with the variable
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
