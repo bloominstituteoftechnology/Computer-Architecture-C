@@ -47,12 +47,26 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  int PC = 0;
 
   while (running)
   {
-    // TODO
+    // === STEP 3 TODO ===
     // 1. Get the value of the current instruction (in address PC).
+     unsigned char IR = cpu_ram_read(cpu, PC);
+     unsigned char operandA = cpu_ram_read(cpu, PC+1);
+     unsigned char operandB = cpu_ram_read(cpu, PC+2);
+
     // 2. switch() over it to decide on a course of action.
+    switch(IR)
+    {
+      // STEP 5
+      case LDI:
+      // STEP 4
+      case HLT:
+      // STEP 6
+      case PRN:
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -74,5 +88,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index)
   return cpu->ram[index];
 }
 
-// I don't really know what this is supposed to do
-void cpu_ram_write(struct cpu *cpu) {}
+// should this return something or just write?
+unsigned char cpu_ram_write(struct cpu *cpu, int address, unsigned char value) {
+  return cpu->ram[address] = value;
+}
