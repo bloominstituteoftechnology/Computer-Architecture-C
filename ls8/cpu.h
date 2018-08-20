@@ -3,7 +3,7 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
+  // STEP 1 TODO
   // PC
   unsigned char PC; // program counter: address of the currently executing instruction
   unsigned char IR; // instruction register: contains a copy of the currently executing instruction
