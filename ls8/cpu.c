@@ -53,23 +53,20 @@ void cpu_run(struct cpu *cpu)
   unsigned char *ram = cpu->ram;
 
   unsigned char PC = cpu->PC;
-  unsigned char *IR = cpu->IR;
-  unsigned char *MAR = cpu->MAR;
-  unsigned char *MDR = cpu->MDR;
-  unsigned char *FL = cpu->FL;
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     cpu->IR = ram[PC];
-    printf("PC %d\nIRd %d\n", PC, cpu->IR);
-    printf("PC %d\nIRc %c\n", PC, cpu->IR);
+    // printf("PC %d\nIRd %d\n", PC, cpu->IR);
+    // printf("PC %d\nIRc %c\n", PC, cpu->IR);
 
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
     handle_instruction(cpu);
+    // 4. Move the PC to the next instruction.
+
     running = 0;
   }
 }
@@ -130,7 +127,9 @@ void handle_instruction(struct cpu *cpu)
   case NOP:
   case HLT:
   case LDI:
-    printf("LDI HANDLER FOUND\n");
+    // printf("LDI HANDLER FOUND\n");
+    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
+    // printf("LDI number set: %d\n", cpu->reg[cpu->ram[cpu->PC + 1]]);
     break;
   case LD:
   case ST:
