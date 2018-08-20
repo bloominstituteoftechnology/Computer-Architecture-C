@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-void handle_instruction(struct cpu *cpu, char *IR);
+void handle_instruction(struct cpu *cpu, char IR);
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -30,17 +30,17 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op)
-  {
-  case ALU_MUL:
-    // TODO
-    break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op)
+//   {
+//   case ALU_MUL:
+//     // TODO
+//     break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -51,20 +51,20 @@ void cpu_run(struct cpu *cpu)
   char *rgstr = cpu->reg;
   char *ram = cpu->ram;
 
-  char *PC = cpu->guts->PC;
-  char *IR = cpu->guts->IR;
-  char *MAR = cpu->guts->MAR;
-  char *MDR = cpu->guts->MDR;
-  char *FL = cpu->guts->FL;
+  char PC = cpu->guts->PC;
+  char IR = cpu->guts->IR;
+  char MAR = cpu->guts->MAR;
+  char MDR = cpu->guts->MDR;
+  char FL = cpu->guts->FL;
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
-    handle_instruction(cpu, IR);
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    handle_instruction(cpu, IR);
   }
 }
 
@@ -74,16 +74,19 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->guts->PC = 0;
 
   // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
 /**
  * HELPERS
 */
-void handle_instruction(struct cpu *cpu, char *IR)
+void handle_instruction(struct cpu *cpu, char IR)
 {
-  switch (*IR)
+  switch (IR)
   {
     // ALU
   case ADD:
