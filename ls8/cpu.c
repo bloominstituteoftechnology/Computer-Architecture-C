@@ -1,5 +1,5 @@
 #include "cpu.h"
-
+ 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -40,6 +40,24 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
+ * CPU Read
+ */
+void cpu_read(struct cpu *cpu)
+{
+  //cpu-ram
+}
+
+
+/**
+ * CPU Write
+ */
+void cpu_write(struct cpu *cpu)
+{
+  //cpu->ram
+}
+
+
+/**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -48,8 +66,8 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
     // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
+    // 1. Get the value of the current instruction (in address PC). // array[0]
+    // 2. switch() over it to decide on a course of action. // call alu?
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
