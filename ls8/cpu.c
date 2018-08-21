@@ -70,6 +70,17 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
     switch(IR){
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      case CALL:
+        sp--;
+        cpu->RAM[sp] = cpu->reg[operandA+1];
+        cpu->pc = cpu->reg[operandA];
+        break;
+      case RET:
+        cpu->pc = cpu->RAM[sp++];
+        break;
       case PUSH:
         sp--;
         cpu->RAM[sp] = cpu->reg[operandA];
@@ -100,7 +111,7 @@ void cpu_run(struct cpu *cpu)
     }
     // add to the PC according to the executed instruction
     // using >> bitwise shifting of the binary instruction
-    cpu->pc += (IR >> 6) + 1;
+    if(IR != 0b01010000) cpu->pc += (IR >> 6) + 1;
   }
 }
 
