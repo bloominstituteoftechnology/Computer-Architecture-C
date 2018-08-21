@@ -1,6 +1,7 @@
 #include "cpu.h"
 
 /**
+ * THIS IS WHAT WILL HAPPEN LATER
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
@@ -18,6 +19,7 @@ void cpu_load(struct cpu *cpu)
 
   int address = 0;
 
+  // PUTTING THAT STUFF ABOVE INTO RAM
   for (int i = 0; i < DATA_LEN; i++)
   {
     cpu->ram[address++] = data[i];

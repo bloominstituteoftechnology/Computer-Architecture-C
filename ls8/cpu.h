@@ -31,7 +31,8 @@ struct cpu
 
 // Other
 #define LDI 0b10000010
-#define HLT 00000001
+#define HLT 0b00000001
+#define PRN 0b01000111
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu);

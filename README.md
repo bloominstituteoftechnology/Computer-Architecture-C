@@ -8,8 +8,8 @@
 
 ### Day 1: Get `print8.ls8` running
 - [x] Inventory what is here
-- [ ] Implement `struct cpu` in `cpu.h`
-- [ ] Add RAM functions
+- [x] Implement `struct cpu` in `cpu.h`
+- [x] Add RAM functions
 - [ ] Implement the core of `cpu_run()`
 - [ ] Implement the `HLT` instruction handler
 - [ ] Add the `LDI` instruction
