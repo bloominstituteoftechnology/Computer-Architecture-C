@@ -16,6 +16,10 @@ struct cpu {
 // The CPU could support 256 instructions, as well, but we won't need them.
 };
 
+enum alu_op {
+  ALU_MUL,
+  ALU_ADD
+};
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -35,7 +39,7 @@ struct cpu {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filen, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
