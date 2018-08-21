@@ -47,7 +47,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       cpu->reg[regA] = regA * regB;
-      printf("MUL instruciton for ALU provided\n"); 
+      printf("Result == %02x\n", cpu->reg[regA]); 
       break;
     case ALU_ADD:
       cpu->reg[regA] = regA + regB;
