@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   }
   else {
     cpu_init(&cpu);
-    cpu_load(&cpu);
+    cpu_load(argv[1], &cpu);
     cpu_run(&cpu);
   }
 
