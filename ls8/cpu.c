@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 void handle_instruction(struct cpu *cpu);
 /**
@@ -7,25 +10,44 @@ void handle_instruction(struct cpu *cpu);
 void cpu_load(struct cpu *cpu, char *file)
 {
   printf("File path %s\n", file);
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++)
-  {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+
+  FILE *file_d = fopen(file, "r");
+  if (file_d == NULL)
+  {
+    fprintf(stderr, "ERROR loading the file %s\n", file);
+    exit(1);
+  }
+
+  char instruction = 0b0;
+  // I get reference on how to read lines form a 'fd' from : https://stackoverflow.com/questions/3501338/c-read-file-line-by-line
+  char *line = NULL;
+  size_t line_lenght = 0;
+  ssize_t read;
+
+  while ((read = getline(&line, &line_lenght, file_d)) != -1)
+  {
+    printf("Retrieved line of length %zu :\n", read);
+    printf("%s", line);
+  }
 }
 
 /**
