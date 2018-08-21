@@ -24,6 +24,8 @@ void cpu_load(struct cpu *cpu, char *argv[])
   long length;
   int address;
 
+  printf("\n"); // print a new line so I better distinguish output in terminal
+
   /* Open file and copy to string buffer strBuff */
   // Shamelessly copied from 
   // https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
@@ -50,8 +52,12 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
     while (token != NULL) {
       if (token[0] == '0' || token[0] == '1') {
-        // printf("token at address %i: %s\n", address, token);
-        cpu->ram[address++] = strtoul(token, NULL, 2);
+        unsigned char numberedToken = strtoul(token, NULL, 2);
+        #if DEBUG
+        // Print instructions being written to memory
+        printf("token at address %i:\t%s | HEX: %02x\n", address, token,numberedToken);
+        #endif
+        cpu->ram[address++] = numberedToken;
       }
       token = strtok(NULL, " \r\n");
     }
@@ -67,6 +73,11 @@ void alu(struct cpu *cpu, enum alu_op op)
   int regB;
 
   switch (op) {
+    case ALU_ADD:
+      regA = cpu_ram_read(cpu, cpu->PC + 1);
+      regB = cpu_ram_read(cpu, cpu->PC + 2);
+      handleALU_ADD(cpu, regA, regB);
+      break;
     case ALU_MUL:
       // TODO
       regA = cpu_ram_read(cpu, cpu->PC + 1);
@@ -102,6 +113,9 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         handlePRN(cpu);
         break;
+      case ADD:
+        alu(cpu, ALU_ADD);
+        break;
       case MUL:
         alu(cpu, ALU_MUL);
         break;
@@ -111,11 +125,17 @@ void cpu_run(struct cpu *cpu)
       case POP:
         handlePOP(cpu);
         break;
+      case CALL:
+        handleCALL(cpu);
+        break;
+      case RET:
+        handleRET(cpu);
+        break;
       case HLT:
         running = 0;
         break;
       default:
-        fprintf(stderr, "Unkown instruction at %02x: %02x\n", cpu->PC, IR);
+        fprintf(stderr, "Unkown instruction at %i: %02x\n", cpu->PC, IR);
         exit(2);
     }
   }
