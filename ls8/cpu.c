@@ -83,7 +83,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   unsigned char *reg = cpu->reg;
-  unsigned char PC = (int)cpu->PC;
+  unsigned char PC = cpu->PC;
   int running = 1; // True until we get a HLT instruction
   
   while (running) {
