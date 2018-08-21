@@ -1,20 +1,6 @@
 #include "cpu.h"
 
 /**
- * ALU
- */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
-
-/**
  * Reads from RAM address and stores value into store
  * 
  * @param ram {unsigned char[]} Memory array.
@@ -115,3 +101,17 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
   }
 }
+
+/**
+ * ALU
+ */
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
+
+//     // TODO: implement more ALU ops
+//   }
+// }
