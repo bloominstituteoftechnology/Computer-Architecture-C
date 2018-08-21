@@ -39,6 +39,29 @@ void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char dat
 }
 
 /**
+ * Converts a decimal to a binary representation
+ * 
+ * @param decimal {unsigned char} integer value to convert.
+ * 
+ * @returns A pointer to an array where binary representation is stored.
+ */
+int *decimal_to_binary(unsigned char decimal)
+{
+  static int b[] = {0, 0, 0, 0, 0, 0, 0};
+  int n = decimal;
+  int i = (sizeof(b) / sizeof(int)) - 1;
+
+  while (n > 0)
+  {
+    b[i] = n % 2;
+    n /= 2;
+    --i;
+  }
+
+  return b;
+}
+
+/**
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)
