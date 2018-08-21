@@ -69,19 +69,32 @@ void cpu_run(struct cpu* cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     program_counter      = cpu->pc;
+    // printf("\nProgram Counter: %d\n\n", program_counter);
     instruction_register = cpu_ram_read(cpu, cpu->pc);
+    // printf("\nIR: %d\n\n", instruction_register);
 
     // 2. switch() over it to decide on a course of action.
     switch(instruction_register >> 6)
     {
         case 1:
-            printf("1");
+            // printf("1");
 
-            operandA = instruction_register + 1;
+            operandA = cpu_ram_read(cpu, cpu->pc + 1);
+
+            switch(instruction_register)
+            {
+                case PRN:
+                    printf("\n%d\n\n", cpu->registers[ operandA ]);
+                    break;
+
+                default:
+                    break;
+            }
+            
             break;
 
         case 2:
-            printf("\n2\n\n");
+            // printf("\n2\n\n");
 
             next_instruction = 3;
             operandA = cpu_ram_read(cpu, cpu->pc + 1);
@@ -100,7 +113,7 @@ void cpu_run(struct cpu* cpu)
             break;
 
         default:
-            printf("HLT");
+            // printf("\nHLT\n\n");
             running = 0;
     }
     
