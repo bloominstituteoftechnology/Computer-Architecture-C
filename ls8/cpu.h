@@ -4,7 +4,7 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  unsigned char PC;
+  unsigned char PC; //PC has address of next instruction to be executed
   unsigned char registers[8];
   unsigned char ram[256];
 };
