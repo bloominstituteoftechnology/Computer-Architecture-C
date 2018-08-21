@@ -112,15 +112,15 @@ void cpu_init(struct CPU *cpu)
 
 // MDR = memory data register ... holds the VALUE to write or the VALUE just read
 
-cpu_ram_read(struct CPU *cpu, int index) 
+int cpu_ram_read(struct CPU *cpu, int index) 
 {
   // TODO: access RAM and read it
   return cpu->ram[index];
 
 }
 
-void cpu_ram_write(struct CPU *cpu) 
-{
-  //TODO: access RAM to write to it. 
+// cpu_ram_write(struct CPU *cpu) 
+// {
+//   //TODO: access RAM to write to it. 
 
-}
+// }
