@@ -81,6 +81,11 @@ void cpu_run(struct cpu *cpu)
         case HLT:
             running = 0;
             break;
+        // STEP 5
+        case LDI:
+            registers[operandA] = operandB;
+            PC += 3;
+            break;
 
         }
         // 3. Do whatever the instruction should do according to the spec.
