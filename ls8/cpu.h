@@ -18,9 +18,10 @@ struct cpu {
 // literals should be used.
 
 #define LDI 0b10000010
-#define PRN 0b01000011
+#define PRN 0b01000111
 #define HLT 0b00000001
 // TODO: more instructions here. These can be used in cpu_run().
+enum alu_op{ALU_LDI, ALU_PRN, ALU_HLT};
 
 // Function declarations
 

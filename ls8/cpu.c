@@ -32,7 +32,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int address)
 }
 
 // write RAM
-unsigned char cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   return cpu->ram[address] = value;
 }
@@ -42,7 +42,7 @@ unsigned char cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
-    case ALU_MUL:
+    case ALU_LDI:
       // TODO
       break;
 
@@ -56,6 +56,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  int address;
+  unsigned char IR;   // IR: Instruction Register, contains a copy of the currently executing instruction
+  int IR_size;
 
   while (running) {
     // TODO
@@ -63,6 +66,34 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+  
+    address = cpu->PC;
+    IR = cpu_ram_read(cpu, address);
+    IR_size = (IR >> 6) + 1;  
+    unsigned char argv_a = cpu_ram_read(cpu, address + 1);
+    unsigned char argv_b = cpu_ram_read(cpu, address + 2);
+
+    switch (IR)
+    {
+      case LDI: 
+        cpu->registers[argv_a] = argv_b;
+        cpu->PC += 3;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->registers[argv_a]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        running = 0;
+        cpu->PC += 1;
+        break;
+
+      default:
+        printf("error, invalid instruction %x\n", IR);
+        break;
+    }
   }
 }
 
@@ -72,6 +103,17 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+
+  for (int i = 0; i < 256; i++) {   // 256 is the size of RAM
+    cpu->ram[i] = 0;
+  }
+
+  for (int i = 0; i < 8; i++) {   // 8 register
+    cpu->registers[i] = 0;
+  }
+  // for (int i = 0; i < 256; i++) {
+  //   printf("%d\n", cpu->ram[i]);
+  // }
 }
