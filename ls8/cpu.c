@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "cpu.h"
 
 /**
@@ -6,7 +8,7 @@
 void cpu_load(struct cpu *cpu)
 {
   const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  char data[6] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -25,27 +27,27 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int address) {
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
   return cpu->ram[address];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) {
   cpu->ram[address] = value;
 }
 
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      // TODO
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -53,17 +55,39 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  int PC = 0;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, PC);
-    unsigned char operandA = cpu_ram_read(cpu, PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, PC+2);
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+
     // 2. switch() over it to decide on a course of action.
+    switch(IR) {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+      
+      default:
+        printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
+        exit(2);
+    }
+
     // 3. Do whatever the instruction should do according to the spec.
+
     // 4. Move the PC to the next instruction.
+
   }
 }
 
@@ -73,6 +97,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
 }
