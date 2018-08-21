@@ -6,7 +6,7 @@
  */
 int main(void)
 {
-  printf("main 0\n");
+  printf("main 0: START\n");
   struct cpu cpu;
 
   printf("main 1\n");
@@ -15,7 +15,7 @@ int main(void)
   cpu_load(&cpu);
   printf("main 3\n");
   cpu_run(&cpu);
-  printf("main 4\n");
+  printf("\nmain 4: END\n");
 
   return 0;
 }
