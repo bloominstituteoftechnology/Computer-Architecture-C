@@ -86,7 +86,13 @@ void cpu_run(struct cpu *cpu)
             registers[operandA] = operandB;
             PC += 3;
             break;
-
+        // STEP 6
+        case PRN:
+            printf("%d\n", registers[operandA]);
+            PC += 2;
+            break;
+        default:
+            running = 0;
         }
         // 3. Do whatever the instruction should do according to the spec.
         // 4. Move the PC to the next instruction.
