@@ -50,12 +50,12 @@ void cpu_load(struct cpu *cpu, char *file)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  printf("\n\nALU function running\n");
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    printf("ALU_MUL: HANDLER FOUND\n");
     break;
-
     // TODO: implement more ALU ops
   }
 }
@@ -135,7 +135,7 @@ void handle_instruction(struct cpu *cpu)
   // case SUB:
   case MUL:
     printf("ALU-MUL. HANDLER FOUND\n");
-    // alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
+    alu(cpu, ALU_MUL, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
     break;
   // case DIV:
   // case MOD:
