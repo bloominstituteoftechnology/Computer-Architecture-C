@@ -1,8 +1,21 @@
 #include "cpu.h"
- 
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
 void cpu_load(struct cpu *cpu)
 {
   const int DATA_LEN = 6;
@@ -40,24 +53,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
- * CPU Read
- */
-void cpu_read(struct cpu *cpu)
-{
-  //cpu-ram
-}
-
-
-/**
- * CPU Write
- */
-void cpu_write(struct cpu *cpu)
-{
-  //cpu->ram
-}
-
-
-/**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -65,11 +60,33 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC). // array[0]
-    // 2. switch() over it to decide on a course of action. // call alu?
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    // Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
+
+    printf("TRACE: %02x\n: %02x\n", cpu->pc, IR);
+
+    switch(IR) {
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        cpu->pc += 3;
+        break;
+
+      // case PRN:
+      //   printf("print8: %d", cpu->registers[operandA]);
+      //   break;
+
+      // case HLT:
+      //   running = 0;
+      //   break;
+
+      default:
+        printf("unknown instruction: %02x, %02x", cpu->pc, IR);
+        exit(2);
+    }
+
+    // Move the PC to the next instruction.
   }
 }
 
@@ -81,4 +98,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
+    cpu->pc = 0; //
 }
