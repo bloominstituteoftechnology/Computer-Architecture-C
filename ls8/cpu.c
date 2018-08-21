@@ -62,6 +62,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = read_cpu_ram(cpu, cpu->PC);
     unsigned char operandA = read_cpu_ram(cpu, cpu->PC + 1);
     unsigned char operandB = read_cpu_ram(cpu, cpu->PC + 2);
+    int needed_operands = (IR >> 6);
 
     switch (IR){
       case LDI:
@@ -80,8 +81,8 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     printf("what PC is = %d\n", cpu->PC);
-    printf("what IR is = %d\n", IR);
-    cpu->PC += 1;
+    printf("what is IR %d\n",IR);
+    cpu->PC += 1 + needed_operands;
   }
 }
 
