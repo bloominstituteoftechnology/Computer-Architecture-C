@@ -19,7 +19,6 @@ void cpu_load(struct cpu *cpu)
   };
 
   int address = 0;
-
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
@@ -41,19 +40,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char *reg = cpu->reg;
   unsigned char valB = reg[regB];
   switch (op) {
-    // case ALU_ADD:
-    //   reg[regA = regA + regB;
-    //   // TODO
-    //   break;
-    // case ALU_AND:
-    //   regA = regA & regB;
-    //   break;
-    // case ALU_DEC:
-    //   regA = regA - 1;
-    //   break;
-    // case ALU_SUB:
-    //   regA = regA - regB;
-    //   break;
+
     case ALU_MUL:
       reg[regA] *= valB;
       break;
@@ -64,6 +51,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
+
+  // TODO
+// 1. Get the value of the current instruction (in address PC).
+// 2. switch() over it to decide on a course of action.
+// 3. Do whatever the instruction should do according to the spec.
+// 4. Move the PC to the next instruction.
 void cpu_run(struct cpu *cpu)
 {
   unsigned char *reg = cpu->reg;
@@ -93,11 +86,6 @@ void cpu_run(struct cpu *cpu)
       default:
           break;
     }
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
