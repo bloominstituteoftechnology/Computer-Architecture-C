@@ -33,35 +33,88 @@ void cpu_load(struct cpu *cpu, char *filename)
   int address = 0;
   fp = fopen(filename, "r");
 
-  while (fgets(buf, sizeof(buf), fp) != NULL)
+  while (fgets(buf, sizeof(buf), fp))
   {
-    buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
-    unsigned char data = strtol(buf,0,2);
+    
+    // the endptr is the remaining part of the line after the binary number.
+    // i could compare this to buf and if they match skip adding to ram.
+    char *endptr;
+    unsigned char data = strtol(buf, &endptr, 2);
+
+    // this skips adding to ram if first char is a blank line
+    if(buf[0] == '\r' || buf[0] == '\n'){
+      continue;
+    };
+    buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores, does not remove if blank lines
+
+    // printf("this is the endptr %s\n",endptr);
+    // printf("this is what buf is %s\n==============\n", buf);
+
+ 
+
+    
     cpu->ram[address] = data;
     address += 1;
     // printf("this is what data is %d\n", data);
     // printf("this is what address is %d\n", address);
+    // printf("this is what buf is %c\n", buf[strlen(buf) - 2]);
+    // printf("this is what buf is %s\n==============\n", buf);
   }
+  fclose(fp);
 }
+
+unsigned char read_cpu_ram(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void write_cpu_ram(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
+// this was my solution before solution lecture, this func also worked
+// unsigned char read_cpu_ram(struct cpu *cpu, int location)
+// {
+//   return cpu->ram[location];
+// }
 
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
-
-unsigned char read_cpu_ram(struct cpu *cpu, int location)
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  return cpu->ram[location];
+  switch (op) {
+    case ALU_MUL:
+      cpu->reg[regA] *= cpu->reg[regB];
+      break;
+
+    // TODO: implement more ALU ops
+  }
 }
+
+
+
+void push(struct cpu *cpu, unsigned char regA)
+{
+  cpu->reg[SP] -= 1;
+  // TODO add value of regA to mem at sp
+  write_cpu_ram(cpu, cpu->reg[SP], cpu->reg[regA]);
+  // printf("SP = %x\n", cpu->reg[SP]);
+}
+
+unsigned char pop(struct cpu *cpu, unsigned char regA)
+{
+  // TODO add value inside mem at sp to regA
+  unsigned char pop_reg = read_cpu_ram(cpu, cpu->reg[SP]);
+  cpu->reg[regA] = pop_reg;
+  cpu->reg[SP] += 1;
+  // printf("SP = %x\n", cpu->reg[SP]);
+  return pop_reg;
+}
+
+
 
 /**
  * Run the CPU
@@ -85,10 +138,17 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] = operandB;
         break;
       case PRN:
-        printf("%d\n", cpu->reg[operandA]);
+        printf("print inside PRN: %d\n", cpu->reg[operandA]);
         break;
       case MUL:
-        cpu->reg[operandA] *= cpu->reg[operandB];
+        // cpu->reg[operandA] *= cpu->reg[operandB];
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case PUSH:
+        push(cpu, operandA);
+        break;
+      case POP:
+        pop(cpu, operandA);
         break;
       case HLT:
         running = 0;
@@ -111,6 +171,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+  cpu->reg[SP] = 0xF4;
+  // printf("SP = %x\n", cpu->reg[SP]);
 }
