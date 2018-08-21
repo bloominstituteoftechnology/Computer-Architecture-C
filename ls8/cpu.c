@@ -54,9 +54,8 @@ void cpu_load(char* arg, struct CPU *cpu)
     exit(1);
   }
   else {
-
-    while(line) {
-      fgets(line, sizeof(line), fp);
+    while(fgets(line, sizeof(line), fp)!= NULL) {
+      
       cpu->ram[line_no++] = strtoul(line, &pointer, 2);
 
     }
@@ -105,6 +104,10 @@ void cpu_run(struct CPU *cpu)
         reg[operandA] = operandB;
         PC+=3;
         break;
+      case MUL:
+        reg[operandA] = reg[operandA] * reg[operandB];
+        PC+=3;
+        break;
       case PRN:
         printf("%d\n", reg[operandA]);
         PC+=2;
@@ -113,7 +116,8 @@ void cpu_run(struct CPU *cpu)
         running = 0;
         break;
       default:
-        break;
+        fprintf(stderr, "Error setting instruction\n");
+        exit(2);
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
