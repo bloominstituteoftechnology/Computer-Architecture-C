@@ -40,11 +40,17 @@ void cpu_load(struct CPU *cpu)
 /**
  * ALU
  */
+void alu(struct CPU *cpu, enum alu_op *op, unsigned char regA, unsigned char regB)
+{
+  unsigned char *reg = cpu->reg; 
+  switch ((int)op) {
+    case ALU_MUL:
+      reg[regA] *= reg[regB];
       break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
