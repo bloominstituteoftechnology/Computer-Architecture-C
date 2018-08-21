@@ -25,6 +25,18 @@ void handle_HLT(int *running)
 }
 
 /**
+ * CPU Instruction: Halts the CPU and exits emulator
+ * 
+ * @param registers {unsigned char[]} Register array.
+ * @param reg {unsigned char} Register number.
+ * @param immediate {unsigned char} value to be stored in register.
+ */
+void handle_LDI(unsigned char registers[], unsigned char reg, unsigned char immediate)
+{
+  registers[reg] = immediate;
+}
+
+/**
  * Reads from RAM address and stores value into store
  * 
  * @param ram {unsigned char[]} Memory array.
