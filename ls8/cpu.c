@@ -21,24 +21,39 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
  */
 
 //zoom ended
-void cpu_load(struct cpu *cpu)
-{
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+void cpu_load(struct cpu *cpu, char *argv){
+  char* c;
+  char buff[255];
+  char buffer[255];
+  FILE *fp = fopen(argv, "r");
   int address = 0;
+  while(1) {
+      c = fgets(buff, 9, (FILE*) fp);
+      if( feof(fp) ) { 
+         break ;
+      }
+      if((buff[0] == '0' || buff[0] == '1') && (buff[1] == '0' || buff[1] == '1') ){
+        printf("new line :%s\n", c);
+        printf("li :%li\n", strtoul(c, NULL, 2));
+        cpu->ram[address++] = strtoul(c, NULL, 2);
+      }
+   }
+   fclose(fp);
+  
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
