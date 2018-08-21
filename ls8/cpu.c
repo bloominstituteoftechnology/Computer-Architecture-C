@@ -19,8 +19,8 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
  */
 void cpu_load(struct cpu *cpu)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  const unsigned int DATA_LEN = 6;
+  char data[6] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -32,7 +32,7 @@ void cpu_load(struct cpu *cpu)
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < 6; i++) {
     cpu->ram[address++] = data[i];
   }
 
