@@ -26,9 +26,11 @@ void cpu_load(struct cpu *cpu, char *file)
   char line[256];
 
   while (fgets(line, sizeof(line), f)) {
-    int i = 0;
-    printf("%s", line);
-    cpu->ram[address++] = line;
+    char *endptr;
+    unsigned long int new_line;
+
+    new_line = strtoul(line, &endptr, 2);
+    cpu->ram[address++] = new_line;
   }
 
   fclose(f);
