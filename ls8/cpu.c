@@ -73,46 +73,25 @@ void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char dat
 }
 
 /**
- * Converts a decimal to a binary representation
+ * Gets number of operands in instruction, sets them to variables and updates PC
  * 
- * @param d {unsigned char} integer value to convert.
- * @param b {int*} Pointer to array where binary representation is stored.
+ * @param opA {unsigned char*} Pointer to operandA variable.
+ * @param opB {unsigned char*} Pointer to operandB variable.
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
-void decimal_to_binary(unsigned char d, int *b)
+void get_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
 {
-  int n = d;
-  int i = 7;
+  unsigned char ops = cpu->ir >> 6;
 
-  while (n > 0)
-  {
-    b[i] = n % 2;
-    n /= 2;
-    --i;
+  if (ops > 0){
+    cpu->pc++;
+    cpu_ram_read(cpu->ram, cpu->pc, opA);
   }
-}
 
-/**
- * Determines whether binary instruction has one argument
- * 
- * @param binary {int*} Pointer to array where binary representation is stored.
- * 
- * @returns boolean.
- */
-int hasOpA(int *binary)
-{
-  return (binary[0] == 0 && binary[1] == 1) || (binary[0] == 1 && binary[1] == 0);
-}
-
-/**
- * Determines whether binary instruction has second argument
- * 
- * @param binary {int*} Pointer to array where binary representation is stored.
- * 
- * @returns boolean.
- */
-int hasOpB(int *binary)
-{
-  return binary[0] == 1 && binary[1] == 0;
+  if (ops > 1){
+    cpu->pc++;
+    cpu_ram_read(cpu->ram, cpu->pc, opB);
+  }
 }
 
 /**
@@ -166,21 +145,8 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     unsigned char operandA = '\0';
     unsigned char operandB = '\0';
-    int irb[8] = {0};
     cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
-    decimal_to_binary(cpu->ir, irb);
-
-    if (hasOpA(irb))
-    {
-      cpu->pc++;
-      cpu_ram_read(cpu->ram, cpu->pc, &operandA);
-    }
-
-    if (hasOpB(irb))
-    {
-      cpu->pc++;
-      cpu_ram_read(cpu->ram, cpu->pc, &operandB);
-    }
+    get_operands(&operandA, &operandB, cpu);
 
     switch (cpu->ir)
     {
