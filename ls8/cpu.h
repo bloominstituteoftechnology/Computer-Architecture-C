@@ -7,7 +7,7 @@ struct cpu {
   // PC
   unsigned char PC;
   // registers (array)
-  unsigned char registers[8];
+  unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
 };
@@ -16,6 +16,16 @@ struct cpu {
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
+
+#define SP 5
+
+enum alu_op {
+  ALU_MUL,
+  ALU_ADD
+};
+
+#define ADDR_PROGRAM_ENTRY 0x00 
+#define ADDR_EMPTY_STACK 0xF4 
 
 #define LDI  0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
@@ -31,7 +41,7 @@ struct cpu {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
