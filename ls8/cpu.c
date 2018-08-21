@@ -30,17 +30,17 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op)
-  {
-  case ALU_MUL:
-    // TODO
-    break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op)
+//   {
+//   case ALU_MUL:
+//     // TODO
+//     break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -123,6 +123,7 @@ void handle_instruction(struct cpu *cpu)
   case XOR:
   case SHL:
   case SHR:
+    printf("ALU-instruction. HANDLER FOUND\n");
     alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
     break;
   // PC mutators
