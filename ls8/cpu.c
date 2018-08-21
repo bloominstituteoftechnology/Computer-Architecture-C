@@ -59,6 +59,7 @@ void cpu_load(char* arg, struct CPU *cpu)
       cpu->ram[line_no++] = strtoul(line, &pointer, 2);
 
     }
+    fclose(fp);
   }
 
   // TODO: Replace this with something less hard-coded
