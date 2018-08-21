@@ -1,6 +1,6 @@
 #include "cpu.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void handle_instruction(struct cpu *cpu);
@@ -9,7 +9,7 @@ void handle_instruction(struct cpu *cpu);
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  printf("File path %s\n", file);
+  printf("File path: '%s'\n", file);
   // const int DATA_LEN = 6;
   // char data[DATA_LEN] = {
   //     // From print8.ls8
@@ -37,17 +37,31 @@ void cpu_load(struct cpu *cpu, char *file)
     exit(1);
   }
 
-  char instruction = 0b0;
-  // I get reference on how to read lines form a 'fd' from : https://stackoverflow.com/questions/3501338/c-read-file-line-by-line
+  char ram_index = 0;
+  // I get reference on how to read lines from a 'FILE pointer' from : https://stackoverflow.com/a/3501681/9355810
   char *line = NULL;
-  size_t line_lenght = 0;
-  ssize_t read;
+  size_t lenght = 0; // I do not understand what this variable does in 'getline()'
+  ssize_t line_length;
 
-  while ((read = getline(&line, &line_lenght, file_d)) != -1)
+  unsigned long binary_code;
+  char *end_of_binary_number;
+
+  while ((line_length = getline(&line, &lenght, file_d)) != -1)
   {
-    printf("Retrieved line of length %zu :\n", read);
-    printf("%s", line);
+    printf("Retrieved line of length %zu :\n", line_length);
+    printf("File line: %s", line);
+    if (line_length > 8)
+    {
+      binary_code = strtoul(line, &end_of_binary_number, 2);
+      printf("Binary: %lu\n", binary_code);
+      if (line != end_of_binary_number)
+      {
+        printf("*line == *end_of_binary_number : %d\n\n", line == end_of_binary_number);
+        cpu->ram[ram_index++] = strtoul(line, NULL, 2);
+      }
+    }
   }
+  printf("ram_index: %d\n\n", ram_index);
 }
 
 /**
