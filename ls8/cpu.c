@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /**
  * THIS IS WHAT WILL HAPPEN LATER
@@ -37,7 +38,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index)
 }
 
 // should this return something or just write?
-unsigned char cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
     return cpu->ram[address] = value;
 }
@@ -68,36 +69,62 @@ void cpu_run(struct cpu *cpu)
 
     while (running)
     {
+        // printf("1: Entered While Loop\n"); //==================
         // === STEP 3 TODO ===
         // 1. Get the value of the current instruction (in address PC).
-        unsigned char IR = cpu_ram_read(cpu, PC);
-        unsigned char operandA = cpu_ram_read(cpu, PC + 1);
-        unsigned char operandB = cpu_ram_read(cpu, PC + 2);
-
-        int numArgs = (IR >> 6) + 1;
-
         // 2. switch() over it to decide on a course of action.
+        // 3. Do whatever the instruction should do according to the spec.
+        // 4. Move the PC to the next instruction.
+
+        //Unstructure variables from cpu struct
+        unsigned char IR = cpu->IR;
+        unsigned char MAR = cpu->MAR; // operandA == MAR
+        unsigned char MDR = cpu->MDR; // operandB == MDR
+
+        // Set IR using cpu_ram_read
+        IR = cpu_ram_read(cpu, PC);
+
+        //get numArgs using bitwise rightshift on IR
+        int numArgs = (IR >> 6) + 1;
+        // printf("numArgs: %d\n", numArgs);
+
+        // Switch to set MDR and MAR so we only read when we need to
+        switch (numArgs)
+        {
+        case 3:
+        // printf("2: MDR\n");
+            MDR = cpu_ram_read(cpu, PC + 2);
+        case 2:
+        // printf("2.5: MAR\n");
+            MAR = cpu_ram_read(cpu, PC + 1);
+            break;
+        }
+
         switch (IR)
         {
         // STEP 4
         case HLT:
+            // printf("4: HLT\n");
             running = 0;
             break;
         // STEP 5
         case LDI:
-            registers[operandA] = operandB;
+            // printf("5: LDI\n");
+            registers[MAR] = MDR;
             PC += numArgs;
             break;
         // STEP 6
         case PRN:
-            printf("%d\n", registers[operandA]);
+            // printf("6: PRN\n");
+            printf("%d\n", registers[MAR]);
             PC += numArgs;
             break;
         default:
+            // from solution lecture
+            printf("unknown instructions: %02x at %p\n", IR, cpu->ram);
             running = 0;
+            exit(2);
         }
-        // 3. Do whatever the instruction should do according to the spec.
-        // 4. Move the PC to the next instruction.
     }
 }
 
@@ -107,7 +134,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
     // TODO: Initialize the PC and other special registers
-   // cpu->PC = 0;
+    cpu->PC = 0;
 
     // TODO: Zero registers and RAM
+    // for loop to put 0 value into every position ..... or just use memset
+    memset(cpu->registers, 0, sizeof cpu->registers);
+    memset(cpu->ram, 0, sizeof cpu->ram);
 }
