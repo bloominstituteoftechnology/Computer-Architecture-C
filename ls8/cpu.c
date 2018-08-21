@@ -1,15 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
 #include "cpu.h"
 
-//fing cpu run
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
-
-//fing cpu write
 
 // void cpu_ram_write(struct cpu *cpu, unsigned char address)
 // {
@@ -19,30 +18,59 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-
-//zoom ended
-void cpu_load(struct cpu *cpu)
+void throwHandsUpAndGiveUp(void)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  perror("Error");
+  exit(1);
+}
 
-  int address = 0;
+void cpu_load(struct cpu *cpu, char *argv[])
+{
+  // printf("Reading file: %s\n\n", argv[1]);
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (argv[1] == NULL) {
+    fprintf(stderr, "No file specified.\nUsage: ./ls8 <filename>\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  FILE *fp = fopen(argv[1], "r");
+  char *strBuff = 0;
+  char *token;
+  long length;
+  int address;
+
+  // Shamelessly copied from 
+  // https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
+
+  if (!fp) throwHandsUpAndGiveUp(); // Error if FP is null
+
+  if ( fseek(fp, 0, SEEK_END)  != 0)  throwHandsUpAndGiveUp(); 
+       length = ftell(fp);
+  if ( length == -1 )                 throwHandsUpAndGiveUp();
+  if ( fseek(fp, 0, SEEK_SET)  != 0)  throwHandsUpAndGiveUp();
+
+  strBuff = malloc(length + 1);
+
+  if (strBuff) fread(strBuff, 1, length, fp);
+
+  fclose(fp);
+  strBuff[length] = '\0';
+
+  if (strBuff)
+  {
+    // start to process your data / extract strings here...
+    token = strtok(strBuff, " \r\n");
+    address = 0;
+
+    while (token != NULL) {
+      if (token[0] == '0' || token[0] == '1') {
+        cpu->ram[address++] = strtoul(token, NULL, 2);
+      }
+      token = strtok(NULL, " \r\n");
+    }
+  }
 }
-//boooooooooo
+
 /**
  * ALU
  */
@@ -98,6 +126,7 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
     }
+  }
 }
 
 /**
