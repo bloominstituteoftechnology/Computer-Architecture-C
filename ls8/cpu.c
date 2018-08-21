@@ -57,10 +57,11 @@ void cpu_load(struct cpu *cpu, char *argv[])
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->registers;
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu->registers[regA] *= cpu->registers[regB];
+      reg[regA] *= reg[regB];
       break;
     // TODO: implement more ALU ops
     default:
@@ -91,7 +92,7 @@ void cpu_run(struct cpu *cpu)
     {
         case MUL:
             alu(cpu, ALU_MUL, operandA, operandB);
-            cpu->PC += 1;
+            cpu->PC += 3;
             break;
         case HLT:
             running = 0;
@@ -116,6 +117,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  
+  cpu->PC = 0;
+  cpu->registers = (unsigned char *) calloc(8, sizeof(unsigned char));
+  cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
+// I got some help from a classmate on the calloc stuff, but now that I see it, it makes sense
+// since calloc sets the allocated memory to zero: https://www.tutorialspoint.com/c_standard_library/c_function_calloc.htm
   // TODO: Zero registers and RAM
 }

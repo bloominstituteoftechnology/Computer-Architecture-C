@@ -5,8 +5,8 @@
 struct cpu {
   // TODO
   unsigned char PC; //PC has address of next instruction to be executed
-  unsigned char registers[8];
-  unsigned char ram[256];
+  unsigned char *registers;
+  unsigned char *ram;
 };
 
 enum alu_op
