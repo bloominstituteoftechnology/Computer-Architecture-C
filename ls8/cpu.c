@@ -76,8 +76,9 @@ void cpu_load(struct cpu *cpu, char *filename)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
-    case ALU_LDI:
+    case ALU_MUL:
       // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -110,6 +111,7 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
       case LDI: 
+        // printf("LDI : %x R%d %d\n",IR, argv_a, argv_b);
         cpu->registers[argv_a] = argv_b;
         // cpu->PC += 3;  // hard code before the bitwise setup `cpu->PC = IR_size;`
         break;
@@ -122,6 +124,10 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         running = 0;
         // cpu->PC += 1;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, argv_a, argv_b);
         break;
 
       default:
