@@ -4,23 +4,15 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char* data)
+void cpu_load(struct cpu *cpu, char* data, int DATA_LEN)
 {
-  const int DATA_LEN = sizeof(data)/sizeof(data[0]);
-  // char data[6] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
+  // printf("Length of data: %lu\n", ( sizeof(data)/sizeof(data[0]) ));
 
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
+    // printf("ram[%d] = %d\n", i, cpu->ram[i]);
   }
 
   // TODO: Replace this with something less hard-coded
@@ -43,7 +35,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -67,16 +59,24 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     switch(IR)
     {
-      case LDI: cpu->registers[operandA] = operandB;
+      case LDI:
+        cpu->registers[operandA] = operandB;
         break;
 
-      case PRN: printf("%d\n", cpu->registers[operandA]);
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
         break;
 
-      case HLT: running = 0;
+      case HLT:
+        running = 0;
         break;
 
-      default: running = 0;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      default:
+        running = 0;
         break;
     }
 

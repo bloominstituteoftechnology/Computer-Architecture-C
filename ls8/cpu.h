@@ -26,11 +26,12 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 #define HLT  0b00000001
 #define PRN  0b01000111
+#define MUL  0b10100010
 
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu, char* data);
+extern void cpu_load(struct cpu *cpu, char* data, int DATA_LEN);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
