@@ -26,27 +26,29 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index){
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char data){
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char data)
+{
   cpu->ram[index] = data;
 }
 
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      // TODO
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -66,20 +68,19 @@ void cpu_run(struct cpu *cpu)
     switch(IR)
     {
       case LDI: cpu->registers[operandA] = operandB;
-        cpu->PC += 3;
         break;
 
       case PRN: printf("%d\n", cpu->registers[operandA]);
-        cpu->PC += 2;
         break;
 
       case HLT: running = 0;
-        cpu->PC += 1;
         break;
 
       default: running = 0;
         break;
     }
+
+    cpu->PC += (IR >> 6) + 1;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 

@@ -7,9 +7,14 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  int PC;
+  unsigned char PC;
   unsigned char registers[8];
   unsigned char ram[256];
+};
+
+// ALU operations
+enum alu_op {
+  ALU_MUL
 };
 
 // Instructions
