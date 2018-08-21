@@ -7,9 +7,9 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned char PC;
-  unsigned char *registers;
-  unsigned char *ram;
+  int PC;
+  unsigned char registers[8];
+  unsigned char ram[256];
 };
 
 // Instructions
