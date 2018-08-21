@@ -13,9 +13,9 @@ int main(int argc, char **argv)
     fprintf(stderr, "usage: ./ls8 + example/<programfile> \n");
   }
   else {
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+    cpu_init(&cpu);
+    cpu_load(&cpu);
+    cpu_run(&cpu);
   }
 
 
