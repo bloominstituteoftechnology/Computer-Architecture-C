@@ -1,29 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu)
-{
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
-
-  // TODO: Replace this with something less hard-coded
-}
 
 // read RAM
 unsigned char cpu_ram_read(struct cpu *cpu, int address)
@@ -36,6 +14,62 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned cha
 {
   return cpu->ram[address] = value;
 }
+
+/**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
+void cpu_load(struct cpu *cpu, char *filename)
+{
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  unsigned char address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  // TODO: Replace this with something less hard-coded
+
+  unsigned char line[1024];   // set buffer or line of PC with size of 1024
+
+  FILE *fp;  // need stdio.h
+
+  fp = fopen(filename, "r");  // r = open the file for reading
+
+  if (fp == NULL) {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
+  }
+
+  while(fgets(line, sizeof line, fp) != NULL)
+  {
+    // printf("test %s\n", line);
+    unsigned char *end;   // cut it before #
+    unsigned char b_number; // return the binary part
+
+    b_number = strtoul(line, &end, 2);
+    // printf("strtoul is %x\n", b_number);
+
+    // if the line is empty which mean the beginning of the line has the same pointer (end), continue to the next line. AKA skip the blank line.
+    if (line == end)
+    {
+      continue;
+    }
+
+    cpu_ram_write(cpu, address++, b_number);
+  }
+}
+
+
 /**
  * ALU
  */

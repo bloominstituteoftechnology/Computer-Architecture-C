@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   }
 
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu, filename);
   cpu_run(&cpu);
 
 
