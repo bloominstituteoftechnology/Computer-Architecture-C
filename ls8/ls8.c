@@ -6,11 +6,11 @@
  */
 int main(void)
 {
-  struct cpu cpu;
+  struct cpu my_cpu;
 
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+  cpu_init(&my_cpu);
+  cpu_load(&my_cpu);
+  cpu_run(&my_cpu);
 
   return 0;
 }
