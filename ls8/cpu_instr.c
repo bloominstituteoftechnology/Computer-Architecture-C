@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "cpuinstructions.h"
+#include "cpu_instr.h"
 
 /**
  * CPU Instruction: Halts the CPU and exits emulator

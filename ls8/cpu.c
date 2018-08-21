@@ -1,5 +1,5 @@
 #include "cpu.h"
-#include "cpuinstructions.h"
+#include "cpu_instr.h"
 
 /**
  * ALU
