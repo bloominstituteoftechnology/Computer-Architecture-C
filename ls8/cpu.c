@@ -30,7 +30,7 @@ void cpu_load(struct cpu *cpu)
 unsigned char cpu_ram_read(struct cpu *cpu, int index){
   return cpu->ram[index];
 }
-
+void cpu_ram_write(struct cpu *cpu);
 
 
 /**
@@ -69,9 +69,11 @@ void cpu_run(struct cpu *cpu)
   unsigned char *reg = cpu->reg;
   unsigned char PC = (int)cpu->PC;
   int running = 1; // True until we get a HLT instruction
-
+  
   while (running) {
     unsigned char IR = cpu_ram_read(cpu, PC);
+    int difference = (IR >> 6) + 1; // shifts the number 6 places to the right (leaving last two places)
+    // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
 
@@ -79,11 +81,11 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:
         reg[operandA] = operandB;
-        PC+=3;
+        PC+=difference;
         break;
       case PRN:
         printf("%d\n", reg[operandA]);
-        PC+=2;
+        PC+=difference;
         break;
       case HLT:
         running = 0;
@@ -106,8 +108,6 @@ void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
 
-  memset(cpu->reg, 0, sizeof cpu->reg);
-  memset(cpu->ram, 0, sizeof cpu->ram);
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
