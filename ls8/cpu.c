@@ -14,11 +14,11 @@ void cpu_load(struct cpu *cpu, char *file)
   }
 
   int index = 0;
-  char buffer[256];
+  char str[256];
   char *pointer;
 
-  while(fgets(buffer, sizeof(buffer), fp) != NULL) {
-    cpu->ram[index++] = strtoul(buffer, &pointer, 2);
+  while(fgets(str, sizeof(str), fp) != NULL) {
+    cpu->ram[index++] = strtoul(str, &pointer, 2);
   }
 
 };
@@ -39,7 +39,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
       break;
 
     case ALU_ADD:
