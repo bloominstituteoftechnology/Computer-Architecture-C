@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 //from solution lecture
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -16,7 +17,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *argv[]) // needs to take an argument
+void cpu_load(struct cpu *cpu, char *argv[])
 {
 
 //const int DATA_LEN = 6;
@@ -32,15 +33,17 @@ void cpu_load(struct cpu *cpu, char *argv[]) // needs to take an argument
   FILE *fp = fopen(argv[1], "r"); // https://www.tutorialspoint.com/c_standard_library/c_function_fopen.htm
   int address = 0;
   char buffer[256];
+  char *pointer;
   // if file not found, error
   if (fp == NULL)
   {
     fprintf(stderr, "fail\n");
     exit(1);
   }
-  while fgets(buffer, sizeof(buffer), fp))
+  while (fgets(buffer, sizeof(buffer), fp) != NULL)
   {
-    printf("hello\n");
+    cpu->ram[address++] = strtoul(buffer, &pointer, 2); // convert string to unsigned long integer, base 2
+    // store string in the pointer
   }
 //  for (int i = 0; i < DATA_LEN; i++) {
 //    cpu->ram[address++] = data[i];
