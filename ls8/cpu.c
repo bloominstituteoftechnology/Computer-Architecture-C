@@ -48,70 +48,61 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
       cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
     case ALU_ADD:
-      cpu->reg[regA] = regA + regB;
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       printf("ADD instruciton for ALU provided\n"); 
       break;
     default:
       printf("No instruciton for ALU provided\n"); 
       break;
-
-    // TODO: implement more ALU ops
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1;
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
-
-    // instruction to follow
+    // Read Instructions from RAM
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
-    // where to store the following value
+
+    // Read additional operands 
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
-    // what to store
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
     switch(IR){
       case LDI:
+        // Set register to int
         cpu->reg[operandA] = operandB;
         break;
       case PRN:
+        // print register
         printf("%d\n", cpu->reg[operandA]);
         break;
       case HLT:
+        // HALT
         running = 0;
         break;
       case MUL:
+        // Call ALU to execute MUL instruction
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
     }
+    // add to the PC according to the executed instruction
+    // using >> bitwise shifting of the binary instruction
     cpu->pc += (IR >> 6) + 1;
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
+  // Zeroing out the pc, registers and ram
   cpu->pc = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->RAM, 0, sizeof(cpu->RAM));
-
 }
