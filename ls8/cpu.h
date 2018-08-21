@@ -89,7 +89,7 @@ struct CPU {
 
 // Function declarations
 
-extern void cpu_load(struct CPU *cpu);
+extern void cpu_load(char *arg, struct CPU *cpu);
 extern void cpu_init(struct CPU *cpu);
 extern void cpu_run(struct CPU *cpu);
 extern unsigned char cpu_ram_read(struct CPU *cpu, unsigned char index);
