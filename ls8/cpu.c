@@ -100,17 +100,16 @@ void push(struct cpu *cpu, unsigned char regA)
 {
   cpu->reg[SP] -= 1;
   // TODO add value of regA to mem at sp
-  write_cpu_ram(cpu, cpu->reg[SP], cpu->reg[regA]);
+  write_cpu_ram(cpu, cpu->reg[SP], regA);
   // printf("SP = %x\n", cpu->reg[SP]);
 }
 
-unsigned char pop(struct cpu *cpu, unsigned char regA)
+unsigned char pop(struct cpu *cpu)
 {
   // TODO add value inside mem at sp to regA
   unsigned char pop_reg = read_cpu_ram(cpu, cpu->reg[SP]);
-  cpu->reg[regA] = pop_reg;
   cpu->reg[SP] += 1;
-  // printf("SP = %x\n", cpu->reg[SP]);
+  // printf("pop_reg = %d\n", pop_reg);
   return pop_reg;
 }
 
@@ -125,14 +124,12 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
 
-    // unsigned char IR = cpu->ram[cpu->PC];
-    // unsigned char operandA = cpu->ram[cpu->PC + 1];
-    // unsigned char operandB = cpu->ram[cpu->PC + 2];
     unsigned char IR = read_cpu_ram(cpu, cpu->PC);
     unsigned char operandA = read_cpu_ram(cpu, cpu->PC + 1);
     unsigned char operandB = read_cpu_ram(cpu, cpu->PC + 2);
     int needed_operands = (IR >> 6);
-
+    unsigned char poppen;
+    // printf("what PC is = %d\n", cpu->PC);
     switch (IR){
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -145,14 +142,25 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case PUSH:
-        push(cpu, operandA);
+        push(cpu, cpu->reg[operandA]);
         break;
       case POP:
-        pop(cpu, operandA);
+        cpu->reg[operandA] = pop(cpu);
         break;
       case HLT:
         running = 0;
         break;
+      case CALL:
+        push(cpu, (cpu->PC + 1 + needed_operands));
+        // printf("this is the operandA in CALL %d\n", cpu->reg[operandA]);
+        // printf("this value in CALL being pushed %d\n", (cpu->PC + 1 + needed_operands));
+        cpu->PC = cpu->reg[operandA];
+        continue;
+      case RET:
+        poppen = pop(cpu);
+        // printf("%d\n", poppen);
+        cpu->PC = poppen;
+        continue;
     }
     // TODO
     // 1. Get the value of the current instruction (in address PC).
