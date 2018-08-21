@@ -4,28 +4,44 @@
 #include "cpu.h"
 
 /**
- * Load the binary bytes from a .ls8 source file into a RAM array
+  Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
 
-  int address = 0;
+//  * this was working, 
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   10000010 # LDI R0,8, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // int address = 0;
 
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+  
   // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  char buf[1024];
+  int address = 0;
+  fp = fopen(filename, "r");
+
+  while (fgets(buf, sizeof(buf), fp) != NULL)
+  {
+    buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
+    unsigned char data = strtol(buf,0,2);
+    cpu->ram[address] = data;
+    address += 1;
+    // printf("this is what data is %d\n", data);
+    // printf("this is what address is %d\n", address);
+  }
 }
 
 /**
@@ -71,6 +87,9 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
         break;
+      case MUL:
+        cpu->reg[operandA] *= cpu->reg[operandB];
+        break;
       case HLT:
         running = 0;
         break;
@@ -80,8 +99,8 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    printf("what PC is = %d\n", cpu->PC);
-    printf("what is IR %d\n",IR);
+    // printf("what PC is = %d\n", cpu->PC);
+    // printf("what is IR %d\n",IR);
     cpu->PC += 1 + needed_operands;
   }
 }
