@@ -64,6 +64,23 @@ void cpu_run(struct CPU *cpu)
         unsigned char operandB = cpu_ram_read(cpu, PC + 2);
 
     // 2. switch() over it to decide on a course of action.
+
+    switch(IR)
+    {
+      case LDI:
+        reg[operandA] = operandB;
+        PC+=3;
+        break;
+      case PRN:
+        printf("%d\n", reg[operandA]);
+        PC+=2;
+        break;
+      case HLT:
+        running = 0;
+        break;
+      default:
+        break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
