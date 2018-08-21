@@ -53,22 +53,33 @@ void cpu_run(struct cpu *cpu)
   unsigned char *ram = cpu->ram;
 
   unsigned char PC = cpu->PC;
+  unsigned char instruction_operands;
+  cpu->IR = ram[PC];
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    cpu->IR = ram[PC];
+    // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
     // printf("PC %d\nIRd %d\n", PC, cpu->IR);
     // printf("PC %d\nIRc %c\n", PC, cpu->IR);
 
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
     handle_instruction(cpu);
-    // 4. Move the PC to the next instruction.
-
-    running = 0;
+    if (cpu->IR == '\0')
+    {
+      break;
+    }
+    // printf("IR = %d\n", cpu->IR);
+    instruction_operands = cpu->IR >> 6;
+    // printf("IR >> 6 = %d\n", cpu->IR);
+    PC = cpu->PC = PC + instruction_operands + 1;
+    // printf("cpu->PC next instruction index: %d\n", cpu->PC);
+    printf("PC next instruction index: %d\n", PC);
+    cpu->IR = ram[PC];
   }
+  printf("\nCPU_RUN END\n");
 }
 
 /**
@@ -93,7 +104,7 @@ void cpu_init(struct cpu *cpu)
 */
 void handle_instruction(struct cpu *cpu)
 {
-  printf("IR %d\n", cpu->IR);
+  printf("\n\nCURRENT IR: %d\n", cpu->IR);
   switch (cpu->IR)
   {
     // ALU
@@ -126,18 +137,24 @@ void handle_instruction(struct cpu *cpu)
   // Other
   case NOP:
   case HLT:
+    printf("HLT. HANDLER FOUND\n");
+    cpu->IR = '\0';
+    break;
   case LDI:
-    // printf("LDI HANDLER FOUND\n");
+    printf("LDI. HANDLER FOUND\n");
     cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
-    // printf("LDI number set: %d\n", cpu->reg[cpu->ram[cpu->PC + 1]]);
+    printf("LDI. number set to: %d, in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
   case LD:
   case ST:
   case PUSH:
   case POP:
   case PRN:
+    printf("PRN. HANDLER FOUND\n");
+    printf("PRN. PRINTED Number %d in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
+    break;
   case PRA:
   default:
-    printf("The %d IR instruction has no handler\n", cpu->IR);
+    printf("The IR %d-instruction has no handler\n", cpu->IR);
   }
 };
