@@ -9,27 +9,7 @@ void handle_instruction(struct cpu *cpu);
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  printf("File path: '%s'\n", file);
-  // const int DATA_LEN = 6;
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
-  int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
-
+  printf("CPU_LOAD: File path is: '%s'\n", file);
   FILE *file_d = fopen(file, "r");
   if (file_d == NULL)
   {
@@ -37,7 +17,7 @@ void cpu_load(struct cpu *cpu, char *file)
     exit(1);
   }
 
-  char ram_index = 0;
+  int ram_index = 0;
   // I get reference on how to read lines from a 'FILE pointer' from : https://stackoverflow.com/a/3501681/9355810
   char *line = NULL;
   size_t lenght = 0; // I do not understand what this variable does in 'getline()'
@@ -48,20 +28,21 @@ void cpu_load(struct cpu *cpu, char *file)
 
   while ((line_length = getline(&line, &lenght, file_d)) != -1)
   {
-    printf("Retrieved line of length %zu :\n", line_length);
-    printf("File line: %s", line);
+    // printf("Retrieved line of length %zu :\n", line_length);
+    // printf("File line: %s", line);
     if (line_length > 8)
     {
       binary_code = strtoul(line, &end_of_binary_number, 2);
-      printf("Binary: %lu\n", binary_code);
+      // printf("Binary: %lu\n", binary_code);
       if (line != end_of_binary_number)
       {
-        printf("*line == *end_of_binary_number : %d\n\n", line == end_of_binary_number);
+        // printf("*line == *end_of_binary_number : %d\n\n", line == end_of_binary_number);
+        printf("CPU_LOAD: **** Adding entry to RAM ****\n");
         cpu->ram[ram_index++] = strtoul(line, NULL, 2);
       }
     }
   }
-  printf("ram_index: %d\n\n", ram_index);
+  printf("ram_index after reading '%s': %d\n\n", file, ram_index);
 }
 
 /**
@@ -192,6 +173,7 @@ void handle_instruction(struct cpu *cpu)
   case POP:
   case PRN:
     printf("PRN. HANDLER FOUND\n");
+    printf("%d\n", cpu->reg[cpu->ram[cpu->PC + 1]]);
     printf("PRN. PRINTED Number %d in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
   case PRA:
