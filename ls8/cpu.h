@@ -14,9 +14,6 @@ struct cpu {
 
   // Memory
   unsigned char ram[256];
-
-  // Stack
-  unsigned char sp;
 };
 
 // Instructions
