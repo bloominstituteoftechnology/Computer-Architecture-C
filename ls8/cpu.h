@@ -8,6 +8,7 @@ struct cpu {
   // registers (array)
   // ram (array)
   int PC;
+  int SP;
   unsigned char *registers;
   unsigned char *ram;
 };
@@ -21,6 +22,8 @@ struct cpu {
 #define PRN  0b01000111
 #define HLT  0b00000001
 #define MUL  0b10100010
+#define PUSH 0b01000101
+#define POP  0b01000110
 /* ALU Operations */
 enum alu_op {
   // ALU_ADD,

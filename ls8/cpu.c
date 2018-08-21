@@ -5,6 +5,8 @@
 #include "cpu.h"
 #include "handlers.h"
 
+#define DEBUG 0
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -48,6 +50,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
     while (token != NULL) {
       if (token[0] == '0' || token[0] == '1') {
+        // printf("token at address %i: %s\n", address, token);
         cpu->ram[address++] = strtoul(token, NULL, 2);
       }
       token = strtok(NULL, " \r\n");
@@ -58,11 +61,16 @@ void cpu_load(struct cpu *cpu, char *argv[])
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op)
 {
+  int regA;
+  int regB;
+
   switch (op) {
     case ALU_MUL:
       // TODO
+      regA = cpu_ram_read(cpu, cpu->PC + 1);
+      regB = cpu_ram_read(cpu, cpu->PC + 2);
       handleALU_MUL(cpu, regA, regB);
       break;
 
@@ -77,11 +85,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR;
-  // unsigned char val;
-  // int addrLDI;
-  // int addrPRN;
 
-//what iz life?
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -99,13 +103,32 @@ void cpu_run(struct cpu *cpu)
         handlePRN(cpu);
         break;
       case MUL:
-        alu(cpu, ALU_MUL, cpu_ram_read(cpu, cpu->PC + 1), cpu_ram_read(cpu, cpu->PC + 2));
+        alu(cpu, ALU_MUL);
+        break;
+      case PUSH:
+        handlePUSH(cpu);
+        break;
+      case POP:
+        handlePOP(cpu);
         break;
       case HLT:
         running = 0;
         break;
+      default:
+        fprintf(stderr, "Unkown instruction at %02x: %02x\n", cpu->PC, IR);
+        exit(2);
     }
   }
+
+  #if DEBUG
+  // Print first 16 positions of the stack in memory
+  for (int q = 0xF3; q > (0xF3 - 0x10); q--) {
+    printf("stack @ addr:%i: %i\n", q, cpu_ram_read(cpu, q));
+  }
+  // Print current stack pointer
+  // At 0th place, SP should be 0xF4/244;
+  printf("current stack pointer: %i\n", cpu->SP);
+  #endif
 }
 
 /**
@@ -115,6 +138,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->SP = 0xF4;
   // TODO: Zero registers and RAM
   cpu->registers = (unsigned char *) calloc(8, sizeof(unsigned char));
   cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
