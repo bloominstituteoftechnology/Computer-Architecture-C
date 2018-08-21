@@ -45,6 +45,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       // TODO
       break;
 
+    case ALU_ADD:
+      break;
+
     // TODO: implement more ALU ops
   }
 }
