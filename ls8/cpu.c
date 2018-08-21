@@ -1,11 +1,23 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) 
+{
+  return cpu->ram[address];
+}
+ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
+{
+    cpu->ram[address] = value;
+    cpu->ram[address] = value;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu* cpu)
 {
   const int DATA_LEN = 6;
+
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -36,6 +48,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      break;
   }
 }
 
@@ -52,7 +66,28 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-  }
+
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
+
+    switch(IR) {    
+    case LDI:
+        cpu->reg[operandA] = operandB;
+        cpu->pc += 3;
+        break;
+    case PRN:
+        printf("print8: %d", cpu->reg[operandA]);
+        cpu->pc += 2;
+        break;
+    case HLT:
+        running = 0;
+        break;
+    default:
+        printf("unknown instruction: %02x, %02x", cpu->pc, IR);
+        exit(2);
+    }
+  }	  
 }
 
 /**
