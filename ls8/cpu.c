@@ -1,6 +1,9 @@
+#include <stdlib.h> // Exit is stored here.
+#include <stdio.h> // Because you're using printf() without a prototype.
 #include "cpu.h"
 
 // Helper functions for efficiency -- to prevent repeating yourself.
+// For better readability and detect bugs.
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -46,6 +49,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       // TODO
       break;
 
+    case ALU_ADD:
+      // TODO
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -60,9 +67,40 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    // Instruction or opcode.
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+
+    // Its arguments or operands.
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+
+    // printf("TRACE: %02x: %02x\n", cpu->pc, IR);
+
     // 2. switch() over it to decide on a course of action.
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        cpu->pc += 3;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->pc += 2; 
+        break;
+        
+      case HLT:
+        running = 0;
+        break;
+
+      default:
+        printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
+        exit(2);
+    }
+
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
   }
 }
 
@@ -72,6 +110,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  // Loads the bytes in address 0.
+  cpu->pc = 0;
 
   // TODO: Zero registers and RAM
 }
