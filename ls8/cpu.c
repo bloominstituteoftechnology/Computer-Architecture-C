@@ -60,22 +60,18 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
+    // Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
 
-    // 2. switch() over it to decide on a course of action.
     switch(IR) {
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->pc += 3;
         break;
 
       case PRN:
         printf("print8: %d", cpu->registers[operandA]);
-        cpu->pc += 2;
         break;
 
       case HLT:
@@ -86,10 +82,10 @@ void cpu_run(struct cpu *cpu)
         printf("unknown instruction: %02x, %02x", cpu->pc, IR);
         exit(2);
     }
-  }
 
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.  }
+    // Move the PC to the next instruction.
+    cpu->pc += (IR >> 6) + 1;
+  }
 }
 
 /**
