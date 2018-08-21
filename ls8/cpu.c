@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
   
   // TODO: cpu.c cpu_load:  Replace this with something less hard-coded
   // TODO: cpu.c line 41: implement ALU ops
