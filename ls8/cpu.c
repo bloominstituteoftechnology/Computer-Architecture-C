@@ -40,10 +40,6 @@ void cpu_load(struct cpu *cpu, char *argv[])
     }
   }
 
-
-/**
- * ALU
- */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
@@ -62,6 +58,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 void cpu_run(struct cpu *cpu)
 {
+  int sp = 244;
   int running = 1;
 
   while (running) {
@@ -73,6 +70,14 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
     switch(IR){
+      case PUSH:
+        sp--;
+        cpu->RAM[sp] = cpu->reg[operandA];
+        break;
+      case POP:
+        if(sp == 244) fprintf(stderr, "Can't pop off an empty stack!\n");
+        cpu->reg[operandA] = cpu->RAM[sp++];
+        break;
       case LDI:
         // Set register to int
         cpu->reg[operandA] = operandB;
