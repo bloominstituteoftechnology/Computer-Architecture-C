@@ -66,19 +66,17 @@ void cpu_run(struct cpu* cpu)
   unsigned int next_instruction;
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
     program_counter      = cpu->pc;
     // printf("\nProgram Counter: %d\n\n", program_counter);
     instruction_register = cpu_ram_read(cpu, cpu->pc);
     // printf("\nIR: %d\n\n", instruction_register);
-
-    // 2. switch() over it to decide on a course of action.
+    
     switch(instruction_register >> 6)
     {
         case 1:
             // printf("1");
 
+            next_instruction = 2;
             operandA = cpu_ram_read(cpu, cpu->pc + 1);
 
             switch(instruction_register)
@@ -118,9 +116,6 @@ void cpu_run(struct cpu* cpu)
     }
     
     cpu->pc = cpu->pc + next_instruction;
-    
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
