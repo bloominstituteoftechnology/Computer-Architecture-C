@@ -55,6 +55,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     printf("ALU_MUL: HANDLER FOUND\n");
+    printf("regA = %d and regB = %d\n", regA, regB);
+    cpu->reg[cpu->ram[cpu->PC + 1]] = regA * regB;
+    printf("Reg-index %d, set to %d * %d = %d\n", cpu->ram[cpu->PC + 1], regA, regB, cpu->reg[cpu->ram[cpu->PC + 1]]);
     break;
     // TODO: implement more ALU ops
   }
@@ -135,7 +138,7 @@ void handle_instruction(struct cpu *cpu)
   // case SUB:
   case MUL:
     printf("ALU-MUL. HANDLER FOUND\n");
-    alu(cpu, ALU_MUL, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
+    alu(cpu, ALU_MUL, cpu->reg[cpu->ram[cpu->PC + 1]], cpu->reg[cpu->ram[cpu->PC + 2]]);
     break;
   // case DIV:
   // case MOD:
