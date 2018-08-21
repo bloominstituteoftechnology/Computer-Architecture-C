@@ -48,17 +48,17 @@ void cpu_load(struct cpu *cpu, char *file)
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op)
-//   {
-//   case ALU_MUL:
-//     // TODO
-//     break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -123,41 +123,45 @@ void cpu_init(struct cpu *cpu)
 */
 void handle_instruction(struct cpu *cpu)
 {
-  printf("\n\nCURRENT IR: %d\n", cpu->IR);
+  printf("\n\nCURRENT PC: %d\n", cpu->PC);
+  printf("CURRENT IR: %d\n", cpu->IR);
   switch (cpu->IR)
   {
-    // ALU
+    /* ALU */
   case ADD:
-  case SUB:
-  case MUL:
-  case DIV:
-  case MOD:
-  case INC:
-  case DEC:
-  case CMP:
-  case AND:
-  case NOT:
-  case OR:
-  case XOR:
-  case SHL:
-  case SHR:
-    printf("ALU-instruction. HANDLER FOUND\n");
+    printf("ALU-ADD. HANDLER FOUND\n");
     // alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
     break;
-  // PC mutators
-  case CALL:
-  case RET:
-  case INT:
-  case IRET:
-  case JMP:
-  case JEQ:
-  case JNE:
-  case JGT:
-  case JLT:
-  case JLE:
-  case JGE:
-  // Other
-  case NOP:
+  // case SUB:
+  case MUL:
+    printf("ALU-MUL. HANDLER FOUND\n");
+    // alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
+    break;
+  // case DIV:
+  // case MOD:
+  // case INC:
+  // case DEC:
+  // case CMP:
+  // case AND:
+  // case NOT:
+  // case OR:
+  // case XOR:
+  // case SHL:
+  // case SHR:
+  /* PC mutators */
+  // case CALL:
+  // case RET:
+  // case INT:
+  // case IRET:
+  // case JMP:
+  // case JEQ:
+  // case JNE:
+  // case JGT:
+  // case JLT:
+  // case JLE:
+  // case JGE:
+  /* Other */
+  // case NOP:
   case HLT:
     printf("HLT. HANDLER FOUND\n");
     cpu->IR = '\0';
@@ -167,10 +171,10 @@ void handle_instruction(struct cpu *cpu)
     cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
     printf("LDI. number set to: %d, in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
-  case LD:
-  case ST:
-  case PUSH:
-  case POP:
+  // case LD:
+  // case ST:
+  // case PUSH:
+  // case POP:
   case PRN:
     printf("PRN. HANDLER FOUND\n");
     printf("%d\n", cpu->reg[cpu->ram[cpu->PC + 1]]);
