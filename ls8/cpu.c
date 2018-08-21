@@ -15,6 +15,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
+ * Reads from RAM address and stores value into store
+ */
+void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *store)
+{
+  *store = ram[address];
+}
+
+/**
+ * Writes data to RAM address 
+ */
+void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char data)
+{
+  ram[address] = data;
+}
+
+/**
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)
