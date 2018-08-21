@@ -74,6 +74,8 @@ void cpu_run(struct cpu *cpu)
         unsigned char operandA = cpu_ram_read(cpu, PC + 1);
         unsigned char operandB = cpu_ram_read(cpu, PC + 2);
 
+        int numArgs = (IR >> 6) + 1;
+
         // 2. switch() over it to decide on a course of action.
         switch (IR)
         {
@@ -84,12 +86,12 @@ void cpu_run(struct cpu *cpu)
         // STEP 5
         case LDI:
             registers[operandA] = operandB;
-            PC += 3;
+            PC += numArgs;
             break;
         // STEP 6
         case PRN:
             printf("%d\n", registers[operandA]);
-            PC += 2;
+            PC += numArgs;
             break;
         default:
             running = 0;
