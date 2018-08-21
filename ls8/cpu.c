@@ -30,7 +30,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index){
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char data){
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char data){
   cpu->ram[index] = data;
 }
 
@@ -65,11 +65,11 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     switch(IR)
     {
-      case LDI: cpu->registers[(int)operandA] = (int)operandB;
+      case LDI: cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
 
-      case PRN: printf("%d\n", cpu->registers[(int)operandA]);
+      case PRN: printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
 
