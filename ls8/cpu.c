@@ -1,6 +1,9 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+
   
   // TODO: cpu.c cpu_load:  Replace this with something less hard-coded
   // TODO: cpu.c line 41: implement ALU ops
@@ -17,23 +20,46 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct CPU *cpu)
+void cpu_load(char* arg, struct CPU *cpu)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000, // NOP
-    0b00001000, //
-    0b01000111, // PRN R0
-    0b00000000, // NOP
-    0b00000001  // HLT
-  };
+  //original code :
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000, // NOP
+  //   0b00001000, //
+  //   0b01000111, // PRN R0
+  //   0b00000000, // NOP
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  //end original code
+
+  FILE *fp;
+  char line[256];
+  int line_no = 0;
+  char *pointer;
+
+  fp = fopen(arg, "r");
+
+  if (fp == NULL) {
+    fprintf(stderr, "Failed to open %s\n", arg);
+    exit(1);
+  }
+  else {
+
+    while(line) {
+      fgets(line, sizeof(line), fp);
+      cpu->ram[line_no++] = strtoul(line, &pointer, 2);
+
+    }
   }
 
   // TODO: Replace this with something less hard-coded
