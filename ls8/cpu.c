@@ -58,9 +58,16 @@ void cpu_run(struct CPU *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char *reg = cpu->reg;
+  unsigned char PC = (int)cpu->PC;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+        unsigned char IR = cpu_ram_read(cpu, PC);
+        unsigned char operandA = cpu_ram_read(cpu, PC + 1);
+        unsigned char operandB = cpu_ram_read(cpu, PC + 2);
+
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -73,8 +80,15 @@ void cpu_run(struct CPU *cpu)
 void cpu_init(struct CPU *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  
+  cpu->PC = 0;
+  cpu->IR = 0;
+  cpu->MAR = 0;
+  cpu->MDR = 0;
+  cpu->FL = 0;
+
   // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
 // In `cpu.c`, add functions `cpu_ram_read()` and `cpu_ram_write()` that access the
@@ -86,10 +100,10 @@ void cpu_init(struct CPU *cpu)
 
 // MDR = memory data register ... holds the VALUE to write or the VALUE just read
 
-void cpu_ram_read(struct CPU *cpu) 
+cpu_ram_read(struct CPU *cpu, int index) 
 {
   // TODO: access RAM and read it
-  
+  return cpu->ram[index];
 
 }
 
