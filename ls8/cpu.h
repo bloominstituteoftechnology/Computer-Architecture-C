@@ -60,7 +60,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *my_cpu);
+extern void cpu_load(struct cpu *my_cpu, char* file_name);
 extern void cpu_init(struct cpu *my_cpu);
 extern void cpu_run(struct cpu *my_cpu);
 
