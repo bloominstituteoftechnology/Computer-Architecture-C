@@ -5,10 +5,16 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  unsigned char PC; // PC
+  unsigned char pc; // PC
   unsigned char reg[8]; // registers (array)
   unsigned char ram[256]; // ram (array)
 };
+
+// ALU operations
+enum alu_op {
+  ALU_MUL, 
+  ALU_ADD
+}; 
 
 // Instructions
 
