@@ -107,6 +107,11 @@ void cpu_run(struct cpu *cpu)
                 cpu->registers[ operandA ] = operandB;
                 break;
 
+            case MUL:
+                // printf("\n%d * %d = %d\n\n", cpu->registers[ operandA ], cpu->registers[ operandB ], cpu->registers[ operandA ] * cpu->registers[ operandB ]);
+                cpu->registers[ operandA ] = cpu->registers[ operandA ] * cpu->registers[ operandB ];
+                break;
+
             default:
                 break;
             }
