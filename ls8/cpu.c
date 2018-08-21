@@ -1,8 +1,18 @@
+#include <stdlib.h> 
 #include "cpu.h"
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
+  return cpu->ram[address]; 
+} 
+
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) {
+  cpu->ram[address] = value; 
+} 
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
 void cpu_load(struct cpu *cpu)
 {
   const int DATA_LEN = 6;
@@ -19,6 +29,9 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
+    if (address > 255) {
+
+    }
     cpu->ram[address++] = data[i];
   }
 
@@ -61,6 +74,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+
 
   // TODO: Zero registers and RAM
 }

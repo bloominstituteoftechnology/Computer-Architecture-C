@@ -10,8 +10,6 @@ struct cpu {
   unsigned char ram[256]; // ram (array)
 };
 
-
-
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
