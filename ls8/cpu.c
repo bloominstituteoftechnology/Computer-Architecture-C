@@ -75,15 +75,13 @@ void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char dat
 /**
  * Converts a decimal to a binary representation
  * 
- * @param decimal {unsigned char} integer value to convert.
- * 
- * @returns A pointer to an array where binary representation is stored.
+ * @param d {unsigned char} integer value to convert.
+ * @param b {int*} Pointer to array where binary representation is stored.
  */
-int *decimal_to_binary(unsigned char decimal)
+void decimal_to_binary(unsigned char d, int *b)
 {
-  static int b[] = {0, 0, 0, 0, 0, 0, 0, 0};
-  int n = decimal;
-  int i = (sizeof(b) / sizeof(int)) - 1;
+  int n = d;
+  int i = 7;
 
   while (n > 0)
   {
@@ -91,8 +89,30 @@ int *decimal_to_binary(unsigned char decimal)
     n /= 2;
     --i;
   }
+}
 
-  return b;
+/**
+ * Determines whether binary instruction has one argument
+ * 
+ * @param binary {int*} Pointer to array where binary representation is stored.
+ * 
+ * @returns boolean.
+ */
+int hasOpA(int *binary)
+{
+  return (binary[0] == 0 && binary[1] == 1) || (binary[0] == 1 && binary[1] == 0);
+}
+
+/**
+ * Determines whether binary instruction has second argument
+ * 
+ * @param binary {int*} Pointer to array where binary representation is stored.
+ * 
+ * @returns boolean.
+ */
+int hasOpB(int *binary)
+{
+  return binary[0] == 1 && binary[1] == 0;
 }
 
 /**
@@ -136,16 +156,45 @@ void cpu_load(struct cpu *cpu)
 
 /**
  * Run the CPU
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1;
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    unsigned char operandA = '\0';
+    unsigned char operandB = '\0';
+    int irb[8] = {0};
+    cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+    decimal_to_binary(cpu->ir, irb);
+
+    if (hasOpA(irb))
+    {
+      cpu->pc++;
+      cpu_ram_read(cpu->ram, cpu->pc, &operandA);
+    }
+
+    if (hasOpB(irb))
+    {
+      cpu->pc++;
+      cpu_ram_read(cpu->ram, cpu->pc, &operandB);
+    }
+
+    switch (cpu->ir)
+    {
+      case HLT:
+        handle_HLT(&running);
+        break;
+      case LDI:
+        handle_LDI(cpu->registers, operandA, operandB);
+        break;
+      case PRN:
+        handle_PRN(cpu->registers, operandA);
+        break;
+    }
+
+    cpu->pc++;
   }
 }
