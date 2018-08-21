@@ -47,7 +47,7 @@ void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char dat
  */
 int *decimal_to_binary(unsigned char decimal)
 {
-  static int b[] = {0, 0, 0, 0, 0, 0, 0};
+  static int b[] = {0, 0, 0, 0, 0, 0, 0, 0};
   int n = decimal;
   int i = (sizeof(b) / sizeof(int)) - 1;
 
