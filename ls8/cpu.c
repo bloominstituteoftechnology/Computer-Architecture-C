@@ -4,8 +4,9 @@ void handle_instruction(struct cpu *cpu);
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
+  printf("File path %s\n", file);
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
       // From print8.ls8
@@ -124,7 +125,7 @@ void handle_instruction(struct cpu *cpu)
   case SHL:
   case SHR:
     printf("ALU-instruction. HANDLER FOUND\n");
-    alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
+    // alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
     break;
   // PC mutators
   case CALL:
