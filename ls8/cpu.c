@@ -3,16 +3,16 @@
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Reads from RAM address and stores value into store
@@ -63,12 +63,15 @@ int *decimal_to_binary(unsigned char decimal)
 
 /**
  * Initialize a CPU struct
+ * 
+ * Initializes the PC and other special registers. -> TODO
+ * Zeros registers and RAM. -> TODO
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-
-  // TODO: Zero registers and RAM
+  cpu->pc = 0b00000000;
 }
 
 /**
