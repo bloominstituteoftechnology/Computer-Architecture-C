@@ -127,8 +127,10 @@ int cpu_ram_read(struct CPU *cpu, int index)
 
 }
 
-// cpu_ram_write(struct CPU *cpu) 
-// {
-//   //TODO: access RAM to write to it. 
+void cpu_ram_write(struct CPU *cpu, unsigned char index, unsigned char value) 
 
-// }
+ {
+//   //TODO: access RAM to write to it. 
+  cpu->ram[index] = value;
+
+ }
