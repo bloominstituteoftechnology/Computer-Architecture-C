@@ -9,6 +9,8 @@
  */
 void cpu_load(char *filename, struct cpu *cpu)
 {
+
+  // Original code that I used for print8:
   // const int DATA_LEN = 6;
   // char data[DATA_LEN] = {
   //   // From print8.ls8
@@ -25,17 +27,18 @@ void cpu_load(char *filename, struct cpu *cpu)
   // for (int i = 0; i < DATA_LEN; i++) {
   //   cpu->ram[address++] = data[i];
   // }
-  FILE *fp;
-  char line[256];
-  int counter = 0;
-  char *ptr;
+
+  FILE *fp; // file pointer
+  char line[256]; // storage for line of file
+  int counter = 0; // way to track index in ram
+  char *ptr; // pointer to next character in line after the unsigned long integer
 
   if ((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Cannot open file %s\n", filename);
     exit(1);
   }
-    while (fgets(line, sizeof(line), fp) != NULL) {
-      cpu->ram[counter++] = strtoul(line, &ptr, 2);
+    while (fgets(line, sizeof(line), fp) != NULL) { // read line from file and store in line up to 256 bytes.
+      cpu->ram[counter++] = strtoul(line, &ptr, 2); // converts string to unsigned long integer using base 2 and stores in ram
     }
   // TODO: Replace this with something less hard-coded
 }
