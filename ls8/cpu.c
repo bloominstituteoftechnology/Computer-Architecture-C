@@ -77,23 +77,25 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI: 
         cpu->registers[argv_a] = argv_b;
-        cpu->PC += 3;
+        // cpu->PC += 3;  // hard code before the bitwise setup `cpu->PC = IR_size;`
         break;
       
       case PRN:
         printf("%d\n", cpu->registers[argv_a]);
-        cpu->PC += 2;
+        // cpu->PC += 2;
         break;
 
       case HLT:
         running = 0;
-        cpu->PC += 1;
+        // cpu->PC += 1;
         break;
 
       default:
         printf("error, invalid instruction %x\n", IR);
         break;
     }
+
+    cpu->PC += IR_size; 
   }
 }
 
