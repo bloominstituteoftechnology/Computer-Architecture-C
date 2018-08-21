@@ -3,17 +3,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include "cpu.h"
-
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
-
-// void cpu_ram_write(struct cpu *cpu, unsigned char address)
-// {
-//   // cpu->ram[address] 
-// }
+#include "handlers.h"
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -26,28 +16,21 @@ void throwHandsUpAndGiveUp(void)
 
 void cpu_load(struct cpu *cpu, char *argv[])
 {
-  // printf("Reading file: %s\n\n", argv[1]);
-
-  if (argv[1] == NULL) {
-    fprintf(stderr, "No file specified.\nUsage: ./ls8 <filename>\n");
-    exit(1);
-  }
-
   FILE *fp = fopen(argv[1], "r");
   char *strBuff = 0;
   char *token;
   long length;
   int address;
 
+  /* Open file and copy to string buffer strBuff */
   // Shamelessly copied from 
   // https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
+  if (  !fp  )                          throwHandsUpAndGiveUp(); // Error if FP is null
 
-  if (!fp) throwHandsUpAndGiveUp(); // Error if FP is null
-
-  if ( fseek(fp, 0, SEEK_END)  != 0)  throwHandsUpAndGiveUp(); 
-       length = ftell(fp);
-  if ( length == -1 )                 throwHandsUpAndGiveUp();
-  if ( fseek(fp, 0, SEEK_SET)  != 0)  throwHandsUpAndGiveUp();
+  if (  fseek(fp, 0, SEEK_END)   != 0)  throwHandsUpAndGiveUp(); 
+        length = ftell(fp);
+  if (  length == -1 )                  throwHandsUpAndGiveUp();
+  if (  fseek(fp, 0, SEEK_SET)   != 0)  throwHandsUpAndGiveUp();
 
   strBuff = malloc(length + 1);
 
@@ -56,6 +39,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
   fclose(fp);
   strBuff[length] = '\0';
 
+  /* Tokenize and parse string in strBuff */
   if (strBuff)
   {
     // start to process your data / extract strings here...
@@ -74,16 +58,17 @@ void cpu_load(struct cpu *cpu, char *argv[])
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      // TODO
+      handleALU_MUL(cpu, regA, regB);
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -92,9 +77,9 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR;
-  unsigned char val;
-  int addrLDI;
-  int addrPRN;
+  // unsigned char val;
+  // int addrLDI;
+  // int addrPRN;
 
 //what iz life?
   while (running) {
@@ -103,24 +88,18 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    // printf("cpu->PC is: %i\n", cpu->PC);
+
     IR = cpu_ram_read(cpu, cpu->PC);
-    // printf("IR is: %d\n", IR);
 
     switch (IR) {
       case LDI:
-        addrLDI = cpu_ram_read(cpu, cpu->PC + 1);
-        val = cpu_ram_read(cpu, cpu->PC + 2);
-        // printf("val is: %i\n, addrLDI is: %i\n", val, addrLDI);
-        cpu->registers[addrLDI] = val;
-        // printf("cpu->registers[addrLDI] is: %i\n", cpu->registers[addrLDI]);
-        cpu->PC += 3;
+        handleLDI(cpu);
         break;
       case PRN:
-        addrPRN = cpu_ram_read(cpu, cpu->PC + 1);
-        // printf("addrPRN is: %i\n", addrPRN);
-        printf("%i\n", cpu->registers[addrPRN]);
-        cpu->PC += 2;
+        handlePRN(cpu);
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, cpu_ram_read(cpu, cpu->PC + 1), cpu_ram_read(cpu, cpu->PC + 2));
         break;
       case HLT:
         running = 0;

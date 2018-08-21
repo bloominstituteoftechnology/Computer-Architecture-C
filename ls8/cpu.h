@@ -12,12 +12,6 @@ struct cpu {
   unsigned char *ram;
 };
 
-// struct cpu *cpu_create(void)
-// {
-//   cpu *c = malloc(sizeof(cpu));
-//   c->PC = 0;
-//   return c;
-// }
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -26,6 +20,18 @@ struct cpu {
 #define LDI  0b10000010
 #define PRN  0b01000111
 #define HLT  0b00000001
+#define MUL  0b10100010
+/* ALU Operations */
+enum alu_op {
+  // ALU_ADD,
+  // ALU_SUB,
+  ALU_MUL,
+  // ALU_DIV,
+  // ALU_INC,
+  // ALU_DEC,
+  // ALU_CMP
+};
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

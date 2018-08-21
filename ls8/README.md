@@ -70,7 +70,7 @@ but you'll have to implement those three above instructions first!
 |:---:              |:---:                                      |:---:                  |
 |cpu.h              |CPU struct definition<sup>1</sup>          |❌                     |
 |cpu.c              |CPU operating instructions<sup>2</sup>     |Partial. Read prompts. |
-|ls8.c              |Main cpu emulation script                  |✔️                     |
+|ls8.c              |CPU emulation start script                 |✔️                     |
 |ls8/examples/*.ls8 |Sample machine code programs               |✔️                     |
 |asm.js             |JS program to compile ASM to machine code  |️️️✔️                     |
 |*.asm              |Sample ASM programs                        |✔️                     |
