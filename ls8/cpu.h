@@ -55,11 +55,21 @@ typedef enum alu_op {
 #define SUB  0b10100001
 #define XOR  0b10101011
 
+#define MAX 255
+// #define CALL "call.ls8"
+// #define INTERRUPTS "interrupts.ls8"
+// #define KEYBOARD "keyboard.ls8"
+// #define MULT "mult.ls8"
+// #define PRINT8 "print8.ls8"
+// #define PRINTSTR "printstr.ls8"
+// #define SCTEST  "sctest.ls8"
+// #define STACK "stack.ls8"
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

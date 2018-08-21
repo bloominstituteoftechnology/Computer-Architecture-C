@@ -1,29 +1,42 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8  /* instruction */
-    0b00000000, /* argument 1 */
-    0b00001000, /* argument 2 */
-    0b01000111, // PRN R0 /* instruction */
-    0b00000000, /* argument 1 */
-    0b00000001  // HLT /* instruction */
-  };
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8  /* instruction */
+  //   0b00000000, /* argument 1 */
+  //   0b00001000, /* argument 2 */
+  //   0b01000111, // PRN R0 /* instruction */
+  //   0b00000000, /* argument 1 */
+  //   0b00000001  // HLT /* instruction */
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+  FILE *fp;
+  char line[256];
+  int counter = 0;
+  char *ptr;
+
+  if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(1);
   }
-
+    while (fgets(line, sizeof(line), fp) != NULL) {
+      cpu->ram[counter++] = strtoul(line, &ptr, 2);
+    }
   // TODO: Replace this with something less hard-coded
 }
 
@@ -86,6 +99,10 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", reg[operandA]);
         PC+=difference;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        PC+= difference;
         break;
       case HLT:
         running = 0;
