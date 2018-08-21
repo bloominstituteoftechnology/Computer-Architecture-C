@@ -1,21 +1,40 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char* data, int DATA_LEN)
+void cpu_load(struct cpu *cpu, char* filename)
 {
-  // printf("Length of data: %lu\n", ( sizeof(data)/sizeof(data[0]) ));
+  FILE * fp = fopen(filename, "r");
+  if (fp == NULL)
+  {
+    printf("fopen failed to open the file\n");
+    exit(-1);
+  }
+
+  char line[128];
+  char instruction[8];
+  int index = 0;
+  char databuff[256];
+
+  while(fgets(line, sizeof(line), fp) != NULL)
+  {
+    if(sscanf(line, "%s", instruction) == 1)
+    {
+      if ( line[0] == '0' || line[0] == '1' ){
+        databuff[index++] = strtoul(instruction, NULL, 2);
+      }
+    }
+  }
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-    // printf("ram[%d] = %d\n", i, cpu->ram[i]);
+  for (int i = 0; i < index; i++) {
+    cpu->ram[address++] = databuff[i];
   }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
