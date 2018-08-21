@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   }
 
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu, file);
   cpu_run(&cpu);
 
   return 0;
