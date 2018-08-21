@@ -26,6 +26,12 @@ struct cpu
   unsigned char ram[256];
 };
 
+enum alu_op
+{
+  ALU_MUL,
+  ALU_ADD,
+};
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
