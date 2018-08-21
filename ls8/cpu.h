@@ -92,7 +92,7 @@ struct CPU {
 extern void cpu_load(struct CPU *cpu);
 extern void cpu_init(struct CPU *cpu);
 extern void cpu_run(struct CPU *cpu);
-extern void cpu_ram_read(struct CPU *cpu);
-extern void cpu_ram_write(struct CPU *cpu);
+extern int cpu_ram_read(struct CPU *cpu, int index);
+// extern unsigned char* cpu_ram_write(struct CPU *cpu);
 
 #endif
