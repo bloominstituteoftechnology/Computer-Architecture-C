@@ -22,7 +22,7 @@ enum alu_op {
  ALU_ADD,
  ALU_DIV,
  ALU_SUB,
- ALU_MOD
+  ALU_MOD,
 };
 
 
