@@ -3,20 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-  
-  // TODO: cpu.c cpu_load:  Replace this with something less hard-coded
-  // TODO: cpu.c line 41: implement ALU ops
-  // TODO: cpu.c while running:
-          // 1. Get the value of the current instruction (in address PC).
-          // 2. switch() over it to decide on a course of action.
-          // 3. Do whatever the instruction should do according to the spec.
-          // 4. Move the PC to the next instruction.
-  // line 75 -- TODO: cpu.c Initialize the PC and other special registers
-
-  // line 77 -- TODO: cpu.c Zero registers and RAM
-
-
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -114,46 +100,69 @@ void cpu_run(struct CPU *cpu)
 
     switch(IR)
     {
-      unsigned char *SP = &reg[7];
-      case LDI:
-        reg[operandA] = operandB;
-        PC+=3;
-        break;
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        PC+=3;
-        break;
+      unsigned char SP = reg[7];
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         PC +=3;
         break;
+      case CALL:
+        //goes to specific address
+        
+
+        break;
+
       case DIV:
         alu(cpu, ALU_DIV, operandA, operandB);
         PC +=3;
         break;
-      case SUB:
-        alu(cpu, ALU_SUB, operandA, operandB);
-        PC +=3;
+
+      case HLT:
+        running = 0;
         break;
+      
+      case JMP:
+        reg[IR] = reg[operandA];
+        break;
+
+      case LDI:
+        reg[operandA] = operandB;
+        PC+=3;
+        break;
+
       case MOD:
         alu(cpu, ALU_MOD, operandA, operandB);
         PC +=3;
         break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        PC+=3;
+        break;
+
       case POP:
-        reg[operandA] = cpu_ram_read(cpu, *SP++);
+        reg[operandA] = cpu_ram_read(cpu, SP++);
         PC +=2;
         break;
-      case PUSH:
-        cpu_ram_write(cpu, *--SP, reg[operandA]);
-        PC +=2;
-        break;
+
       case PRN:
         printf("%d\n", reg[operandA]);
         PC+=2;
         break;
-      case HLT:
-        running = 0;
+
+      case PUSH:
+        cpu_ram_write(cpu, --SP, reg[operandA]);
+        PC +=2;
         break;
+      case RET:
+        //go back to where you came from
+        
+        break;
+
+      case SUB:
+        alu(cpu, ALU_SUB, operandA, operandB);
+        PC +=3;
+        break;
+
       default:
         fprintf(stderr, "Error setting instruction\n");
         exit(2);
