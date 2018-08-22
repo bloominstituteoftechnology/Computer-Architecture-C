@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DEBUG 0
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -44,9 +45,11 @@ void cpu_load(char *filename, struct cpu *cpu)
       }
       cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
     }
+    #if DEBUG
     for (unsigned long i = 0; i < 256; i++) {
       printf("What is this? %u\n", cpu->ram[i]);
     }
+    #endif
   // TODO: Replace this with something less hard-coded
 }
 
@@ -138,9 +141,11 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
+  #if DEBUG
       for (unsigned long i = 0; i < 256; i++) {
       printf("What is this? %u\n", cpu->ram[i]);
     }
+  #endif
 }
 
 /**
