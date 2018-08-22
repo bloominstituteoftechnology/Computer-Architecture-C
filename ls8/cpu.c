@@ -75,7 +75,8 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
         printf("print8: %d\n", cpu->registers[operandA]);
-        cpu->pc += 2;
+        cpu->pc += (IR >> 6) + 1; 
+       // cpu->pc += 2;
         break;
 
       case HLT:
@@ -99,5 +100,4 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
-    cpu->pc = 0; //
 }
