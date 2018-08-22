@@ -100,7 +100,7 @@ void cpu_run(struct cpu *cpu)
     }
     printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
 
-    if (((cpu->IR >> 4) & 1) == 0) // Chakc is the instruction is a PC_Mutator, if not jump to next instruction.
+    if (((cpu->IR >> 4) & 1) == 0) // Chekc is the instruction is a PC_Mutator, if not jump to next instruction.
     {
       // printf("IR = %d\n", cpu->IR);
       instruction_operands = (cpu->IR >> 6);
@@ -201,7 +201,11 @@ void handle_instruction(struct cpu *cpu)
     printf("LDI. number set to: %d, in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
   // case LD:
-  // case ST:
+  case ST:
+    printf("ST. HANDLER FOUND\n");
+    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->reg[cpu->ram[cpu->PC + 2]];
+    printf("Set reg[%d] = (reg[%d] value: %d)", cpu->PC + 1, cpu->PC + 2, cpu->reg[cpu->ram[cpu->PC + 1]]);
+    break;
   case PUSH:
     printf("PUSH. HANDLER FOUND\n");
     cpu->reg[7] -= 1;
