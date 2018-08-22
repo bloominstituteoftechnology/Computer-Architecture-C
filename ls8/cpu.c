@@ -108,6 +108,12 @@ void cpu_run(struct cpu *my_cpu)
       case MUL:
         alu(my_cpu, ALU_MUL, args[0], args[1]);
         break;
+      case POP:
+        my_cpu->registers[args[0]] = my_cpu->ram[my_cpu->registers[7]++];
+        break;
+      case PUSH:
+        my_cpu->ram[--my_cpu->registers[7]] = my_cpu->registers[args[0]];
+        break;
     }
     my_cpu->PC++;
     // 3. Do whatever the instruction should do according to the spec.
