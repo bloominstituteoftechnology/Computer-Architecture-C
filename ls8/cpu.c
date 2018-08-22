@@ -128,11 +128,12 @@ void cpu_run(struct cpu *cpu)
           break;
 
         case PUSH:
-          sp--;
+          --sp;
           printf("this is an sp: %d\n", sp);
           printf("this is a val: %02x\n", cpu->reg[operandA]);
-          cpu_ram_write(cpu, sp, cpu->reg[operandA]);
           cpu->pc += 2;
+          cpu_ram_write(cpu, sp, cpu->reg[operandA]);
+ 
           break;
 
 
