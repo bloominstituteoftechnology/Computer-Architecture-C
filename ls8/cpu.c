@@ -42,13 +42,11 @@ void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *sto
 /**
  * Writes data to RAM address 
  * 
- * @param ram {unsigned char[]} Memory array.
- * @param address {unsigned char} Address for memory array.
- * @param data {unsigned char} data to be stored at memory address.
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
-void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char data)
+void cpu_ram_write(struct cpu *cpu)
 {
-  ram[address] = data;
+  cpu->ram[cpu->mar] = cpu->mdr;
 }
 
 /**
