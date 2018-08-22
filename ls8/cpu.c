@@ -62,7 +62,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     {
         //printf("%s\n", line);
         // variable for the first non number from strtoul
-        unsigned char *end;
+        char *end;
         // variable for the output of strtoul()
         unsigned char b_number;
 
@@ -75,11 +75,11 @@ void cpu_load(struct cpu *cpu, char *filename)
         {
             continue;
         }
-
+        // assign cpu->ram[address] with b_number and increment address
         cpu_ram_write(cpu, address++, b_number);
     }
 
-    //fclose(fp);
+    fclose(fp);
 }
 
 /**
@@ -87,10 +87,12 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+    unsigned char *registers = cpu->registers;
     switch (op)
     {
     case ALU_MUL:
         // TODO
+        registers[regA] *= registers[regB];
         break;
 
         // TODO: implement more ALU ops
@@ -150,13 +152,14 @@ void cpu_run(struct cpu *cpu)
         case LDI:
             // printf("5: LDI\n");
             registers[MAR] = MDR;
-            PC += numArgs;
             break;
         // STEP 6
         case PRN:
             // printf("6: PRN\n");
             printf("%d\n", registers[MAR]);
-            PC += numArgs;
+            break;
+        case MUL:
+            alu(cpu, ALU_MUL, MAR, MDR);
             break;
         default:
             // from solution lecture
@@ -164,6 +167,7 @@ void cpu_run(struct cpu *cpu)
             running = 0;
             exit(2);
         }
+        PC += numArgs;
     }
 }
 
