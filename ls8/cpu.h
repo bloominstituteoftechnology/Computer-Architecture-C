@@ -64,7 +64,7 @@ enum alu_op
  * PC mutators
  * */
 #define CALL 0b01010000
-#define RET 0b0001000
+#define RET 0b00010001
 
 #define INT 0b01010010
 #define IRET 0b00010011

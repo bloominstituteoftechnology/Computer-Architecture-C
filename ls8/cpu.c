@@ -59,7 +59,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[cpu->ram[cpu->PC + 1]] = regA * regB;
     printf("Reg-index %d, set to %d * %d = %d\n", cpu->ram[cpu->PC + 1], regA, regB, cpu->reg[cpu->ram[cpu->PC + 1]]);
     break;
-    // TODO: implement more ALU ops
+  // TODO: implement more ALU ops
+  case ALU_ADD:
+    printf("ALU_ADD: HANDLER FOUND\n");
+    printf("regA = %d and regB = %d\n", regA, regB);
+    cpu->reg[cpu->ram[cpu->PC + 1]] = regA + regB;
+    printf("Reg-index %d, set to %d + %d = %d\n", cpu->ram[cpu->PC + 1], regA, regB, cpu->reg[cpu->ram[cpu->PC + 1]]);
   }
 }
 
@@ -93,11 +98,17 @@ void cpu_run(struct cpu *cpu)
     {
       break;
     }
-    // printf("IR = %d\n", cpu->IR);
-    instruction_operands = cpu->IR >> 6;
-    // printf("IR >> 6 = %d\n", cpu->IR);
-    PC = cpu->PC = PC + instruction_operands + 1;
+    printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
+
+    if (((cpu->IR >> 4) & 1) == 0) // Chakc is the instruction is a PC_Mutator, if not jump to next instruction.
+    {
+      // printf("IR = %d\n", cpu->IR);
+      instruction_operands = (cpu->IR >> 6);
+      // printf("IR >> 6 = %d\n", cpu->IR);
+      cpu->PC = PC + instruction_operands + 1;
+    }
     // printf("cpu->PC next instruction index: %d\n", cpu->PC);
+    PC = cpu->PC;
     printf("PC next instruction index: %d\n", PC);
     cpu->IR = ram[PC];
   }
@@ -134,7 +145,7 @@ void handle_instruction(struct cpu *cpu)
     /* ALU */
   case ADD:
     printf("ALU-ADD. HANDLER FOUND\n");
-    // alu(cpu, cpu->IR, cpu->reg[cpu->PC + 1], cpu->reg[cpu->PC + 1]);
+    alu(cpu, ALU_ADD, cpu->reg[cpu->ram[cpu->PC + 1]], cpu->reg[cpu->ram[cpu->PC + 2]]);
     break;
   // case SUB:
   case MUL:
@@ -153,8 +164,22 @@ void handle_instruction(struct cpu *cpu)
   // case SHL:
   // case SHR:
   /* PC mutators */
-  // case CALL:
-  // case RET:
+  case CALL:
+    printf("CALL. HANDLER FOUND\n");
+    cpu->reg[7] -= 1;
+    printf("SP move from %d to %d\n", cpu->reg[7] + 1, cpu->reg[7]);
+    cpu->ram[cpu->reg[7]] = cpu->PC + (cpu->IR >> 6) + 1;
+    printf("CALL. Set RAM[SP] = %d\n", cpu->ram[cpu->reg[7]]);
+    cpu->PC = cpu->reg[cpu->ram[cpu->PC + 1]];
+    printf("CALL. PC set to %d\n", cpu->PC);
+    break;
+  case RET:
+    printf("RET. HANDLER FOUND\n");
+    cpu->PC = cpu->ram[cpu->reg[7]];
+    printf("Set PC to %d", cpu->PC);
+    cpu->reg[7] += 1;
+    printf("SP move from %d to %d\n", cpu->reg[7] - 1, cpu->reg[7]);
+    break;
   // case INT:
   // case IRET:
   // case JMP:
