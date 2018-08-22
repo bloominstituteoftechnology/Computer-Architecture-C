@@ -80,10 +80,24 @@ void cpu_run(struct cpu *cpu)
 
                 switch (instruction_register)
                 {
+                    /**
+                     * PRN
+                     */
                     case PRN:
-                        printf("\nPRN: %d\n\n", cpu->registers[operandA]);
+                        printf("\nPRN: %d\n\n", cpu->registers[ operandA ]);
                         break;
 
+                    /**
+                     * PUSH
+                     */
+                    case PUSH:
+                        cpu->registers[7]             = --cpu->sp;  // decrease `stack pointer` by 1
+                        cpu->ram[ cpu->registers[7] ] = cpu->registers[ operandA ];  // set the value of `R1` to wherever our `stack pointer`, `R7`, is pointing to
+                        break;
+
+                    /**
+                     * default
+                     */
                     default:
                         break;
                     }
@@ -126,7 +140,8 @@ void cpu_init(struct cpu *cpu)
 {
     // TODO: Initialize the PC and other special registers
     cpu->pc = 0;
-    cpu->registers[7] = cpu->ram[244];
+    cpu->sp = 244;
+    cpu->registers[7] = cpu->sp;
 
     // TODO: Zero registers and RAM
 }
