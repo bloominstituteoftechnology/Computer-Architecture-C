@@ -114,7 +114,7 @@ void cpu_run(struct CPU *cpu)
 
     switch(IR)
     {
-      unsigned char *SP = &cpu->reg[7];
+      unsigned char *SP = &reg[7];
       case LDI:
         reg[operandA] = operandB;
         PC+=3;
