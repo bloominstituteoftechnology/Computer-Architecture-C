@@ -61,6 +61,8 @@ void cpu_ram_write(unsigned char ram[], unsigned char address, unsigned char dat
 void get_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
 {
   unsigned char ops = cpu->ir >> 6;
+  *opA = '\0';
+  *opB = '\0';
 
   if (ops > 0)
   {
@@ -145,8 +147,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1;
   int pcMutator = 0;
-  unsigned char operandA;
-  unsigned char operandB;
+  unsigned char opA = '\0';
+  unsigned char opB = '\0';
   handler *branch_table = malloc(255 * sizeof *branch_table);
   load_cpu_instructions(branch_table);
 
@@ -160,10 +162,8 @@ void cpu_run(struct cpu *cpu)
       continue;
     }
 
-    operandA = '\0';
-    operandB = '\0';
-    get_operands(&operandA, &operandB, cpu);
-    branch_table[cpu->ir](cpu, operandA, operandB);
+    get_operands(&opA, &opB, cpu);
+    branch_table[cpu->ir](cpu, opA, opB);
 
     if (!pcMutator)
       cpu->pc++;
