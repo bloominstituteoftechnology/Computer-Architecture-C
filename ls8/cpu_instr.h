@@ -43,6 +43,7 @@ typedef void (*handler)(struct cpu *, unsigned char, unsigned char);
 extern void load_cpu_instructions(handler *bt);
 extern void handle_HLT(int *status);
 extern void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB);
 
 #endif
