@@ -106,6 +106,20 @@ void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Stores value in regB to address in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A
+ * @param opB {unsigned char} Operand B: register B
+ */
+void handle_ST(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  cpu->mar = cpu->registers[opA];
+  cpu->mdr = cpu->registers[opB];
+  cpu_ram_write(cpu);
+}
+
+/**
  * Loads CPU instructions into branch table
  * 
  * @param bt {handler*} Pointer to an array of function pointers.
@@ -120,4 +134,5 @@ void load_cpu_instructions(handler *bt)
   bt[PRN] = handle_PRN;
   bt[PUSH] = handle_PUSH;
   bt[RET] = handle_RET;
+  bt[ST] = handle_ST;
 }
