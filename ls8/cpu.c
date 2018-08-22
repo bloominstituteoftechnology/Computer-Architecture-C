@@ -17,6 +17,10 @@ void cpu_load(struct cpu *cpu, char *file)
 {
     FILE * f;
     f = fopen(file, "r");
+    if (f == NULL) {
+      fprintf(stderr, "We cannot open the given file.\n");
+      exit(1);
+    }
 
   int address = 0;
 
