@@ -63,7 +63,6 @@ void cpu_load(char* arg, struct CPU *cpu)
     fclose(fp);
   }
 
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
