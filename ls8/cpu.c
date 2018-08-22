@@ -54,7 +54,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 void cpu_run(struct cpu *cpu)
 {
-  int sp = 244;
   int running = 1;
 
   while (running) {
@@ -70,20 +69,20 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
       case CALL:
-        sp--;
-        cpu->RAM[sp] = cpu->pc + 2;
+        cpu->sp--;
+        cpu_ram_write(cpu, cpu->sp, (cpu->pc + 2));
         cpu->pc = cpu->reg[operandA];
         break;
       case RET:
-        cpu->pc = cpu->RAM[sp++];
+        cpu->pc = cpu_ram_read(cpu, cpu->sp++);
         break;
       case PUSH:
-        sp--;
-        cpu->RAM[sp] = cpu->reg[operandA];
+        cpu->sp--;
+        cpu_ram_write(cpu, cpu->sp, cpu->reg[operandA]);
         break;
       case POP:
-        if(sp == 244) fprintf(stderr, "Can't pop off an empty stack!\n");
-        cpu->reg[operandA] = cpu->RAM[sp++];
+        if(cpu->sp == 244) fprintf(stderr, "Can't pop off an empty stack!\n");
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->sp++);
         break;
       case LDI:
         // Set register to int
@@ -107,8 +106,7 @@ void cpu_run(struct cpu *cpu)
     }
     // add to the PC according to the executed instruction
     // using >> bitwise shifting of the binary instruction
-
-
+    // if flag for action handling the pc is not set
     if (!instruction_set_pc) {
       cpu->pc += ((IR >> 6) & 0x3) + 1;
     }
@@ -118,6 +116,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // Zeroing out the pc, registers and ram
+  cpu->sp = 244;
   cpu->pc = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->RAM, 0, sizeof(cpu->RAM));

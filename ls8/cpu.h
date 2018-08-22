@@ -6,6 +6,7 @@ struct cpu {
   unsigned char pc;
   unsigned char reg[8];
   unsigned char RAM[256];
+  int sp;
 } cpu;
 
 
