@@ -94,6 +94,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case PUSH:
+        cpu->registers[7] -= 1;
+        cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+        break;
+
+      case POP:
+        cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
+        cpu->registers[7] -= 1;
+        break;
+
       default:
         running = 0;
         break;
@@ -113,6 +123,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[7] = 0xF4;
 
   // TODO: Zero registers and RAM
 }
