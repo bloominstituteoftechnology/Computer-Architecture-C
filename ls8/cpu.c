@@ -1,7 +1,7 @@
 #include <stdlib.h> // Exit is stored here.
 #include <stdio.h> // Because you're using printf() without a prototype.
-#include "cpu.h"
 #include <string.h>
+#include "cpu.h"
 
 // Helper functions for efficiency -- to prevent repeating yourself.
 // For better readability and detect bugs.
@@ -18,12 +18,16 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+// Here, we are basically loading the .ls8 file to the RAM, which is essentially an array.
 void cpu_load(struct cpu *cpu, char *file)
 {
 
   // const unsigned int DATA_LEN = 6;
   // char data[6] = {
   //   // From print8.ls8
+  // First line refers to the opcode; second line refers to the address in the register (R0), 
+  // and the third refers to the binary value that's equivalent to 8 which we want to print.
+  // The LDI binary value is actually a constant.
   //   0b10000010, // LDI R0,8
   //   0b00000000,
   //   0b00001000,
@@ -38,8 +42,9 @@ void cpu_load(struct cpu *cpu, char *file)
   //   cpu->ram[address++] = data[i];
   // }
 
+  // Here, we are basically opening the .ls8 file in the RAM.
   // TODO: Replace this with something less hard-coded
-  FILE * fp;
+  FILE *fp;
   fp = fopen(file, "r");
 
   int address = 0;
@@ -51,6 +56,8 @@ void cpu_load(struct cpu *cpu, char *file)
     char *endptr;
     unsigned long int new_line;
 
+    // The strtoul() function converts a string to an unsigned long integer.
+    // Here, we're basically converting the binary strings to integer values to store in RAM.
     new_line = strtoul(line, &endptr, 2);
     cpu->ram[address++] = new_line;
   }
@@ -61,6 +68,9 @@ void cpu_load(struct cpu *cpu, char *file)
 /**
  * ALU
  */
+// Basically, we are doing ALU operations here.
+// ALU - Arithmetic Logic Unit, the fundamental building block of the CPU.
+// "enum" is a user-defined data type. It's also a keyword.
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
