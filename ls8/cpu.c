@@ -18,6 +18,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
   switch (op)
   {
+    case ALU_ADD:
+      cpu->registers[regA] = a + b;
+      break;
     case ALU_MUL:
       cpu->registers[regA] = a * b;
       break;
