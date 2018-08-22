@@ -110,7 +110,7 @@ void cpu_run(struct cpu *cpu)
 
       case POP:
         cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
-        cpu->registers[7] -= 1;
+        cpu->registers[7] += 1; //initially decrement
         break;
 
       case CALL:
@@ -122,7 +122,7 @@ void cpu_run(struct cpu *cpu)
 
       case RET:
         cpu->PC = cpu->ram[cpu->registers[7]];
-        cpu->registers[7] -= 1;
+        cpu->registers[7] += 1; //same as above
         autoset = 0;
         break;
 
