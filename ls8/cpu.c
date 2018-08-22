@@ -133,9 +133,13 @@ void cpu_run(struct cpu *my_cpu)
         alu(my_cpu, ALU_ADD, args[0], args[1]);
         my_cpu->PC++;
         break;
-      default:
-        printf("wut?");
+      case ST:
+        my_cpu->ram[my_cpu->registers[args[0]]] = my_cpu->registers[args[1]];
+        my_cpu->PC++;
         break;
+      default:
+        printf("wut?\n");
+        exit(1);
     }
 
     // 3. Do whatever the instruction should do according to the spec.
