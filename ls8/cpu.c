@@ -31,12 +31,12 @@ void cpu_load(struct cpu *cpu, char* filename)
 
     char* line[3];
     int index = 0;
+    char* point;
 
     while (fgets(line, sizeof(line), file) != NULL)
     {
         // save the content of each line as an `unsigned long` into `cpu->ram`
-        cpu->ram[ index++ ] = strtoul(line, NULL, 2);
-        // printf("\nRAM: %d\n\n", cpu->ram[index - 1]);
+        cpu->ram[ index++ ] = strtoul(line, &point, 2);
     }
 }
 
@@ -70,57 +70,49 @@ void cpu_run(struct cpu *cpu)
     while (running)
     {
         program_counter = cpu->pc;
-        // printf("\nProgram Counter: %d\n\n", program_counter);
         instruction_register = cpu_ram_read(cpu, cpu->pc);
-        // printf("\nIR: %d\n\n", instruction_register);
 
         switch (instruction_register >> 6)
         {
-        case 1:
-            // printf("1");
+            case 1:
+                next_instruction = 2;
+                operandA = cpu_ram_read(cpu, cpu->pc + 1);
 
-            next_instruction = 2;
-            operandA = cpu_ram_read(cpu, cpu->pc + 1);
+                switch (instruction_register)
+                {
+                    case PRN:
+                        printf("\nPRN: %d\n\n", cpu->registers[operandA]);
+                        break;
 
-            switch (instruction_register)
-            {
-            case PRN:
-                printf("\nPRN: %d\n\n", cpu->registers[operandA]);
-                break;
+                    default:
+                        break;
+                    }
+
+                break;  // case 1
+
+            case 2:
+                next_instruction = 3;
+                operandA = cpu_ram_read(cpu, cpu->pc + 1);
+                operandB = cpu_ram_read(cpu, cpu->pc + 2);
+
+                switch (instruction_register)
+                {
+                    case LDI:
+                        cpu->registers[ operandA ] = operandB;
+                        break;
+
+                    case MUL:
+                        cpu->registers[ operandA ] = cpu->registers[ operandA ] * cpu->registers[ operandB ];
+                        break;
+
+                    default:
+                        break;
+                }
+
+                break;  // case 2
 
             default:
-                break;
-            }
-
-            break;
-
-        case 2:
-            // printf("\n2\n\n");
-
-            next_instruction = 3;
-            operandA = cpu_ram_read(cpu, cpu->pc + 1);
-            operandB = cpu_ram_read(cpu, cpu->pc + 2);
-
-            switch (instruction_register)
-            {
-            case LDI:
-                cpu->registers[ operandA ] = operandB;
-                break;
-
-            case MUL:
-                // printf("\n%d * %d = %d\n\n", cpu->registers[ operandA ], cpu->registers[ operandB ], cpu->registers[ operandA ] * cpu->registers[ operandB ]);
-                cpu->registers[ operandA ] = cpu->registers[ operandA ] * cpu->registers[ operandB ];
-                break;
-
-            default:
-                break;
-            }
-
-            break;
-
-        default:
-            // printf("\nHLT\n\n");
-            running = 0;
+                running = 0;
         }
 
         cpu->pc = cpu->pc + next_instruction;
@@ -134,6 +126,7 @@ void cpu_init(struct cpu *cpu)
 {
     // TODO: Initialize the PC and other special registers
     cpu->pc = 0;
+    cpu->registers[7] = cpu->ram[244];
 
     // TODO: Zero registers and RAM
 }
