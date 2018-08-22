@@ -71,13 +71,13 @@ void cpu_run(struct cpu *cpu)
     while (running)
     {
         program_counter = cpu->pc;
-        instruction_register = cpu_ram_read(cpu, cpu->pc);
+        instruction_register = cpu_ram_read(cpu, program_counter);
 
         switch (instruction_register >> 6)
         {
             case 1:
                 next_instruction = 2;
-                operandA = cpu_ram_read(cpu, cpu->pc + 1);
+                operandA = cpu_ram_read(cpu, program_counter + 1);
 
                 switch (instruction_register)
                 {
@@ -117,8 +117,8 @@ void cpu_run(struct cpu *cpu)
 
             case 2:
                 next_instruction = 3;
-                operandA = cpu_ram_read(cpu, cpu->pc + 1);
-                operandB = cpu_ram_read(cpu, cpu->pc + 2);
+                operandA = cpu_ram_read(cpu, program_counter + 1);
+                operandB = cpu_ram_read(cpu, program_counter + 2);
 
                 switch (instruction_register)
                 {
