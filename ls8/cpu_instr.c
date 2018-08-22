@@ -7,8 +7,8 @@
  * CPU Instruction: Adds values in regA and regB and stores result in regA
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
- * @param opA {unsigned char} Operand A: regA.
- * @param opB {unsigned char} Operand B: regB.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
  */
 void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
@@ -20,7 +20,7 @@ void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
- * @param opB {unsigned char} Operand B: N/A.
+ * @param opB {unsigned char} Operand B: --
  */
 void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
@@ -59,7 +59,7 @@ void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
- * @param opB {unsigned char} Operand B: N/A
+ * @param opB {unsigned char} Operand B: --
  */
 void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB){
   cpu->registers[opA] = cpu->ram[cpu->registers[SP]];
@@ -71,7 +71,7 @@ void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB){
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
- * @param opB {unsigned char} Operand B: N/A
+ * @param opB {unsigned char} Operand B: --
  */
 void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
@@ -83,7 +83,7 @@ void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
- * @param opB {unsigned char} Operand B: N/A
+ * @param opB {unsigned char} Operand B: --
  */
 void handle_PUSH(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
@@ -95,8 +95,8 @@ void handle_PUSH(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * CPU Instruction: Returns from subroutine using address in stack
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
- * @param opA {unsigned char} Operand A: N/A
- * @param opB {unsigned char} Operand B: N/A
+ * @param opA {unsigned char} Operand A: --
+ * @param opB {unsigned char} Operand B: --
  */
 void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
