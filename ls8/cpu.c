@@ -7,51 +7,46 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
 } 
 
 void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR) {
-  cpu->ram[MDR] = MDR; 
+  cpu->ram[MAR] = MDR; 
 } 
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  const int DATA_LEN = 6;
-  // const char data[DATA_LEN] = {
-    char data [6] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  char line[1024]; 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    if (address > 255) {
+  FILE *fp = fopen(filename, "r"); 
+  
+  while(fgets(line, sizeof(line), fp) != NULL) {
+    char *endchar; 
+    unsigned char v = strtoul(line, &endchar, 2); 
 
+    if (line == endchar) {
+      continue; 
     }
-    cpu->ram[address++] = data[i];
-  }
 
-  // TODO: Replace this with something less hard-coded
+    cpu_ram_write(cpu, address++, v); 
+  }
 }
 
 /**
  * ALU
  */
+
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
     
     case ALU_ADD: 
       // TODO 
+      
       break; 
 
     // TODO: implement more ALU ops
@@ -90,6 +85,10 @@ void cpu_run(struct cpu *cpu)
 
       case HLT: 
         running = 0; 
+        break; 
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break; 
 
       default: 
