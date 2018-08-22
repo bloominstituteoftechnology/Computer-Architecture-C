@@ -37,6 +37,10 @@ void cpu_load(char *filename, struct cpu *cpu)
     fprintf(stderr, "Cannot open file %s\n", filename);
     exit(1);
   }
+    #if DEBUG
+     printf("\n**********Lines from file:***********\n");
+     #endif
+
     while (fgets(line, sizeof(line), fp) != NULL) { // read line from file and store in line up to 256 bytes.
       char *ptr;
       unsigned char byte = strtoul(line, &ptr, 2);
@@ -44,10 +48,15 @@ void cpu_load(char *filename, struct cpu *cpu)
         continue;
       }
       cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
+      #if DEBUG
+      printf("Value of line: %s", line);
+      #endif
     }
+   
     #if DEBUG
+    printf("\n*******RAM in Load*******\n");
     for (unsigned long i = 0; i < 256; i++) {
-      printf("What is this? %u\n", cpu->ram[i]);
+      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
     }
     #endif
   // TODO: Replace this with something less hard-coded
@@ -70,10 +79,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char *reg = cpu->reg;
   unsigned char valB = reg[regB];
   switch (op) {
-    // case ALU_ADD:
-    //   reg[regA = regA + regB;
-    //   // TODO
-    //   break;
+    case ALU_ADD:
+      reg[regA] += valB;
+      break;
     // case ALU_AND:
     //   regA = regA & regB;
     //   break;
@@ -89,6 +97,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
+
+// void push(struct cpu *cpu, unsigned char regA)
+// {
+//   cpu_ram_write(cpu, cpu->reg[--SP], regA);
+// }
+
+// unsigned char pop(struct cpu *cpu)
+// {
+//   unsigned char popped = cpu_ram_read(cpu, cpu->reg[SP++])
+//   return popped;
+// }
 
 /**
  * Run the CPU
@@ -109,17 +128,20 @@ void cpu_run(struct cpu *cpu)
 
     switch(IR)
     {
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      case CALL:
+        // push(cpu, PC+=difference);
+        // PC = cpu->reg[operandA];
       case LDI:
         reg[operandA] = operandB;
-        // PC+=difference;
         break;
       case PRN:
         printf("%d\n", reg[operandA]);
-        // PC+=difference;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // PC+= difference;
         break;
       case POP:
         reg[operandA] = cpu->ram[SP++];
@@ -134,6 +156,7 @@ void cpu_run(struct cpu *cpu)
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
     }
+
     PC+=difference;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -142,9 +165,11 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
   }
   #if DEBUG
+    printf("\n********RAM in run********\n");
       for (unsigned long i = 0; i < 256; i++) {
-      printf("What is this? %u\n", cpu->ram[i]);
+      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
     }
+    printf("\n*******End of debugger********\n\n");
   #endif
 }
 
