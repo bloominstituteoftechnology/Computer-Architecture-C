@@ -61,6 +61,12 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+  >cpu.c -- does the actual cpu emulation work
+  >cpu.h -- the header file to instantiate the cpu.c functions
+  >ls8.c -- holds the main function to run the cpu emulator
+  >MakeFile -- creates an executable for us to run
+  >examples(folder) -- contains example functions for reference
+
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
