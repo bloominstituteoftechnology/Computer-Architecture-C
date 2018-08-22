@@ -57,6 +57,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
+    case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -74,6 +78,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    int autoset = 1;
     
     // 2. switch() over it to decide on a course of action.
     switch(IR)
@@ -94,6 +99,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
       case PUSH:
         cpu->registers[7] -= 1;
         cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
@@ -104,12 +113,25 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[7] -= 1;
         break;
 
+      case CALL:
+        cpu->registers[7] -= 1;
+        cpu->ram[cpu->registers[7]] = cpu->PC+2;
+        cpu->PC = cpu->registers[operandA];
+        autoset = 0;
+        break;
+
+      case RET:
+        cpu->PC = cpu->ram[cpu->registers[7]];
+        cpu->registers[7] -= 1;
+        autoset = 0;
+        break;
+
       default:
         running = 0;
         break;
     }
 
-    cpu->PC += (IR >> 6) + 1;
+    if (autoset == 1) cpu->PC += (IR >> 6) + 1;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 
