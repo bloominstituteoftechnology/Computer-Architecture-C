@@ -43,7 +43,7 @@ void cpu_load(char* arg, struct CPU *cpu)
   //end original code
 
   FILE *fp;
-  char line[256];
+  char line[1024];
   int line_no = 0;
   char *pointer;
 
@@ -56,7 +56,8 @@ void cpu_load(char* arg, struct CPU *cpu)
   else {
     while(fgets(line, sizeof(line), fp)!= NULL) {
       
-      cpu->ram[line_no++] = strtoul(line, &pointer, 2);
+      unsigned char value = strtoul(line, &pointer, 2);
+      cpu_ram_write(cpu, line_no++, value);
 
     }
     fclose(fp);
