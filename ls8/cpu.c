@@ -13,14 +13,12 @@
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  unsigned char a;
-  unsigned char b;
- 
+  unsigned char a = cpu->registers[regA];
+  unsigned char b = cpu->registers[regB];
+
   switch (op)
   {
     case ALU_MUL:
-      a = cpu->registers[regA];
-      b = cpu->registers[regB];
       cpu->registers[regA] = a * b;
       break;
   }
