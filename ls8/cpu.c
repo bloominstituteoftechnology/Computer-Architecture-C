@@ -87,7 +87,9 @@ void alu(struct CPU *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MOD:
       reg[regA] = reg[regA]%reg[regB];
       break;
-    // TODO: implement more ALU ops
+  
+    default:
+      fprintf(stderr, "ALU_switch instruction error");
   }
 }
 
