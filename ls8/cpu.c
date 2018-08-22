@@ -18,8 +18,8 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 
 void cpu_load(struct cpu *cpu)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  //const int DATA_LEN = 6;
+  char data[6] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -31,7 +31,7 @@ void cpu_load(struct cpu *cpu)
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < 6; i++) {
     cpu->ram[address++] = data[i];
   }
 
@@ -73,13 +73,14 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
 
-      // case PRN:
-      //   printf("print8: %d", cpu->registers[operandA]);
-      //   break;
+      case PRN:
+        printf("print8: %d\n", cpu->registers[operandA]);
+        cpu->pc += 2;
+        break;
 
-      // case HLT:
-      //   running = 0;
-      //   break;
+      case HLT:
+        running = 0;
+        break;
 
       default:
         printf("unknown instruction: %02x, %02x", cpu->pc, IR);
