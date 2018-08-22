@@ -17,9 +17,13 @@
 // up to the compiler which it uses.
 
 // Holds all information about the CPU
-typedef enum alu_op {
- ALU_MUL
-}op;
+enum alu_op {
+ ALU_MUL,
+ ALU_ADD,
+ ALU_DIV,
+ ALU_SUB,
+ ALU_MOD
+};
 
 
 struct CPU {
