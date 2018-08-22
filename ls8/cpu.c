@@ -109,7 +109,7 @@ void cpu_run(struct cpu *my_cpu)
         my_cpu->registers[args[0]] *= my_cpu->registers[args[1]];
         break;
     }
-    my_cpu->PC += 1;
+    my_cpu->PC++;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
