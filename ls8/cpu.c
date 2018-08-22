@@ -45,8 +45,8 @@ void cpu_load(struct cpu *my_cpu, char* file_name)
 // Make cpu_ram_read and cpu_ram_write
 // they do what they sound like
 
-unsigned char cpu_ram_read(struct cpu *my_cpu, int index) {
-  return my_cpu->ram[index];
+unsigned char cpu_ram_read(struct cpu *my_cpu) {
+  return my_cpu->ram[my_cpu->PC];
 }
 
 void cpu_ram_write(struct cpu *my_cpu, int index, unsigned char new_symbol) {
@@ -79,28 +79,37 @@ void cpu_run(struct cpu *my_cpu)
 
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(my_cpu, my_cpu->PC);
+    unsigned char IR = cpu_ram_read(my_cpu);
     // 2. switch() over it to decide on a course of action.
 
-    unsigned char diff = ((IR >> 6) & 0b11) + 1;
+    //This gives us the number of arguments to expect
+    unsigned char num_args = (IR >> 6) & 0b11;
 
-    unsigned char arg_slot_1 = cpu_ram_read(my_cpu, my_cpu->PC + 1);
-    unsigned char arg_slot_2 = cpu_ram_read(my_cpu, my_cpu->PC + 2);
+    //We'll hold the arguments in here
+    unsigned char args[2];
+
+    //Loop for the expected number of arguments and read from each
+    //After incrementing PC to read the appropriate slot
+    for (int i = 0; i < num_args; i++) {
+      my_cpu->PC++;
+      args[i] = cpu_ram_read(my_cpu);
+    }
+
     switch(IR) {
       case LDI:
-        my_cpu->registers[arg_slot_1] = arg_slot_2;
+        my_cpu->registers[args[0]] = args[1];
         break;
       case PRN:
-        printf("%d\n", my_cpu->registers[arg_slot_1]);
+        printf("%d\n", my_cpu->registers[args[0]]);
         break;
       case HLT:
         running = 0;
         break;
       case MUL:
-        my_cpu->registers[arg_slot_1] *= my_cpu->registers[arg_slot_2];
+        my_cpu->registers[args[0]] *= my_cpu->registers[args[1]];
         break;
     }
-    my_cpu->PC += diff;
+    my_cpu->PC += 1;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
