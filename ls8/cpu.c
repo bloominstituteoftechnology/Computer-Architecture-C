@@ -85,9 +85,10 @@ void cpu_run(struct cpu *cpu)
                      * POP
                      */
                     case POP:
-                        cpu->registers[ operandA ] = cpu->ram[ cpu->registers[7] ];  // set the value where `stack pointer` is pointing to in to the given register
-                        // printf("\nPopping %d from RAM[ %d ] into REGISTER[ %d ]\n\n", cpu->ram[ cpu->registers[7] ], cpu->registers[7], operandA);
-                        cpu->registers[7] = ++cpu->sp;  // increase where our stack pointer is pointing to on RAM
+                        // set the value where `stack pointer` is pointing to in to the given register
+                        cpu->registers[ operandA ] = cpu->ram[ cpu->registers[7] ];
+                        // increase where our stack pointer is pointing to on RAM
+                        cpu->registers[7] = ++cpu->sp;
                         break;
                     
                     /**
@@ -101,9 +102,10 @@ void cpu_run(struct cpu *cpu)
                      * PUSH
                      */
                     case PUSH:
-                        cpu->registers[7]             = --cpu->sp;  // decrease `stack pointer` by 1
-                        cpu->ram[ cpu->registers[7] ] = cpu->registers[ operandA ];  // set the value of `R1` to wherever our `stack pointer`, `R7`, is pointing to
-                        // printf("\nPushing %d into RAM[ %d ]\n\n", cpu->registers[ operandA ], cpu->sp);
+                        // decrease `stack pointer` by 1
+                        cpu->registers[7] = --cpu->sp;
+                        // set the value of `R1` to wherever our `stack pointer`, `R7`, is pointing to
+                        cpu->ram[ cpu->registers[7] ] = cpu->registers[ operandA ];
                         break;
 
                     /**
@@ -124,7 +126,6 @@ void cpu_run(struct cpu *cpu)
                 {
                     case LDI:
                         cpu->registers[ operandA ] = operandB;
-                        // printf("\nSaving %d on R%d\n\n", operandB, operandA);
                         break;
 
                     case MUL:
@@ -157,145 +158,3 @@ void cpu_init(struct cpu *cpu)
 
     // TODO: Zero registers and RAM
 }
-
-// switch(instruction_register)
-// {
-//     case ADD:
-//         printf("ADD");
-//         break;
-
-//     case AND:
-//         printf("AND");
-//         break;
-
-//     case CALL:
-//         printf("CALL");
-//         break;
-
-//     case CMP:
-//         printf("CMP");
-//         break;
-
-//     case DEC:
-//         printf("DEC");
-//         break;
-
-//     case DIV:
-//         printf("DIV");
-//         break;
-
-//     case HLT:
-//         printf("HLT");
-//         break;
-
-//     case INC:
-//         printf("INC");
-//         break;
-
-//     case INT:
-//         printf("INT");
-//         break;
-
-//     case IRET:
-//         printf("IRET");
-//         break;
-
-//     case JEQ:
-//         printf("JEQ");
-//         break;
-
-//     case JGE:
-//         printf("JGE");
-//         break;
-
-//     case JGT:
-//         printf("JGT");
-//         break;
-
-//     case JLE:
-//         printf("JLE");
-//         break;
-
-//     case JLT:
-//         printf("JLT");
-//         break;
-
-//     case JMP:
-//         printf("JMP");
-//         break;
-
-//     case JNE:
-//         printf("JNE");
-//         break;
-
-//     case LD:
-//         printf("LD");
-//         break;
-
-//     case LDI:
-//         printf("LDI");
-//         break;
-
-//     case MOD:
-//         printf("MOD");
-//         break;
-
-//     case MUL:
-//         printf("MUL");
-//         break;
-
-//     case NOP:
-//         printf("NOP");
-//         break;
-
-//     case NOT:
-//         printf("NOT");
-//         break;
-
-//     case OR:
-//         printf("OR");
-//         break;
-
-//     case POP:
-//         printf("POP");
-//         break;
-
-//     case PRA:
-//         printf("PRA");
-//         break;
-
-//     case PRN:
-//         printf("PRN");
-//         break;
-
-//     case PUSH:
-//         printf("PUSH");
-//         break;
-
-//     case RET:
-//         printf("RET");
-//         break;
-
-//     case SHL:
-//         printf("SHL");
-//         break;
-
-//     case SHR:
-//         printf("SHR");
-//         break;
-
-//     case ST:
-//         printf("ST");
-//         break;
-
-//     case SUB:
-//         printf("SUB");
-//         break;
-
-//     case XOR:
-//         printf("XOR");
-//         break;
-
-//     default:
-//         printf("\n%d\n", instruction_register);
-// }
