@@ -73,6 +73,18 @@ void get_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
 }
 
 /**
+ * Checks if current instruction is a PC mutator
+ * PC mutators will set the PC, removing the need to increment PC
+ * 
+ * @param instr {unsigned char} Current instruction.
+ */
+int isPCMutator(unsigned char instr)
+{
+  instr <<= 3;
+  return (instr >>= 7) == 1;
+}
+
+/**
  * Initialize a CPU struct
  * 
  * Initializes the PC and other special registers. -> TODO
@@ -129,6 +141,7 @@ void cpu_load(struct cpu *cpu, char *program)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1;
+  int pcMutator = 0;
   unsigned char operandA;
   unsigned char operandB;
   handler *branch_table = malloc(255 * sizeof *branch_table);
@@ -136,6 +149,7 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
     cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+    pcMutator = isPCMutator(cpu->ir);
 
     if (cpu->ir == HLT)
     {
@@ -147,7 +161,9 @@ void cpu_run(struct cpu *cpu)
     operandB = '\0';
     get_operands(&operandA, &operandB, cpu);
     branch_table[cpu->ir](cpu, operandA, operandB);
-    cpu->pc++;
+
+    if (!pcMutator)
+      cpu->pc++;
   }
 
   free(branch_table);
