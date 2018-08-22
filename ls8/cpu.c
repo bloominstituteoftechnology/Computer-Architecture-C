@@ -56,11 +56,11 @@ void cpu_ram_write(struct cpu *my_cpu, int index, unsigned char new_symbol) {
 /**
  * ALU
  */
-void alu(struct cpu *my_cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *my_cpu, enum alu_op op, unsigned char reg_a, unsigned char reg_b)
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      my_cpu->registers[reg_a] *= my_cpu->registers[reg_b];
       break;
 
     // TODO: implement more ALU ops
@@ -106,7 +106,7 @@ void cpu_run(struct cpu *my_cpu)
         running = 0;
         break;
       case MUL:
-        my_cpu->registers[args[0]] *= my_cpu->registers[args[1]];
+        alu(my_cpu, ALU_MUL, args[0], args[1]);
         break;
     }
     my_cpu->PC++;
