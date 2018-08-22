@@ -101,28 +101,43 @@ void cpu_run(struct cpu *my_cpu)
     switch(IR) {
       case LDI:
         my_cpu->registers[args[0]] = args[1];
+        my_cpu->PC++;
         break;
       case PRN:
         printf("%d\n", my_cpu->registers[args[0]]);
+        my_cpu->PC++;
         break;
       case HLT:
         running = 0;
         break;
       case MUL:
         alu(my_cpu, ALU_MUL, args[0], args[1]);
+        my_cpu->PC++;
         break;
       case POP:
         my_cpu->registers[args[0]] = my_cpu->ram[my_cpu->registers[7]++];
+        my_cpu->PC++;
         break;
       case PUSH:
         my_cpu->ram[--my_cpu->registers[7]] = my_cpu->registers[args[0]];
+        my_cpu->PC++;
+        break;
+      case CALL:
+        my_cpu->ram[--my_cpu->registers[7]] = ++my_cpu->PC;
+        my_cpu->PC = my_cpu->registers[args[0]];
+        break;
+      case RET:
+        my_cpu->PC = my_cpu->ram[my_cpu->registers[7]++];
         break;
       case ADD:
         alu(my_cpu, ALU_ADD, args[0], args[1]);
         my_cpu->PC++;
         break;
+      default:
+        printf("wut?");
+        break;
     }
-    my_cpu->PC++;
+
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
