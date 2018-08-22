@@ -1,10 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
 
   // char array[200];
@@ -18,8 +19,15 @@ int main(void)
   // fclose(fPointer);
   struct cpu cpu;
 
+  if (argc != 2) {
+    fprintf(stderr, "usage: ls8 filename\n");
+    exit(1);
+  }
+
+  char *filename = argv[1];
+
+  cpu_load(&cpu, filename);
   cpu_init(&cpu);
-  cpu_load(&cpu);
   cpu_run(&cpu);
 
   return 0;
