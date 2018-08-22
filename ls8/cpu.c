@@ -1,6 +1,7 @@
 #include <stdlib.h> // Exit is stored here.
 #include <stdio.h> // Because you're using printf() without a prototype.
 #include "cpu.h"
+#include <string.h>
 
 // Helper functions for efficiency -- to prevent repeating yourself.
 // For better readability and detect bugs.
@@ -17,26 +18,44 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  const unsigned int DATA_LEN = 6;
-  char data[6] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+
+  // const unsigned int DATA_LEN = 6;
+  // char data[6] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < 6; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  // TODO: Replace this with something less hard-coded
+  FILE * fp;
+  fp = fopen(file, "r");
 
   int address = 0;
 
-  for (int i = 0; i < 6; i++) {
-    cpu->ram[address++] = data[i];
+  char line[1000];
+
+  while (fgets(line, sizeof(line), fp))
+  {
+    char *endptr;
+    unsigned long int new_line;
+
+    new_line = strtoul(line, &endptr, 2);
+    cpu->ram[address++] = new_line;
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -47,10 +66,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     case ALU_ADD:
-      // TODO
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -71,8 +91,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
 
     // Its arguments or operands.
-    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
 
     // printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
@@ -81,16 +101,20 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->pc += 3;
+        // cpu->pc += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->pc += 2; 
+        // cpu->pc += 2; 
         break;
         
       case HLT:
         running = 0;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       default:
@@ -100,7 +124,7 @@ void cpu_run(struct cpu *cpu)
 
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-
+    cpu->pc += (IR >> 6) + 1;
   }
 }
 
