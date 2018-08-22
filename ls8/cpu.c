@@ -139,6 +139,14 @@ void cpu_run(struct CPU *cpu)
         alu(cpu, ALU_MOD, operandA, operandB);
         PC +=3;
         break;
+      case POP:
+        reg[operandA] = cpu_ram_read(cpu, *SP++);
+        PC +=2;
+        break;
+      case PUSH:
+        cpu_ram_write(cpu, *--SP, reg[operandA]);
+        PC +=2;
+        break;
       case PRN:
         printf("%d\n", reg[operandA]);
         PC+=2;
