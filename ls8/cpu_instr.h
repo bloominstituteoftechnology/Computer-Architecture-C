@@ -37,9 +37,12 @@
 #define PRN 0b01000111
 #define PRA 0b01001000
 
+typedef void (*handler)(struct cpu *, unsigned char, unsigned char);
+
 // Function declarations
-extern void handle_HLT(int *running);
-extern void handle_LDI(unsigned char registers[], unsigned char reg, unsigned char immediate);
-extern void handle_PRN(unsigned char registers[], unsigned char reg);
+extern void load_cpu_instructions(handler *bt);
+extern void handle_HLT(int *status);
+extern void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB);
 
 #endif
