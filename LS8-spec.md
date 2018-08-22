@@ -379,6 +379,16 @@ Machine code:
 01010110 00000rrr
 56 0r
 ```
+`JNE register`
+
+If `E` flag is clear (false, 0), jump to the address stored in the given
+register.
+
+Machine code:
+```
+01010110 00000rrr
+56 0r
+```
 
 ### LD
 
@@ -566,7 +576,7 @@ filling the high bits with 0.
 AD 0a 0b
 ```
 
-### ST
+###  
 
 `ST registerA registerB`
 

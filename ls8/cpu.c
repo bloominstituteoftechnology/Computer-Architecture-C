@@ -18,7 +18,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
   // file pointer
   FILE *fp;
   int address = 0;
-  char read[25];
+  char read[100];
 
   fp = fopen(argv[1], "r");
   if(fp == NULL) {
@@ -52,6 +52,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void cpu_jump(struct cpu *cpu, unsigned char address){
+  cpu->pc = cpu->reg[address];
+}
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1;
@@ -65,13 +69,31 @@ void cpu_run(struct cpu *cpu)
 
     int instruction_set_pc = (IR >> 4) & 1;
     switch(IR){
+      case JNE:
+        if(!cpu->fl) cpu_jump(cpu, operandA);
+        else cpu->pc += 2;
+        break;
+      case JEQ:
+        if(cpu->fl) cpu_jump(cpu, operandA);
+        else cpu->pc += 2;
+        break;
+      case JMP:
+        cpu_jump(cpu, operandA);
+        instruction_set_pc = 1;
+        break;
+      case CMP:
+        if(cpu->reg[operandA] == cpu->reg[operandB]) cpu->fl = 1;
+        break;
+      case ST:
+        cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
+        break;
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
       case CALL:
         cpu->sp--;
         cpu_ram_write(cpu, cpu->sp, (cpu->pc + 2));
-        cpu->pc = cpu->reg[operandA];
+        cpu_jump(cpu, operandA);
         break;
       case RET:
         cpu->pc = cpu_ram_read(cpu, cpu->sp++);
@@ -118,6 +140,7 @@ void cpu_init(struct cpu *cpu)
   // Zeroing out the pc, registers and ram
   cpu->sp = 244;
   cpu->pc = 0;
+  cpu->fl = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->RAM, 0, sizeof(cpu->RAM));
 }
