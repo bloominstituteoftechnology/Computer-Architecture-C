@@ -4,6 +4,21 @@
 #include "cpu_instr.h"
 
 /**
+ * CPU Instruction: Calls subroutine stored at address in register
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: N/A.
+ */
+void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  cpu->registers[TMP] = cpu->pc + 1;
+  handle_PUSH(cpu, TMP, '\0');
+  cpu->pc = cpu->registers[opA];
+  cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+}
+
+/**
  * CPU Instruction: Halts the CPU and exits emulator
  * 
  * @param status {int*} Pointer to cpu loop variable.
@@ -75,15 +90,31 @@ void handle_PUSH(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Returns from subroutine using address in stack
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: N/A
+ * @param opB {unsigned char} Operand B: N/A
+ */
+void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  handle_POP(cpu, TMP, '\0');
+  cpu->pc = cpu->registers[TMP];
+  cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+}
+
+/**
  * Loads CPU instructions into branch table
  * 
  * @param bt {handler*} Pointer to an array of function pointers.
  */
 void load_cpu_instructions(handler *bt)
 {
+  bt[CALL] = handle_CALL;
   bt[LDI] = handle_LDI;
   bt[MUL] = handle_MUL;
   bt[POP] = handle_POP;
   bt[PRN] = handle_PRN;
   bt[PUSH] = handle_PUSH;
+  bt[RET] = handle_RET;
 }
