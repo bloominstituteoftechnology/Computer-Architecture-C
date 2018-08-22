@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "cpu.h"
 #include "cpu_instr.h"
 
@@ -110,26 +111,26 @@ void cpu_load(struct cpu *cpu)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1;
+  unsigned char operandA;
+  unsigned char operandB;
+  handler *branch_table = malloc(255 * sizeof *branch_table);
+  load_cpu_instructions(branch_table);
 
   while (running) {
-    unsigned char operandA = '\0';
-    unsigned char operandB = '\0';
     cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
-    get_operands(&operandA, &operandB, cpu);
 
-    switch (cpu->ir)
+    if (cpu->ir == HLT)
     {
-      case HLT:
-        handle_HLT(&running);
-        break;
-      case LDI:
-        handle_LDI(cpu->registers, operandA, operandB);
-        break;
-      case PRN:
-        handle_PRN(cpu->registers, operandA);
-        break;
+      handle_HLT(&running);
+      continue;
     }
 
+    operandA = '\0';
+    operandB = '\0';
+    get_operands(&operandA, &operandB, cpu);
+    branch_table[cpu->ir](cpu, operandA, operandB);
     cpu->pc++;
   }
+
+  free(branch_table);
 }
