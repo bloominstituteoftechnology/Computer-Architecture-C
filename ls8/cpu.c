@@ -30,7 +30,7 @@ void cpu_load(struct cpu *cpu, char* filename)
         exit(1);
     }
 
-    char* line[3];
+    char line[100];
     int index = 0;
     char* point;
 
