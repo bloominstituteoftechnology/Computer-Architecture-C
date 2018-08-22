@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
 #include "cpu_instr.h"
@@ -79,28 +80,36 @@ void cpu_init(struct cpu *cpu)
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param program {char*} Pointer to program path.
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *program)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
+  FILE *fp = fopen(program, "r");
+  char *line = NULL;
+  size_t len = 9;
+  int data_len = 0;
   int address = 0;
+  unsigned char data[256];
 
-  for (int i = 0; i < DATA_LEN; i++)
+  if (fp == NULL)
   {
-    cpu->ram[address++] = data[i];
+    printf("error: could not open program %s", program);
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (getline(&line, &len, fp) != -1)
+  {
+    if (line[0] != '#')
+      data[data_len++] = strtoul(line, NULL, 2);
+  }
+
+  for (int i = 0; i < data_len; i++)
+    cpu->ram[address++] = data[i];
+
+  free(line);
+  fclose(fp);
 }
 
 /**
