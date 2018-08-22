@@ -25,7 +25,6 @@ enum alu_op {
 #define RET  0b00010001
 #define PUSH 0b01000101
 #define CALL 0b01010000
-#define MULT2PRINT 0b00011000
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *argv[]);

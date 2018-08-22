@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->RAM[address];
@@ -23,7 +19,6 @@ void cpu_load(struct cpu *cpu, char *argv[])
   FILE *fp;
   int address = 0;
   char read[25];
-  unsigned long instruction;
 
   fp = fopen(argv[1], "r");
   if(fp == NULL) {
@@ -33,22 +28,23 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
   // loop until fgets is at the end of the file
   while (fgets(read, sizeof(read), fp)) {
+    unsigned long instruction;
+    char *endptr;
     // cast line to binary until instruction is captured
-    instruction = strtoul(read, NULL, 2);
+    instruction = strtoul(read, &endptr, 2);
     // write instruction to RAM @address
-    cpu_ram_write(cpu, address++, instruction);
-    }
+    if(!(*read == *endptr)) cpu_ram_write(cpu, address++, instruction);
   }
+}
 
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
-      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
     case ALU_ADD:
-      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
-      printf("ADD instruciton for ALU provided\n"); 
+      cpu->reg[regA] += cpu->reg[regB];
       break;
     default:
       printf("No instruciton for ALU provided\n"); 
@@ -64,18 +60,18 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // Read Instructions from RAM
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
-
     // Read additional operands 
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
+    int instruction_set_pc = (IR >> 4) & 1;
     switch(IR){
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
       case CALL:
         sp--;
-        cpu->RAM[sp] = cpu->reg[operandA+1];
+        cpu->RAM[sp] = cpu->pc + 2;
         cpu->pc = cpu->reg[operandA];
         break;
       case RET:
@@ -111,7 +107,11 @@ void cpu_run(struct cpu *cpu)
     }
     // add to the PC according to the executed instruction
     // using >> bitwise shifting of the binary instruction
-    if(IR != 0b01010000) cpu->pc += (IR >> 6) + 1;
+
+
+    if (!instruction_set_pc) {
+      cpu->pc += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
