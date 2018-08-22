@@ -1,15 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
   struct cpu cpu;
 
-  char *filename = "./examples/call.ls8";
+  if (argc != 2) {
+    fprintf(stderr, "need filename");
+    exit(1);
+  }
 
+  char *filename = argv[1];
+  
   cpu_init (&cpu);
   cpu_load(filename, &cpu);
   cpu_run(&cpu);
