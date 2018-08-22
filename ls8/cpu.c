@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/time.h>
+// #include <unistd.h> // For sleep()
 #include "cpu.h"
 #include "handlers.h"
 
@@ -84,6 +86,11 @@ void alu(struct cpu *cpu, enum alu_op op)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  // Time Measurement
+  // Src: http://www.cs.loyola.edu/~jglenn/702/S2008/Projects/P3/time.html
+  struct timeval start, end;
+  gettimeofday(&start, NULL);
+
   unsigned char IR;
 
   while (running) {
@@ -93,6 +100,12 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 
+    gettimeofday(&end, NULL);
+    if ((end.tv_sec - start.tv_sec) >= 1) {
+      printf("\nAt least 1 second has elasped.\n");
+      gettimeofday(&start, NULL);
+    }
+
     IR = cpu_ram_read(cpu, cpu->PC);
 
     switch (IR) {
@@ -101,6 +114,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case LDI:
         handleLDI(cpu);
+        break;
+      case ST:
+        handleST(cpu);
         break;
       case PRN:
         handlePRN(cpu);
@@ -157,7 +173,7 @@ void cpu_run(struct cpu *cpu)
   printf("\n");
   // Print first 16 positions of the stack in memory
   for (int q = 0xF3; q > (0xF3 - 0x08); q--) {
-    printf("stack @ addr:%i: %i\n", q, cpu_ram_read(cpu, q));
+    printf("stack @ addr:%i:\t%i\n", q, cpu_ram_read(cpu, q));
   }
   // Print current stack pointer
   // At 0th place, SP should be 0xF4/244;

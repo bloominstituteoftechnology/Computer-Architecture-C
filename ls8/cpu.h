@@ -21,6 +21,7 @@ struct cpu {
 
 #define LD   0b10000011
 #define LDI  0b10000010
+#define ST   0b10000100
 #define PRN  0b01000111
 #define PRA  0b01001000
 #define ADD  0b10100000
