@@ -70,13 +70,10 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->pc += 3;
         break;
 
       case PRN:
         printf("print8: %d\n", cpu->registers[operandA]);
-        cpu->pc += (IR >> 6) + 1; 
-       // cpu->pc += 2;
         break;
 
       case HLT:
@@ -89,6 +86,8 @@ void cpu_run(struct cpu *cpu)
     }
 
     // Move the PC to the next instruction.
+
+    cpu->pc += (IR >> 6) + 1;
   }
 }
 
@@ -98,6 +97,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+cpu->pc = 0;
   // TODO: Zero registers and RAM
 }
