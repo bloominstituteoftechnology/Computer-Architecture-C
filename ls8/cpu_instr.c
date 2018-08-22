@@ -4,6 +4,18 @@
 #include "cpu_instr.h"
 
 /**
+ * CPU Instruction: Adds values in regA and regB and stores result in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: regA.
+ * @param opB {unsigned char} Operand B: regB.
+ */
+void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_ADD, opA, opB);
+}
+
+/**
  * CPU Instruction: Calls subroutine stored at address in register
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -110,6 +122,7 @@ void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
  */
 void load_cpu_instructions(handler *bt)
 {
+  bt[ADD] = handle_ADD;
   bt[CALL] = handle_CALL;
   bt[LDI] = handle_LDI;
   bt[MUL] = handle_MUL;
