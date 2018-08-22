@@ -8,7 +8,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   return cpu->ram[address];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
 }
@@ -50,14 +50,14 @@ void cpu_load(struct cpu *cpu, char *filename)
   //   0b00000001  // HLT
   };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
-}
+// }
 
 /**
  * ALU
@@ -94,6 +94,9 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
+    //POP
+    unsigned char sp = cpu->reg[7];
+
     printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
     switch(IR) {
@@ -112,9 +115,26 @@ void cpu_run(struct cpu *cpu)
           running = 0;
           break;
 
-        cae MUL:
+        case MUL:
           alu(cpu, ALU_MUL, operandA, operandB);
+          cpu->pc += 3;
           break;
+
+        case POP:
+          cpu->reg[operandA] = cpu_ram_read(cpu, sp);
+          printf("read: %02x\n", cpu_ram_read(cpu, sp));
+          sp++; 
+          cpu->pc += 2;
+          break;
+
+        case PUSH:
+          sp--;
+          printf("this is an sp: %d\n", sp);
+          printf("this is a val: %02x\n", cpu->reg[operandA]);
+          cpu_ram_write(cpu, sp, cpu->reg[operandA]);
+          cpu->pc += 2;
+          break;
+
 
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
@@ -131,5 +151,6 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
 }
