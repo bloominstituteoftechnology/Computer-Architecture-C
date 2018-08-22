@@ -53,7 +53,8 @@ void cpu_load(struct cpu *cpu, char *filename)
   while(fgets(line, sizeof line, fp) != NULL)
   {
     // printf("test %s\n", line);
-    unsigned char *end;   // cut it before #
+    // or puts(line);
+    unsigned char *end;   // end of binary number, cut it before #
     unsigned char b_number; // return the binary part
 
     b_number = strtoul(line, &end, 2);
@@ -64,7 +65,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     {
       continue;
     }
-
+    // load it in the memory
     cpu_ram_write(cpu, address++, b_number);
   }
 }
@@ -130,6 +131,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, argv_a, argv_b);
         break;
 
+      case PUSH:
+        cpu->registers[7]--;
+        cpu->ram[cpu->registers[7]] = cpu->registers[argv_a];
+        break;
+
+      case POP:
+        cpu->registers[argv_a] = cpu->ram[cpu->registers[7]];
+        cpu->registers[7]++;
+        break;
+
       default:
         printf("error, invalid instruction %x\n", IR);
         break;
@@ -146,6 +157,11 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+
+  // initialize SP.  R7 reserves for SP starts at address F4 in RAM    
+  cpu->registers[7] = 0xF4;  
+
+
   // TODO: Zero registers and RAM
 
   for (int i = 0; i < 256; i++) {   // 256 is the size of RAM

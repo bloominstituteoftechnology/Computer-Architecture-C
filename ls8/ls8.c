@@ -5,7 +5,7 @@
 /**
  * Main
  */
-int main(int argc, char *argv[])
+int main(int argc, char *argv[])  //**argv is the same
 {
   struct cpu cpu;
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    fprintf(stderr, "./ls8 examples/file.ls8\n");
+    fprintf(stderr, "usage: ./ls8 filename\n");
     exit(1);
   }
 
