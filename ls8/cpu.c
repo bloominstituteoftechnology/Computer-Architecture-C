@@ -16,26 +16,24 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu,  char *file)
 {
-  //const int DATA_LEN = 6;
-  char data[6] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+ FILE * f;
+  f = fopen(file, "r");
 
   int address = 0;
 
-  for (int i = 0; i < 6; i++) {
-    cpu->ram[address++] = data[i];
+  char line[256];
+
+  while (fgets(line, sizeof(line), f)) {
+    char *endptr;
+    unsigned long int new_line;
+
+    new_line = strtoul(line, &endptr, 2);
+    cpu->ram[address++] = new_line;
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(f);
 }
 
 /**
@@ -45,7 +43,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -73,11 +71,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN:
-        printf("print8: %d\n", cpu->registers[operandA]);
+        printf("%d\n", cpu->registers[operandA]);
         break;
 
       case HLT:
         running = 0;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       default:
