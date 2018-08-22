@@ -15,7 +15,8 @@ struct cpu {
 #define SP 7
 enum alu_op
 {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD
 };
 
 // Instructions
@@ -26,7 +27,8 @@ enum alu_op
 #define LDI  0b10000010   
 #define PRN  0b01000111 // PRN R0   
 #define HLT  0b00000001 
-#define MUL  0b10100010 
+#define MUL  0b10100010
+#define ADD  0b10100000 
 #define PUSH 0b01000101
 #define POP  0b01000110
 #define CALL 0b01010000
