@@ -153,11 +153,11 @@ void cpu_run(struct cpu *cpu)
 
   while (1) {
     cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
-    pcMutator = isPCMutator(cpu->ir);
 
     if (cpu->ir == HLT)
       break;
 
+    pcMutator = isPCMutator(cpu->ir);
     get_operands(&opA, &opB, cpu);
     branch_table[cpu->ir](cpu, opA, opB);
 
