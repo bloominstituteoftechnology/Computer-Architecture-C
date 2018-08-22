@@ -141,6 +141,9 @@ void cpu_run(struct cpu *cpu)
       case JEQ:
         handleJEQ(cpu);
         break;
+      case JNE:
+        handleJNE(cpu);
+        break;
       case HLT:
         running = 0;
         break;
