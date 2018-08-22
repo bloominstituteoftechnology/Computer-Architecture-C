@@ -4,18 +4,27 @@
 #include "cpu_instr.h"
 
 /**
- * ALU
+ * Performs operations for ALU -> TODO: implement more ALU ops
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param op {enum alu_op} ALU operation enumerator value.
+ * @param regA {unsigned char} Value stored in register A.
+ * @param regB {unsigned char} Value stored in register B.
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  unsigned char a;
+  unsigned char b;
+ 
+  switch (op)
+  {
+    case ALU_MUL:
+      a = cpu->registers[regA];
+      b = cpu->registers[regB];
+      cpu->registers[regA] = a * b;
+      break;
+  }
+}
 
 /**
  * Reads from RAM address and stores value into store
