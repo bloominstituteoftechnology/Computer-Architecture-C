@@ -35,6 +35,11 @@ enum alu_op
   ALU_SHR
 };
 
+// Reserved Registers
+#define IM 5
+#define IS 6
+#define SP 7
+
 // Function declarations
 extern void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB);
 extern void cpu_load(struct cpu *cpu, char *program);
