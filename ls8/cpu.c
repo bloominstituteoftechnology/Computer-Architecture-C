@@ -145,22 +145,18 @@ void cpu_load(struct cpu *cpu, char *program)
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1;
   int pcMutator = 0;
   unsigned char opA = '\0';
   unsigned char opB = '\0';
   handler *branch_table = malloc(255 * sizeof *branch_table);
   load_cpu_instructions(branch_table);
 
-  while (running) {
+  while (1) {
     cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
     pcMutator = isPCMutator(cpu->ir);
 
     if (cpu->ir == HLT)
-    {
-      handle_HLT(&running);
-      continue;
-    }
+      break;
 
     get_operands(&opA, &opB, cpu);
     branch_table[cpu->ir](cpu, opA, opB);
