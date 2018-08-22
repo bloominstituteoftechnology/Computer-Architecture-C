@@ -81,6 +81,15 @@ void cpu_run(struct cpu *cpu)
                 switch (instruction_register)
                 {
                     /**
+                     * POP
+                     */
+                    case POP:
+                        cpu->registers[ operandA ] = cpu->ram[ cpu->registers[7] ];  // set the value where `stack pointer` is pointing to in to the given register
+                        // printf("\nPopping %d from RAM[ %d ] into REGISTER[ %d ]\n\n", cpu->ram[ cpu->registers[7] ], cpu->registers[7], operandA);
+                        cpu->registers[7] = ++cpu->sp;  // increase where our stack pointer is pointing to on RAM
+                        break;
+                    
+                    /**
                      * PRN
                      */
                     case PRN:
@@ -93,6 +102,7 @@ void cpu_run(struct cpu *cpu)
                     case PUSH:
                         cpu->registers[7]             = --cpu->sp;  // decrease `stack pointer` by 1
                         cpu->ram[ cpu->registers[7] ] = cpu->registers[ operandA ];  // set the value of `R1` to wherever our `stack pointer`, `R7`, is pointing to
+                        // printf("\nPushing %d into RAM[ %d ]\n\n", cpu->registers[ operandA ], cpu->sp);
                         break;
 
                     /**
@@ -113,6 +123,7 @@ void cpu_run(struct cpu *cpu)
                 {
                     case LDI:
                         cpu->registers[ operandA ] = operandB;
+                        // printf("\nSaving %d on R%d\n\n", operandB, operandA);
                         break;
 
                     case MUL:
