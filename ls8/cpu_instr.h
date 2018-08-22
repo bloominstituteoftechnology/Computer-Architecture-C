@@ -49,5 +49,6 @@ extern void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PUSH(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_ST(struct cpu *cpu, unsigned char opA, unsigned char opB);
 
 #endif
