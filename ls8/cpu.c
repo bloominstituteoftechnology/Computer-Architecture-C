@@ -37,8 +37,8 @@ void cpu_load(struct cpu *cpu, char *file)
       if (line != end_of_binary_number)
       {
         // printf("*line == *end_of_binary_number : %d\n\n", line == end_of_binary_number);
-        printf("CPU_LOAD: **** Adding entry to RAM ****\n");
-        cpu->ram[ram_index++] = strtoul(line, NULL, 2);
+        printf("CPU_LOAD: **** Adding entry to RAM index: %d ****\n", ram_index);
+        cpu->ram[ram_index++] = binary_code;
       }
     }
   }
@@ -118,6 +118,7 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
+  cpu->reg[7] = 0xF3;
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
