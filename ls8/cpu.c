@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //from solution lecture
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -45,6 +46,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
     cpu->ram[address++] = strtoul(buffer, &pointer, 2); // convert string to unsigned long integer, base 2
     // store string in the pointer
   }
+  fclose(fp);
 //  for (int i = 0; i < DATA_LEN; i++) {
 //    cpu->ram[address++] = data[i];
 //  }
@@ -105,7 +107,19 @@ void cpu_run(struct cpu *cpu)
             cpu->registers[operandA] = operandB;
             cpu->PC += 3;
             break;
+        case PUSH:
+            cpu->registers[7] -= 1;
+            cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+            cpu->PC += 2;
+            break;
+        case POP:
+            cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
+            cpu->registers[7] += 1;
+            cpu->PC += 2;
+            break;
         default:
+            fprintf(stderr, "wtf\n");
+            exit(2);
             break;
     }
   }
@@ -118,8 +132,15 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers = (unsigned char *) calloc(8, sizeof(unsigned char));
-  cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
+  cpu->registers[7] = 0xF4;
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+// tried doing this a different way that made more sense to me
+// https://stackoverflow.com/questions/23778404/clear-a-c-array
+
+
+//  cpu->registers = (unsigned char) calloc(8, sizeof(unsigned char));
+//  cpu->ram = (unsigned char) calloc(256, sizeof(unsigned char));
 // I got some help from a classmate on the calloc stuff, but now that I see it, it makes sense
 // since calloc sets the allocated memory to zero: https://www.tutorialspoint.com/c_standard_library/c_function_calloc.htm
   // TODO: Zero registers and RAM
