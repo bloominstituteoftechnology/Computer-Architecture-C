@@ -26,6 +26,18 @@ void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Multiplies values in regA and regB and stores result in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: immediate.
+ */
+void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_MUL, opA, opB);
+}
+
+/**
  * CPU Instruction: Prints numeric value stored in given register
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -45,5 +57,6 @@ void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB)
 void load_cpu_instructions(handler *bt)
 {
   bt[LDI] = handle_LDI;
+  bt[MUL] = handle_MUL;
   bt[PRN] = handle_PRN;
 }
