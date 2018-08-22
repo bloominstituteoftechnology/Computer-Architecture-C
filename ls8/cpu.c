@@ -9,7 +9,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
  void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 {
     cpu->ram[address] = value;
-    cpu->ram[address] = value;
 }
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -18,7 +17,7 @@ void cpu_load(struct cpu* cpu)
 {
   const int DATA_LEN = 6;
 
-  char data[DATA_LEN] = {
+  char data[6] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
