@@ -31,16 +31,6 @@ void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
- * CPU Instruction: Halts the CPU and exits emulator
- * 
- * @param status {int*} Pointer to cpu loop variable.
- */
-void handle_HLT(int *status)
-{
-  *status = 0;
-}
-
-/**
  * CPU Instruction: Sets value of register to an integer
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
