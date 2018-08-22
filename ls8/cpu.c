@@ -62,6 +62,9 @@ void alu(struct cpu *my_cpu, enum alu_op op, unsigned char reg_a, unsigned char 
     case ALU_MUL:
       my_cpu->registers[reg_a] *= my_cpu->registers[reg_b];
       break;
+    case ALU_ADD:
+      my_cpu->registers[reg_a] += my_cpu->registers[reg_b];
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -113,6 +116,10 @@ void cpu_run(struct cpu *my_cpu)
         break;
       case PUSH:
         my_cpu->ram[--my_cpu->registers[7]] = my_cpu->registers[args[0]];
+        break;
+      case ADD:
+        alu(my_cpu, ALU_ADD, args[0], args[1]);
+        my_cpu->PC++;
         break;
     }
     my_cpu->PC++;
