@@ -16,7 +16,27 @@ struct cpu {
   unsigned char ram[256];
 };
 
+// ALU Operations
+enum alu_op
+{
+  ALU_ADD,
+  ALU_SUB,
+  ALU_MUL,
+  ALU_DIV,
+  ALU_MOD,
+  ALU_INC,
+  ALU_DEC,
+  ALU_CMP,
+  ALU_AND,
+  ALU_NOT,
+  ALU_OR,
+  ALU_XOR,
+  ALU_SHL,
+  ALU_SHR
+};
+
 // Function declarations
+extern void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB);
 extern void cpu_load(struct cpu *cpu, char *program);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
