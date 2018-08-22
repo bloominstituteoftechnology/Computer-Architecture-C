@@ -182,7 +182,11 @@ void handle_instruction(struct cpu *cpu)
     break;
   // case INT:
   // case IRET:
-  // case JMP:
+  case JMP:
+    printf("JMP. HANDLER FOUND\n");
+    cpu->PC = cpu->reg[cpu->ram[cpu->PC + 1]];
+    printf("PC set to %d\n", cpu->PC);
+    break;
   // case JEQ:
   // case JNE:
   // case JGT:
@@ -197,7 +201,7 @@ void handle_instruction(struct cpu *cpu)
     break;
   case LDI:
     printf("LDI. HANDLER FOUND\n");
-    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
+    cpu->ram[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
     printf("LDI. number set to: %d, in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
   // case LD:
