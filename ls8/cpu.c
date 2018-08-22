@@ -177,7 +177,13 @@ void handle_instruction(struct cpu *cpu)
     break;
   // case LD:
   // case ST:
-  // case PUSH:
+  case PUSH:
+    printf("PUSH. HANDLER FOUND\n");
+    cpu->reg[7] -= 1;
+    printf("SP move form %d to %d\n", cpu->reg[7] + 1, cpu->reg[7]);
+    cpu->ram[cpu->reg[7]] = cpu->reg[cpu->ram[cpu->PC + 1]];
+    printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[7]], cpu->ram[cpu->PC + 1], cpu->reg[7]);
+    break;
   // case POP:
   case PRN:
     printf("PRN. HANDLER FOUND\n");
