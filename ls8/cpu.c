@@ -44,9 +44,9 @@ void cpu_load(char *filename, struct cpu *cpu)
       }
       cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
     }
-    // for (unsigned long i = 0; i < 256; i++) {
-    //   printf("What is this? %u\n", cpu->ram[i]);
-    // }
+    for (unsigned long i = 0; i < 256; i++) {
+      printf("What is this? %u\n", cpu->ram[i]);
+    }
   // TODO: Replace this with something less hard-coded
 }
 
@@ -138,6 +138,9 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
+      for (unsigned long i = 0; i < 256; i++) {
+      printf("What is this? %u\n", cpu->ram[i]);
+    }
 }
 
 /**
@@ -148,6 +151,7 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   cpu->reg = (unsigned char *) calloc(8, sizeof(unsigned char));
   cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
+  cpu->reg[7] = 244;
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
