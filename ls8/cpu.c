@@ -2,12 +2,12 @@
 #include <stdlib.h> 
 #include "cpu.h"
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
-  return cpu->ram[address]; 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
+  return cpu->ram[MAR]; 
 } 
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) {
-  cpu->ram[address] = value; 
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR) {
+  cpu->ram[MDR] = MDR; 
 } 
 
 /**
@@ -82,12 +82,10 @@ void cpu_run(struct cpu *cpu)
     switch (IR) {
       case LDI: 
         cpu->reg[operandA] = operandB; 
-        cpu->pc += 3; 
         break; 
 
       case PRN: 
         printf("%d\n", cpu->reg[operandA]); 
-        cpu->pc +=2; 
         break; 
 
       case HLT: 
@@ -98,6 +96,7 @@ void cpu_run(struct cpu *cpu)
         printf("unknown insruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);  
     }
+    cpu->pc += (IR >> 6) + 1; 
   }
 }
 
