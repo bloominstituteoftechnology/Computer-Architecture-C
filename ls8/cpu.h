@@ -7,14 +7,12 @@ struct cpu {
   unsigned char PC; //PC has address of next instruction to be executed
   unsigned char registers[8];
   unsigned char ram[256];
-  unsigned char SP;
 };
 
 enum alu_op
 {
     ALU_MUL,
-    ALU_PUSH,
-    ALU_POP
+    ALU_ADD,
 };
 
 // Instructions

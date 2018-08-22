@@ -43,7 +43,12 @@ void cpu_load(struct cpu *cpu, char *argv[])
   }
   while (fgets(buffer, sizeof(buffer), fp) != NULL)
   {
-    cpu->ram[address++] = strtoul(buffer, &pointer, 2); // convert string to unsigned long integer, base 2
+      unsigned char data = strtoul(buffer, &pointer, 2);
+      if (pointer == buffer)
+      {
+          continue;
+      }
+      cpu->ram[address++] = data;
     // store string in the pointer
   }
   fclose(fp);
@@ -66,6 +71,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       reg[regA] *= reg[regB];
       break;
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      reg[regA] += reg[regB];
+      break;
     default:
       break;
   }
@@ -90,6 +98,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // some operations need the two bytes after PC to perform operations
     // so we're creating variables just in case
+    //printf("IR %d\n PC %d\n", IR, cpu->PC);
     switch (IR)
     {
         case MUL:
@@ -105,7 +114,8 @@ void cpu_run(struct cpu *cpu)
             break;
         case LDI:
             cpu->registers[operandA] = operandB;
-            cpu->PC += 3;
+            cpu->PC += 3 ;
+        //    printf ("ldi %d\n", cpu->PC);
             break;
         case PUSH:
             cpu->registers[7] -= 1;
@@ -116,6 +126,24 @@ void cpu_run(struct cpu *cpu)
             cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
             cpu->registers[7] += 1;
             cpu->PC += 2;
+            break;
+        case ADD:
+        //    printf ("what is up with the add?");
+            alu(cpu, ALU_ADD, operandA, operandB);
+            cpu->PC += 3;
+        //    printf ("add %d\n", cpu->PC);
+            break;
+        case CALL:
+            cpu->registers[7] -= 1;
+            cpu->ram[cpu->registers[7]] = cpu->PC + 2;
+        //    printf ("call1 %d\n", cpu->PC);
+            cpu->PC = cpu->registers[operandA];
+        //    printf ("call %d\n", cpu->PC);
+            break;
+        case RET:
+            cpu->PC = cpu->ram[cpu->registers[7]];
+			cpu->registers[7] += 1;
+		//	printf ("ret %d\n", cpu->PC);
             break;
         default:
             fprintf(stderr, "wtf\n");
