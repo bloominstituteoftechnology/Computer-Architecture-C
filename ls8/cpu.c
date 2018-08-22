@@ -3,6 +3,24 @@
 #include <string.h>
 #include "cpu.h"
 
+// Pushes a value on the CPU stack.
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+// Pops a value from the CPU stack.
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return val;
+}
+
 // Helper functions for efficiency -- to prevent repeating yourself.
 // For better readability and detect bugs.
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -45,21 +63,31 @@ void cpu_load(struct cpu *cpu, char *file)
   // Here, we are basically opening the .ls8 file in the RAM.
   // TODO: Replace this with something less hard-coded
   FILE *fp;
-  fp = fopen(file, "r");
-
-  int address = 0;
-
   char line[1000];
+  int address = ADDR_PROGRAM_ENTRY;
 
-  while (fgets(line, sizeof(line), fp))
+  // Opens the source file.
+  if ((fp = fopen(file, "r")) == NULL)
   {
-    char *endptr;
-    unsigned long int new_line;
+    fprintf(stderr, "Error: File cannot be opened.%s\n", file);
+    exit(2);
+  }
 
-    // The strtoul() function converts a string to an unsigned long integer.
-    // Here, we're basically converting the binary strings to integer values to store in RAM.
-    new_line = strtoul(line, &endptr, 2);
-    cpu->ram[address++] = new_line;
+  // Reads all the lines and store them in RAM.
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    // The strtol() function converts a string to an integer/number.
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+
+    // Ignores line from which no numbers were read.
+    if (endchar == line)
+    {
+      continue;
+    }
+
+    // Here, we're basically storing in RAM the binary strings we have converted to integer values.
+    cpu->ram[address++] = byte;
   }
 
   fclose(fp);
@@ -127,6 +155,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case PUSH:
+        cpu_push(cpu, cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_pop(cpu);
+        break;
+
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
@@ -144,6 +180,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
+
   // Loads the bytes in address 0.
   cpu->pc = 0;
 
