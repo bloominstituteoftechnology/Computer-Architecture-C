@@ -83,6 +83,8 @@ void get_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->pc = 0b00000000;
+  cpu->ir = 0b00000000;
+  cpu->registers[SP] = 0xF4;
 }
 
 /**
