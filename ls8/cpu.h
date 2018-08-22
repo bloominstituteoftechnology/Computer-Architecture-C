@@ -43,7 +43,9 @@ enum alu_op
 
 // Function declarations
 extern void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB);
-extern void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *store);extern void cpu_load(struct cpu *cpu, char *program);
+extern void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *store);
+extern void cpu_ram_write(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *program);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
