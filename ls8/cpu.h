@@ -18,10 +18,10 @@
 
 // Holds all information about the CPU
 enum alu_op {
- ALU_MUL,
- ALU_ADD,
- ALU_DIV,
- ALU_SUB,
+  ALU_MUL,
+  ALU_ADD,
+  ALU_DIV,
+  ALU_SUB,
   ALU_MOD,
 };
 
