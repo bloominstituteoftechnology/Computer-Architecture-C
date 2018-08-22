@@ -17,8 +17,8 @@ void cpu_load(struct cpu *cpu, char *file)
   char str[256];
   char *pointer;
 
-  while(fgets(str, sizeof(str), fp) != NULL) {
-    cpu->ram[index++] = strtoul(str, &pointer, 2);
+  while(fgets(str, sizeof(str), fp) != NULL) { // gets the string from the file
+    cpu->ram[index++] = strtoul(str, &pointer, 2); // converts binary to base 10 
   }
 
 };
@@ -39,6 +39,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
+      cpu->PC += 3;
       break;
 
     case ALU_ADD:
@@ -74,9 +76,23 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
       
+      // case MUL:
+      //   cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
+      //   cpu->PC += 3;
+      //   break;
+
       case MUL:
-        cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
-        cpu->PC += 3;
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu->reg[7] -= 1;
+        cpu->ram[cpu->reg[7]] = cpu->reg[operandA];
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu->ram[cpu->reg[7]];
+        cpu->reg[7] += 1;
         break;
 
       case HLT:
@@ -87,11 +103,6 @@ void cpu_run(struct cpu *cpu)
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
     }
-
-    // 3. Do whatever the instruction should do according to the spec.
-
-    // 4. Move the PC to the next instruction.
-
   }
 }
 
@@ -103,4 +114,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
+  cpu->reg[7] = 0xF4;
 }
