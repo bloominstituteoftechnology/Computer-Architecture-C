@@ -9,7 +9,8 @@ struct cpu {
 };
 
 enum alu_op {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD
 };
 
 // Instructions  struct cpu my_cpu;
