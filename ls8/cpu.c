@@ -48,6 +48,7 @@ void cpu_load(char *filename, struct cpu *cpu)
         continue;
       }
       cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
+      
       #if DEBUG
       printf("Value of line: %s", line);
       #endif
@@ -100,7 +101,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 // void push(struct cpu *cpu, unsigned char regA)
 // {
-//   cpu_ram_write(cpu, cpu->reg[--SP], regA);
+//   cpu_ram_write(cpu, --cpu->reg[7], regA);
 // }
 
 // unsigned char pop(struct cpu *cpu)
@@ -130,34 +131,43 @@ void cpu_run(struct cpu *cpu)
     {
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
+        PC+=difference;
         break;
-      case CALL:
-        // push(cpu, PC+=difference);
-        // PC = cpu->reg[operandA];
       case LDI:
         reg[operandA] = operandB;
+        PC+=difference;
         break;
       case PRN:
         printf("%d\n", reg[operandA]);
+        PC+=difference;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        PC+=difference;
         break;
       case POP:
         reg[operandA] = cpu->ram[SP++];
+        PC+=difference;
         break;
       case PUSH:
         cpu_ram_write(cpu, --SP, reg[operandA]);
+        PC+=difference;
         break;
       case HLT:
         running = 0;
+        break;
+      case RET:
+        PC = cpu->ram[SP++];
+        break;
+      case CALL:
+        cpu_ram_write(cpu, --SP, PC+=difference);
+        PC = cpu->reg[operandA];
         break;
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
     }
 
-    PC+=difference;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
