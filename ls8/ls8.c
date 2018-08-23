@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
@@ -13,7 +14,7 @@ int main(int argc, char *argv[])
   if (argc < 2)
   {
     fprintf(stderr, "Error: Kindly enter name of file.\n");
-    exit(2);
+    exit(1);
   }
 
   cpu_load(&cpu, argv[1]);
