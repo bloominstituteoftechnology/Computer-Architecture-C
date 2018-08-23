@@ -261,25 +261,39 @@ unsigned char pop(struct cpu *cpu)
 }
 void push_state(struct cpu *cpu)
 {
-  push(cpu, cpu->PC);         // Push(PC)
-  push(cpu, cpu->IR);         // Push(IR)
-  push(cpu, cpu->MAR);        // Push(MAR)
-  push(cpu, cpu->MDR);        // Push(MDR)
-  push(cpu, cpu->FL);         // Push(FL)
+  printf("\n\nPUSH_STATE function running\n");
+  push(cpu, cpu->PC); // Push(PC)
+  printf("cpu->PC PUSHED TO STACK");
+  push(cpu, cpu->IR); // Push(IR)
+  printf("cpu->IR PUSHED TO STACK");
+  push(cpu, cpu->MAR); // Push(MAR)
+  printf("cpu->MAR PUSHED TO STACK");
+  push(cpu, cpu->MDR); // Push(MDR)
+  printf("cpu->MDR PUSHED TO STACK");
+  push(cpu, cpu->FL); // Push(FL)
+  printf("cpu->FL PUSHED TO STACK");
   for (int i = 0; i < 7; i++) // Push Ro -> R6
   {
     push(cpu, cpu->reg[0]);
+    printf("cpu->reg[%s] PUSHED TO STACK", i);
   }
 }
 void pop_state(struct cpu *cpu)
 {
+  printf("\n\nPOP_STATE function running\n");
   for (int i = 6; i >= 0; --i) //Pop R6 -> R0
   {
     cpu->reg[i] = pop(cpu);
+    printf("cpu->reg[%s] POPED FROM STACK", i);
   }
-  cpu->FL = pop(cpu);  // Push(FL)
+  cpu->FL = pop(cpu); // Push(FL)
+  printf("cpu->FL POPED FROM STACK");
   cpu->MDR = pop(cpu); // Push(MDR)
+  printf("cpu->MD POPED FROM STACK");
   cpu->MAR = pop(cpu); // Push(MAR)
-  cpu->IR = pop(cpu);  // Push(IR)
-  cpu->PC = pop(cpu);  // Push(PC)
+  printf("cpu->MA POPED FROM STACK");
+  cpu->IR = pop(cpu); // Push(IR)
+  printf("cpu->IR POPED FROM STACK");
+  cpu->PC = pop(cpu); // Push(PC)
+  printf("cpu->PC POPED FROM STACK");
 }
