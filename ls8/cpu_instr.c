@@ -99,6 +99,20 @@ void handle_INC(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Sets regA to value of memory address stored in regB
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_LD(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  cpu->mar = cpu->registers[opB];
+  cpu_ram_read(cpu);
+  cpu->registers[opA] = cpu->mdr;
+}
+
+/**
  * CPU Instruction: Sets value of register to an integer
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -142,6 +156,18 @@ void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: No operation
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: --
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_NOP(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  return;
+}
+
+/**
  * CPU Instruction: Performs a bitwise-NOT on regA
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -177,6 +203,18 @@ void handle_OR(struct cpu *cpu, unsigned char opA, unsigned char opB)
 void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB){
   cpu->registers[opA] = cpu->ram[cpu->registers[SP]];
   cpu->registers[SP] += 1;
+}
+
+/**
+ * CPU Instruction: Prints alpha character value stored in given register
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_PRA(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  printf("%c\n", cpu->registers[opA]);
 }
 
 /**
@@ -296,12 +334,15 @@ void load_cpu_instructions(handler *bt)
   bt[DEC] = handle_DEC;
   bt[DIV] = handle_DIV;
   bt[INC] = handle_INC;
+  bt[LD] = handle_LD;
   bt[LDI] = handle_LDI;
   bt[MOD] = handle_MOD;
   bt[MUL] = handle_MUL;
+  bt[NOP] = handle_NOP;
   bt[NOT] = handle_NOT;
   bt[OR] = handle_OR;
   bt[POP] = handle_POP;
+  bt[PRA] = handle_PRA;
   bt[PRN] = handle_PRN;
   bt[PUSH] = handle_PUSH;
   bt[RET] = handle_RET;
