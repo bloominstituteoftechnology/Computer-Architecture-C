@@ -92,6 +92,26 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // case ALU_SUB:
     //   regA = regA - regB;
     //   break;
+    case ALU_CMP:
+      #if DEBUG
+      printf("FL is %d\n", cpu->FL);
+      #endif
+      if ((regA - regB) < 0){
+        cpu->FL = 4;
+      }
+      else if ((regA - regB) == 0){
+        cpu->FL = 1;
+      }
+      else if ((regA - regB) > 0){
+        cpu->FL = 2;
+      }
+      else {
+        cpu->FL = 0;
+      }
+      #if DEBUG
+      printf("FL is %d\n", cpu->FL);
+      #endif
+      break;
     case ALU_MUL:
       reg[regA] *= valB;
       break;
@@ -145,7 +165,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       case POP:
-        reg[operandA] = cpu->ram[cpu->reg[SP]]++;
+        reg[operandA] = cpu->ram[cpu->reg[SP]++];
         cpu->PC+=difference;
         break;
       case PUSH:
@@ -197,6 +217,25 @@ void cpu_run(struct cpu *cpu)
         break;
       case JMP:
         cpu->PC = cpu->reg[operandA];
+        break;
+      case CMP:
+        alu(cpu, ALU_CMP, cpu->reg[operandA], cpu->reg[operandB]);
+        cpu->PC+=difference;
+        break;
+      case JEQ:
+        if ((cpu->FL & 0b1) == 0b1){
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
+
+        break;
+      case JNE:
+        if ((cpu->FL & 0b1) == 0b0){
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
         break;
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
