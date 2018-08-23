@@ -1,6 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define SP 7
 // TODO: line 19  cpu.h -- more instructions
 
 // ## Step 1: Implement `struct cpu` in `cpu.h`
