@@ -44,7 +44,7 @@ void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if(cpu->registers[opB] == 0){
-    printf("error: could not open program");
+    printf("error: dividing by zero");
     exit(1);
   }
   alu(cpu, ALU_DIV, opA, opB);
@@ -60,6 +60,25 @@ void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB)
 void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   cpu->registers[opA] = opB;
+}
+
+/**
+ * CPU Instruction: Divides values in regA and regB and stores remainder in regA
+ * 
+ * Issues error and exits program if regB is 0
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_MOD(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->registers[opB] == 0)
+  {
+    printf("error: dividing by zero");
+    exit(1);
+  }
+  alu(cpu, ALU_MOD, opA, opB);
 }
 
 /**
@@ -166,6 +185,7 @@ void load_cpu_instructions(handler *bt)
   bt[CALL] = handle_CALL;
   bt[DIV] = handle_DIV;
   bt[LDI] = handle_LDI;
+  bt[MOD] = handle_MOD;
   bt[MUL] = handle_MUL;
   bt[POP] = handle_POP;
   bt[PRN] = handle_PRN;
