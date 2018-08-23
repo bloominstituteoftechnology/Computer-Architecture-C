@@ -42,18 +42,23 @@ typedef void (*handler)(struct cpu *, unsigned char, unsigned char);
 // Function declarations
 extern void load_cpu_instructions(handler *bt);
 extern void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_AND(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_CMP(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_DEC(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_INC(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_MOD(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_NOT(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_OR(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PUSH(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_ST(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_SUB(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_XOR(struct cpu *cpu, unsigned char opA, unsigned char opB);
 
 #endif
