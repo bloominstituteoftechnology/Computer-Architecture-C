@@ -88,12 +88,13 @@ void cpu_run(struct CPU *cpu)
 
   unsigned char *reg = cpu->reg;
   unsigned char PC = (int)cpu->PC;
-  unsigned char SP = reg[7];
+
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
         unsigned char IR = cpu_ram_read(cpu, PC);
+        unsigned char bit_shift = (IR >> 6) + 1;  
         unsigned char operandA = cpu_ram_read(cpu, (PC + 1));
         unsigned char operandB = cpu_ram_read(cpu, (PC + 2));
 
@@ -103,17 +104,19 @@ void cpu_run(struct CPU *cpu)
     {
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
-        PC +=3;
+        // PC +=3;
         break;
       case CALL:
         //goes to specific address
+        reg[SP] -= 1;
+        cpu_ram_write(cpu, SP, PC += bit_shift);
         
 
         break;
 
       case DIV:
         alu(cpu, ALU_DIV, operandA, operandB);
-        PC +=3;
+        // PC +=3;
         break;
 
       case HLT:
@@ -126,47 +129,51 @@ void cpu_run(struct CPU *cpu)
 
       case LDI:
         reg[operandA] = operandB;
-        PC+=3;
+        // PC+=3;
         break;
 
       case MOD:
         alu(cpu, ALU_MOD, operandA, operandB);
-        PC +=3;
+        // PC +=3;
         break;
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        PC+=3;
+        // PC+=3;
         break;
 
       case POP:
-        reg[operandA] = cpu_ram_read(cpu, SP++);
-        PC +=2;
+        reg[SP]++;
+        reg[operandA] = cpu_ram_read(cpu, SP);
+        // PC +=2;
         break;
 
       case PRN:
         printf("%d\n", reg[operandA]);
-        PC+=2;
+        // PC+=2;
         break;
 
       case PUSH:
-        cpu_ram_write(cpu, --SP, reg[operandA]);
-        PC +=2;
+        reg[SP]--;
+        cpu_ram_write(cpu, SP, reg[operandA]);
+        // PC +=2;
         break;
       case RET:
         //go back to where you came from
-        
+        cpu_ram_read(cpu, reg[operandA]);
         break;
 
       case SUB:
         alu(cpu, ALU_SUB, operandA, operandB);
-        PC +=3;
+        // PC +=3;
         break;
 
       default:
         fprintf(stderr, "Error setting instruction\n");
         exit(2);
     }
+    PC += bit_shift; //moves PC to next instruction
+
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -183,7 +190,7 @@ void cpu_init(struct CPU *cpu)
   cpu->MAR = 0;
   cpu->MDR = 0;
   cpu->FL = 0;
-  cpu->reg[7] = 0xF4;
+  cpu->reg[SP] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
