@@ -45,6 +45,7 @@ extern void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_MOD(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_POP(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB);
