@@ -83,6 +83,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+
+    case ALU_ADD:
+      // TODO
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
   }
 }
 
@@ -130,14 +135,37 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, argv_a, argv_b);
         break;
+      
+      case ADD:
+        alu(cpu, ALU_ADD, argv_a, argv_b);
+        break;
 
       case PUSH:
+        // decrement the stack pointer
         cpu->registers[7]--;
+        // then assign the value to the spot that sp points to
         cpu->ram[cpu->registers[7]] = cpu->registers[argv_a];
+        // Vlad's approach which is pretty neat
+        // write the value into the cpu->registers[7]
+        // cpu_ram_write(cpu, cpu->registers[7], cpu->registers[argv_a]);
         break;
 
       case POP:
+        // pretty much oposite from PUSH
         cpu->registers[argv_a] = cpu->ram[cpu->registers[7]];
+        // Vlad's approch
+        // cpu->registers[argv_a] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
+        break;
+
+      case CALL:
+        cpu->registers[7]--;
+        cpu_ram_write(cpu, cpu->registers[7], cpu->PC + (IR_size - 1));
+        cpu->PC = cpu->registers[argv_a] - IR_size;
+        break;
+
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->registers[7]++;
         break;
 
