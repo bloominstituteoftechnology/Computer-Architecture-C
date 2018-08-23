@@ -46,7 +46,7 @@ The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
 Memory map:
 
 ```
-      top of RAM
+      top of RAM (*array*)
 +-----------------------+
 | FF  I7 vector         |    Interrupt vector table
 | FE  I6 vector         |
