@@ -7,9 +7,9 @@ struct cpu {
   // PC
   unsigned char pc;
   // registers (array)
-  unsigned char *reg;
+  unsigned char reg[8];
   // ram (array)
-  unsigned char *ram;
+  unsigned char ram[256];
 };
 
 // Instructions
@@ -20,7 +20,12 @@ struct cpu {
 #define LDI 0b10000010
 #define PRN 0b01000111
 #define HLT 0b00000001
+#define ADD 0b10100000
 #define MUL 0b10100010
+#define PUSH 0b01000101
+#define POP 0b01000110
+#define CALL 0b01010000
+#define RET 0b00010001
 // TODO: more instructions here. These can be used in cpu_run().
 
 enum alu_op {
@@ -30,7 +35,6 @@ enum alu_op {
 
 // ALU Ops
 // Arithmetic operations
-// #define ADD 0b10100000
 // #define SUB 0b10100001
 // #define DIV 0b10100011
 // #define MOD 0b10100100
@@ -48,8 +52,6 @@ enum alu_op {
 // #define SHR 0b10101101
 
 // // PC Mutators
-// #define CALL 0b01010000
-// #define RET 0b00010001
 // #define INT 0b01010010
 // #define IRET 0b00010011
 // #define JMP 0b01010100
@@ -65,8 +67,6 @@ enum alu_op {
 // #define LDI 0b10000010
 // #define LD 0b10000011
 // #define ST 0b10000100
-// #define PUSH 0b01000101
-// #define POP 0b01000110
 // #define PRA 0b01001000
 
 // Function declarations

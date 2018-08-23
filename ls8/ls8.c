@@ -10,10 +10,10 @@ int main(int argc, char *argv[])
   struct cpu cpu;
   char *file;
 
-  if (argc ==2) {
+  if (argc == 2) {
     file = argv[1];
   } else {
-    fprintf(stderr, "./ls8 examples/file.ls8\n");
+    fprintf(stderr, "Use case: ./ls8 filename\n");
     exit(1);
   }
   cpu_init(&cpu);

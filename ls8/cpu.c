@@ -22,14 +22,18 @@ void cpu_load(struct cpu *cpu, char *file)
       exit(1);
     }
 
-  int address = 0;
+  unsigned char address = 0;
 
-  char line[256];
+  unsigned char line[1024];
 
-  while (fgets(line, sizeof(line), f)) {
-    char *endptr;
+  while (fgets(line, sizeof(line), f) != NULL) {
+    unsigned char *endptr;
     unsigned long int new_line;
     new_line = strtoul(line, &endptr, 2);
+    if (line == endptr) {
+      continue;
+    }
+    cpu_ram_write(cpu, address++, new_line);
     cpu->ram[address++] = new_line;
   }
 
@@ -44,9 +48,14 @@ void cpu_load(struct cpu *cpu, char *file)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
+
     case ALU_MUL:
       // TODO
       cpu->reg[regA] *= cpu->reg[regB];
+      break;
+    
+    case ALU_ADD:
+      cpu->reg[regA] += cpu-> reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -59,6 +68,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  int address;
+  int IR_size;
 
   while (running) {
     // TODO
@@ -66,6 +77,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+    IR_size = (IR >> 6) + 1;
+    address = cpu->pc;
     
     switch(IR) {
 
@@ -87,11 +100,34 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu->reg[7]--;
+        cpu->ram[cpu->reg[7]] = cpu->reg[operandA];
+        break;
+
+      case POP:
+        cpu-> reg[operandA] = cpu->ram[cpu->reg[7]];
+        cpu->reg[7]++;
+        break;
+
+      case CALL:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->pc + (IR_size - 1));
+        cpu->pc = cpu->reg[operandA] - IR_size;
+        break;
+
+      case RET:
+        cpu->pc = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        break;
+        
       default:
         printf("Cannot identify instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
-
-
     }
 
     cpu->pc += (IR >> 6) + 1;
@@ -110,5 +146,13 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
+  for (int i = 0; i < 256; i++) {
+    cpu->ram[i] = 0;
+  }
+
+  for (int i = 0; i < 8; i++) {
+    cpu->reg[i] = 0;
+  }
 }
