@@ -17,7 +17,7 @@ struct cpu {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define SP 5
+#define SP 7
 
 enum alu_op {
   ALU_MUL,
