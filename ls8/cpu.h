@@ -32,6 +32,10 @@ enum alu_op
   ALU_ADD,
 };
 
+#define IM 5
+#define IS 6
+#define SP 7
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex

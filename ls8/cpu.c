@@ -57,7 +57,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     printf("ALU_MUL: HANDLER FOUND\n");
     printf("regA = %d and regB = %d\n", regA, regB);
     cpu->reg[cpu->ram[cpu->PC + 1]] = regA * regB;
-    printf("Reg-index %d, set to %d * %d = %d\n", cpu->ram[cpu->PC + 1], regA, regB, cpu->reg[cpu->ram[cpu->PC + 1]]);
+    printf("%d\n", cpu->reg[cpu->ram[cpu->PC + 1]]);
+    printf("R%d, set to %d * %d = %d\n", cpu->ram[cpu->PC + 1], regA, regB, cpu->reg[cpu->ram[cpu->PC + 1]]);
     break;
   // TODO: implement more ALU ops
   case ALU_ADD:
@@ -129,7 +130,7 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
-  cpu->reg[7] = 0xF3;
+  cpu->reg[SP] = 0xF3;
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
@@ -166,19 +167,19 @@ void handle_instruction(struct cpu *cpu)
   /* PC mutators */
   case CALL:
     printf("CALL. HANDLER FOUND\n");
-    cpu->reg[7] -= 1;
-    printf("SP move from %d to %d\n", cpu->reg[7] + 1, cpu->reg[7]);
-    cpu->ram[cpu->reg[7]] = cpu->PC + (cpu->IR >> 6) + 1;
-    printf("CALL. Set RAM[SP] = %d\n", cpu->ram[cpu->reg[7]]);
+    cpu->reg[SP] -= 1;
+    printf("SP move from %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
+    cpu->ram[cpu->reg[SP]] = cpu->PC + (cpu->IR >> 6) + 1;
+    printf("CALL. Set RAM[SP] = %d\n", cpu->ram[cpu->reg[SP]]);
     cpu->PC = cpu->reg[cpu->ram[cpu->PC + 1]];
     printf("CALL. PC set to %d\n", cpu->PC);
     break;
   case RET:
     printf("RET. HANDLER FOUND\n");
-    cpu->PC = cpu->ram[cpu->reg[7]];
+    cpu->PC = cpu->ram[cpu->reg[SP]];
     printf("Set PC to %d", cpu->PC);
-    cpu->reg[7] += 1;
-    printf("SP move from %d to %d\n", cpu->reg[7] - 1, cpu->reg[7]);
+    cpu->reg[SP] += 1;
+    printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
     break;
   // case INT:
   // case IRET:
@@ -201,7 +202,7 @@ void handle_instruction(struct cpu *cpu)
     break;
   case LDI:
     printf("LDI. HANDLER FOUND\n");
-    cpu->ram[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
+    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
     printf("LDI. number set to: %d, in R%d\n", cpu->reg[cpu->ram[cpu->PC + 1]], cpu->ram[cpu->PC + 1]);
     break;
   // case LD:
@@ -212,17 +213,17 @@ void handle_instruction(struct cpu *cpu)
     break;
   case PUSH:
     printf("PUSH. HANDLER FOUND\n");
-    cpu->reg[7] -= 1;
-    printf("SP move form %d to %d\n", cpu->reg[7] + 1, cpu->reg[7]);
-    cpu->ram[cpu->reg[7]] = cpu->reg[cpu->ram[cpu->PC + 1]];
-    printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[7]], cpu->ram[cpu->PC + 1], cpu->reg[7]);
+    cpu->reg[SP] -= 1;
+    printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
+    cpu->ram[cpu->reg[SP]] = cpu->reg[cpu->ram[cpu->PC + 1]];
+    printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], cpu->ram[cpu->PC + 1], cpu->reg[SP]);
     break;
   case POP:
     printf("POP. HANDLER FOUND\n");
-    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->reg[7]];
-    printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[7]], cpu->reg[7], cpu->ram[cpu->PC + 1]);
-    cpu->reg[7] += 1;
-    printf("SP move form %d to %d\n", cpu->reg[7], cpu->reg[7] - 1);
+    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->reg[SP]];
+    printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
+    cpu->reg[SP] += 1;
+    printf("SP move form %d to %d\n", cpu->reg[SP], cpu->reg[SP] - 1);
     break;
   case PRN:
     printf("PRN. HANDLER FOUND\n");
