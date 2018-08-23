@@ -75,12 +75,12 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
+        // cpu->PC += 3; // use bit shift method instead
         break;
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
+        // cpu->PC += 2; // use bit shift method instead
         break;
 
       case HLT:
@@ -92,6 +92,11 @@ void cpu_run(struct cpu *cpu)
         printf("unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
     }
+
+    // B I T  S H I F T 
+    cpu->PC += (IR >> 6) + 1; /* bit shift to isolate first two bits following 0b in a binary sequence which 
+                              represent number of operands (0-2 bytes) and then add 1 byte for instruction
+                              such as ADD, LDI, PRN etc */
 
     // 4. Move the PC to the next instruction.
   }
