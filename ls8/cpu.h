@@ -10,6 +10,9 @@ struct cpu {
   unsigned char ram[256]; // ram (array)
 };
 
+// Other general purpose register names 
+#define SP 7
+
 // ALU operations
 enum alu_op {
   ALU_MUL, 
@@ -66,6 +69,9 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
+
+/* It is extends the visibility of variables and fucntions. 
+It also means the storage for this function is allocated in another file. */ 
 
 extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);

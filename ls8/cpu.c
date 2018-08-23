@@ -10,9 +10,9 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR) {
   cpu->ram[MAR] = MDR; 
 } 
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
+/*
+  Load the binary bytes from a .ls8 source file into a RAM array
+*/
 
 void cpu_load(struct cpu *cpu, char *filename)
 {
@@ -31,6 +31,8 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     cpu_ram_write(cpu, address++, v); 
   }
+
+  fclose(fp); 
 }
 
 /**
@@ -43,7 +45,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
       break;
-    
     case ALU_ADD: 
       // TODO 
       
@@ -53,14 +54,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-/**
- * Run the CPU
- */
+/*
+  Run the CPU
+*/
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
+
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
@@ -72,41 +75,44 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); 
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); 
 
-    // printf("TRACE: %02x: %02x\n", cpu->pc, IR); 
-
     switch (IR) {
       case LDI: 
         cpu->reg[operandA] = operandB; 
         break; 
-
       case PRN: 
         printf("%d\n", cpu->reg[operandA]); 
+        break;  
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case PUSH:
+        cpu->reg[SP]--; 
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);  
         break; 
-
+      case POP: 
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]); 
+        cpu->reg[SP]++; 
+        break; 
       case HLT: 
         running = 0; 
         break; 
-
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        break; 
-
       default: 
-        printf("unknown insruction at %02x: %02x\n", cpu->pc, IR);
+        printf("Unknown insruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);  
     }
     cpu->pc += (IR >> 6) + 1; 
   }
 }
 
-/**
- * Initialize a CPU struct
- */
+/*
+  Initialize a CPU struct
+*/
 
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0; 
+  cpu->reg[SP] = 0xf4; 
 
   // TODO: Zero registers and RAM
 }
