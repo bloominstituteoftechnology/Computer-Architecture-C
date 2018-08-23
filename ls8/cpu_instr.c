@@ -221,6 +221,30 @@ void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Shift value in regA to the left by value in regB
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_SHL(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_SHL, opA, opB);
+}
+
+/**
+ * CPU Instruction: Shift value in regA to the right by value in regB
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_SHR(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_SHR, opA, opB);
+}
+
+/**
  * CPU Instruction: Stores value in regB to address in regA
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -281,6 +305,8 @@ void load_cpu_instructions(handler *bt)
   bt[PRN] = handle_PRN;
   bt[PUSH] = handle_PUSH;
   bt[RET] = handle_RET;
+  bt[SHL] = handle_SHL;
+  bt[SHR] = handle_SHR;
   bt[ST] = handle_ST;
   bt[SUB] = handle_SUB;
   bt[XOR] = handle_XOR;
