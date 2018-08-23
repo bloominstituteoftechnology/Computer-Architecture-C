@@ -7,7 +7,7 @@
 #include "cpu.h"
 #include "handlers.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -93,6 +93,10 @@ void cpu_run(struct cpu *cpu)
 
   unsigned char IR;
 
+  #if DEBUG
+  printf("---Program Execution---\n");
+  #endif
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -102,11 +106,17 @@ void cpu_run(struct cpu *cpu)
 
     gettimeofday(&end, NULL);
     if ((end.tv_sec - start.tv_sec) >= 1) {
+      #if DEBUG
       printf("\nAt least 1 second has elasped.\n");
+      #endif
       gettimeofday(&start, NULL);
     }
 
     IR = cpu_ram_read(cpu, cpu->PC);
+
+    #if DEBUG
+    printf("TRACE: %02x: %02x\n", cpu->PC, IR);
+    #endif
 
     switch (IR) {
       case LD:
@@ -170,7 +180,7 @@ void cpu_run(struct cpu *cpu)
   }
 
   #if DEBUG
-  printf("\n");
+  printf("\n---Current Stack State---\n");
   // Print first 16 positions of the stack in memory
   for (int q = 0xF3; q > (0xF3 - 0x08); q--) {
     printf("stack @ addr:%i:\t%i\n", q, cpu_ram_read(cpu, q));
