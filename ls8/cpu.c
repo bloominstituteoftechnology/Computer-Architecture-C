@@ -4,6 +4,9 @@
 #include <string.h>
 
 void handle_instruction(struct cpu *cpu);
+void pop(struct cpu *cpu);
+void push(struct cpu *cpu);
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -95,11 +98,15 @@ void cpu_run(struct cpu *cpu)
     // printf("PC %d\nIRc %c\n", PC, cpu->IR);
 
     handle_instruction(cpu);
-    if (cpu->IR == '\0')
+    if (cpu->IR == '\0') // Exit after HLT handlers is executed.
     {
       break;
     }
+
+    printf(">>>>>  IM has been set? IM value = %d\n", cpu->reg[IM]);
     printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
+
+    // for ()
 
     if (((cpu->IR >> 4) & 1) == 0) // Chekc is the instruction is a PC_Mutator, if not jump to next instruction.
     {
@@ -131,6 +138,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   cpu->reg[SP] = 0xF3;
+  cpu->reg[IM] = 1;
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
@@ -213,17 +221,11 @@ void handle_instruction(struct cpu *cpu)
     break;
   case PUSH:
     printf("PUSH. HANDLER FOUND\n");
-    cpu->reg[SP] -= 1;
-    printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
-    cpu->ram[cpu->reg[SP]] = cpu->reg[cpu->ram[cpu->PC + 1]];
-    printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], cpu->ram[cpu->PC + 1], cpu->reg[SP]);
+    push(cpu);
     break;
   case POP:
     printf("POP. HANDLER FOUND\n");
-    cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->reg[SP]];
-    printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
-    cpu->reg[SP] += 1;
-    printf("SP move form %d to %d\n", cpu->reg[SP], cpu->reg[SP] - 1);
+    pop(cpu);
     break;
   case PRN:
     printf("PRN. HANDLER FOUND\n");
@@ -235,3 +237,20 @@ void handle_instruction(struct cpu *cpu)
     printf("The IR %d-instruction has no handler\n", cpu->IR);
   }
 };
+
+void pop(struct cpu *cpu)
+{
+  printf("\n\nPOP function running\n");
+  cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->reg[SP]];
+  printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
+  cpu->reg[SP] += 1;
+  printf("SP move form %d to %d\n", cpu->reg[SP], cpu->reg[SP] - 1);
+}
+void push(struct cpu *cpu)
+{
+  printf("\n\nPUSH function running\n");
+  cpu->reg[SP] -= 1;
+  printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
+  cpu->ram[cpu->reg[SP]] = cpu->reg[cpu->ram[cpu->PC + 1]];
+  printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], cpu->ram[cpu->PC + 1], cpu->reg[SP]);
+}
