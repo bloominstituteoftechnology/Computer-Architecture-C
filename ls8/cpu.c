@@ -183,7 +183,7 @@ void cpu_init(struct CPU *cpu)
   cpu->MAR = 0;
   cpu->MDR = 0;
   cpu->FL = 0;
-
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
