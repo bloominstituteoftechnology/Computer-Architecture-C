@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define DEBUG 0
+
 //make helper function to make sure address is in range
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -70,6 +72,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -97,8 +100,9 @@ unsigned char sp = cpu->reg[7];
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
     
-
+    #if DEBUG
     printf("TRACE: %02x: %02x\n", cpu->pc, IR);
+    #endif
 
     switch(IR) {
 
@@ -123,17 +127,32 @@ unsigned char sp = cpu->reg[7];
 
         case POP:
           cpu->reg[operandA] = cpu_ram_read(cpu, sp);
-          printf("read: %02x\n", cpu_ram_read(cpu, sp));
           sp++; 
           cpu->pc += 2;
           break;
 
         case PUSH:
           --sp;
-          printf("this is an sp: %d\n", sp);
-          printf("this is a val: %02x\n", cpu->reg[operandA]);
           cpu_ram_write(cpu, sp, cpu->reg[operandA]);
           cpu->pc += 2;
+          break;
+
+        case CALL:
+        //push onto stack
+          --sp;
+          cpu_ram_write(cpu, sp, cpu->pc + 2);
+          cpu->pc = cpu->reg[operandA];
+          break;
+
+        case RET:
+        //pop out of stack
+          cpu->pc = cpu_ram_read(cpu, sp);
+          sp++;
+          break;
+
+        case ADD:
+          alu(cpu, ALU_ADD, operandA, operandB);
+          cpu->pc += 3;
           break;
 
 
