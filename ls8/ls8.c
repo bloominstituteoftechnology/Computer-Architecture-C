@@ -4,13 +4,18 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char* argv[])
 {
-  struct cpu cpu;
+  if (argc == 2) {
+    struct cpu my_cpu;
 
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+    cpu_init(&my_cpu);
+    cpu_load(&my_cpu, argv[1]);
+    cpu_run(&my_cpu);
+  }
+  else{
+    printf("You done messed up.\n");
+  }
 
   return 0;
 }
