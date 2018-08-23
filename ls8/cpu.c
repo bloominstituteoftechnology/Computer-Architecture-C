@@ -88,6 +88,7 @@ void cpu_run(struct CPU *cpu)
 
   unsigned char *reg = cpu->reg;
   unsigned char PC = (int)cpu->PC;
+  unsigned char SP = reg[7];
 
   while (running) {
     // TODO
@@ -100,7 +101,6 @@ void cpu_run(struct CPU *cpu)
 
     switch(IR)
     {
-      unsigned char SP = reg[7];
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         PC +=3;
