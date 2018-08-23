@@ -60,8 +60,12 @@ but you'll have to implement those three above instructions first!
 
 ## Step 0: IMPORTANT: inventory what is here!
 
-* Make a list of files here.
-* Write a short 3-10-word description of what each file does.
+* Make a list of files here and write a short 3-10-word description of what each file does.
+ `examples` directory: Contains helpful examples for the emulator project
+ `cpu.c`: is the actual file that executes the emulator code
+ `cpu.h`: is the header file that takes care of the meta-stuff
+ `ls8.c`: is the file that runs commands as the emulator receives them
+ `MakeFile` -- creates an executable file that runs emulator
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
