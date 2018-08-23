@@ -16,6 +16,8 @@ struct cpu {
 // The CPU could support 256 instructions, as well, but we won't need them.
 };
 
+#define SP 7
+
 enum alu_op {
   ALU_MUL,
   ALU_ADD

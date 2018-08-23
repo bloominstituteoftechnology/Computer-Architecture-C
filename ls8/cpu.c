@@ -1,10 +1,30 @@
 #include <stdio.h>
 #include "cpu.h"
 #include <stdlib.h>
-
+#include <string.h>
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+
+  cpu->ram[cpu->registers[SP]] = val;
+}
+
+/**
+ * Pop a value from the CPU stack
+ */
+unsigned char cpu_pop(struct cpu *cpu)
+
+{
+  unsigned char val = cpu->ram[cpu->registers[SP]];
+
+  cpu->registers[SP]++;
+
+  return val;
+}
+
 void cpu_load(char *filen, struct cpu *cpu)
 {
   // const unsigned int DATA_LEN = 6;
@@ -25,7 +45,7 @@ void cpu_load(char *filen, struct cpu *cpu)
   // }
   FILE *fp;
   char line[1024];
-  int address;
+  int address = 0x00;
 
   if ((fp = fopen(filen, "r")) == NULL) {
     fprintf(stderr, "Error locating file %s\n", filen);
@@ -34,7 +54,7 @@ void cpu_load(char *filen, struct cpu *cpu)
 
     while (fgets(line, sizeof line, fp) != NULL) {
     char *endchar;
-    unsigned char byte = strtol(line, &endchar, 2);;
+    unsigned char byte = strtol(line, &endchar, 2);                
   // TODO: Replace this with something less hard-coded
 
       if (endchar == line) {
@@ -85,8 +105,8 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
         unsigned char IR = cpu->ram[cpu->PC]; //cpu_ram_read(cpu, cpu->PC)
 
-        unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xff]; //cpu_ram_read(cpu, cpu->PC + 1)
-        unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xff]; //cpu_ram_read(cpu, cpu->PC + 2)
+        unsigned char operandA = cpu->ram[(cpu->PC + 1)]; //cpu_ram_read(cpu, cpu->PC + 1)
+        unsigned char operandB = cpu->ram[(cpu->PC + 2)]; //cpu_ram_read(cpu, cpu->PC + 2)
     // 2. switch() over it to decide on a course of action.
         int instruction_set_pc = (IR >> 4) & 1;
 
@@ -106,20 +126,32 @@ void cpu_run(struct cpu *cpu)
 
         switch(IR) {
           case HLT:
-          running = 0;
-          break;
+            running = 0;
+            break;
         
           case LDI:
-          cpu->registers[operandA] = operandB;
-          break;
+           cpu->registers[operandA] = operandB;
+            break;
 
           case PRN:
-          printf("%d\n", cpu->registers[operandA]);
-          break;
+           printf("%d\n", cpu->registers[operandA]);
+            break;
 
           case MUL:
-          alu(cpu, ALU_MUL, operandA, operandB);
-          break;
+            alu(cpu, ALU_MUL, operandA, operandB);
+            break;
+
+          case RET:
+            cpu->PC = cpu_pop(cpu);
+            break;  
+
+          case PUSH:
+          cpu_push(cpu, cpu->registers[operandA]);
+            break;
+
+          case POP:
+            cpu->registers[operandA] = cpu_pop(cpu);
+            break;
 
           default:
             printf("unknown instruction at %02x: %02x\n", cpu->PC, IR);
@@ -128,7 +160,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.+
     if (!instruction_set_pc) {
-      cpu->PC += ((IR >> 6) & 0x3) + 1;
+      cpu->PC += (IR >> 6) + 1;
     }
  }
 }
@@ -139,6 +171,14 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  // sp = cpu->reg 7 
   // TODO: Zero registers and RAM
+    cpu->PC = 0;
+
+  // Zero registers and RAM
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // Initialize SP
+  cpu->registers[SP] =  0xF4;
 }
