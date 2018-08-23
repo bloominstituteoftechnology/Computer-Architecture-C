@@ -90,8 +90,11 @@ void cpu_run(struct cpu *cpu)
   unsigned char instruction_operands;
   cpu->IR = ram[PC];
 
+  unsigned long int tick = 0;
+
   while (running)
   {
+    tick = (tick + 1) % 1000;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
@@ -106,11 +109,26 @@ void cpu_run(struct cpu *cpu)
       break;
     }
 
-    printf(">>>>>  IM has been set? IM value = %d\n", cpu->reg[IM]);
-    printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
+    /**
+     * INTERRUPTS HANDLERS
+     * 1. Check for IS bits, and set them.
+     * 2. Check for IM, is any had been set -> call the interrupt_handler() function.
+     */
+    // Set timer-bit
+    if (tick == 0) // If tick has make a whole round form 0 to 999.
+    {
+      cpu->reg[IS] = cpu->reg[IS] & 1; // Set/activate the frist-bit.
+    }
+    if (cpu->reg[IM] > 0) // Check if the IM has been set.
+    {
+      printf(">>>>>  IM has been set? IM value = %d\n", cpu->reg[IM]);
+      handle_interrupts(cpu); // After this fucntion ends execution, the execution continues where it left.
+    }
 
-    push_state(cpu);
-    pop_state(cpu);
+    /**
+     * PROGRAM HANDLERS
+     */
+    printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
 
     if (((cpu->IR >> 4) & 1) == 0) // Chekc is the instruction is a PC_Mutator, if not jump to next instruction.
     {
@@ -251,9 +269,9 @@ void handle_interrupts(struct cpu *cpu)
 void push(struct cpu *cpu, unsigned char value)
 {
   // printf("\n\nPUSH function running\n");
-  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
   cpu->reg[SP] -= 1;
-  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
   // printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
   cpu->ram[cpu->reg[SP]] = value;
   // printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], value, cpu->reg[SP]);
@@ -262,10 +280,10 @@ unsigned char pop(struct cpu *cpu)
 {
   // printf("\n\nPOP function running\n");
   unsigned char value = cpu->ram[cpu->reg[SP]];
-  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
   // printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
   cpu->reg[SP] += 1;
-  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
   // printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
   return value;
 }
@@ -291,7 +309,7 @@ void push_state(struct cpu *cpu)
   for (int i = 0; i < 7; i++) // Push Ro -> R6
   {
     push(cpu, cpu->reg[i]);
-    printf("cpu->reg[%d] PUSHED TO STACK - R%d = %d\n", i, i, cpu->reg[i]);
+    // printf("cpu->reg[%d] PUSHED TO STACK - R%d = %d\n", i, i, cpu->reg[i]);
   }
 }
 void pop_state(struct cpu *cpu)
@@ -300,7 +318,7 @@ void pop_state(struct cpu *cpu)
   for (int i = 6; i >= 0; --i) //Pop R6 -> R0
   {
     cpu->reg[i] = pop(cpu);
-    printf("cpu->reg[%d] POPED FROM STACK - R%d = %d\n", i, i, cpu->reg[i]);
+    // printf("cpu->reg[%d] POPED FROM STACK - R%d = %d\n", i, i, cpu->reg[i]);
   }
 
   cpu->FL = pop(cpu); // Push(FL)
