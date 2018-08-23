@@ -20,6 +20,7 @@ struct cpu
   unsigned char MAR;
   unsigned char MDR;
   unsigned char FL;
+  int interrupt_running;
   // registers (array)
   unsigned char reg[8];
   // ram (array)
@@ -32,17 +33,18 @@ enum alu_op
   ALU_ADD,
 };
 
+#define WORD 8
 #define IM 5
 #define IS 6
 #define SP 7
-#define I0 0xFF
-#define I1 0xF8
-#define I2 0xF9
-#define I3 0xFA
-#define I4 0xFB
-#define I5 0xFC
-#define I6 0xFD
-#define I7 0xFE
+#define I7 0xFF
+#define I6 0xFE
+#define I5 0xFD
+#define I4 0xFC
+#define I3 0xFB
+#define I2 0xFA
+#define I1 0xF9
+#define I0 0xF8
 
 // Instructions
 
