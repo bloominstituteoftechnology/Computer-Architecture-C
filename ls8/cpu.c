@@ -73,11 +73,8 @@ void alu(struct cpu *my_cpu, enum alu_op op, unsigned char reg_a, unsigned char 
       else if (result > 0) {
         my_cpu->FL = 2;
       }
-      else if (result < 0){
-        my_cpu->FL = 4;
-      }
       else {
-        my_cpu->FL = 0;
+        my_cpu->FL = 4;
       }
 
     // TODO: implement more ALU ops
@@ -153,7 +150,6 @@ void cpu_run(struct cpu *my_cpu)
         break;
       case CMP:
         alu(my_cpu, ALU_CMP, args[0], args[1]);
-        printf("Hi, I'm CMP, and the flag is now %d\n", my_cpu->FL);
         my_cpu->PC++;
         break;
       case JEQ:
