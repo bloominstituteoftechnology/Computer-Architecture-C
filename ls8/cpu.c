@@ -83,6 +83,9 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+//POP
+unsigned char sp = cpu->reg[7];
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -93,9 +96,7 @@ void cpu_run(struct cpu *cpu)
 
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
-
-    //POP
-    unsigned char sp = cpu->reg[7];
+    
 
     printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
@@ -131,9 +132,8 @@ void cpu_run(struct cpu *cpu)
           --sp;
           printf("this is an sp: %d\n", sp);
           printf("this is a val: %02x\n", cpu->reg[operandA]);
-          cpu->pc += 2;
           cpu_ram_write(cpu, sp, cpu->reg[operandA]);
- 
+          cpu->pc += 2;
           break;
 
 
