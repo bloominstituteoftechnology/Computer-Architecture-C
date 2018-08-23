@@ -106,6 +106,7 @@ void cpu_run(struct cpu *cpu)
         MAR = cpu_ram_read(cpu, cpu->PC + 1);
         break;
     }
+
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
@@ -116,8 +117,8 @@ void cpu_run(struct cpu *cpu)
 
       case RET:
         printf("RET : %x\n",IR);
-        cpu->PC = cpu_ram_read(cpu,cpu->registers[7]);
-        cpu->registers[7]++;
+        cpu->PC = cpu_ram_read(cpu,cpu->registers[SP]);
+        cpu->registers[SP]++;
         break;
 
       case LDI:
@@ -142,20 +143,20 @@ void cpu_run(struct cpu *cpu)
 
       case PUSH:
         printf("PUSH : %x R%d\n",IR, MAR);
-        cpu->registers[7]--;
-        cpu_ram_write(cpu,cpu->registers[7],cpu->registers[MAR]);
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu,cpu->registers[SP],cpu->registers[MAR]);
         break;
 
       case POP:
         printf("POP : %x R%d\n",IR, MAR);
-        cpu->registers[MAR] = cpu_ram_read(cpu,cpu->registers[7]);
-        cpu->registers[7]++;
+        cpu->registers[MAR] = cpu_ram_read(cpu,cpu->registers[SP]);
+        cpu->registers[SP]++;
         break;
 
       case CALL:
         printf("CALL : %x R%d\n",IR, MAR);
-        cpu->registers[7]--;
-        cpu_ram_write(cpu,cpu->registers[7],cpu->PC + IR_size -1);
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu,cpu->registers[SP],cpu->PC + 1);
         cpu->PC = cpu->registers[MAR] - IR_size;
         break;
 
@@ -177,7 +178,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers[7] = 0xf4; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
+  cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
 
   // TODO: Zero registers and RAM
   // Zero registers and RAM
