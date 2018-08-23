@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "cpu.h"
 
+// helper functions
 
 // read RAM
 unsigned char cpu_ram_read(struct cpu *cpu, int address)
@@ -13,6 +14,20 @@ unsigned char cpu_ram_read(struct cpu *cpu, int address)
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   return cpu->ram[address] = value;
+}
+
+// push
+void push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = value;
+}
+
+// pop
+void pop(struct cpu *cpu, unsigned char address)
+{
+  cpu->registers[address] = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
 }
 
 /**
@@ -111,6 +126,7 @@ void cpu_run(struct cpu *cpu)
     address = cpu->PC;
     IR = cpu_ram_read(cpu, address);
     IR_size = (IR >> 6) + 1;  
+    printf("IR_Size %x\n", IR_size);
     unsigned char argv_a = cpu_ram_read(cpu, address + 1);
     unsigned char argv_b = cpu_ram_read(cpu, address + 2);
 
@@ -168,6 +184,17 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->registers[7]++;
         break;
+
+      case ST:
+        // store value in b in the address stored in a
+        cpu_ram_write(cpu, cpu->registers[argv_a], cpu->registers[argv_b]);
+        break;
+
+      case CMP:
+        if (cpu->registers[argv_a] == cpu->registers[argv_b])
+          cpu->flag = 1;
+        else 
+          cpu->flag = 0;
 
       default:
         printf("error, invalid instruction %x\n", IR);
