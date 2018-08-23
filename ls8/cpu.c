@@ -74,6 +74,7 @@ void cpu_run(struct cpu *cpu)
     while (running)
     {
         program_counter = cpu->pc;
+        // printf("\nPC: %d\n\n", program_counter);
         instruction_register = cpu_ram_read(cpu, program_counter);
 
         switch (instruction_register >> 6)
@@ -93,6 +94,7 @@ void cpu_run(struct cpu *cpu)
                         cpu->ram[ cpu->registers[7] ] = program_counter + next_instruction;
                         cpu->pc                       = cpu->registers[ operandA ];
                         program_counter               = cpu->pc;
+                        // printf("\nCALL: Saving %d into RAM[%d]\nJumping to RAM[%d]\n\n", cpu->ram[ cpu->registers[7] ], cpu->registers[7], program_counter);
 
                         break;
                     
@@ -140,11 +142,14 @@ void cpu_run(struct cpu *cpu)
                 switch (instruction_register)
                 {
                     case ADD:
+                        // printf("\nADD: %d + %d = ", cpu->registers[ operandA ], cpu->registers[ operandB ]);
                         cpu->registers[ operandA ] += cpu->registers[ operandB ];
+                        // printf("%d\n\n", cpu->registers[ operandA ]);
                         break;
                     
                     case LDI:
                         cpu->registers[ operandA ] = operandB;
+                        // printf("\nLDI: Saving %d into R[%d]\n\n", operandB, operandA);
                         break;
 
                     case MUL:
@@ -166,14 +171,21 @@ void cpu_run(struct cpu *cpu)
                         break;
 
                     case RET:
-                        printf("\nRET\n\n");
+                        cpu->pc = cpu->ram[ cpu->sp++ ];
+                        cpu->registers[7] = cpu->pc;
+                        // printf("\nRETURNING TO RAM[%d]\n\n", cpu->pc);
+                        continue;
                         break;
+
+                    default:
+                        fprintf(stderr, "\n=====\nINSTRUCTION DOES NOT EXIST\n=====\n\n");
                 }
         }
 
-        if (!in_call)
+        if (in_call == 0)
             cpu->pc = cpu->pc + next_instruction;
-        else {
+        else if (in_call == 1)
+        {
             cpu->pc++;
             in_call = 0;
         }
