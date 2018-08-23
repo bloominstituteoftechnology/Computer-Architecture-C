@@ -126,9 +126,7 @@ void cpu_run(struct cpu *cpu)
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
     }
-    // add to the PC according to the executed instruction
-    // using >> bitwise shifting of the binary instruction
-    // if flag for action handling the pc is not set
+
     if (!instruction_set_pc) {
       cpu->pc += ((IR >> 6) & 0x3) + 1;
     }
