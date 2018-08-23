@@ -41,7 +41,7 @@ void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
   cpu->registers[TMP] = cpu->pc + 1;
   handle_PUSH(cpu, TMP, '\0');
   cpu->pc = cpu->registers[opA];
-  cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+  get_next_instruction(cpu);
 }
 
 /**
@@ -217,7 +217,7 @@ void handle_RET(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   handle_POP(cpu, TMP, '\0');
   cpu->pc = cpu->registers[TMP];
-  cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+  get_next_instruction(cpu);
 }
 
 /**
