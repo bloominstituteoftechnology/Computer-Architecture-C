@@ -8,6 +8,7 @@
 
 void cpu_push(struct cpu *cpu, unsigned char val)
 {
+  cpu->registers[SP]--;
 
   cpu->ram[cpu->registers[SP]] = val;
 }
