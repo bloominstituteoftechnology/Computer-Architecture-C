@@ -194,7 +194,9 @@ void handle_instruction(struct cpu *cpu)
     printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
     break;
   // case INT:
-  // case IRET:
+  case IRET:
+    pop_state(cpu);
+    break;
   case JMP:
     printf("JMP. HANDLER FOUND\n");
     cpu->PC = cpu->reg[cpu->ram[cpu->PC + 1]];
