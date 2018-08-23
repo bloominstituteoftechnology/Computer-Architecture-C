@@ -60,7 +60,10 @@ void cpu_load(struct cpu *cpu, char* filename)
  */
 void cpu_run(struct cpu *cpu)
 {
-    int running = 1; // True until we get a HLT instruction
+    // True until we get a HLT instruction
+    int running = 1;
+    // determines how much we will increment our PC after each iteration
+    unsigned char in_call = 0;
 
     unsigned char program_counter;
     unsigned char instruction_register;
@@ -81,6 +84,18 @@ void cpu_run(struct cpu *cpu)
 
                 switch (instruction_register)
                 {
+                    /**
+                     * CALL
+                     */
+                    case CALL:
+                        in_call                       = 1;
+                        cpu->registers[7]             = --cpu->sp;
+                        cpu->ram[ cpu->registers[7] ] = program_counter + next_instruction;
+                        cpu->pc                       = cpu->registers[ operandA ];
+                        program_counter               = cpu->pc;
+                        
+                        break;
+                    
                     /**
                      * POP
                      */
@@ -124,6 +139,10 @@ void cpu_run(struct cpu *cpu)
 
                 switch (instruction_register)
                 {
+                    case ADD:
+                        cpu->registers[ operandA ] += cpu->registers[ operandB ];
+                        break;
+                    
                     case LDI:
                         cpu->registers[ operandA ] = operandB;
                         break;
@@ -142,7 +161,12 @@ void cpu_run(struct cpu *cpu)
                 running = 0;
         }
 
-        cpu->pc = cpu->pc + next_instruction;
+        if (!in_call)
+            cpu->pc = cpu->pc + next_instruction;
+        else {
+            cpu->pc++;
+            in_call = 0;
+        }
     }
 }
 
