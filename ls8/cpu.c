@@ -35,6 +35,15 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   // TODO: Replace this with something less hard-coded
 }
 
+void pop(struct cpu *cpu, unsigned char reg) {
+  cpu->reg[reg] = cpu->reg[7];
+  cpu->reg[7] ++;
+}
+void push(struct cpu *cpu, unsigned char reg) 
+ {
+	  cpu->reg[7] --;
+	  cpu->reg[7] = cpu->reg[reg];
+ }
 /**
  * ALU
  */
@@ -46,6 +55,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+    	break;	      
   }
 }
 
@@ -82,19 +94,21 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         running = 0;
         break;
+      
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
     
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       
       case PUSH:
-        cpu->reg[SP]--;
-        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        push(cpu, operandA);
         break;
       
       case POP: 
-       cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
-       cpu->reg[SP]++;
+       pop(cpu, operandA);
        break;
     
     default:
