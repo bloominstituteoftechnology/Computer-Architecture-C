@@ -18,6 +18,18 @@ void handle_ADD(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Performs a bitwise-AND on regA and regB and stores result in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_AND(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_AND, opA, opB);
+}
+
+/**
  * CPU Instruction: Calls subroutine stored at address in register
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -30,6 +42,18 @@ void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
   handle_PUSH(cpu, TMP, '\0');
   cpu->pc = cpu->registers[opA];
   cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+}
+
+/**
+ * CPU Instruction: Compares the values in regA and regB and sets flag
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_CMP(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_CMP, opA, opB);
 }
 
 /**
@@ -118,6 +142,30 @@ void handle_MUL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Performs a bitwise-NOT on regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_NOT(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_NOT, opA, opB);
+}
+
+/**
+ * CPU Instruction: Performs a bitwise-OR on regA and regB and stores result in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_OR(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_OR, opA, opB);
+}
+
+/**
  * CPU Instruction: Pop first value out of stack and store in regA
  * 
  * TODO: Make use of INC instruction
@@ -199,6 +247,18 @@ void handle_SUB(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Performs a bitwise-XOR on regA and regB and stores result in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_XOR(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_XOR, opA, opB);
+}
+
+/**
  * Loads CPU instructions into branch table
  * 
  * @param bt {handler*} Pointer to an array of function pointers.
@@ -206,17 +266,22 @@ void handle_SUB(struct cpu *cpu, unsigned char opA, unsigned char opB)
 void load_cpu_instructions(handler *bt)
 {
   bt[ADD] = handle_ADD;
+  bt[AND] = handle_AND;
   bt[CALL] = handle_CALL;
+  bt[CMP] = handle_CMP;
   bt[DEC] = handle_DEC;
   bt[DIV] = handle_DIV;
   bt[INC] = handle_INC;
   bt[LDI] = handle_LDI;
   bt[MOD] = handle_MOD;
   bt[MUL] = handle_MUL;
+  bt[NOT] = handle_NOT;
+  bt[OR] = handle_OR;
   bt[POP] = handle_POP;
   bt[PRN] = handle_PRN;
   bt[PUSH] = handle_PUSH;
   bt[RET] = handle_RET;
   bt[ST] = handle_ST;
   bt[SUB] = handle_SUB;
+  bt[XOR] = handle_XOR;
 }
