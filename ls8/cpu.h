@@ -35,6 +35,14 @@ enum alu_op
 #define IM 5
 #define IS 6
 #define SP 7
+#define I0 0xFF
+#define I1 0xF8
+#define I2 0xF9
+#define I3 0xFA
+#define I4 0xFB
+#define I5 0xFC
+#define I6 0xFD
+#define I7 0xFE
 
 // Instructions
 

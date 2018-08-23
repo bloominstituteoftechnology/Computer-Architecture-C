@@ -264,6 +264,9 @@ void handle_instruction(struct cpu *cpu)
 
 void handle_interrupts(struct cpu *cpu)
 {
+  unsigned char IS_aux, IM_aux;
+
+  // Loop thorugh each bit and check if that bit is active in both IS and IM, if so -> handle that specific I-vector
 }
 
 void push(struct cpu *cpu, unsigned char value)
