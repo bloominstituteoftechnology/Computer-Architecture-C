@@ -153,6 +153,8 @@ Add the value in two registers and store the result in registerA.
 Machine code:
 ```
 10100000 00000aaa 00000bbb
+10100000 00000001 00000010  
+ADD      register1  register2
 A0 0a 0b
 ```
 
@@ -590,6 +592,8 @@ result in registerA.
 Machine code:
 ```
 10100001 00000aaa 00000bbb
+10100001 00000010 00000100
+SUB      register2 register4
 A1 0a 0b
 ```
 
