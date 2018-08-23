@@ -22,27 +22,7 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned cha
 
 void cpu_load(struct cpu *cpu, char *filename)
 {
-    // const int DATA_LEN = 6;
-    // char data[6] = {
-    //     // From print8.ls8
-    //     0b10000010, // LDI R0,8
-    //     0b00000000,
-    //     0b00001000,
-    //     0b01000111, // PRN R0
-    //     0b00000000,
-    //     0b00000001 // HLT
-    // };
-
-    // int address = 0;
-
-    // // PUTTING THAT STUFF ABOVE INTO RAM
-    // for (int i = 0; i < DATA_LEN; i++)
-    // {
-    //     cpu->ram[address++] = data[i];
-    // }
-
     // STEP 7.2: TODO: Replace this with something less hard-coded
-    // 0-255
     unsigned char address = 0;
     // variable to hold the line
     char line[256];
@@ -107,6 +87,8 @@ void cpu_run(struct cpu *cpu)
     int running = 1; // True until we get a HLT instruction
     unsigned char PC = cpu->PC;
     unsigned char *registers = cpu->registers;
+    unsigned char *ram = cpu->ram;
+    unsigned char SP = cpu->registers[7];
 
     while (running)
     {
@@ -124,6 +106,7 @@ void cpu_run(struct cpu *cpu)
 
         // Set IR using cpu_ram_read
         IR = cpu_ram_read(cpu, PC);
+        printf("  IR: %x\n", IR);
 
         //get numArgs using bitwise rightshift on IR
         int numArgs = (IR >> 6) + 1;
@@ -135,12 +118,13 @@ void cpu_run(struct cpu *cpu)
         case 3:
             // printf("2: MDR\n");
             MDR = cpu_ram_read(cpu, PC + 2);
+            printf(" MDR: %i\n", MDR);
         case 2:
             // printf("2.5: MAR\n");
             MAR = cpu_ram_read(cpu, PC + 1);
+            printf(" MAR: %i\n", MAR);
             break;
         }
-
         switch (IR)
         {
         // STEP 4
@@ -159,11 +143,20 @@ void cpu_run(struct cpu *cpu)
             printf("%d\n", registers[MAR]);
             break;
         case MUL:
+            // if it's case MUL, then send it to alu();
             alu(cpu, ALU_MUL, MAR, MDR);
+            break;
+
+            // STEP 10.2
+        case PUSH:
+            cpu_ram_write(cpu, --SP, registers[MAR]);
+            break;
+        case POP:
+            registers[MAR] = ram[SP++];
             break;
         default:
             // from solution lecture
-            printf("unknown instructions: %02x at %p\n", IR, cpu->ram);
+            fprintf(stderr, "Unknown instruction at %i: %02x\n", cpu->PC, IR);
             running = 0;
             exit(2);
         }
@@ -178,6 +171,9 @@ void cpu_init(struct cpu *cpu)
 {
     // TODO: Initialize the PC and other special registers
     cpu->PC = 0;
+
+    // Step 10: set stack pointer to position f4
+    cpu->registers[7] = 0xf4;
 
     // TODO: Zero registers and RAM
     // for loop to put 0 value into every position ..... or just use memset
