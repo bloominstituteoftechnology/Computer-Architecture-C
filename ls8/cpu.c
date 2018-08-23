@@ -4,6 +4,7 @@
 #include <string.h>
 
 void handle_instruction(struct cpu *cpu);
+void handle_interrupts(struct cpu *cpu);
 void push(struct cpu *cpu, unsigned char value);
 unsigned char pop(struct cpu *cpu);
 void push_state(struct cpu *cpu);
@@ -108,9 +109,8 @@ void cpu_run(struct cpu *cpu)
     printf(">>>>>  IM has been set? IM value = %d\n", cpu->reg[IM]);
     printf(">>>>>  IR is a PC_mutator? %d\n", (cpu->IR >> 4) & 1);
 
-    for (int i = 0; i < 8; i++)
-    {
-    }
+    push_state(cpu);
+    pop_state(cpu);
 
     if (((cpu->IR >> 4) & 1) == 0) // Chekc is the instruction is a PC_Mutator, if not jump to next instruction.
     {
@@ -142,7 +142,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   cpu->reg[SP] = 0xF3;
-  cpu->reg[IM] = 1;
+  cpu->reg[IM] = 1; // Temporarily hardcoded until I implement the timer.
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
@@ -244,6 +244,10 @@ void handle_instruction(struct cpu *cpu)
   }
 };
 
+void handle_interrupts(struct cpu *cpu)
+{
+}
+
 void push(struct cpu *cpu, unsigned char value)
 {
   printf("\n\nPUSH function running\n");
@@ -258,26 +262,32 @@ unsigned char pop(struct cpu *cpu)
   unsigned char value = cpu->ram[cpu->reg[SP]];
   printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
   cpu->reg[SP] += 1;
-  printf("SP move form %d to %d\n", cpu->reg[SP], cpu->reg[SP] - 1);
+  printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
   return value;
 }
 void push_state(struct cpu *cpu)
 {
   printf("\n\nPUSH_STATE function running\n");
+
   push(cpu, cpu->PC); // Push(PC)
-  printf("cpu->PC PUSHED TO STACK");
+  // printf("cpu->PC PUSHED TO STACK");
+
   push(cpu, cpu->IR); // Push(IR)
-  printf("cpu->IR PUSHED TO STACK");
+  // printf("cpu->IR PUSHED TO STACK");
+
   push(cpu, cpu->MAR); // Push(MAR)
-  printf("cpu->MAR PUSHED TO STACK");
+  // printf("cpu->MAR PUSHED TO STACK");
+
   push(cpu, cpu->MDR); // Push(MDR)
-  printf("cpu->MDR PUSHED TO STACK");
+  // printf("cpu->MDR PUSHED TO STACK");
+
   push(cpu, cpu->FL); // Push(FL)
-  printf("cpu->FL PUSHED TO STACK");
+  // printf("cpu->FL PUSHED TO STACK");
+
   for (int i = 0; i < 7; i++) // Push Ro -> R6
   {
     push(cpu, cpu->reg[0]);
-    printf("cpu->reg[%s] PUSHED TO STACK", i);
+    // printf("cpu->reg[%d] PUSHED TO STACK", i);
   }
 }
 void pop_state(struct cpu *cpu)
@@ -286,16 +296,21 @@ void pop_state(struct cpu *cpu)
   for (int i = 6; i >= 0; --i) //Pop R6 -> R0
   {
     cpu->reg[i] = pop(cpu);
-    printf("cpu->reg[%s] POPED FROM STACK", i);
+    // printf("cpu->reg[%d] POPED FROM STACK", i);
   }
+
   cpu->FL = pop(cpu); // Push(FL)
-  printf("cpu->FL POPED FROM STACK");
+  // printf("cpu->FL POPED FROM STACK");
+
   cpu->MDR = pop(cpu); // Push(MDR)
-  printf("cpu->MD POPED FROM STACK");
+  // printf("cpu->MD POPED FROM STACK");
+
   cpu->MAR = pop(cpu); // Push(MAR)
-  printf("cpu->MA POPED FROM STACK");
+  // printf("cpu->MA POPED FROM STACK");
+
   cpu->IR = pop(cpu); // Push(IR)
-  printf("cpu->IR POPED FROM STACK");
+  // printf("cpu->IR POPED FROM STACK");
+
   cpu->PC = pop(cpu); // Push(PC)
-  printf("cpu->PC POPED FROM STACK");
+  // printf("cpu->PC POPED FROM STACK");
 }
