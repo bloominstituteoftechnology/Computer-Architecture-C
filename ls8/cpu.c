@@ -110,7 +110,7 @@ void cpu_run(struct CPU *cpu)
         //goes to specific address
         reg[SP] -= 1;
         cpu_ram_write(cpu, SP, PC += bit_shift);
-        
+
 
         break;
 
