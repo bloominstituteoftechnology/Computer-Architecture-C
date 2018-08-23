@@ -50,7 +50,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
-
+    case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
     // TODO: implement more ALU ops
   }
 }
@@ -119,6 +120,26 @@ void cpu_run(struct cpu *cpu)
         }
         cpu->registers[foo] = cpu_ram_read(cpu, cpu->SP++);
         cpu->PC += 2;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, foo, bar);
+        cpu->PC += 3;
+        break;
+      case CAL:
+         //printf("CAL is: %d\n", IR);
+        //printf("CAL1 %d\n", cpu_ram_read(cpu, cpu->PC + 1));
+        cpu->SP -= 1; 
+        cpu_ram_write(cpu, cpu->SP, (cpu->PC + 2));
+        //cpu_ram_write(cpu, cpu->PC, cpu_ram_read(cpu, cpu->PC + 1));
+        cpu->PC = cpu->registers[foo];
+        //printf("CAL %d\n", cpu->PC);
+        break;
+      case RET:
+       //printf("ret is: %d\n", IR);
+        if(cpu->SP == 244) {
+          fprintf(stderr, "no can do brav!\n");
+        } 
+        cpu->PC = cpu_ram_read(cpu, cpu->SP++);
         break;
     }
 

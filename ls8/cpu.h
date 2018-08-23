@@ -31,6 +31,10 @@ enum alu_op {
 #define LDI  0b10000010
 #define PUS  0b01000101
 #define POP  0b01000110
+#define CAL  0b01010000
+#define RET  0b00010001
+#define JMP  0b01010100
+#define ADD  0B10100000
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
