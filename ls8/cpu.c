@@ -14,7 +14,7 @@ void cpu_load(struct cpu *cpu, char *file)
   }
 
   int index = 0;
-  char str[256];
+  char str[1024];
   char *pointer;
 
   while(fgets(str, sizeof(str), fp) != NULL) { // gets the string from the file
@@ -56,6 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char SP = cpu->reg[7];
 
   while (running) {
     // TODO
@@ -86,13 +87,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PUSH:
-        cpu->reg[7] -= 1;
-        cpu->ram[cpu->reg[7]] = cpu->reg[operandA];
+        SP--;
+        cpu_ram_write(cpu, SP, cpu->reg[operandA]);
+        cpu->PC += 2;
         break;
 
       case POP:
-        cpu->reg[operandA] = cpu->ram[cpu->reg[7]];
-        cpu->reg[7] += 1;
+        cpu->reg[operandA] = cpu_ram_read(cpu, SP);
+        SP++;
+        cpu->PC += 2;
         break;
 
       case HLT:
@@ -114,5 +117,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
-  cpu->reg[7] = 0xF4;
+  cpu->reg[7] = 0xf4;
 }
