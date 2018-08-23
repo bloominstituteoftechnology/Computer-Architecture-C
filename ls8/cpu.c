@@ -67,14 +67,14 @@ void cpu_load(struct cpu *cpu, char *file)
   // Here, we are basically opening the .ls8 file in the RAM.
   // TODO: Replace this with something less hard-coded
   FILE *fp;
-  char line[1000];
+  char line[1024];
   int address = ADDR_PROGRAM_ENTRY;
 
   // Opens the source file.
   if ((fp = fopen(file, "r")) == NULL)
   {
     fprintf(stderr, "Error: File cannot be opened.%s\n", file);
-    exit(2);
+    exit(1);
   }
 
   // Reads all the lines and store them in RAM.
@@ -138,6 +138,8 @@ void cpu_run(struct cpu *cpu)
 
     // printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
+    int instruction_set_pc = (IR >> 4) & 1;
+
     // 2. Switch() over it to decide on a course of action.
     switch(IR)
     {
@@ -155,6 +157,14 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case PRA:
+        printf("%c\n", cpu->reg[operandA]);
+        break;
+
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
@@ -167,6 +177,15 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] = cpu_pop(cpu);
         break;
 
+      case CALL:
+        cpu_push(cpu, cpu->pc + 2);
+        cpu->pc = cpu->reg[operandA];
+        break;
+
+      case RET:
+        cpu->pc = cpu_pop(cpu);
+        break;
+
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
@@ -174,7 +193,13 @@ void cpu_run(struct cpu *cpu)
 
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    cpu->pc += (IR >> 6) + 1;
+    // cpu->pc += (IR >> 6) + 1;
+
+    if (!instruction_set_pc) 
+    {
+      cpu->pc += (IR >> 6) + 1;
+    }
+
   }
 }
 
@@ -184,10 +209,14 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->reg[SP] = ADDR_EMPTY_STACK;
-
-  // Loads the bytes in address 0.
   cpu->pc = 0;
 
+  // Loads the bytes in address 0.
+
   // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // Initialize the Stack Pointer (SP).
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 }

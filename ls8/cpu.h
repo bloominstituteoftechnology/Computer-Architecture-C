@@ -14,7 +14,7 @@ struct cpu {
 };
 
 // Define value for register.
-#define SP 5
+#define SP 7
 
 // ALU operations
 enum alu_op
@@ -23,9 +23,11 @@ enum alu_op
   ALU_ADD
 };
 
-// Allocates memory.
-#define ADDR_EMPTY_STACK 0xF4 // Where SP is on an empty stack.
-#define ADDR_PROGRAM_ENTRY 0x00 // Where programs start getting loaded.
+// Memory locations.
+// Where Stack Pointer (SP) is on an empty stack.
+#define ADDR_EMPTY_STACK 0xF4 
+// Where programs start getting loaded.
+#define ADDR_PROGRAM_ENTRY 0x00 
 
 // Instructions
 
@@ -36,9 +38,12 @@ enum alu_op
 #define PRN  0b01000111 // Print instruction handler
 #define HLT  0b00000001 // Halt instruction handler
 #define MUL  0b10100010 // Multiply instruction handler
+#define PRA  0b01001000 // Print alpha character instruction handler
 #define ADD  0b10100000 // Add instruction handler
 #define PUSH  0b01000101 // Push instruction handler
 #define POP  0b01000110 // Pop instruction handler
+#define CALL  0b01010000 // Call instruction handler
+#define RET  0b00010001 // Return instruction handler
 
 // TODO: more instructions here. These can be used in cpu_run().
 
