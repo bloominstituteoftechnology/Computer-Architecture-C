@@ -9,11 +9,13 @@ struct cpu {
   unsigned char ram[256]; // ram (array)
 };
 
+
 // ALU operations
 enum alu_op {
   ALU_MUL,
   ALU_ADD
 };
+
 
 // Instructions
 
@@ -25,6 +27,8 @@ enum alu_op {
 #define PRN  0b01000111
 #define HLT  0b00000001
 #define MUL  0b10100010
+#define PUSH 0b01000101
+#define POP  0b01000110
 
 // Function declarations aka Function Prototypes aka forward declarations aka forward references
   // it's like declaring a variable before assigning it a value; This will prevent 

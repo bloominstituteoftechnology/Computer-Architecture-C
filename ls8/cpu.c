@@ -84,11 +84,27 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void push(struct cpu *cpu, unsigned char value, unsigned char *SP) {
+  SP--;
+  cpu->ram[*SP] = value;
+}
+
+unsigned char pop(struct cpu *cpu, unsigned char *SP) {
+  unsigned char popped_value = cpu->ram[*SP];
+  SP++;
+  return popped_value;
+}
+
+
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
+  unsigned char *SP; 
+  SP = &cpu->reg[7];
+  *SP = cpu->ram[0xF4];
+
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
@@ -121,6 +137,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case PUSH:
+        push(cpu, cpu->reg[operandA], SP);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = pop(cpu, SP);
+        break;
+
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
@@ -144,5 +168,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+
 
 }
