@@ -250,24 +250,28 @@ void handle_interrupts(struct cpu *cpu)
 
 void push(struct cpu *cpu, unsigned char value)
 {
-  printf("\n\nPUSH function running\n");
+  // printf("\n\nPUSH function running\n");
+  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
   cpu->reg[SP] -= 1;
-  printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
+  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
   cpu->ram[cpu->reg[SP]] = value;
-  printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], value, cpu->reg[SP]);
+  // printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], value, cpu->reg[SP]);
 }
 unsigned char pop(struct cpu *cpu)
 {
-  printf("\n\nPOP function running\n");
+  // printf("\n\nPOP function running\n");
   unsigned char value = cpu->ram[cpu->reg[SP]];
-  printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
+  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
   cpu->reg[SP] += 1;
-  printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
+  printf("cpu->reg[SP] = %d\n", cpu->reg[SP]);
+  // printf("SP move from %d to %d\n", cpu->reg[SP] - 1, cpu->reg[SP]);
   return value;
 }
 void push_state(struct cpu *cpu)
 {
-  printf("\n\nPUSH_STATE function running\n");
+  // printf("\n\nPUSH_STATE function running\n");
 
   push(cpu, cpu->PC); // Push(PC)
   // printf("cpu->PC PUSHED TO STACK");
@@ -286,17 +290,17 @@ void push_state(struct cpu *cpu)
 
   for (int i = 0; i < 7; i++) // Push Ro -> R6
   {
-    push(cpu, cpu->reg[0]);
-    // printf("cpu->reg[%d] PUSHED TO STACK", i);
+    push(cpu, cpu->reg[i]);
+    printf("cpu->reg[%d] PUSHED TO STACK - R%d = %d\n", i, i, cpu->reg[i]);
   }
 }
 void pop_state(struct cpu *cpu)
 {
-  printf("\n\nPOP_STATE function running\n");
+  // printf("\n\nPOP_STATE function running\n");
   for (int i = 6; i >= 0; --i) //Pop R6 -> R0
   {
     cpu->reg[i] = pop(cpu);
-    // printf("cpu->reg[%d] POPED FROM STACK", i);
+    printf("cpu->reg[%d] POPED FROM STACK - R%d = %d\n", i, i, cpu->reg[i]);
   }
 
   cpu->FL = pop(cpu); // Push(FL)
