@@ -24,11 +24,12 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 #define PRN  0b01000111
 #define HLT  0b00000001
+#define MUL  0b10100010
 
 // Function declarations aka Function Prototypes aka forward declarations aka forward references
   // it's like declaring a variable before assigning it a value; This will prevent 
   // compiler from complaining when it sees the functions being called in ls8.c
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

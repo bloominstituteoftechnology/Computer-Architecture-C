@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "cpu.h"
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -15,26 +16,54 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  char line[1024];
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp = fopen(filename, "r");
+  // printf("filename: %s\n", filename);
+
+  while(fgets(line, sizeof line, fp) != NULL) {
+
+    if(line[strlen(line)-1] != '\n') { // this will check to see if we entered line longer than 1024 bytes in command line
+      fprintf(stderr, "Line too long!");
+      exit(2);
+    }
+
+    char *endchar;
+    unsigned char v = strtoul(line, &endchar, 2);
+
+    // skip empty lines in files
+    if (line == endchar) { // this would mean that the first invalid character was at the beginning of the line
+      continue; // then skip it
+    }
+
+    cpu_ram_write(cpu, address++, v);
+
+    // printf("%u\n", v); 
   }
 
+
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
   // TODO: Replace this with something less hard-coded
+
 }
 
 /**
@@ -44,7 +73,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB]; /* multiply value of register A with value of register B
+                                           and store in register A */
       break;
 
     // TODO: implement more ALU ops
@@ -87,6 +117,9 @@ void cpu_run(struct cpu *cpu)
         running = 0; // running equals false
         break;
 
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
 
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->PC, IR);
