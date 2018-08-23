@@ -93,7 +93,7 @@ void cpu_run(struct cpu *cpu)
                         cpu->ram[ cpu->registers[7] ] = program_counter + next_instruction;
                         cpu->pc                       = cpu->registers[ operandA ];
                         program_counter               = cpu->pc;
-                        
+
                         break;
                     
                     /**
@@ -158,7 +158,17 @@ void cpu_run(struct cpu *cpu)
                 break;  // case 2
 
             default:
-                running = 0;
+                switch(instruction_register)
+                {
+                    case HLT:
+                        printf("\nHLT\n\n");
+                        running = 0;
+                        break;
+
+                    case RET:
+                        printf("\nRET\n\n");
+                        break;
+                }
         }
 
         if (!in_call)
