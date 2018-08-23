@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "cpu.h"
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -46,6 +48,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      break;
+
   }
 }
 
@@ -59,8 +64,35 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    // 1a. Get the values of the operands
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1); 
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+        
+    // printf("TRACE: %02x: %02x\n", cpu->PC, IR);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
+    switch(IR) {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        running = 0; // running equals false
+        break;
+
+
+      default:
+        printf("unknown instruction at %02x: %02x\n", cpu->PC, IR);
+        exit(2);
+    }
+
     // 4. Move the PC to the next instruction.
   }
 }
@@ -71,6 +103,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+
 }

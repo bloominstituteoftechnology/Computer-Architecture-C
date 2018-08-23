@@ -9,6 +9,12 @@ struct cpu {
   unsigned char ram[256]; // ram (array)
 };
 
+// ALU operations
+enum alu_op {
+  ALU_MUL,
+  ALU_ADD
+};
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -16,6 +22,8 @@ struct cpu {
 
 #define LDI  0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
+#define PRN  0b01000111
+#define HLT  0b00000001
 
 // Function declarations aka Function Prototypes aka forward declarations aka forward references
   // it's like declaring a variable before assigning it a value; This will prevent 
