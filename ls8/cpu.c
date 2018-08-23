@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#define DEBUG 0
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -43,6 +43,9 @@ void cpu_load(char* arg, struct CPU *cpu)
     while(fgets(line, sizeof(line), fp)!= NULL) {
       
       unsigned char value = strtoul(line, &pointer, 2);
+      if(pointer == line) {
+        continue;
+      }
       cpu_ram_write(cpu, line_no++, value);
 
     }
@@ -87,16 +90,15 @@ void cpu_run(struct CPU *cpu)
   int running = 1; // True until we get a HLT instruction
 
   unsigned char *reg = cpu->reg;
-  unsigned char PC = (int)cpu->PC;
-
+  unsigned char PC = cpu->PC;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
         unsigned char IR = cpu_ram_read(cpu, PC);
-        unsigned char bit_shift = (IR >> 6) + 1;  
         unsigned char operandA = cpu_ram_read(cpu, (PC + 1));
         unsigned char operandB = cpu_ram_read(cpu, (PC + 2));
+        int bitshift = ((IR >> 6)) + 1; 
 
     // 2. switch() over it to decide on a course of action.
 
@@ -104,19 +106,18 @@ void cpu_run(struct CPU *cpu)
     {
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
-        // PC +=3;
+        PC +=bitshift;
         break;
       case CALL:
-        //goes to specific address
-        reg[SP] -= 1;
-        cpu_ram_write(cpu, SP, PC += bit_shift);
-
-
+        reg[SP] = reg[SP - 1];
+        // cpu->ram[reg[SP]] = PC + bitshift;
+        cpu_ram_write(cpu, reg[SP], PC + bitshift);
+        PC = reg[operandA];
         break;
 
       case DIV:
         alu(cpu, ALU_DIV, operandA, operandB);
-        // PC +=3;
+        PC +=bitshift;
         break;
 
       case HLT:
@@ -124,58 +125,59 @@ void cpu_run(struct CPU *cpu)
         break;
       
       case JMP:
-        reg[IR] = reg[operandA];
+        PC = reg[operandA];
         break;
 
       case LDI:
         reg[operandA] = operandB;
-        // PC+=3;
+        PC+=bitshift;
         break;
 
       case MOD:
         alu(cpu, ALU_MOD, operandA, operandB);
-        // PC +=3;
+        PC +=bitshift;
         break;
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // PC+=3;
+        PC+=bitshift;
         break;
 
       case POP:
-        reg[SP]++;
-        reg[operandA] = cpu_ram_read(cpu, SP);
-        // PC +=2;
+        reg[operandA] = cpu_ram_read(cpu, reg[SP]++);
+        PC +=bitshift;
         break;
 
       case PRN:
         printf("%d\n", reg[operandA]);
-        // PC+=2;
+        PC+=bitshift;
         break;
 
       case PUSH:
-        reg[SP]--;
-        cpu_ram_write(cpu, SP, reg[operandA]);
-        // PC +=2;
+        cpu_ram_write(cpu, --reg[SP], reg[operandA]);
+        PC +=bitshift;
         break;
       case RET:
-        //go back to where you came from
-        cpu_ram_read(cpu, reg[operandA]);
+        PC = cpu_ram_read(cpu, reg[SP]++);
         break;
-
       case SUB:
         alu(cpu, ALU_SUB, operandA, operandB);
-        // PC +=3;
+        PC +=bitshift;
         break;
 
       default:
-        fprintf(stderr, "Error setting instruction\n");
+        printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
         exit(2);
     }
-    PC += bit_shift; //moves PC to next instruction
-
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    #if DEBUG
+    printf("\n**********REG in run************\n");
+    for(unsigned long i = 0; i < 8; i++) {
+      printf("cpu->reg[%lu] = %u\n", i, cpu->reg[i]);
+    }
+  #endif
   }
 }
 
@@ -190,10 +192,17 @@ void cpu_init(struct CPU *cpu)
   cpu->MAR = 0;
   cpu->MDR = 0;
   cpu->FL = 0;
-  cpu->reg[SP] = 0xF4;
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+
+  #if DEBUG
+    printf("\n**********REG in init************\n");
+    for(unsigned long i = 0; i < 8; i++) {
+      printf("cpu->reg[%lu] = %u\n", i, cpu->reg[i]);
+    }
+  #endif
 }
 
 // In `cpu.c`, add functions `cpu_ram_read()` and `cpu_ram_write()` that access the
