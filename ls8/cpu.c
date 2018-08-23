@@ -126,13 +126,20 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        break;
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP] ++;
+        break;
       default:
         printf("unknown in Instructions");
     }
     cpu->PC += IR_size;
   }
 }
-
 
 
 
@@ -159,6 +166,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC=0;
+  cpu->reg[SP] = 0xf4;
   // read_file("examples/mult.ls8");
   // TODO: Zero registers and RAM
 }
