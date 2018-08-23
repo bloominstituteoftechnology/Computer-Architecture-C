@@ -21,8 +21,49 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->registers[regA] = a + b;
       break;
+    case ALU_AND:
+      cpu->registers[regA] = a & b;
+      break;
+    case ALU_CMP:
+      if (a == b)
+        cpu->fl = E;
+      if (a < b)
+        cpu->fl = L;
+      if (a < b)
+        cpu->fl = G;
+      break;
+    case ALU_DEC:
+      cpu->registers[regA] = a--;
+      break;
+    case ALU_DIV:
+      cpu->registers[regA] = a / b;
+      break;
+    case ALU_INC:
+      cpu->registers[regA] = a++;
+      break;
+    case ALU_MOD:
+      cpu->registers[regA] = a % b;
+      break;
     case ALU_MUL:
       cpu->registers[regA] = a * b;
+      break;
+    case ALU_NOT:
+      cpu->registers[regA] = ~a;
+      break;
+    case ALU_OR:
+      cpu->registers[regA] = a | b;
+      break;
+    case ALU_SHL:
+      cpu->registers[regA] = a << b;
+      break;
+    case ALU_SHR:
+      cpu->registers[regA] = a >> b;
+      break;
+    case ALU_SUB:
+      cpu->registers[regA] = a - b;
+      break;
+    case ALU_XOR:
+      cpu->registers[regA] = a ^ b;
       break;
   }
 }
@@ -99,6 +140,7 @@ void cpu_init(struct cpu *cpu)
 {
   cpu->pc = 0b00000000;
   cpu->ir = 0b00000000;
+  cpu->fl = 0b00000000;
   cpu->registers[SP] = 0xF4;
 }
 
