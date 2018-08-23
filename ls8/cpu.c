@@ -6,16 +6,20 @@
 // Pushes a value on the CPU stack.
 void cpu_push(struct cpu *cpu, unsigned char val)
 {
+  // Decrements the Stack Pointer (SP).
   cpu->reg[SP]--;
 
+  // Copies the value in the given register to the address pointed to by SP.
   cpu->ram[cpu->reg[SP]] = val;
 }
 
 // Pops a value from the CPU stack.
 unsigned char cpu_pop(struct cpu *cpu)
 {
+  // Copies the value from the address pointed to by `SP` to the given register.
   unsigned char val = cpu->ram[cpu->reg[SP]];
 
+  // Increments the SP.
   cpu->reg[SP]++;
 
   return val;
@@ -134,7 +138,7 @@ void cpu_run(struct cpu *cpu)
 
     // printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
-    // 2. switch() over it to decide on a course of action.
+    // 2. Switch() over it to decide on a course of action.
     switch(IR)
     {
       case LDI:

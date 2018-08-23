@@ -30,15 +30,15 @@ enum alu_op
 // Instructions
 
 // Here, we are basically just implementing the instruction handlers.
-// These use binary literals. If these aren't available with your compiler, hex
+// These use binary literals (codes). If these aren't available with your compiler, hex
 // literals should be used.
 #define LDI  0b10000010 // "Load immediate" instruction handler
 #define PRN  0b01000111 // Print instruction handler
 #define HLT  0b00000001 // Halt instruction handler
-#define MUL  0b10100010
-#define ADD  0b10100000
-#define PUSH  0b01000101
-#define POP  0b01000110
+#define MUL  0b10100010 // Multiply instruction handler
+#define ADD  0b10100000 // Add instruction handler
+#define PUSH  0b01000101 // Push instruction handler
+#define POP  0b01000110 // Pop instruction handler
 
 // TODO: more instructions here. These can be used in cpu_run().
 
