@@ -65,6 +65,20 @@ void alu(struct cpu *my_cpu, enum alu_op op, unsigned char reg_a, unsigned char 
     case ALU_ADD:
       my_cpu->registers[reg_a] += my_cpu->registers[reg_b];
       break;
+    case ALU_CMP: ;
+      int result = my_cpu->registers[reg_a] - my_cpu->registers[reg_b];
+      if (result == 0) {
+        my_cpu->FL = 1;
+      }
+      else if (result > 0) {
+        my_cpu->FL = 2;
+      }
+      else if (result < 0){
+        my_cpu->FL = 4;
+      }
+      else {
+        my_cpu->FL = 0;
+      }
 
     // TODO: implement more ALU ops
   }
@@ -137,6 +151,30 @@ void cpu_run(struct cpu *my_cpu)
         my_cpu->ram[my_cpu->registers[args[0]]] = my_cpu->registers[args[1]];
         my_cpu->PC++;
         break;
+      case CMP:
+        alu(my_cpu, ALU_CMP, args[0], args[1]);
+        printf("Hi, I'm CMP, and the flag is now %d\n", my_cpu->FL);
+        my_cpu->PC++;
+        break;
+      case JEQ:
+        if ((my_cpu->FL & 0b1) == 0b1) {
+          my_cpu->PC = my_cpu->registers[args[0]];
+        }
+        else {
+          my_cpu->PC++;
+        }
+        break;
+      case JMP:
+        my_cpu->PC = my_cpu->registers[args[0]];
+        break;
+      case JNE:
+        if ((my_cpu->FL & 0b1) == 0b0) {
+          my_cpu->PC = my_cpu->registers[args[0]];
+        }
+        else {
+          my_cpu->PC++;
+        }
+        break;
       default:
         printf("wut?\n");
         exit(1);
@@ -154,7 +192,8 @@ void cpu_init(struct cpu *my_cpu)
 {
   // TODO: Initialize the PC and other special registers
   // TODO: Zero registers and RAM
-  my_cpu->PC = 0;
+  my_cpu->PC = 0b00000000;
   my_cpu->registers = (unsigned char *)calloc(8, sizeof(unsigned char));
   my_cpu->ram = (unsigned char *)calloc(256, sizeof(unsigned char));
+  my_cpu->FL = 0b00000000;
 }

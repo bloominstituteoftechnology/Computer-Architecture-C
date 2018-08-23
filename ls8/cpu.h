@@ -6,11 +6,13 @@ struct cpu {
   unsigned char PC;
   unsigned char *registers;
   unsigned char *ram;
+  unsigned char FL;
 };
 
 enum alu_op {
   ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
 };
 
 // Instructions  struct cpu my_cpu;
