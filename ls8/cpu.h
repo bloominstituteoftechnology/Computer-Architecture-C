@@ -41,6 +41,11 @@ enum alu_op
 #define IS 6
 #define SP 7
 
+// Flags - An 8 bit register: 00000LGE
+#define L 0b00000100
+#define G 0b00000010
+#define E 0b00000001
+
 // Function declarations
 extern void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB);
 extern void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *store);
