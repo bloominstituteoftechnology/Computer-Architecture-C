@@ -164,6 +164,7 @@ void load_cpu_instructions(handler *bt)
 {
   bt[ADD] = handle_ADD;
   bt[CALL] = handle_CALL;
+  bt[DIV] = handle_DIV;
   bt[LDI] = handle_LDI;
   bt[MUL] = handle_MUL;
   bt[POP] = handle_POP;
@@ -171,4 +172,5 @@ void load_cpu_instructions(handler *bt)
   bt[PUSH] = handle_PUSH;
   bt[RET] = handle_RET;
   bt[ST] = handle_ST;
+  bt[SUB] = handle_SUB;
 }
