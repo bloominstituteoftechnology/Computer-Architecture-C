@@ -4,8 +4,8 @@
 #include <string.h>
 
 void handle_instruction(struct cpu *cpu);
-void pop(struct cpu *cpu);
-void push(struct cpu *cpu);
+void pop(struct cpu *cpu, unsigned char reg_index);
+void push(struct cpu *cpu, unsigned char value);
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -221,11 +221,11 @@ void handle_instruction(struct cpu *cpu)
     break;
   case PUSH:
     printf("PUSH. HANDLER FOUND\n");
-    push(cpu);
+    push(cpu, cpu->reg[cpu->ram[cpu->PC + 1]]);
     break;
   case POP:
     printf("POP. HANDLER FOUND\n");
-    pop(cpu);
+    pop(cpu, cpu->ram[cpu->PC + 1]);
     break;
   case PRN:
     printf("PRN. HANDLER FOUND\n");
@@ -238,19 +238,19 @@ void handle_instruction(struct cpu *cpu)
   }
 };
 
-void pop(struct cpu *cpu)
+void pop(struct cpu *cpu, unsigned char reg_index)
 {
   printf("\n\nPOP function running\n");
-  cpu->reg[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->reg[SP]];
-  printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], cpu->ram[cpu->PC + 1]);
+  cpu->reg[reg_index] = cpu->ram[cpu->reg[SP]];
+  printf("Copied value %d form RAM[%d] to REG[%d]\n", cpu->ram[cpu->reg[SP]], cpu->reg[SP], reg_index);
   cpu->reg[SP] += 1;
   printf("SP move form %d to %d\n", cpu->reg[SP], cpu->reg[SP] - 1);
 }
-void push(struct cpu *cpu)
+void push(struct cpu *cpu, unsigned char value)
 {
   printf("\n\nPUSH function running\n");
   cpu->reg[SP] -= 1;
   printf("SP move form %d to %d\n", cpu->reg[SP] + 1, cpu->reg[SP]);
-  cpu->ram[cpu->reg[SP]] = cpu->reg[cpu->ram[cpu->PC + 1]];
-  printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], cpu->ram[cpu->PC + 1], cpu->reg[SP]);
+  cpu->ram[cpu->reg[SP]] = value;
+  printf("Copied value %d form REG[%d] to RAM[%d]\n", cpu->ram[cpu->reg[SP]], value, cpu->reg[SP]);
 }
