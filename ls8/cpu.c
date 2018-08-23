@@ -8,19 +8,24 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 }
  void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 {
-    cpu->ram[address] = value;
+  cpu->ram[address] = value;
 }
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu, char *file)
-{
+
+ void cpu_load(struct cpu *cpu, char *file)
+{	 
   FILE * f;
-  f = fopen(file, "r");
-  int address = 0;
-  char line[256];
-  while(fgets(line, sizeof(line), f))
+  f = fopen(file, "r");	      
+  if (f == NULL )
   {
+    fprintf(stderr, "Cannot open file.\n");
+    exit(1);
+  }
+
+  int address = 0;
+  
+  char line[256];
+
+  while (fgets(line, sizeof(line), f)) {
     char *endptr;
     unsigned long int new_line;
     new_line = strtoul(line, &endptr, 2);
@@ -81,6 +86,16 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        break;
+      
+      case POP: 
+       cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+       cpu->reg[SP]++;
+       break;
     
     default:
         printf("unknown instruction: %02x, %02x", cpu->pc, IR);
@@ -97,5 +112,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+
+  cpu->reg[SP] = 0xf4;
   // TODO: Zero registers and RAM
 }
