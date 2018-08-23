@@ -42,10 +42,14 @@ void cpu_load(struct cpu *cpu, char *filename)
     unsigned char data = strtol(buf, &endptr, 2);
 
     // this skips adding to ram if first char is a blank line
-    if(buf[0] == '\r' || buf[0] == '\n'){
+    // if(buf[0] == '\r' || buf[0] == '\n'){
+    //   continue;
+    // };
+    // from solution lecture. endptr is the first invalid char, if buf and endptr match, the line is skipped
+    if (buf == endptr){
       continue;
-    };
-    buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores, does not remove if blank lines
+    }
+    // buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores, does not remove if blank lines
 
     // printf("this is the endptr %s\n",endptr);
     // printf("this is what buf is %s\n==============\n", buf);
@@ -184,10 +188,16 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+
+  // from thursday lecture. look up memset
+  memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
 
   // TODO: Zero registers and RAM
   cpu->reg[SP] = 0xF4;
+
+
   // printf("SP = %x\n", cpu->reg[SP]);
 }
