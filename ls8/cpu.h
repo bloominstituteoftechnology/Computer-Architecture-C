@@ -7,7 +7,10 @@ struct cpu {
   unsigned char PC;
   unsigned char *reg;
   unsigned char *ram;
-
+  unsigned char FL;
+  unsigned char IR;
+  unsigned char MAR;
+  unsigned char MDR;
 };
 
 // Instructions
@@ -19,6 +22,9 @@ enum alu_op {
   ALU_MUL,
   ALU_ADD
 };
+
+#define SP 7
+// fills in 7 wherever SP is used
 
 #define LDI  0b10000010
 #define ADD  0b10100000

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -116,52 +116,87 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   unsigned char *reg = cpu->reg;
-  unsigned char PC = cpu->PC;
+  // unsigned char PC = cpu->PC;
   int running = 1; // True until we get a HLT instruction
-  unsigned char SP = cpu->reg[7];
   
   while (running) {
-    unsigned char IR = cpu_ram_read(cpu, PC);
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     int difference = ((IR >> 6) & 0b11) + 1; // shifts the number 6 places to the right (leaving last two places)
     // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
-    unsigned char operandA = cpu_ram_read(cpu, PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, PC+2);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
 
     switch(IR)
     {
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
-        PC+=difference;
+        cpu->PC+=difference;
         break;
       case LDI:
         reg[operandA] = operandB;
-        PC+=difference;
+        cpu->PC+=difference;
         break;
       case PRN:
         printf("%d\n", reg[operandA]);
-        PC+=difference;
+        cpu->PC+=difference;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        PC+=difference;
+        cpu->PC+=difference;
         break;
       case POP:
-        reg[operandA] = cpu->ram[SP++];
-        PC+=difference;
+        reg[operandA] = cpu->ram[cpu->reg[SP]]++;
+        cpu->PC+=difference;
         break;
       case PUSH:
-        cpu_ram_write(cpu, --SP, reg[operandA]);
-        PC+=difference;
+        cpu_ram_write(cpu, --cpu->reg[SP], reg[operandA]);
+        cpu->PC+=difference;
         break;
       case HLT:
         running = 0;
         break;
       case RET:
-        PC = cpu->ram[SP++];
+        #if DEBUG
+        printf("Value of PC before RET: %d\n", cpu->PC);
+        #endif
+        cpu->PC = cpu->ram[cpu->reg[SP]]++;
+        #if DEBUG
+        printf("Value of PC after RET: %d\n", cpu->PC);
+        #endif
+        break;
+      case ST:
+        cpu->ram[reg[operandA]] = reg[operandB];
+        cpu->PC+= difference;
         break;
       case CALL:
-        cpu_ram_write(cpu, --SP, PC+=difference);
-        PC = cpu->reg[operandA];
+        #if DEBUG
+        printf("Value before call: %d\n", cpu->PC);
+        #endif
+        cpu_ram_write(cpu, --cpu->reg[SP], cpu->PC+=difference);
+        #if DEBUG
+        printf("Value of PC in register: %d\n", cpu->PC);
+        #endif
+        cpu->PC = cpu->reg[operandA];
+        #if DEBUG
+        printf("Value of PC after call: %d\n", cpu->PC);
+        #endif
+        break;
+      case PRA:
+        printf("%c\n", reg[operandA]);
+        cpu->PC+=difference;
+        break;
+      case IRET:
+        reg[6] = cpu->ram[cpu->reg[SP]]++;
+        reg[5] = cpu->ram[cpu->reg[SP]]++;
+        reg[4] = cpu->ram[cpu->reg[SP]]++;
+        reg[3] = cpu->ram[cpu->reg[SP]]++;
+        reg[2] = cpu->ram[cpu->reg[SP]]++;
+        reg[1] = cpu->ram[cpu->reg[SP]]++;
+        reg[0] = cpu->ram[cpu->reg[SP]]++;
+        // cpu->FL = cpu->ram[SP++];
+        break;
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
         break;
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
@@ -189,9 +224,13 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->IR = 0;
   cpu->reg = (unsigned char *) calloc(8, sizeof(unsigned char));
   cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
-  cpu->reg[7] = 244;
+  cpu->reg[7] = 0xF4;
+  cpu->reg[6] = 00000000; // IS register - interrupt status
+  cpu->reg[5] = 00000000; // interrupt mask (change to 1 to start checking for interrupt)
+  cpu->FL = 00000000;
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
