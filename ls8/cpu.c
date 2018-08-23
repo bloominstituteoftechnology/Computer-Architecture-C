@@ -46,8 +46,24 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
+     case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
+}
+
+void pop(struct cpu *cpu, unsigned char reg) 
+{
+  cpu->registers[reg] = cpu->registers[7];
+  cpu->registers[7] ++;
+}
+
+void push(struct cpu *cpu, unsigned char reg) 
+{
+  cpu->registers[7] --;
+  cpu->registers[7] = cpu->registers[reg];
 }
 
 /**
@@ -80,6 +96,18 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case POP:
+        pop(cpu, operandA);
+        break;
+
+       case PUSH:
+        push(cpu, operandA);
         break;
 
       default:
