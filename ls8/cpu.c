@@ -69,19 +69,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
- * Reads from RAM address and stores value into store
+ * Reads from RAM address in MAR and stores value in MDR
  * 
- * @param ram {unsigned char[]} Memory array.
- * @param address {unsigned char} Address for memory array.
- * @param store {unsigned char*} Pointer to location value at memory address should be stored.
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
-void cpu_ram_read(unsigned char ram[], unsigned char address, unsigned char *store)
+void cpu_ram_read(struct cpu *cpu)
 {
-  *store = ram[address];
+  cpu->mdr = cpu->ram[cpu->mar];
 }
 
 /**
- * Writes data to RAM address 
+ * Writes value in MDR to RAM address in MAR
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
@@ -91,29 +89,15 @@ void cpu_ram_write(struct cpu *cpu)
 }
 
 /**
- * Gets number of operands in instruction, sets them to variables and updates PC
+ * Sets instruction register to the next instruction given by PC
  * 
- * @param opA {unsigned char*} Pointer to operandA variable.
- * @param opB {unsigned char*} Pointer to operandB variable.
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
-void get_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
+void get_next_instruction(struct cpu *cpu)
 {
-  unsigned char ops = cpu->ir >> 6;
-  *opA = '\0';
-  *opB = '\0';
-
-  if (ops > 0)
-  {
-    cpu->pc++;
-    cpu_ram_read(cpu->ram, cpu->pc, opA);
-  }
-
-  if (ops > 1)
-  {
-    cpu->pc++;
-    cpu_ram_read(cpu->ram, cpu->pc, opB);
-  }
+  cpu->mar = cpu->pc;
+  cpu_ram_read(cpu);
+  cpu->ir = cpu->mdr;
 }
 
 /**
@@ -126,6 +110,38 @@ int isPCMutator(unsigned char instr)
 {
   instr <<= 3;
   return (instr >>= 7) == 1;
+}
+
+/**
+ * Sets given operand to value at memory address
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ */
+void set_operand(struct cpu *cpu, unsigned char address, unsigned char *op)
+{
+  cpu->mar = address;
+  cpu_ram_read(cpu);
+  *op = cpu->mdr;
+}
+
+/**
+ * Gets number of operands in instruction, sets them to variables and updates PC
+ * 
+ * @param opA {unsigned char*} Pointer to operandA variable.
+ * @param opB {unsigned char*} Pointer to operandB variable.
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ */
+void set_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
+{
+  unsigned char ops = cpu->ir >> 6;
+  *opA = '\0';
+  *opB = '\0';
+
+  if (ops > 0)
+    set_operand(cpu, ++cpu->pc, opA);
+
+  if (ops > 1)
+    set_operand(cpu, ++cpu->pc, opB);
 }
 
 /**
@@ -192,13 +208,13 @@ void cpu_run(struct cpu *cpu)
   load_cpu_instructions(branch_table);
 
   while (1) {
-    cpu_ram_read(cpu->ram, cpu->pc, &cpu->ir);
+    get_next_instruction(cpu);
 
     if (cpu->ir == HLT)
       break;
 
     pcMutator = isPCMutator(cpu->ir);
-    get_operands(&opA, &opB, cpu);
+    set_operands(&opA, &opB, cpu);
     branch_table[cpu->ir](cpu, opA, opB);
 
     if (!pcMutator)
