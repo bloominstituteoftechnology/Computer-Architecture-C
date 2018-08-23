@@ -33,6 +33,18 @@ void handle_CALL(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Decrements the value in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_DEC(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_DEC, opA, opB);
+}
+
+/**
  * CPU Instruction: Divides values in regA and regB and stores result in regA
  * 
  * Issues error and exits program if regB is 0
@@ -48,6 +60,18 @@ void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB)
     exit(1);
   }
   alu(cpu, ALU_DIV, opA, opB);
+}
+
+/**
+ * CPU Instruction: Increments the value in regA
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register A.
+ * @param opB {unsigned char} Operand B: register B.
+ */
+void handle_INC(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  alu(cpu, ALU_INC, opA, opB);
 }
 
 /**
@@ -183,7 +207,9 @@ void load_cpu_instructions(handler *bt)
 {
   bt[ADD] = handle_ADD;
   bt[CALL] = handle_CALL;
+  bt[DEC] = handle_DEC;
   bt[DIV] = handle_DIV;
+  bt[INC] = handle_INC;
   bt[LDI] = handle_LDI;
   bt[MOD] = handle_MOD;
   bt[MUL] = handle_MUL;
