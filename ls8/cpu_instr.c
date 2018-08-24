@@ -136,6 +136,98 @@ void handle_IRET(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Jumps to address in register if equal flag is set
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JEQ(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl == E)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register if greater than or equal
+ * flag is set
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JGE(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl == G || cpu->fl == E)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register if greater than flag is set
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JGT(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl == G)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register if less than or equal flag
+ * is set
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JLE(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl == L || cpu->fl == E)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register if less than flag is set
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JLT(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl == L)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JMP(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  cpu->pc = cpu->registers[opA];
+}
+
+/**
+ * CPU Instruction: Jumps to address in register if equal flag is clear
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_JNE(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  if (cpu->fl != E)
+    cpu->pc = cpu->registers[opA];
+}
+
+/**
  * CPU Instruction: Sets regA to value of memory address stored in regB
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -375,6 +467,13 @@ void load_cpu_instructions(handler *bt)
   bt[INC] = handle_INC;
   bt[INT] = handle_INT;
   bt[IRET] = handle_IRET;
+  bt[JEQ] = handle_JEQ;
+  bt[JGE] = handle_JGE;
+  bt[JGT] = handle_JGT;
+  bt[JLE] = handle_JLE;
+  bt[JLT] = handle_JLT;
+  bt[JMP] = handle_JMP;
+  bt[JNE] = handle_JNE;
   bt[LD] = handle_LD;
   bt[LDI] = handle_LDI;
   bt[MOD] = handle_MOD;
