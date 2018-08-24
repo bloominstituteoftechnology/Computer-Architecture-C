@@ -1,5 +1,5 @@
 #include <stdlib.h> // Exit is stored here.
-#include <stdio.h> // Because you're using printf() without a prototype.
+#include <stdio.h> // Because I'm using printf() without a prototype.
 #include <string.h>
 #include "cpu.h"
 
@@ -26,7 +26,7 @@ unsigned char cpu_pop(struct cpu *cpu)
 }
 
 // Helper functions for efficiency -- to prevent repeating yourself.
-// For better readability and detect bugs.
+// For better readability and faster detection of bugs.
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -186,6 +186,43 @@ void cpu_run(struct cpu *cpu)
         cpu->pc = cpu_pop(cpu);
         break;
 
+      case CMP:
+        if (cpu->reg[operandA] == cpu->reg[operandB])
+        {
+          cpu->fl = 1;
+        }
+        else
+        {
+          cpu->fl = 0;
+        }
+        break;
+
+      case JMP:
+        cpu->pc = cpu->reg[operandA];
+        break;
+
+      case JEQ:
+        if (cpu->fl)
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->pc += 2;
+        }
+        break;
+
+      case JNE:
+        if (!cpu->fl)
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->pc += 2;
+        }
+        break;
+
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
@@ -210,6 +247,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+  cpu->fl = CPU_FLAG;
 
   // Loads the bytes in address 0.
 
