@@ -99,6 +99,43 @@ void handle_INC(struct cpu *cpu, unsigned char opA, unsigned char opB)
 }
 
 /**
+ * CPU Instruction: Set interrupt status register for bit in given register
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: register.
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_INT(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  cpu->registers[IS] = cpu->registers[IS] | (1 << cpu->registers[opA]);
+}
+
+/**
+ * CPU Instruction: 
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param opA {unsigned char} Operand A: --
+ * @param opB {unsigned char} Operand B: --
+ */
+void handle_IRET(struct cpu *cpu, unsigned char opA, unsigned char opB)
+{
+  handle_POP(cpu, 6, '\0');
+  handle_POP(cpu, 5, '\0');
+  handle_POP(cpu, 4, '\0');
+  handle_POP(cpu, 3, '\0');
+  handle_POP(cpu, 2, '\0');
+  handle_POP(cpu, 1, '\0');
+  handle_POP(cpu, 0, '\0');
+
+  handle_POP(cpu, TMP, '\0');
+  cpu->fl = cpu->registers[TMP];
+  handle_POP(cpu, TMP, '\0');
+  cpu->pc = cpu->registers[TMP];
+
+  handle_POP(cpu, IM, '\0');
+}
+
+/**
  * CPU Instruction: Sets regA to value of memory address stored in regB
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
@@ -195,6 +232,7 @@ void handle_OR(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * CPU Instruction: Pop first value out of stack and store in regA
  * 
  * TODO: Make use of INC instruction
+ * TODO: Do not access ram directly
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
@@ -233,6 +271,7 @@ void handle_PRN(struct cpu *cpu, unsigned char opA, unsigned char opB)
  * CPU Instruction: Push given value on to stack
  * 
  * TODO: Make use of DEC instruction
+ * TODO: Do not access ram directly
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  * @param opA {unsigned char} Operand A: register.
@@ -334,6 +373,8 @@ void load_cpu_instructions(handler *bt)
   bt[DEC] = handle_DEC;
   bt[DIV] = handle_DIV;
   bt[INC] = handle_INC;
+  bt[INT] = handle_INT;
+  bt[IRET] = handle_IRET;
   bt[LD] = handle_LD;
   bt[LDI] = handle_LDI;
   bt[MOD] = handle_MOD;
