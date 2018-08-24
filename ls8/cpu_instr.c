@@ -146,6 +146,8 @@ void handle_JEQ(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl == E)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
@@ -160,6 +162,8 @@ void handle_JGE(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl == G || cpu->fl == E)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
@@ -173,6 +177,8 @@ void handle_JGT(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl == G)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
@@ -187,6 +193,8 @@ void handle_JLE(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl == L || cpu->fl == E)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
@@ -200,6 +208,8 @@ void handle_JLT(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl == L)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
@@ -225,6 +235,8 @@ void handle_JNE(struct cpu *cpu, unsigned char opA, unsigned char opB)
 {
   if (cpu->fl != E)
     cpu->pc = cpu->registers[opA];
+  else
+    cpu->pc++;
 }
 
 /**
