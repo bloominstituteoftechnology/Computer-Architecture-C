@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -233,6 +233,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case INC:
         alu(cpu, ALU_INC, operandA, 0);
+        cpu->PC+=difference;
         break;
       case IRET:
         reg[6] = cpu->ram[cpu->reg[SP]++];
@@ -247,35 +248,35 @@ void cpu_run(struct cpu *cpu)
         interrupts = 1;
         break;
       case JEQ:
-        if ((cpu->FL & 0b1) == 0b1){
+        if ((cpu->FL & 0b1) == 1){
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
         }
         break;
       case JGE:
-        if ((cpu->FL & 0b10) == 0b10 || (cpu->FL & 0b1) == 0b1){
+        if ((cpu->FL & 0b10) == 2 || (cpu->FL & 0b1) == 1){
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
         }
         break;
       case JGT:
-        if ((cpu->FL & 0b10) == 0b10){
+        if ((cpu->FL & 0b10) == 2){
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
         }
         break;
       case JLE:
-        if ((cpu->FL & 0b100) == 0b100) {
+        if ((cpu->FL & 0b100) == 4) {
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
         }
         break;
       case JLT:
-        if ((cpu->FL & 0b1) == 0b1 || (cpu->FL & 0b100) == 0b100){
+        if ((cpu->FL & 0b1) == 1 || (cpu->FL & 0b100) == 4){
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
@@ -285,7 +286,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[operandA];
         break;
       case JNE:
-        if ((cpu->FL & 0b1) == 0b0){
+        if ((cpu->FL & 0b1) == 0){
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC+=difference;
@@ -328,15 +329,15 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       case PRA:
-        printf("%c\n", reg[operandA]);
+        printf("%c\n", cpu->ram[reg[operandA]]);
         cpu->PC+=difference;
         break;
       case PRN:
-        printf("%d\n", reg[operandA]);
+        printf("%d\n", cpu->reg[operandA]);
         cpu->PC+=difference;
         break;
       case PUSH:
-        cpu_ram_write(cpu, --cpu->reg[SP], reg[operandA]);
+        cpu_ram_write(cpu, --cpu->reg[SP], cpu->reg[operandA]);
         cpu->PC+=difference;
         break;
       case RET:
@@ -357,7 +358,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       case ST:
-        cpu->ram[reg[operandA]] = reg[operandB];
+        cpu->ram[reg[operandA]] = cpu->reg[operandB];
         cpu->PC+= difference;
         break;
       case SUB:
