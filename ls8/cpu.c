@@ -211,9 +211,9 @@ void cpu_run(struct cpu *cpu)
         break;
     }
     // 4. Move the PC to the next instruction.
-    int instruction_sets_the_pc = (IR >> 4) & 1;
+    int instruction_set = (IR >> 4) & 1;
 
-    if (!instruction_sets_the_pc)
+    if (!instruction_set)
     {
       cpu->PC += IR_size;
     }
