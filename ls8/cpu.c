@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <curses.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "cpu.h"
 
@@ -239,4 +241,29 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[IS] = 0x00; // R6 is reserved as the interrupt status (IS)
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
   cpu_ram_write(cpu,KEY_PRESSED,'f'); //test keyboard read
+}
+
+// IO bus emulator: reads from keypress, without wait and echoes
+int io_bus_emulator(void)
+{
+  struct termios oldattr, newattr;
+  int ch;
+
+  tcgetattr( STDIN_FILENO, &oldattr );
+  newattr = oldattr;
+
+  newattr.c_lflag &= ~( ICANON | ECHO); // clear keybuffer
+  tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+
+  system("stty -echo"); //kill echo
+
+  int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+  ch = getchar();
+  printf("Your pressed: %c\n",ch);
+
+  system("stty echo"); //restore the echo
+  tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+  return ch;
 }
