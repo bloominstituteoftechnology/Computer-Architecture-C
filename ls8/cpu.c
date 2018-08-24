@@ -126,7 +126,7 @@ void cpu_run(struct cpu *cpu)
     address = cpu->PC;
     IR = cpu_ram_read(cpu, address);
     IR_size = (IR >> 6) + 1;  
-    printf("IR_Size %x\n", IR_size);
+    // printf("IR_Size %x\n", IR_size);
     unsigned char argv_a = cpu_ram_read(cpu, address + 1);
     unsigned char argv_b = cpu_ram_read(cpu, address + 2);
 
@@ -191,10 +191,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
+        printf("CMP: IR %x, a %d, b%d", IR, argv_a, argv_b);
         if (cpu->registers[argv_a] == cpu->registers[argv_b])
-          cpu->flag = 1;
-        else 
-          cpu->flag = 0;
+          cpu->flag = 0x01;   // 0b00000001 (0b00000LGE) 
+        else if (cpu->registers[argv_a] > cpu->registers[argv_b])
+          cpu->flag = 0x02;   // 0b00000010
+        else
+          cpu->flag = 0x04;   // 0b00000100
+        break;
+          
 
       default:
         printf("error, invalid instruction %x\n", IR);
@@ -215,6 +220,9 @@ void cpu_init(struct cpu *cpu)
 
   // initialize SP.  R7 reserves for SP starts at address F4 in RAM    
   cpu->registers[7] = 0xF4;  
+
+  // init flag
+  cpu->flag = 0;
 
 
   // TODO: Zero registers and RAM

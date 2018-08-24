@@ -10,7 +10,7 @@ struct cpu {
   unsigned char PC;           //program counter points to next program
   unsigned char registers[8]; // 8 registers  
   unsigned char ram[256];     // ram size
-  int flag;
+  int flag;                   // 00000LGE
 };
 
 // Instructions
