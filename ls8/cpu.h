@@ -1,10 +1,13 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-// Holds all information about the CPU
-struct cpu {
+#define MAX_ADDR 0xff
+#define CPU_FLAG 0x00
+
+// The CPU structure which holds all information about the CPU.
+// Basically, it's a collection of variables of different types.
+typedef struct cpu {
   // TODO
-  // Sprint
   int fl;
   // PC
   unsigned char pc;
@@ -12,11 +15,13 @@ struct cpu {
   // Eight (bytes?) general-purpose registers.
   unsigned char reg[8];
   // ram (array)
-  unsigned char ram[256];
-};
+  unsigned ram[MAX_ADDR + 1];
+} CPU;
 
-// Define value for register.
+// Special values for register.
 #define SP 7
+#define IS 6
+#define IM 5
 
 // ALU operations
 enum alu_op
@@ -27,10 +32,12 @@ enum alu_op
 
 // Memory locations.
 // Where Stack Pointer (SP) is on an empty stack.
-#define ADDR_EMPTY_STACK 0xF4 
+#define START_OF_STACK_ADDR 0xf4 
 // Where programs start getting loaded.
-#define ADDR_PROGRAM_ENTRY 0x00 
-#define CPU_FLAG 0x00
+#define START_OF_PROGRAM_ADDR 0x00 
+// Others
+#define INTERRUPT_MASK 0X00
+#define INTERRUPTS 0X00
 
 // Instructions
 
@@ -56,8 +63,11 @@ enum alu_op
 
 // Function declarations
 // "extern" means "declare without defining".
-extern void cpu_load(struct cpu *cpu, char *file);
-extern void cpu_init(struct cpu *cpu);
-extern void cpu_run(struct cpu *cpu);
+extern void cpu_load(CPU *cpu, char *file);
+extern void cpu_init(CPU *cpu);
+extern void cpu_run(CPU *cpu);
+
+extern unsigned char cpu_ram_read(CPU *cpu, unsigned char index);
+extern void cpu_ram_write(CPU *cpu, unsigned char MAR, unsigned char MDR);
 
 #endif
