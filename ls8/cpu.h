@@ -1,61 +1,30 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define E_FLAG 0x00
+#define MAX_ADDRESS 0xFF
 #define SP 7
-// TODO: line 19  cpu.h -- more instructions
-
-// ## Step 1: Implement `struct cpu` in `cpu.h`
-
-// This structure holds information about the CPU and associated components.
-
-// The type for a single unsigned byte in C is:
-
-// ```c
-// unsigned char x;
-// ```
-
-// (Weirdly in C, if you don't specific `signed` or `unsigned` with a `char`, it's
-// up to the compiler which it uses.
+#define IS 6
+#define IM 5
 
 // Holds all information about the CPU
 enum alu_op {
-  ALU_MUL,
-  ALU_ADD,
-  ALU_DIV,
-  ALU_SUB,
-  ALU_MOD,
+    ALU_MUL,
+    ALU_ADD,
+    ALU_DIV,
+    ALU_SUB,
+    ALU_MOD,
 };
 
 
 struct CPU {
-  // TODO
-  // PC  PC = program counter...address of current instruction
-  // IR = instruction register
-  // MAR = memory address
-  // MDR = memory data register
-  // FL = flag
 
     unsigned char PC;
-    unsigned char IR;
-    unsigned char MAR;
-    unsigned char MDR; 
     unsigned char FL;
-
     unsigned char reg[8];
-    unsigned char ram[256];
-
-
-  // registers (array)
-  // ram (array)
+    unsigned char ram[MAX_ADDRESS + 1];
 };
 
-// Instructions
-
-// These use binary literals. If these aren't available with your compiler, hex
-// literals should be used.
-
-//'0b' in front of a binary number indicates binary literal...can also be '0B'. 
-// '0x' in front of a hr indicates hexadecimal literal...can also be '0X'
 #define LDI  0b10000010 
 #define ADD 0b10100000
 #define AND 0b10101000
@@ -90,9 +59,7 @@ struct CPU {
 #define ST 0b10000100
 #define SUB 0b10100001
 #define XOR 0b10101011
-// TODO: more instructi These can be used in cpu_run().
 
-// Function declarations
 
 extern void cpu_load(char *arg, struct CPU *cpu);
 extern void cpu_init(struct CPU *cpu);
