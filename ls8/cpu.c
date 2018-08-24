@@ -25,6 +25,7 @@ unsigned char cpu_pop(CPU *cpu)
 
 // Helper functions for efficiency -- to prevent repeating yourself.
 // For better readability and faster detection of bugs.
+// These functions access RAM inside the CPU (struct cpu).
 unsigned char cpu_ram_read(CPU *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -143,6 +144,7 @@ void cpu_run(CPU *cpu)
     // int instruction_set_pc = (IR >> 4) & 1;
 
     // 2. Switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
     switch(IR)
     {
       case LDI:
@@ -203,7 +205,7 @@ void cpu_run(CPU *cpu)
         break;
 
       case JMP:
-        // Jumps to the address stores in the given register. 
+        // Jumps to the address stored in the given register. 
         // Sets the PC to the address stored in the given register.
         cpu->pc = cpu->reg[operandA];
         break;
@@ -237,7 +239,6 @@ void cpu_run(CPU *cpu)
         exit(3);
     }
 
-    // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     // cpu->pc += (IR >> 6) + 1;
 
@@ -256,7 +257,7 @@ void cpu_run(CPU *cpu)
  */
 void cpu_init(CPU *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // TODO: Initialize the Program Counter (PC) and other special registers
   cpu->pc = START_OF_PROGRAM_ADDR;
   cpu->fl = CPU_FLAG;
   // Initialize the Stack Pointer (SP).
