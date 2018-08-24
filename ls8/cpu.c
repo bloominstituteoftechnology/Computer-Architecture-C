@@ -248,7 +248,7 @@ void cpu_run(struct cpu *cpu)
 
       case JNE:
         printf("JNE : %x R%d\n",IR, MAR);
-        if(cpu->FL == CLEAR_FLAG) {
+        if((cpu->FL & FLAG_EQUAL) == CLEAR_FLAG) {
           cpu->PC = cpu->registers[MAR];
         } else
           cpu->PC += 2;
