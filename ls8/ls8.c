@@ -1,15 +1,28 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
-  struct cpu cpu;
+  if(argc < 2) {
+		fprintf(stderr, "Provide a file to read! USAGE: ./ls8 filename\n");
+		exit(1);
+	}
+
+
+  // init a CPU struct
+  CPU cpu;
+
+  char *filename = argv[1];
 
   cpu_init(&cpu);
-  cpu_load(&cpu);
+
+  // give it a point to the file
+  cpu_load(&cpu, filename);
+
   cpu_run(&cpu);
 
   return 0;
