@@ -113,7 +113,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case JNE:
-        if (cpu->FL == 0) {
+        if (cpu->FL != 1) {
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC += 2;
