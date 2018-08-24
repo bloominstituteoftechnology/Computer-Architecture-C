@@ -41,6 +41,9 @@ enum alu_op
 #define IS 6
 #define SP 7
 
+// Interrupt Vector Table
+#define IVT 0xF8
+
 // Flags - An 8 bit register: 00000LGE
 #define L 0b00000100
 #define G 0b00000010
