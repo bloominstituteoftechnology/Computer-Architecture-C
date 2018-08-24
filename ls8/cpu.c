@@ -185,6 +185,16 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[MAR] = cpu_ram_read(cpu, cpu->registers[MDR]);
         break;
 
+      case CMP:
+        printf("CMP : %x R%d %d\n",IR, MAR, MDR);
+        if(cpu->registers[MAR] == cpu->registers[MDR])
+            cpu->FL = SET_FLAG_EQUAL;
+        else if(cpu->registers[MAR] < cpu->registers[MDR])
+                cpu->FL = SET_FLAG_LESS;
+             else 
+                cpu->FL = SET_FLAG_GREATER;
+        break;
+
       case PRN:
         printf("PRN : %x R%d\n",IR, MAR);
         printf("%d\n", cpu->registers[MAR]);
@@ -260,6 +270,7 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0x00;
+  cpu->FL = RESET_FLAG;
   cpu->registers[IM] = 0x00; // R5 is reserved as the interrupt mask (IM)
   cpu->registers[IS] = 0x00; // R6 is reserved as the interrupt status (IS)
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.

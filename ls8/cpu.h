@@ -7,7 +7,11 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned char PC;           //program counter points to next program
+  unsigned char PC;           // program counter points to next program
+  unsigned char FL;           // FL bits: 00000LGE used by CMP
+                              // L Less-than: during a CMP, set to 1 if registerA is less than registerB, zero otherwise.
+                              // G Greater-than: during a CMP, set to 1 if registerA is greater than registerB, zero otherwise.
+                              // E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
   unsigned char registers[8]; // 8 registers  
   unsigned char ram[256];     // ram size
 };
@@ -38,6 +42,7 @@ enum alu_op {
 #define LD   0b10000011
 #define PRA  0b01001000
 #define IRET 0b00010011
+#define CMP  0b10100111
 
 // Function declarations
 
@@ -49,6 +54,11 @@ enum alu_op {
 #define KEY_PRESSED 0xF4
 #define KEYBOARD_INTERRUPT_ADDRESS 0xF9
 #define NON_BREAKING_CODE 0xFF
+#define RESET_FLAG 0x00
+#define SET_FLAG_EQUAL 0x01   // 0b00000001
+#define SET_FLAG_LESS 0x02    // 0b00000010
+#define SET_FLAG_GREATER 0x04 // 0b00000100
+
 
 // extern void cpu_load(struct cpu *cpu);
 extern void cpu_load(struct cpu *cpu, char *filename);
