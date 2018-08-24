@@ -123,5 +123,6 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+  cpu->registers[7] = 0xF4;
   // TODO: Zero registers and RAM
 }
