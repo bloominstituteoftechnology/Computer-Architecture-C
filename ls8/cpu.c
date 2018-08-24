@@ -117,7 +117,8 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu,cpu->PC);
     // printf("Instrucction machine code %x PC %d\n",IR, cpu->PC);
-    IR_size = (IR >> 6) + 1; // Get the instructions size
+    IR_size = (IR >> 6) + 1; // Get the instructions size ((IR >> 6) & 0x3) + 1;
+
     switch(IR_size) {
       case 3:
         MDR = cpu_ram_read(cpu, cpu->PC + 2);
@@ -194,14 +195,14 @@ void cpu_run(struct cpu *cpu)
       case CALL:
         printf("CALL : %x R%d\n",IR, MAR);
         printf("cpu->PC before push : %d\n",cpu->PC);
-        cpu_push(cpu,cpu->PC + 1);
-        cpu->PC = cpu->registers[MAR] - IR_size;
+        cpu_push(cpu,cpu->PC + 2);
+        cpu->PC = cpu->registers[MAR];
         break;
 
       case JMP:
         printf("JMP : %x R%d\n",IR, MAR);
         printf("cpu->PC before jump : %d\n",cpu->PC);
-        cpu->PC = cpu->registers[MAR] - IR_size;
+        cpu->PC = cpu->registers[MAR];
         break;
 
       default:
@@ -210,7 +211,12 @@ void cpu_run(struct cpu *cpu)
         break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC += IR_size;
+    int instruction_sets_the_pc = (IR >> 4) & 1;
+
+    if (!instruction_sets_the_pc)
+    {
+      cpu->PC += IR_size;
+    }
     printf("cpu->PC %d\n",cpu->PC);
     if (cpu->PC >= 30)
       break;
