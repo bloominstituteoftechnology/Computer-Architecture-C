@@ -13,14 +13,26 @@ void cpu_load(struct cpu *cpu, char *file)
     exit(1);
   }
 
+  char str[128];
+  char instruction[8];
   int index = 0;
-  char str[1024];
-  char *pointer;
+  char databuff[256];
 
-  while(fgets(str, sizeof(str), fp) != NULL) { // gets the string from the file
-    cpu->ram[index++] = strtoul(str, &pointer, 2); // converts binary to base 10 
+  while(fgets(str, sizeof(str), fp) != NULL)
+  {
+    if(sscanf(str, "%s", instruction) == 1)
+    {
+      if ( str[0] == '0' || str[0] == '1' ){
+        databuff[index++] = strtoul(instruction, NULL, 2);
+      }
+    }
   }
 
+  int address = 0;
+
+  for (int i = 0; i < index; i++) {
+    cpu->ram[address++] = databuff[i];
+  }
 };
 
 
@@ -99,7 +111,14 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
-        if (cpu->reg[operandA] == cpu->reg[operandB]) cpu->FL = 1;
+        if (cpu->reg[operandA] == cpu->reg[operandB]){
+          cpu->FL = 1;
+        } else if (cpu->reg[operandA] < cpu->reg[operandB]) {
+          cpu->FL = 4;
+        } else {
+          cpu->FL = 2;
+        }
+        // printf("%d %d", cpu->reg[operandA], cpu->reg[operandB]);
         cpu->PC += 3;
         break;
 
@@ -117,7 +136,7 @@ void cpu_run(struct cpu *cpu)
           cpu->PC = cpu->reg[operandA];
         } else {
           cpu->PC += 2;
-        }
+        } break;
 
       case HLT:
         running = 0;
