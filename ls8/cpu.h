@@ -23,15 +23,19 @@ struct cpu
 // These use binary literals. If these aren't available with your compiler, hex literals should be used.
 
 enum alu_op {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD
 };
 
 // TODO: more instructions here. These can be used in cpu_run().
 
 // ALU
-#define MUL 0b10100010
+#define MUL  0b10100010
+#define ADD  0b10100000
 
 // PC Mutators
+#define CALL 0b01010000
+#define RET  0b00010001
 
 // Other
 #define LDI  0b10000010

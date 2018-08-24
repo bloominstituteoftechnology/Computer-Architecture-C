@@ -76,6 +76,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         break;
 
         // TODO: implement more ALU ops
+    case ALU_ADD:
+        registers[regA] += registers[regB];
+        break;
     }
 }
 
@@ -85,10 +88,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
     int running = 1; // True until we get a HLT instruction
-    unsigned char PC = cpu->PC;
+    unsigned char *PC = &cpu->PC;
     unsigned char *registers = cpu->registers;
-    unsigned char *ram = cpu->ram;
-    unsigned char SP = cpu->registers[7];
+    // unsigned char *ram = cpu->ram;
+    unsigned char *SP = &cpu->registers[7];
+    //int lineCount = 1;
 
     while (running)
     {
@@ -100,16 +104,16 @@ void cpu_run(struct cpu *cpu)
         // 4. Move the PC to the next instruction.
 
         //Unstructure variables from cpu struct
-        unsigned char IR = cpu->IR;
-        unsigned char MAR = cpu->MAR; // operandA == MAR
-        unsigned char MDR = cpu->MDR; // operandB == MDR
+        unsigned char *IR = &cpu->IR;
+        unsigned char *MAR = &cpu->MAR; // operandA == MAR
+        unsigned char *MDR = &cpu->MDR; // operandB == MDR
 
         // Set IR using cpu_ram_read
-        IR = cpu_ram_read(cpu, PC);
-        printf("  IR: %x\n", IR);
+        *IR = cpu_ram_read(cpu, *PC);
+        printf("  IR: %x\n", *IR);
 
         //get numArgs using bitwise rightshift on IR
-        int numArgs = (IR >> 6) + 1;
+        int numArgs = (*IR >> 6) + 1;
         // printf("numArgs: %d\n", numArgs);
 
         // Switch to set MDR and MAR so we only read when we need to
@@ -117,15 +121,15 @@ void cpu_run(struct cpu *cpu)
         {
         case 3:
             // printf("2: MDR\n");
-            MDR = cpu_ram_read(cpu, PC + 2);
-            printf(" MDR: %i\n", MDR);
+            *MDR = cpu_ram_read(cpu, *PC + 2);
+            printf(" MDR:  %i\n", *MDR);
         case 2:
             // printf("2.5: MAR\n");
-            MAR = cpu_ram_read(cpu, PC + 1);
-            printf(" MAR: %i\n", MAR);
+            *MAR = cpu_ram_read(cpu, *PC + 1);
+            printf(" MAR:  %i\n", *MAR);
             break;
         }
-        switch (IR)
+        switch (*IR)
         {
         // STEP 4
         case HLT:
@@ -135,32 +139,41 @@ void cpu_run(struct cpu *cpu)
         // STEP 5
         case LDI:
             // printf("5: LDI\n");
-            registers[MAR] = MDR;
+            registers[*MAR] = *MDR;
             break;
         // STEP 6
         case PRN:
             // printf("6: PRN\n");
-            printf("%d\n", registers[MAR]);
+            printf("%d\n", registers[*MAR]);
             break;
         case MUL:
             // if it's case MUL, then send it to alu();
-            alu(cpu, ALU_MUL, MAR, MDR);
+            alu(cpu, ALU_MUL, *MAR, *MDR);
             break;
 
             // STEP 10.2
         case PUSH:
-            cpu_ram_write(cpu, --SP, registers[MAR]);
+            cpu_ram_write(cpu, --*SP, registers[*MAR]);
             break;
         case POP:
-            registers[MAR] = ram[SP++];
+            registers[*MAR] = cpu_ram_read(cpu, *SP++);
             break;
+
+            // STEP 11.2
+        case ADD:
+            alu(cpu, ALU_ADD, *MAR, *MDR);
+            break;
+
+
         default:
             // from solution lecture
-            fprintf(stderr, "Unknown instruction at %i: %02x\n", cpu->PC, IR);
+            fprintf(stderr, "Unknown instruction at line %i: %02x\n", *PC+1, *IR);
             running = 0;
             exit(2);
         }
-        PC += numArgs;
+        //printf("Trace PC: %d\n", PC);
+        *PC += numArgs;
+        //lineCount += numArgs;
     }
 }
 
@@ -172,11 +185,11 @@ void cpu_init(struct cpu *cpu)
     // TODO: Initialize the PC and other special registers
     cpu->PC = 0;
 
-    // Step 10: set stack pointer to position f4
-    cpu->registers[7] = 0xf4;
-
     // TODO: Zero registers and RAM
     // for loop to put 0 value into every position ..... or just use memset
     memset(cpu->registers, 0, sizeof cpu->registers);
     memset(cpu->ram, 0, sizeof cpu->ram);
+
+    // Step 10: set stack pointer to position f4
+    cpu->registers[7] = 0xf4;
 }
