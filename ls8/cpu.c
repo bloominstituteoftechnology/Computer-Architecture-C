@@ -161,6 +161,7 @@ void cpu_run(CPU *cpu)
         cpu->pc += 2;
       }
       break;
+      
     case JMP:
       cpu->pc = cpu->reg[operandA];
       break;
