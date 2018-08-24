@@ -41,7 +41,10 @@ enum alu_op {
 
 // Function declarations
 
-#define SP 7
+#define IM 5 // R5 is reserved as the interrupt mask (IM)
+#define IS 6 // R6 is reserved as the interrupt status (IS)
+#define SP 7 // R7 is reserved as the stack pointer (SP)
+
 #define EMPTY_STACK 0xEA
 #define KEY_PRESSED 0xF4
 

@@ -234,7 +234,9 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof cpu->ram);
 
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = 0x00;
+  cpu->registers[IM] = 0x00; // R5 is reserved as the interrupt mask (IM)
+  cpu->registers[IS] = 0x00; // R6 is reserved as the interrupt status (IS)
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
   cpu_ram_write(cpu,KEY_PRESSED,'f'); //test keyboard read
 }
