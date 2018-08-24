@@ -72,7 +72,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       reg[regA] += valB;
       break;
   }
-
 }
 
 /**
@@ -139,6 +138,25 @@ void cpu_run(struct cpu *cpu)
         reg[operandA] = cpu_pop(cpu);
         break;
 
+      case CMP:
+        if(reg[operandA] == reg[operandB]) cpu->E = 1;
+        break;
+
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        instruction_set_pc = 1;
+        break;
+
+      case JEQ:
+        if(cpu->E) cpu->PC = cpu->reg[operandA];
+        else cpu->PC += 2;
+        break;
+
+      case JNE:
+        if(!cpu->E) cpu->PC = cpu->reg[operandA];
+        else cpu->PC += 2;
+        break;
+
       default:
         fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
         exit(3);
@@ -161,6 +179,8 @@ void cpu_init(struct cpu *cpu)
   // Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+  cpu->E = 0;
 
   // Initialize SP
   cpu->reg[SP] = ADDR_EMPTY_STACK;
