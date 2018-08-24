@@ -176,7 +176,7 @@ A8 0a 0b
 Calls a subroutine (function) at the address stored in the register.
 
 1. The address of the _next_ instruction that will execute is pushed onto the
-   stack.
+    stack.
 2. The PC is set to the address stored in the given register.
 
 Machine code:
@@ -524,7 +524,7 @@ Push the value in the given register on the stack.
 
 1. Decrement the `SP`.
 2. Copy the value in the given register to the address pointed to by
-   `SP`.
+    `SP`.
 
 Machine code:
 ```
