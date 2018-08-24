@@ -98,6 +98,18 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
 
+      case CMP:
+        if (cpu->reg[operandA] < cpu->reg[operandB]) {
+          cpu->FL = 4;
+        } 
+        else if (cpu->reg[operandA] > cpu->reg[operandB]) {
+          cpu->FL = 2;
+        } 
+        else {
+          cpu->FL = 1;
+        }
+        break;
+
       case HLT:
         running = 0;
         break;
@@ -118,4 +130,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // TODO: Zero registers and RAM
   cpu->reg[7] = 0xf4;
+  cpu->FL = 0;
 }
