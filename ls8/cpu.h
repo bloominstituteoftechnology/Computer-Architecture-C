@@ -12,10 +12,13 @@ struct cpu {
   unsigned char ram[256];
 };
 
+#define SP 7
+
 // Instructions
 
 enum alu_op {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD
 };
 
 // These use binary literals. If these aren't available with your compiler, hex

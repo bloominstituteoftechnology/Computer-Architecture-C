@@ -93,7 +93,17 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
-    
+
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        break;
+        
+      case POP:
+        cpu->reg[operandA] = cpu_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
+        break;
+
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
         exit(2);
@@ -112,5 +122,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
+  cpu->reg[SP] = 0xf4;
   // TODO: Zero registers and RAM
+  
 }
