@@ -43,6 +43,7 @@ enum alu_op {
 
 #define SP 7
 #define EMPTY_STACK 0xEA
+#define KEY_PRESSED 0xF4
 
 // extern void cpu_load(struct cpu *cpu);
 extern void cpu_load(struct cpu *cpu, char *filename);

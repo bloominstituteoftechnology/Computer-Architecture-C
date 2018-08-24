@@ -138,13 +138,13 @@ void cpu_run(struct cpu *cpu)
       case RET:
         printf("RET : %x\n",IR);
         cpu->PC = cpu_pop(cpu);
-        printf("cpu->PC after read from SP : %d\n",cpu->PC);
+        printf("PC after read from SP : %d\n",cpu->PC);
         break;
 
       case IRET: //TODO
         printf("IRET : %x\n",IR);
         cpu->PC = cpu_pop(cpu);
-        printf("cpu->PC after read from SP : %d\n",cpu->PC);
+        printf("PC after read from SP : %d\n",cpu->PC);
         break;
 
       case LDI:
@@ -194,14 +194,14 @@ void cpu_run(struct cpu *cpu)
 
       case CALL:
         printf("CALL : %x R%d\n",IR, MAR);
-        printf("cpu->PC before push : %d\n",cpu->PC);
+        printf("PC before push : %d\n",cpu->PC);
         cpu_push(cpu,cpu->PC + 2);
         cpu->PC = cpu->registers[MAR];
         break;
 
       case JMP:
         printf("JMP : %x R%d\n",IR, MAR);
-        printf("cpu->PC before jump : %d\n",cpu->PC);
+        printf("PC before jump : %d\n",cpu->PC);
         cpu->PC = cpu->registers[MAR];
         break;
 
@@ -217,7 +217,7 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->PC += IR_size;
     }
-    printf("cpu->PC %d\n",cpu->PC);
+    printf("PC : %d\n",cpu->PC);
     if (cpu->PC >= 30)
       break;
   }
@@ -236,5 +236,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
-  cpu_ram_write(cpu,0XF4,'f'); //test keyboard read
+  cpu_ram_write(cpu,KEY_PRESSED,'f'); //test keyboard read
 }
