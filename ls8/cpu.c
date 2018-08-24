@@ -164,10 +164,23 @@ void cpu_run(struct cpu *cpu)
             alu(cpu, ALU_ADD, *MAR, *MDR);
             break;
 
+        case CALL:
+            // move SP to new line, assign it address of instruction to be run upon RET
+            cpu_ram_write(cpu, --*SP, *PC + (numArgs - 1));
+            // Move PC counter to the value at reg[MAR] which is ADD&Print thing for us
+            // minus numArgs bc it's added back on the after the switch statement
+            *PC = registers[*MAR] - numArgs;
+            break;
+        case RET:
+            // upon return, set PC back to location that was previously set on CALL
+            *PC = cpu_ram_read(cpu, *SP);
+            // Move SP up one now that that value is now useless and should be reused
+            *SP += 1;
+            break;
 
         default:
             // from solution lecture
-            fprintf(stderr, "Unknown instruction at line %i: %02x\n", *PC+1, *IR);
+            fprintf(stderr, "Unknown instruction at line %i: %02x\n", *PC + 1, *IR);
             running = 0;
             exit(2);
         }
