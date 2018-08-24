@@ -1,4 +1,3 @@
-ls8
 
 # Prerequisites
 *.d
@@ -52,3 +51,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+foo.c
+ls8/foo
+ls8/ls8
+ls8/questions.md
