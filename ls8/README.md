@@ -2,20 +2,17 @@
 
 ## Implementation of the LS-8 Emulator
 
-Objective: to gain a deeper understanding of how a CPU functions at a
-low level.
+Objective: to gain a deeper understanding of how a CPU functions at a low level.
 
-We're going to write an emulator for the world-famous LambdaSchool-8 computer,
-otherwise known as LS-8! This is an 8-bit computer with 8-bit memory addressing,
-which is about as simple as it gets.
+We're going to write an emulator for the world-famous LambdaSchool-8 computer, otherwise known as LS-8! 
+This is an 8-bit computer with 8-bit memory addressing, which is about as simple as it gets.
 
 An 8 bit CPU is one that only has 8 wires available for addresses (specifying
-where something is in memory), computations, and instructions. With 8 bits, our
-CPU has a total of 256 bytes of memory and can only compute values up to 255.
+where something is in memory), computations, and instructions. 
+With 8 bits, our CPU has a total of 256 bytes of memory and can only compute values up to 255.
 The CPU could support 256 instructions, as well, but we won't need them.
 
-For starters, we'll execute code that stores the value 8 in a register,
-then prints it out:
+For starters, we'll execute code that stores the value 8 in a register, then prints it out:
 
 ```
 # print8.ls8: Print the number 8 on the screen
@@ -30,13 +27,11 @@ then prints it out:
 
 The binary numeric value on the left in the `print8.ls8` code above is either:
 
-* the machine code value of the instruction (e.g. `10000010` for `LDI`), also
-  known as the _opcode_
+* the machine code value of the instruction (e.g. `10000010` for `LDI`), also known as the _opcode_
 
 or
 
-* one of the opcode's arguments (e.g. `00000000` for `R0` or `00001000` for the
-  value `8`), also known as the _operands_.
+* one of the opcode's arguments (e.g. `00000000` for `R0` or `00001000` for the value `8`), also known as the _operands_.
 
 This code above requires the implementation of three instructions:
 
@@ -48,8 +43,7 @@ This code above requires the implementation of three instructions:
 
 See [the LS-8 spec](../LS8-SPEC.md) for more details.
 
-The above program is already hardcoded into the source file `cpu.c`. To run it,
-you will eventually:
+The above program is already hardcoded into the source file `cpu.c`. To run it, you will eventually:
 
 ```
 make
@@ -65,6 +59,32 @@ but you'll have to implement those three above instructions first!
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
+
+
+* ../asm  - These look like testing files
+    * asm.js - lots of consoles to tell you what went wrong
+    * buildall - some compiler code???
+    * all others, just sample assembly examples
+* ls8
+    * /examples - code instrutions
+    * cpu.h
+        * defines cpu struct with it's info
+        * instruction declaration including LDI
+    * cpu.c - main program - has cpu.h
+      * cpu_load - loads data and fills in RAM
+      * alu switch - switch for alu cases
+      * cpu_run - main function that does the logic
+      * cpu_init - initializes the PC and other registers
+      * cpu_ram_read_write - read and write to ram
+    * ls8.c - main() located here
+        * runs cpu_init, cpu_load, cpu_run
+    * Makefile
+      * takes all .c files and assigns it to SRC
+      * takes all .h files and assigns it to HEADERS
+      * takes all .c and .h files and assigns it to DEPS
+      * runs the gcc with SRC
+      * .PHONY clean - makes phony clean file
+      * clean: removes .dsYM file
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
