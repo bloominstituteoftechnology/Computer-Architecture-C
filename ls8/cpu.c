@@ -186,7 +186,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
-        printf("CMP : %x R%d %d\n",IR, MAR, MDR);
+        printf("CMP : %x R%d R%d\n",IR, MAR, MDR);
         if(cpu->registers[MAR] == cpu->registers[MDR])
             cpu->FL = FLAG_EQUAL;
         else if(cpu->registers[MAR] < cpu->registers[MDR])
@@ -240,7 +240,15 @@ void cpu_run(struct cpu *cpu)
       
       case JEQ:
         printf("JEQ : %x R%d\n",IR, MAR);
-        if(cpu->FL == FLAG_EQUAL || cpu->FL == FLAG_GREATER) {
+        if(cpu->FL == FLAG_EQUAL) {
+          cpu->PC = cpu->registers[MAR];
+        } else
+          cpu->PC += 2;
+        break;
+
+      case JNE:
+        printf("JNE : %x R%d\n",IR, MAR);
+        if(cpu->FL == CLEAR_FLAG) {
           cpu->PC = cpu->registers[MAR];
         } else
           cpu->PC += 2;
@@ -259,7 +267,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += IR_size;
     }
     printf("PC : %d\n",cpu->PC);
-    if (cpu->PC >= 30)
+    if (cpu->PC >= 100) // Just for test and prevent a infinte loop
       break;
     sleep(1);
 
@@ -278,7 +286,7 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0x00;
-  cpu->FL = RESET_FLAG;
+  cpu->FL = CLEAR_FLAG;
   cpu->registers[IM] = 0x00; // R5 is reserved as the interrupt mask (IM)
   cpu->registers[IS] = 0x00; // R6 is reserved as the interrupt status (IS)
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
@@ -289,7 +297,7 @@ int io_bus_emulator(void)
 {
   struct timeval clock;
   gettimeofday(&clock, NULL);
-  printf("IO bus running: %lu\n", clock.tv_usec);
+  // printf("IO bus running: %lu\n", clock.tv_usec);
   struct termios oldattr, newattr;
   int ch;
 

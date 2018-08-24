@@ -44,6 +44,7 @@ enum alu_op {
 #define IRET 0b00010011
 #define CMP  0b10100111
 #define JEQ  0b01010101
+#define JNE  0b01010110
 
 // Function declarations
 
@@ -55,7 +56,7 @@ enum alu_op {
 #define KEY_PRESSED 0xF4
 #define KEYBOARD_INTERRUPT_ADDRESS 0xF9
 #define NON_BREAKING_CODE 0xFF
-#define RESET_FLAG 0x00
+#define CLEAR_FLAG 0x00
 #define FLAG_EQUAL 0x01   // 0b00000001
 #define FLAG_LESS 0x02    // 0b00000010
 #define FLAG_GREATER 0x04 // 0b00000100
