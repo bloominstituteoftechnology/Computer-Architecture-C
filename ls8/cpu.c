@@ -4,6 +4,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/time.h>
 
 #include "cpu.h"
 
@@ -114,8 +115,26 @@ void cpu_run(struct cpu *cpu)
   unsigned char MAR; // Memory Address Register, holds the memory address we're reading or writing
   unsigned char MDR; // Memory Data Register, holds the value to write or the value just read
 
-  while (running) {
+  unsigned char ch;
+
+  while (running && ch != 'q') {
     // TODO
+    //Stretch
+
+    ch = io_bus_emulator();
+
+    if (ch != NON_BREAKING_CODE) {
+      printf("Key interrupt : %x\n",ch);
+      cpu_ram_write(cpu,KEY_PRESSED,ch);
+      //push to the stack to save cpu state
+      cpu_push(cpu,cpu->PC);
+      for(int i = 0; i <= SP-3 ;i ++)
+        cpu_push(cpu,cpu->registers[i]);
+      
+      cpu->PC = cpu_ram_read(cpu, KEYBOARD_INTERRUPT_ADDRESS);
+      printf("PC read from  KEYBOARD_INTERRUPT_ADDRESS : %d\n",cpu->PC);
+    }
+
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu,cpu->PC);
     // printf("Instrucction machine code %x PC %d\n",IR, cpu->PC);
@@ -145,6 +164,8 @@ void cpu_run(struct cpu *cpu)
 
       case IRET: //TODO
         printf("IRET : %x\n",IR);
+        for(int i = SP - 3; i >= 0 ;i --)
+          cpu->registers[i] = cpu_pop(cpu);
         cpu->PC = cpu_pop(cpu);
         printf("PC after read from SP : %d\n",cpu->PC);
         break;
@@ -222,6 +243,8 @@ void cpu_run(struct cpu *cpu)
     printf("PC : %d\n",cpu->PC);
     if (cpu->PC >= 30)
       break;
+    sleep(1);
+
   }
 }
 
@@ -240,12 +263,14 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[IM] = 0x00; // R5 is reserved as the interrupt mask (IM)
   cpu->registers[IS] = 0x00; // R6 is reserved as the interrupt status (IS)
   cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
-  cpu_ram_write(cpu,KEY_PRESSED,'f'); //test keyboard read
 }
 
 // IO bus emulator: reads from keypress, without wait and echoes
 int io_bus_emulator(void)
 {
+  struct timeval clock;
+  gettimeofday(&clock, NULL);
+  printf("IO bus running: %lu\n", clock.tv_usec);
   struct termios oldattr, newattr;
   int ch;
 
@@ -261,7 +286,7 @@ int io_bus_emulator(void)
   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
   ch = getchar();
-  printf("Your pressed: %c\n",ch);
+  // printf("Your pressed: %c\n",ch);
 
   system("stty echo"); //restore the echo
   tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );

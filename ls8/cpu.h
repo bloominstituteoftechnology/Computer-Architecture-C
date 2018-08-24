@@ -47,12 +47,13 @@ enum alu_op {
 
 #define EMPTY_STACK 0xEA
 #define KEY_PRESSED 0xF4
+#define KEYBOARD_INTERRUPT_ADDRESS 0xF9
+#define NON_BREAKING_CODE 0xFF
 
 // extern void cpu_load(struct cpu *cpu);
 extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 extern int io_bus_emulator(void);
-
 
 #endif
