@@ -83,15 +83,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       reg[regA] += valB;
       break;
-    // case ALU_AND:
-    //   regA = regA & regB;
-    //   break;
-    // case ALU_DEC:
-    //   regA = regA - 1;
-    //   break;
-    // case ALU_SUB:
-    //   regA = regA - regB;
-    //   break;
+    case ALU_AND:
+      reg[regA] = reg[regA] & reg[regB];
+      break;
     case ALU_CMP:
       #if DEBUG
       printf("FL is %d\n", cpu->FL);
@@ -112,8 +106,38 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       printf("FL is %d\n", cpu->FL);
       #endif
       break;
+    case ALU_DEC:
+      reg[regA] = reg[regA] - 1;
+      break;
+    case ALU_DIV:
+      reg[regA] = reg[regA] / reg[regB];
+      break;
+    case ALU_INC:
+      reg[regA] = reg[regA] + 1;
+      break;
+    case ALU_MOD:
+      reg[regA] = reg[regA] % reg[regB];
+      break;
     case ALU_MUL:
       reg[regA] *= valB;
+      break;
+    case ALU_NOT:
+      reg[regA] = ~reg[regA];
+      break;
+    case ALU_OR:
+      reg[regA] = reg[regA] | reg[regA];
+      break;
+    case ALU_SHL:
+      reg[regA] = reg[regA] << reg[regB];
+      break;
+    case ALU_SHR:
+      reg[regA] = reg[regA] >> reg[regB];
+      break;
+    case ALU_SUB:
+      reg[regA] = reg[regA] - reg[regB];
+      break;
+    case ALU_XOR:
+      reg[regA] = reg[regA] ^ reg[regB];
       break;
     // TODO: implement more ALU ops
   }
@@ -145,48 +169,34 @@ void cpu_run(struct cpu *cpu)
     // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+    unsigned char maskedInterrupts = cpu->reg[IM] & cpu->reg[IS];
+    unsigned char interrupts = 1;
 
+    while (interrupts) {
+      for (int i = 0; i < 8; i++) {
+        if (((maskedInterrupts >> i) & 1) == 1){
+          interrupts = 0;
+          cpu->reg[IS] &= ~cpu->reg[IM];
+          cpu_ram_write(cpu, --cpu->reg[SP], cpu->PC);
+          cpu_ram_write(cpu, --cpu->reg[SP], cpu->FL);
+          for (int r = 0; r < 7; r++) {
+            cpu_ram_write(cpu, --cpu->reg[SP], cpu->reg[r]);
+          }
+          cpu->PC = cpu->ram[0xF8 + i]; // Because interrupt vector starts at F8
+          break;
+        }
+      }
+      interrupts = 0;
+    }
     switch(IR)
     {
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC+=difference;
         break;
-      case LDI:
-        reg[operandA] = operandB;
+      case AND:
+        alu(cpu, ALU_AND, operandA, operandB);
         cpu->PC+=difference;
-        break;
-      case PRN:
-        printf("%d\n", reg[operandA]);
-        cpu->PC+=difference;
-        break;
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->PC+=difference;
-        break;
-      case POP:
-        reg[operandA] = cpu->ram[cpu->reg[SP]++];
-        cpu->PC+=difference;
-        break;
-      case PUSH:
-        cpu_ram_write(cpu, --cpu->reg[SP], reg[operandA]);
-        cpu->PC+=difference;
-        break;
-      case HLT:
-        running = 0;
-        break;
-      case RET:
-        #if DEBUG
-        printf("Value of PC before RET: %d\n", cpu->PC);
-        #endif
-        cpu->PC = cpu->ram[cpu->reg[SP]]++;
-        #if DEBUG
-        printf("Value of PC after RET: %d\n", cpu->PC);
-        #endif
-        break;
-      case ST:
-        cpu->ram[reg[operandA]] = reg[operandB];
-        cpu->PC+= difference;
         break;
       case CALL:
         #if DEBUG
@@ -201,26 +211,40 @@ void cpu_run(struct cpu *cpu)
         printf("Value of PC after call: %d\n", cpu->PC);
         #endif
         break;
-      case PRA:
-        printf("%c\n", reg[operandA]);
-        cpu->PC+=difference;
-        break;
-      case IRET:
-        reg[6] = cpu->ram[cpu->reg[SP]]++;
-        reg[5] = cpu->ram[cpu->reg[SP]]++;
-        reg[4] = cpu->ram[cpu->reg[SP]]++;
-        reg[3] = cpu->ram[cpu->reg[SP]]++;
-        reg[2] = cpu->ram[cpu->reg[SP]]++;
-        reg[1] = cpu->ram[cpu->reg[SP]]++;
-        reg[0] = cpu->ram[cpu->reg[SP]]++;
-        // cpu->FL = cpu->ram[SP++];
-        break;
-      case JMP:
-        cpu->PC = cpu->reg[operandA];
-        break;
       case CMP:
         alu(cpu, ALU_CMP, cpu->reg[operandA], cpu->reg[operandB]);
         cpu->PC+=difference;
+        break;
+      case DEC:
+        alu(cpu, ALU_DEC, operandA, 0);
+        cpu->PC+=difference;
+        break;
+      case DIV:
+        if (reg[operandB] == 0) {
+          fprintf(stderr, "DIV: Value in second register is 0");
+          running = 0;
+        } else {
+          alu(cpu, ALU_DIV, operandA, operandB);
+          cpu->PC+=difference;
+        }
+        break;
+      case HLT:
+        running = 0;
+        break;
+      case INC:
+        alu(cpu, ALU_INC, operandA, 0);
+        break;
+      case IRET:
+        reg[6] = cpu->ram[cpu->reg[SP]++];
+        reg[5] = cpu->ram[cpu->reg[SP]++];
+        reg[4] = cpu->ram[cpu->reg[SP]++];
+        reg[3] = cpu->ram[cpu->reg[SP]++];
+        reg[2] = cpu->ram[cpu->reg[SP]++];
+        reg[1] = cpu->ram[cpu->reg[SP]++];
+        reg[0] = cpu->ram[cpu->reg[SP]++];
+        cpu->FL = cpu->ram[cpu->reg[SP]++];
+        cpu->PC = cpu->ram[cpu->reg[SP]++];
+        interrupts = 1;
         break;
       case JEQ:
         if ((cpu->FL & 0b1) == 0b1){
@@ -228,7 +252,37 @@ void cpu_run(struct cpu *cpu)
         } else {
           cpu->PC+=difference;
         }
-
+        break;
+      case JGE:
+        if ((cpu->FL & 0b10) == 0b10 || (cpu->FL & 0b1) == 0b1){
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
+        break;
+      case JGT:
+        if ((cpu->FL & 0b10) == 0b10){
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
+        break;
+      case JLE:
+        if ((cpu->FL & 0b100) == 0b100) {
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
+        break;
+      case JLT:
+        if ((cpu->FL & 0b1) == 0b1 || (cpu->FL & 0b100) == 0b100){
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC+=difference;
+        }
+        break;
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
         break;
       case JNE:
         if ((cpu->FL & 0b1) == 0b0){
@@ -236,6 +290,83 @@ void cpu_run(struct cpu *cpu)
         } else {
           cpu->PC+=difference;
         }
+        break;
+      case LD:
+        reg[operandA] = reg[operandB];
+        cpu->PC+=difference;
+        break;
+      case LDI:
+        reg[operandA] = operandB;
+        cpu->PC+=difference;
+        break;
+      case MOD:
+        if (reg[operandB] == 0) {
+          running = 0;
+        }
+        else {
+          alu(cpu, ALU_MOD, operandA, operandB);
+        }
+        cpu->PC+=difference;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC+=difference;
+        break;
+      case NOP:
+        cpu->PC+=difference;
+        break;
+      case NOT:
+        alu(cpu, ALU_NOT, operandA, 0);
+        cpu->PC+=difference;
+        break;
+      case OR:
+        alu(cpu, ALU_OR, operandA, operandB);
+        cpu->PC+=difference;
+        break;
+      case POP:
+        reg[operandA] = cpu->ram[cpu->reg[SP]++];
+        cpu->PC+=difference;
+        break;
+      case PRA:
+        printf("%c\n", reg[operandA]);
+        cpu->PC+=difference;
+        break;
+      case PRN:
+        printf("%d\n", reg[operandA]);
+        cpu->PC+=difference;
+        break;
+      case PUSH:
+        cpu_ram_write(cpu, --cpu->reg[SP], reg[operandA]);
+        cpu->PC+=difference;
+        break;
+      case RET:
+        #if DEBUG
+        printf("Value of PC before RET: %d\n", cpu->PC);
+        #endif
+        cpu->PC = cpu->ram[cpu->reg[SP]]++;
+        #if DEBUG
+        printf("Value of PC after RET: %d\n", cpu->PC);
+        #endif
+        break;
+      case SHL:
+        alu(cpu, ALU_SHL, operandA, operandB);
+        cpu->PC+=difference;
+        break;
+      case SHR:
+        alu(cpu, ALU_SHR, operandA, operandB);
+        cpu->PC+=difference;
+        break;
+      case ST:
+        cpu->ram[reg[operandA]] = reg[operandB];
+        cpu->PC+= difference;
+        break;
+      case SUB:
+        alu(cpu, ALU_SUB, operandA, operandB);
+        cpu->PC+=difference;
+        break;
+      case XOR:
+        alu(cpu, ALU_XOR, operandA, operandB);
+        cpu->PC+=difference;
         break;
       default:
         printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
@@ -267,8 +398,8 @@ void cpu_init(struct cpu *cpu)
   cpu->reg = (unsigned char *) calloc(8, sizeof(unsigned char));
   cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
   cpu->reg[7] = 0xF4;
-  cpu->reg[6] = 00000000; // IS register - interrupt status
-  cpu->reg[5] = 00000000; // interrupt mask (change to 1 to start checking for interrupt)
+  // cpu->reg[6] = 00000000; // IS register - interrupt status
+  // cpu->reg[5] = 00000000; // interrupt mask (change to 1 to start checking for interrupt)
   cpu->FL = 00000000;
   // TODO: Initialize the PC and other special registers
 

@@ -19,15 +19,28 @@ struct cpu {
 // literals should be used.
 
 enum alu_op {
-  ALU_MUL,
   ALU_ADD,
-  ALU_CMP
+  ALU_AND,
+  ALU_CMP,
+  ALU_DEC,
+  ALU_DIV,
+  ALU_INC,
+  ALU_MOD,
+  ALU_MUL,
+  ALU_NOT,
+  ALU_OR,
+  ALU_SHL,
+  ALU_SHR,
+  ALU_SUB,
+  ALU_XOR
 };
 
 #define SP 7
 // fills in 7 wherever SP is used
+#define IS 6
+#define IM 5
 
-#define LDI  0b10000010
+
 #define ADD  0b10100000
 #define AND  0b10101000
 #define CALL 0b01010000
