@@ -114,7 +114,12 @@ void cpu_run(struct CPU *cpu)
         cpu_ram_write(cpu, reg[SP], PC + bitshift);
         PC = reg[operandA];
         break;
-
+      case DEC:
+        reg[operandA]--;
+        printf("%d\n", PC);
+        PC +=bitshift;
+        break;
+      
       case DIV:
         alu(cpu, ALU_DIV, operandA, operandB);
         PC +=bitshift;
@@ -122,6 +127,11 @@ void cpu_run(struct CPU *cpu)
 
       case HLT:
         running = 0;
+        break;
+      
+      case INC:
+        reg[operandA]++;
+        PC += bitshift;
         break;
       
       case JMP:
