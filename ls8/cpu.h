@@ -33,6 +33,12 @@ enum alu_op {
 #define PUSH 0b01000101
 #define POP  0b01000110
 #define RET  0b00010001
+#define ST   0b10000100
+#define JMP  0b01010100
+#define LD   0b10000011
+#define PRA  0b01001000
+#define IRET 0b00010011
+
 // Function declarations
 
 #define SP 7

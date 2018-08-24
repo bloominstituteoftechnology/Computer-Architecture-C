@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <curses.h>
+
 #include "cpu.h"
 
 /**
@@ -65,6 +67,23 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned cha
 {
   return cpu->ram[address] = value;
 }
+
+//POP
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu_ram_read(cpu, cpu->registers[SP]);
+  cpu->registers[SP]++;
+
+  return val;
+}
+
+//PUSH
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->registers[SP]--;
+  cpu_ram_write(cpu, cpu->registers[SP], val);
+}
+
 /**
  * ALU
  */
@@ -117,8 +136,14 @@ void cpu_run(struct cpu *cpu)
 
       case RET:
         printf("RET : %x\n",IR);
-        cpu->PC = cpu_ram_read(cpu,cpu->registers[SP]);
-        cpu->registers[SP]++;
+        cpu->PC = cpu_pop(cpu);
+        printf("cpu->PC after read from SP : %d\n",cpu->PC);
+        break;
+
+      case IRET: //TODO
+        printf("IRET : %x\n",IR);
+        cpu->PC = cpu_pop(cpu);
+        printf("cpu->PC after read from SP : %d\n",cpu->PC);
         break;
 
       case LDI:
@@ -126,9 +151,24 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[MAR] = MDR;
         break;
 
+      case ST:
+        printf("ST : %x R%d %d\n",IR, MAR, MDR);
+        cpu_ram_write(cpu,cpu->registers[MAR],cpu->registers[MDR]);
+        break;
+
+      case LD:
+        printf("LD : %x R%d %d\n",IR, MAR, MDR);
+        cpu->registers[MAR] = cpu_ram_read(cpu, cpu->registers[MDR]);
+        break;
+
       case PRN:
         printf("PRN : %x R%d\n",IR, MAR);
         printf("%d\n", cpu->registers[MAR]);
+        break;
+
+      case PRA:
+        printf("PRA : %x R%d\n",IR, MAR);
+        printf("%c\n", cpu->registers[MAR]);
         break;
 
       case MUL:
@@ -143,20 +183,24 @@ void cpu_run(struct cpu *cpu)
 
       case PUSH:
         printf("PUSH : %x R%d\n",IR, MAR);
-        cpu->registers[SP]--;
-        cpu_ram_write(cpu,cpu->registers[SP],cpu->registers[MAR]);
+        cpu_push(cpu, cpu->registers[MAR]);
         break;
 
       case POP:
         printf("POP : %x R%d\n",IR, MAR);
-        cpu->registers[MAR] = cpu_ram_read(cpu,cpu->registers[SP]);
-        cpu->registers[SP]++;
+        cpu->registers[MAR] = cpu_pop(cpu);
         break;
 
       case CALL:
         printf("CALL : %x R%d\n",IR, MAR);
-        cpu->registers[SP]--;
-        cpu_ram_write(cpu,cpu->registers[SP],cpu->PC + 1);
+        printf("cpu->PC before push : %d\n",cpu->PC);
+        cpu_push(cpu,cpu->PC + 1);
+        cpu->PC = cpu->registers[MAR] - IR_size;
+        break;
+
+      case JMP:
+        printf("JMP : %x R%d\n",IR, MAR);
+        printf("cpu->PC before jump : %d\n",cpu->PC);
         cpu->PC = cpu->registers[MAR] - IR_size;
         break;
 
@@ -167,7 +211,9 @@ void cpu_run(struct cpu *cpu)
     }
     // 4. Move the PC to the next instruction.
     cpu->PC += IR_size;
-    // printf("cpu->PC %d\n",cpu->PC);
+    printf("cpu->PC %d\n",cpu->PC);
+    if (cpu->PC >= 30)
+      break;
   }
 }
 
@@ -176,12 +222,13 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
-  cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
-
-  // TODO: Zero registers and RAM
+    // TODO: Zero registers and RAM
   // Zero registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
+  cpu->registers[SP] = EMPTY_STACK; // The SP points at the value at the top of the stack (most recently pushed), or at address F4 if the stack is empty.
+  cpu_ram_write(cpu,0XF4,'f'); //test keyboard read
 }
