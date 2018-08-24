@@ -188,11 +188,11 @@ void cpu_run(struct cpu *cpu)
       case CMP:
         printf("CMP : %x R%d %d\n",IR, MAR, MDR);
         if(cpu->registers[MAR] == cpu->registers[MDR])
-            cpu->FL = SET_FLAG_EQUAL;
+            cpu->FL = FLAG_EQUAL;
         else if(cpu->registers[MAR] < cpu->registers[MDR])
-                cpu->FL = SET_FLAG_LESS;
+                cpu->FL = FLAG_LESS;
              else 
-                cpu->FL = SET_FLAG_GREATER;
+                cpu->FL = FLAG_GREATER;
         break;
 
       case PRN:
@@ -236,6 +236,14 @@ void cpu_run(struct cpu *cpu)
         printf("JMP : %x R%d\n",IR, MAR);
         printf("PC before jump : %d\n",cpu->PC);
         cpu->PC = cpu->registers[MAR];
+        break;
+      
+      case JEQ:
+        printf("JEQ : %x R%d\n",IR, MAR);
+        if(cpu->FL == FLAG_EQUAL || cpu->FL == FLAG_GREATER) {
+          cpu->PC = cpu->registers[MAR];
+        } else
+          cpu->PC += 2;
         break;
 
       default:

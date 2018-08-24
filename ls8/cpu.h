@@ -43,6 +43,7 @@ enum alu_op {
 #define PRA  0b01001000
 #define IRET 0b00010011
 #define CMP  0b10100111
+#define JEQ  0b01010101
 
 // Function declarations
 
@@ -55,9 +56,9 @@ enum alu_op {
 #define KEYBOARD_INTERRUPT_ADDRESS 0xF9
 #define NON_BREAKING_CODE 0xFF
 #define RESET_FLAG 0x00
-#define SET_FLAG_EQUAL 0x01   // 0b00000001
-#define SET_FLAG_LESS 0x02    // 0b00000010
-#define SET_FLAG_GREATER 0x04 // 0b00000100
+#define FLAG_EQUAL 0x01   // 0b00000001
+#define FLAG_LESS 0x02    // 0b00000010
+#define FLAG_GREATER 0x04 // 0b00000100
 
 
 // extern void cpu_load(struct cpu *cpu);
