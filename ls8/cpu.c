@@ -99,15 +99,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
-        if (cpu->reg[operandA] < cpu->reg[operandB]) {
-          cpu->FL = 4;
-        } 
-        else if (cpu->reg[operandA] > cpu->reg[operandB]) {
-          cpu->FL = 2;
-        } 
-        else {
-          cpu->FL = 1;
-        }
+        if (cpu->reg[operandA] == cpu->reg[operandB]) cpu->FL = 1;
         cpu->PC += 3;
         break;
 
@@ -119,6 +111,13 @@ void cpu_run(struct cpu *cpu)
         if (cpu->FL == 1) cpu->PC = cpu->reg[operandA];
         else cpu->PC += 2;
         break;
+
+      case JNE:
+        if (cpu->FL == 0) {
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC += 2;
+        }
 
       case HLT:
         running = 0;
