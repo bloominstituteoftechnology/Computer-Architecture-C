@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
 #include "cpu.h"
 #include "cpu_instr.h"
 
@@ -29,7 +31,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->fl = E;
       if (a < b)
         cpu->fl = L;
-      if (a < b)
+      if (a > b)
         cpu->fl = G;
       break;
     case ALU_DEC:
@@ -100,7 +102,7 @@ void get_next_instruction(struct cpu *cpu)
   cpu->ir = cpu->mdr;
 }
 
-/**
+    /**
  * Checks if current instruction is a PC mutator
  * PC mutators will set the PC, removing the need to increment PC
  * 
@@ -145,15 +147,82 @@ void set_operands(unsigned char *opA, unsigned char *opB, struct cpu *cpu)
 }
 
 /**
- * Initialize a CPU struct
+ * If at least one second has passed, set bit 0 of the IS register
  * 
- * Initializes the PC and other special registers. -> TODO
- * Zeros registers and RAM. -> TODO
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param timer {float*} Pointer to timer.
+ * @param tv {struct timevel*} Pointer to time timer was set to 0.
+ */
+void timer_interrupt(struct cpu *cpu, float *timer, struct timeval *tv)
+{
+  struct timeval ct;
+  gettimeofday(&ct, NULL);
+  *timer = (ct.tv_sec - tv->tv_sec) + ((ct.tv_usec - tv->tv_usec) * 0.000001);
+
+  if (*timer >= 1)
+  {
+    cpu->registers[IS] = cpu->registers[IS] | (1 << 0);
+    *timer = 0;
+    gettimeofday(tv, NULL);
+  }
+}
+
+/**
+ * Checks if an interrupt the cpu is interested in has triggered
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param i {unsigned char*} Pointer to interrupts variable.
+ */
+void check_interrupts(struct cpu *cpu, unsigned char *i)
+{
+  *i = cpu->registers[IM] & cpu->registers[IS];
+}
+
+/**
+ * Disables further interrupts, saves cpu state and updates pc based on
+ * interrupt vector table
+ * 
+ * @param cpu {struct cpu*} Pointer to a cpu struct.
+ * @param i {int} Interrupt number (I0-I7).
+ */
+void process_interrupt(struct cpu *cpu, int i)
+{
+  // Disable further interrupts
+  handle_PUSH(cpu, IM, '\0');
+  cpu->registers[IM] = 0b00000000;
+
+  // Clear IS bit
+  cpu->registers[IS] = cpu->registers[IS] & ~(1 << i);
+
+  // Save CPU state
+  cpu->registers[TMP] = cpu->pc;
+  handle_PUSH(cpu, TMP, '\0');
+  cpu->registers[TMP] = cpu->fl;
+  handle_PUSH(cpu, TMP, '\0');
+  handle_PUSH(cpu, 0, '\0');
+  handle_PUSH(cpu, 1, '\0');
+  handle_PUSH(cpu, 2, '\0');
+  handle_PUSH(cpu, 3, '\0');
+  handle_PUSH(cpu, 4, '\0');
+  handle_PUSH(cpu, 5, '\0');
+  handle_PUSH(cpu, 6, '\0');
+
+  // Set PC to address in interrupt vector table
+  cpu->mar = IVT + i;
+  cpu_ram_read(cpu);
+  cpu->pc = cpu->mdr;
+}
+
+/**
+ * Initialize a CPU struct
  * 
  * @param cpu {struct cpu*} Pointer to a cpu struct.
  */
 void cpu_init(struct cpu *cpu)
 {
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+
   cpu->pc = 0b00000000;
   cpu->ir = 0b00000000;
   cpu->fl = 0b00000000;
@@ -202,12 +271,25 @@ void cpu_load(struct cpu *cpu, char *program)
 void cpu_run(struct cpu *cpu)
 {
   int pcMutator = 0;
+  float timer = 0;
   unsigned char opA = '\0';
   unsigned char opB = '\0';
-  handler *branch_table = malloc(255 * sizeof *branch_table);
+  unsigned char interrupts = '\0';
+  struct timeval cpu_time;
+
+  handler *branch_table = malloc(256 * sizeof *branch_table);
   load_cpu_instructions(branch_table);
+  gettimeofday(&cpu_time, NULL);
 
   while (1) {
+    timer_interrupt(cpu, &timer, &cpu_time);
+    check_interrupts(cpu, &interrupts);
+
+    if (interrupts)
+      for (int i = 0; i < 8; i++)
+        if (((interrupts >> i) & 1) == 1)
+          process_interrupt(cpu, i);
+    
     get_next_instruction(cpu);
 
     if (cpu->ir == HLT)
