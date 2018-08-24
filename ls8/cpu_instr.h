@@ -48,6 +48,8 @@ extern void handle_CMP(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_DEC(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_DIV(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_INC(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_INT(struct cpu *cpu, unsigned char opA, unsigned char opB);
+extern void handle_IRET(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_LD(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_LDI(struct cpu *cpu, unsigned char opA, unsigned char opB);
 extern void handle_MOD(struct cpu *cpu, unsigned char opA, unsigned char opB);
