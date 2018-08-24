@@ -200,8 +200,18 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case JMP:
+        cpu->PC = cpu->registers[argv_a] - IR_size;
+        break; 
+
+      case JEQ:
+        if (cpu->flag == 0x01)
           cpu->PC = cpu->registers[argv_a] - IR_size;
-          break; 
+        break;
+
+      case JNE:
+        if (cpu->flag != 0x01)
+          cpu->PC = cpu->registers[argv_a] - IR_size;
+        break;
 
       default:
         printf("error, invalid instruction %x\n", IR);
