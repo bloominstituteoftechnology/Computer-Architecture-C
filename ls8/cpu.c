@@ -191,7 +191,6 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
-        printf("CMP: IR %x, a %d, b%d", IR, argv_a, argv_b);
         if (cpu->registers[argv_a] == cpu->registers[argv_b])
           cpu->flag = 0x01;   // 0b00000001 (0b00000LGE) 
         else if (cpu->registers[argv_a] > cpu->registers[argv_b])
@@ -199,7 +198,10 @@ void cpu_run(struct cpu *cpu)
         else
           cpu->flag = 0x04;   // 0b00000100
         break;
-          
+
+      case JMP:
+          cpu->PC = cpu->registers[argv_a] - IR_size;
+          break; 
 
       default:
         printf("error, invalid instruction %x\n", IR);
