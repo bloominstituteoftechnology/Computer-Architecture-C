@@ -108,6 +108,11 @@ void cpu_run(struct cpu *cpu)
         else {
           cpu->FL = 1;
         }
+        cpu->PC += 3;
+        break;
+
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
         break;
 
       case HLT:
