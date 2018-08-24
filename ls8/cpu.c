@@ -115,6 +115,11 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[operandA];
         break;
 
+      case JEQ:
+        if (cpu->FL == 1) cpu->PC = cpu->reg[operandA];
+        else cpu->PC += 2;
+        break;
+
       case HLT:
         running = 0;
         break;
