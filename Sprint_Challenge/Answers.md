@@ -33,7 +33,7 @@ Hex:        C F
 11 === B
 12 === C
 
-* to hex: CF
+* to hex: 0xCF
 
 * to decimal: 207
 
@@ -55,7 +55,7 @@ Hex:        4C
 
 * to binary: 0100 0100
 
-* to hex: 44
+* to hex: 0x44
 
 
 ### Architecture
@@ -64,7 +64,7 @@ Short answer:
 
 1. Explain how the CPU provides concurrency or parallelism:
 
-The CPU provides concurrency when the Operating System's kernel allows multiple programs or processes to run at the same time or in parallel. However, this slows down the performance of the CPU.
+The CPU provides concurrency when the Operating System's kernel allows multiple programs or processes to run virtually at the same time or in parallel. However, this slows down the performance of the CPU.
 
 2. Describe assembly language and machine language:
 
