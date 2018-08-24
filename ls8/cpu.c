@@ -126,7 +126,7 @@ void cpu_run(struct cpu *cpu)
     address = cpu->PC;
     IR = cpu_ram_read(cpu, address);
     IR_size = (IR >> 6) + 1;  
-    // printf("IR_Size %x\n", IR_size);
+    printf("IR_Size %x\n", IR_size);
     unsigned char argv_a = cpu_ram_read(cpu, address + 1);
     unsigned char argv_b = cpu_ram_read(cpu, address + 2);
 
@@ -200,6 +200,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case JMP:
+        // - IR_size so the PC wont move to the next IR which I set at the end while loop
         cpu->PC = cpu->registers[argv_a] - IR_size;
         break; 
 
@@ -218,6 +219,7 @@ void cpu_run(struct cpu *cpu)
         break;
     }
 
+    // move PC to the next instruction
     cpu->PC += IR_size; 
   }
 }
@@ -250,3 +252,4 @@ void cpu_init(struct cpu *cpu)
   //   printf("%d\n", cpu->ram[i]);
   // }
 }
+
