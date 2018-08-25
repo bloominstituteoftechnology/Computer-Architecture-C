@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/time.h>
 
 #define DEBUG 0
 
@@ -34,11 +38,11 @@ void cpu_load(char *filename, struct cpu *cpu)
   int counter = 0; // way to track index in ram
 
   if ((fp = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Cannot open file %s\n", filename);
+    fprintf(stderr, "Cannot open file %s\r\n", filename);
     exit(1);
   }
     #if DEBUG
-     printf("\n**********Lines from file:***********\n");
+     printf("\n**********Lines from file:***********\r\n");
      #endif
 
     while (fgets(line, sizeof(line), fp) != NULL) { // read line from file and store in line up to 256 bytes.
@@ -50,15 +54,16 @@ void cpu_load(char *filename, struct cpu *cpu)
       cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
       
       #if DEBUG
-      printf("Value of line: %s", line);
+      printf("Value of line: %s\r", line);
       #endif
     }
    
     #if DEBUG
-    printf("\n*******RAM in Load*******\n");
+    printf("\n*******RAM in Load*******\r\n");
     for (unsigned long i = 0; i < 256; i++) {
-      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
+      printf("cpu->ram[%lu] = %u\r\n", i, cpu->ram[i]);
     }
+    printf("\r\n******end of RAM in Load*********\n");
     #endif
   // TODO: Replace this with something less hard-coded
 }
@@ -71,7 +76,38 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
+int keypress_input(void)
+{
+  struct termios terminal_settings, new_terminal_settings;
+  int ch;
 
+  tcgetattr(STDIN_FILENO, &terminal_settings);
+  new_terminal_settings = terminal_settings;
+
+  new_terminal_settings.c_lflag &= ~(ICANON | ECHO);
+  // Turns off ICANON and ECHO
+  // ICANON is the flag for canonical, which is line by line reading
+  // ... setting it instead to byte by byte
+  // ECHO causes each key you type to be printed to the terminal
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_terminal_settings);
+  // sets immediate changes to terminal
+
+  system("stty -echo");
+  // disable echo
+
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+  // manipulate file descriptor to set the NONBLOCK flag
+
+  if(ch = getchar() != EOF) {
+    printf("%c\n", ch);
+  }
+  system("stty echo");
+  // enable echo
+  tcsetattr(STDIN_FILENO, TCSANOW, &terminal_settings);
+  // return terminal settings to what they were before this business
+    return ch;
+    // return character typed
+  }
 /**
  * ALU
  */
@@ -88,7 +124,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_CMP:
       #if DEBUG
-      printf("FL is %d\n", cpu->FL);
+      printf("FL is %d\r\n", cpu->FL);
       #endif
       if ((regA - regB) < 0){
         cpu->FL = 4;
@@ -162,32 +198,31 @@ void cpu_run(struct cpu *cpu)
   unsigned char *reg = cpu->reg;
   // unsigned char PC = cpu->PC;
   int running = 1; // True until we get a HLT instruction
-  
-  while (running) {
+  unsigned char ch;
+
+  while (running && ch != 'q') {
+
+    ch = keypress_input();
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     int difference = ((IR >> 6) & 0b11) + 1; // shifts the number 6 places to the right (leaving last two places)
     // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     unsigned char maskedInterrupts = cpu->reg[IM] & cpu->reg[IS];
-    unsigned char interrupts = 1;
-
-    while (interrupts) {
+    
       for (int i = 0; i < 8; i++) {
         if (((maskedInterrupts >> i) & 1) == 1){
-          interrupts = 0;
+          cpu->reg[IM] = 0;
           cpu->reg[IS] &= ~cpu->reg[IM];
           cpu_ram_write(cpu, --cpu->reg[SP], cpu->PC);
           cpu_ram_write(cpu, --cpu->reg[SP], cpu->FL);
           for (int r = 0; r < 7; r++) {
             cpu_ram_write(cpu, --cpu->reg[SP], cpu->reg[r]);
           }
-          cpu->PC = cpu->ram[0xF8 + i]; // Because interrupt vector starts at F8
+          cpu->PC = cpu->ram[(0xF8 + i)]; // Because interrupt vector starts at F8
           break;
         }
       }
-      interrupts = 0;
-    }
     switch(IR)
     {
       case ADD:
@@ -200,15 +235,15 @@ void cpu_run(struct cpu *cpu)
         break;
       case CALL:
         #if DEBUG
-        printf("Value before call: %d\n", cpu->PC);
+        printf("Value before call: %d\r\n", cpu->PC);
         #endif
         cpu_ram_write(cpu, --cpu->reg[SP], cpu->PC+=difference);
         #if DEBUG
-        printf("Value of PC in register: %d\n", cpu->PC);
+        printf("Value of PC in register: %d\r\n", cpu->PC);
         #endif
         cpu->PC = cpu->reg[operandA];
         #if DEBUG
-        printf("Value of PC after call: %d\n", cpu->PC);
+        printf("Value of PC after call: %d\r\n", cpu->PC);
         #endif
         break;
       case CMP:
@@ -236,16 +271,16 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       case IRET:
-        reg[6] = cpu->ram[cpu->reg[SP]++];
-        reg[5] = cpu->ram[cpu->reg[SP]++];
-        reg[4] = cpu->ram[cpu->reg[SP]++];
-        reg[3] = cpu->ram[cpu->reg[SP]++];
-        reg[2] = cpu->ram[cpu->reg[SP]++];
-        reg[1] = cpu->ram[cpu->reg[SP]++];
-        reg[0] = cpu->ram[cpu->reg[SP]++];
-        cpu->FL = cpu->ram[cpu->reg[SP]++];
-        cpu->PC = cpu->ram[cpu->reg[SP]++];
-        interrupts = 1;
+        cpu->ram[cpu->reg[6]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[5]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[4]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[3]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[2]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[1]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[0]] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->FL] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->PC] = cpu->ram[cpu->reg[SP]++];
+        cpu->ram[cpu->reg[IM]] = 2;
         break;
       case JEQ:
         if ((cpu->FL & 0b1) == 1){
@@ -358,7 +393,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       case ST:
-        cpu->ram[reg[operandA]] = cpu->reg[operandB];
+        cpu_ram_write(cpu, cpu->reg[operandA], reg[operandB]);
         cpu->PC+= difference;
         break;
       case SUB:
@@ -370,7 +405,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC+=difference;
         break;
       default:
-        printf("Unknown instruction at %02x: %02x\n", cpu->PC, IR);
+        printf("Unknown instruction at %x: %x\r\n", cpu->PC, IR);
         exit(2);
     }
 
@@ -381,11 +416,11 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
   }
   #if DEBUG
-    printf("\n********RAM in run********\n");
+    printf("\r\n********RAM in run********\r\n");
       for (unsigned long i = 0; i < 256; i++) {
-      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
+      printf("cpu->ram[%lu] = %u\r\n", i, cpu->ram[i]);
     }
-    printf("\n*******End of debugger********\n\n");
+    printf("\r\n*******End of debugger********\r\n\r\n");
   #endif
 }
 
@@ -395,13 +430,12 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
-  cpu->IR = 0;
   cpu->reg = (unsigned char *) calloc(8, sizeof(unsigned char));
   cpu->ram = (unsigned char *) calloc(256, sizeof(unsigned char));
-  cpu->reg[7] = 0xF4;
-  // cpu->reg[6] = 00000000; // IS register - interrupt status
-  // cpu->reg[5] = 00000000; // interrupt mask (change to 1 to start checking for interrupt)
-  cpu->FL = 00000000;
+  cpu->reg[SP] = 0xF4;
+  cpu->reg[IM] = 0x00;
+  cpu->reg[IS] = 0x00;
+  cpu->FL = 0x00;
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
