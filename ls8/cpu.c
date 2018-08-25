@@ -35,13 +35,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->fl = G;
       break;
     case ALU_DEC:
-      cpu->registers[regA] = a--;
+      cpu->registers[regA] = --a;
       break;
     case ALU_DIV:
       cpu->registers[regA] = a / b;
       break;
     case ALU_INC:
-      cpu->registers[regA] = a++;
+      cpu->registers[regA] = ++a;
       break;
     case ALU_MOD:
       cpu->registers[regA] = a % b;
