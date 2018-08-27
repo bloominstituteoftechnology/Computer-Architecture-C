@@ -129,6 +129,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1;    // True until we get a HLT instruction
   cpu->reg[7] = 0xF4; //cpu_load
+  int FL;
 
   while (running)
   {
@@ -147,7 +148,6 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       cpu->reg[operandA] = operandB;
-      // cpu->pc += 3;
       break;
 
     case PRN:
@@ -181,10 +181,29 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case POP:
-      printf("I am in POP");
+      // printf("I am in POP");
       // printf("%s POP\n", cpu->reg[operandA]);
       cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
       cpu->reg[7]++;
+      break;
+
+    case CMP:
+      if (cpu->reg[operandA] == cpu->reg[operandB])
+      {
+        FL = 0b001;
+      }
+      else if (cpu->reg[operandA] < cpu->reg[operandB])
+      {
+        FL = 0b100;
+      }
+      else
+        FL = 0b010;
+      break;
+
+    case JNQ:
+      break;
+
+    case JNE:
       break;
 
     default:
@@ -209,9 +228,11 @@ void cpu_init(struct cpu *cpu)
   // cpu->pc = 0;
   // TODO: Zero registers and RAM
   // for(int i = 0; i< si)
+  // int FL = 0b00000000;
   cpu->reg[7] = 0xF4; //cpu_load
   memset(cpu->reg, 0, sizeof(cpu->reg));
 
   memset(cpu->ram, 0, sizeof(cpu->ram));
   // printf("I am here CPU_INIT \n");
+  // FL = 0b00000000;
 }
