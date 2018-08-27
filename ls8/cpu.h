@@ -5,8 +5,11 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char pc;
   // registers (array)
+  unsigned char registers[];
   // ram (array)
+  unsigned char ram[];
 };
 
 // Instructions
@@ -16,6 +19,7 @@ struct cpu {
 
 #define LDI  0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
+
 
 // Function declarations
 
