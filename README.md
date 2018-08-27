@@ -1,3 +1,5 @@
+Max Washington
+
 # Computer Architecture
 
 ## Project
