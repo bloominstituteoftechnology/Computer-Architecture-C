@@ -38,7 +38,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
-
+void cpu_read(struct cpu *cpu){
+  //cpu-read from ram
+}
+void cpu_write(struct cpu *cpu){
+  //cpu write to ram
+}
 /**
  * Run the CPU
  */
