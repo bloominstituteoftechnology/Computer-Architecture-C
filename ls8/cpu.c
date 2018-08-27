@@ -16,36 +16,9 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-// void cpu_load(struct cpu *cpu, char *argv[])
-// {
-//   // file pointer
-//   FILE *fp;
-//   int address = 0;
-//   char read[100];
-//   printf("%sFILENAME\n", argv[1]);
-//   fp = fopen(argv[1], "r");
-//   if (fp == NULL)
-//   {
-//     fprintf(stderr, "Filepointer goofed\n");
-//     exit(1);
-//   }
 
-//   // loop until fgets is at the end of the file
-//   while (fgets(read, sizeof(read), fp))
-//   {
-//     unsigned long instruction;
-//     char *endptr;
-//     // cast line to binary until instruction is captured
-//     instruction = strtoul(read, &endptr, 2);
-//     // write instruction to RAM @address
-//     if (!(*read == *endptr))
-//       cpu_ram_write(cpu, address++, instruction);
-//   }
-// }
 void cpu_load(struct cpu *cpu, char *argv[])
 {
-
-  // cpu->reg[7] = 0xF4; //cpu_load
   char line[100];
   int address = 0;
   FILE *fp = fopen(argv[1], "r");
@@ -62,39 +35,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
     v = strtoul(line, &endchar, 2);
     if (!(*line == *endchar))
       cpu_ram_write(cpu, address++, v);
-
-    // {
-
-    //   continue;
   }
-  //     // printf("%u", v);
-  //   }
-
-  //   // const int DATA_LEN = 6;
-  //   // char data[6] = {
-  //   //     // From print8.ls8
-  //   //     0b10000010, // LDI R0,8
-  //   //     0b00000000,
-  //   //     0b00001000,
-  //   //     0b01000111, // PRN R0
-  //   //     0b00000000,
-  //   //     0b00000001 // HLT
-  //   // };
-
-  //   // int address = 0;
-
-  //   // for (int i = 0; i < DATA_LEN; i++)
-  //   // {
-  //   //   cpu->ram[address++] = data[i];
-  //   // }
-
-  //   // TODO:
-  //   // Replace this with something less hard - coded
-  //   for (int i = 0; i < 5; i++)
-  //   {
-  //     printf("I am here in CPU_LOAD\n");
-  //     printf("%02X: %02X\n", i, cpu->ram[i]);
-  //   }
 }
 
 /**
@@ -127,9 +68,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1;    // True until we get a HLT instruction
-  cpu->reg[7] = 0xF4; //cpu_load
-  int FL;
+  int running = 1; // True until we get a HLT instruction
 
   while (running)
   {
@@ -148,36 +87,44 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       cpu->reg[operandA] = operandB;
+      // cpu->pc += 2;
       break;
 
     case PRN:
       printf("%d\n", cpu->reg[operandA]);
+      // cpu->pc += 2;
       break;
 
     case HLT:
       running = 0;
+      // cpu->pc += 1;
       break;
 
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
+      // cpu->pc += 2;
       break;
 
     case ADD:
       alu(cpu, ALU_ADD, operandA, operandB);
+      // cpu->pc += 2;
       break;
 
     case DIV:
       alu(cpu, ALU_DIV, operandA, operandB);
+      // cpu->pc += 2;
       break;
 
     case SUB:
       alu(cpu, ALU_SUB, operandA, operandB);
+      // cpu->pc += 2;
       break;
 
     case PUSH:
       // printf("I am in push");
       cpu->reg[7]--;
       cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+      // cpu->pc += 1;
       break;
 
     case POP:
@@ -185,36 +132,60 @@ void cpu_run(struct cpu *cpu)
       // printf("%s POP\n", cpu->reg[operandA]);
       cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
       cpu->reg[7]++;
+      // cpu->pc += 1;
       break;
 
     case CMP:
+      printf("I am in CMP\n");
       if (cpu->reg[operandA] == cpu->reg[operandB])
       {
-        FL = 0b001;
+        cpu->FL = 0b00000001;
+        // printf("I am in here one\n");
       }
-      else if (cpu->reg[operandA] < cpu->reg[operandB])
+      if (cpu->reg[operandA] < cpu->reg[operandB])
       {
-        FL = 0b100;
+        cpu->FL = 0b00000100;
+        // printf("I am in here two\n");
       }
-      else
-        FL = 0b010;
+      if (cpu->reg[operandA] > cpu->reg[operandB])
+      {
+        cpu->FL = 0b00000010;
+        // printf("I am in here three\n");
+      }
+      // printf("I am done with CMP\n");
+      // cpu->pc += 2;
       break;
 
-    case JNQ:
+    case JEQ:
+      printf("I am in JEQ\n");
+      if ((cpu->FL & 0b001) == 0b000000001)
+      {
+        cpu->pc = cpu->reg[operandA];
+        // cpu->pc += 1;
+        cpu->pc -= ((IR >> 6) + 1);
+      }
       break;
 
     case JNE:
+      printf("I am in JNE\n");
+      if ((cpu->FL & 0b001) == 0b00000000)
+      {
+        cpu->pc = cpu->reg[operandA];
+        cpu->pc -= ((IR >> 6) + 1);
+      }
+      break;
+
+    case JMP:
+      printf("I am in JMP\n");
+      cpu->pc = cpu->reg[operandA];
+      // cpu->pc += 1;
+      cpu->pc -= ((IR >> 6) + 1);
       break;
 
     default:
       printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
       exit(2);
-      // break;
     }
-    // 3. Do whatever the instruction should do according to the spec.
-
-    // 4. Move the PC to the next instruction.
-    //PC + 1 or PC + 2
     cpu->pc += (IR >> 6) + 1;
   }
 }
@@ -225,10 +196,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  // cpu->pc = 0;
+
   // TODO: Zero registers and RAM
-  // for(int i = 0; i< si)
-  // int FL = 0b00000000;
+  cpu->FL = 0;
   cpu->reg[7] = 0xF4; //cpu_load
   memset(cpu->reg, 0, sizeof(cpu->reg));
 

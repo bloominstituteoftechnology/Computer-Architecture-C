@@ -14,6 +14,7 @@ struct cpu
   unsigned char ram[256];
 
   // unsigned char FL;
+  int FL;
 };
 
 enum alu_op
@@ -36,10 +37,11 @@ enum alu_op
 #define DIV 0b10101011
 #define SUB 0b10101001
 #define CMP 0b10100111
-#define JNQ 0b01010101
+#define JEQ 0b01010101
 #define JNE 0b01010110
 #define PUSH 0b01000101
 #define POP 0b01000110
+#define JMP 0b01010100
 // #define FL 0b00000000
 
 // TODO: more instructions here. These can be used in cpu_run().
