@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "cpu.h"
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)  // helper function; return the address of the cpu
@@ -7,7 +8,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)  // helper fu
 
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)  // helper function; return the address of the cpu and value
 {
-  cpu->ram[address] = value; // the cpu at this address will return the bytes that's there
+  cpu->ram[address] = value; 
 }
 
 /**
@@ -62,6 +63,22 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc); // read from RAM at the PC; this is the instruction/ opcode
+
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // reading at the next address of whatever the pc points at
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); // reading the next byte and store in operand B
+
+    switch (IR) { // switch on the IR 
+
+      case LDI;   // LDI instruction
+        cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
+        break;
+       
+      default;  // default case 
+        printf("unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is
+        exit(2);  // exit 
+    }
   }
 }
 
@@ -71,6 +88,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->pc = 0;  // load instructions at address 0
 
   // TODO: Zero registers and RAM
 }

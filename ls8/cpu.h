@@ -12,6 +12,12 @@ struct cpu {
   unsigned char ram[256]; // 256 bytes for the RAM
 };
 
+// ALU operations
+enum alu_op { // enum stands for enumerated type
+  ALU_NUL,  // assigned an integer value and defaults to starting at 0
+  ALU_ADD
+};
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
