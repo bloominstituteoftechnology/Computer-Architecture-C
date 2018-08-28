@@ -209,7 +209,7 @@ arguments to get the work done.
 
 ## Step 9: Beautify your `cpu_run()` loop, if needed
 
-Do you have a big `if-else-if` block or `switch` block in your `tick()`
+Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`
 function? Is there a way to better modularize your code?
 
 If you haven't done so, consider having independent handler functions, one per
@@ -319,7 +319,7 @@ stack, above, first.
 
 * Add subroutine calls. `CALL` and `RET`.
 
-For `CALL`, you will likely have to modify your handler call in `tick()`. The
+For `CALL`, you will likely have to modify your handler call in `cpu_run()`. The
 problem is that some instructions want to execute and move to the next
 instruction like normal, but others, like `CALL` and `JMP` want to go to a
 specific address.
