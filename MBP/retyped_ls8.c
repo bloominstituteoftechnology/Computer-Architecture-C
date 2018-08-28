@@ -11,11 +11,12 @@ int main(int argc, char *argv[])
   {
     // check to make sure the user has put a command line argument where 
     // you expect, and print an error and exit if they didn't
-    fprintf(stderr, "usage: ls8 file.ls8\n");
+    fprintf(stderr, "usage: ./ls8 [filename].ls8\n");
     return 1;
   }
 
   cpu_init(&cpu);
+  // argv[1] = the filename
   cpu_load(argv[1], &cpu);
   cpu_run(&cpu);
 

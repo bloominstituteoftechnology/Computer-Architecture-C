@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "retyped_cpu.h"
 
 // helper functions
@@ -58,11 +59,19 @@ void cpu_load(char *filename, struct cpu *cpu)
 
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+    unsigned char *reg = cpu->reg;
+
+    unsigned char valB = reg[regB];
+
     switch (op)
     {
         case ALU_MUL:
-        break;
+            reg[regA] *= valB;
+            break;
         //TODO: implement more ALU ops
+        case ALU_ADD:
+            reg[regA] += valB;
+            break;
     }
 }
 
@@ -95,6 +104,14 @@ void cpu_run(struct cpu *cpu)
                 printf("%d\n", cpu->reg[operandA]);
                 break;
 
+            case MUL:
+                alu(cpu, ALU_MUL, operandA, operandB);
+                break;
+
+            case ADD:
+                alu(cpu, ALU_ADD, operandA, operandB);
+                break;
+
             case HLT:
                 running = 0;
                 break;
@@ -115,4 +132,6 @@ void cpu_init(struct cpu *cpu)
     cpu->pc = 0;
 
     //TODO: zero registers and RAM
+    memset(cpu->reg, 0, sizeof cpu->reg);
+    memset(cpu->ram, 0, sizeof cpu->ram);
 }

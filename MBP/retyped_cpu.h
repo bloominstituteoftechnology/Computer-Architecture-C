@@ -46,4 +46,7 @@ extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
+// extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR);
+// extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
+
 #endif
