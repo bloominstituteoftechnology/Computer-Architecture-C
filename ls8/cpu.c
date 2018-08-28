@@ -1,5 +1,15 @@
 #include "cpu.h"
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)  // helper function; return the address of the cpu
+{
+  return cpu->ram[address]; // the cpu at this address will return the bytes that's there
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)  // helper function; return the address of the cpu and value
+{
+  cpu->ram[address] = value; // the cpu at this address will return the bytes that's there
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */

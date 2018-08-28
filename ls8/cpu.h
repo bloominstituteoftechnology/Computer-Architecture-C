@@ -9,7 +9,7 @@ struct cpu {
   // registers (array)
   unsigned char reg[8]; // we have to specify unsigned with a char otherwise the compiler will be the one to use which one to use
   // ram (array)
-  unsigned char ram[256];
+  unsigned char ram[256]; // 256 bytes for the RAM
 };
 
 // Instructions
