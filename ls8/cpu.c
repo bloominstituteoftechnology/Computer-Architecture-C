@@ -1,11 +1,12 @@
 #include "cpu.h"
 
+#define DATA_LEN 6
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
 {
-  const int DATA_LEN = 6;
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
