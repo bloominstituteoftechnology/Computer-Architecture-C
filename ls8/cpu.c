@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
 
@@ -69,10 +70,13 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // reading at the next address of whatever the pc points at
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); // reading the next byte and store in operand B
 
+    printf("TRACE: %02x: %02x\n", cpu->pc, IR);
+
     switch (IR) { // switch on the IR 
 
       case LDI;   // LDI instruction
         cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
+        cpu->pc += 3; // increment the pc; LDI is 3 bytes
         break;
        
       default;  // default case 
