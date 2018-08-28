@@ -3,35 +3,56 @@
 #include "retyped_cpu.h"
 
 // helper functions
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{   
-    return cpu->ram[address];
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
+{
+    // MAR: Memory Address Register, holds the memory address we're reading
+    return cpu->ram[MAR];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 {
-    cpu->ram[address] = value;
+    // MDR: Memory Data Register, holds the value to write or the value just read
+    cpu->ram[MAR] = MDR;
 }
 
 // load the binary bytes from an .ls8 source file into a RAM array
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-    const int DATA_LEN = 6;
-    char data[DATA_LEN] = {
-        //from print8.ls8
-        0b10000010, // LDI R0,8
-        0b00000000,
-        0b00001000,
-        0b01000111, // PRN R0
-        0b00000000,
-        0b00000001  // HLT
-    };
+    // You can use the fopen( ) function to create a new file or to open an existing 
+    // file. This call will initialize an object of the type FILE, which contains all 
+    // the information necessary to control the stream.
+    FILE *fp;
+    // allocate 1024 bytes for a string variable named "line"
+    char line[1024];
+    // check out where ADDR_PROGRAM_Entry comes from
+    // answer for ^,  it's in cpu.h, defined as 0xF4
+    int address = ADDR_PROGRAM_ENTRY;
 
-    int address = 0;
-
-    for (int i = 0; i<DATA_LEN; i++)
+    // open the source file
+    if ((fp = fopen(filename, "r")) == NULL)
     {
-        cpu->ram[address++] = data[i];
+        // error handling
+        fprintf(stderr, "Cannot open file %s\n", filename);
+        exit(2);
+    }
+
+    // read all the lines and store them in RAM
+    // fgets = reads a line from the specified stream and stores it 
+    // into the string pointed to by str
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+        // convert string to a number
+        char *endchar;
+        unsigned char byte = strtol(line, &endchar, 2);
+
+        // ignore lines from which no numbers were read
+        if (endchar == line)
+        {
+            continue;
+        }
+
+        // store it in RAM
+        cpu->ram[address++] = byte;
     }
 }
 
@@ -53,30 +74,25 @@ void cpu_run(struct cpu *cpu)
 
     while (running)
     {
-        // 3. Do whatever the instruction should do according to the spec.
-        // 4. Move the PC to the next instruction.
-
-
-
         // 1. Get the value of the current instruction (in address PC).
-
-        // It needs to read the memory address that's stored in register PC, and store that result in IR, the Instruction Register
+        // It needs to read the memory address that's stored in register PC, 
+        // and store that result in IR, the Instruction Register.
         unsigned char IR = cpu_ram_read(cpu, cpu->pc);
-        // read the bytes at PC+1 and PC+2 from RAM into variables operandA and operandB in case the instruction needs them
+        // read the bytes at PC+1 and PC+2 from RAM into variables operandA 
+        // and operandB in case the instruction needs them.
         unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
         unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
 
 
         // 2. switch() over it to decide on a course of action.
+        // 3. Do whatever the instruction should do according to the spec.
         switch(IR) {
             case LDI:
                 cpu->reg[operandA] = operandB;
-                cpu->pc += 3;
                 break;
 
             case PRN:
                 printf("%d\n", cpu->reg[operandA]);
-                cpu->pc += 2;
                 break;
 
             case HLT:
@@ -87,6 +103,9 @@ void cpu_run(struct cpu *cpu)
                 printf("unkown instruction at %02x: %02x\n", cpu->pc, IR);
                 exit(2);
         }
+        
+        // 4. Move the PC to the next instruction.
+        cpu->pc += (IR >> 6) + 1;
     }
 }
 
