@@ -3,7 +3,7 @@
 
 // Holds all the information about the CPU
 struct cpu {
-    // PC
+    // PC-Program Counter
     unsigned char PC;
     // registers (array)
     unsigned char reg[8];
