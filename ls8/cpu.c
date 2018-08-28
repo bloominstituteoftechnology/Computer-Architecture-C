@@ -78,7 +78,16 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
         cpu->pc += 3; // increment the pc; LDI is 3 bytes
         break;
-       
+      
+      case PRN; // print numeric value in the given register
+        printf("%d\n", cpu->reg[operandA]);   
+        cpu->pc += 2;
+        break;
+      
+      case HLT; // if it's halt
+        running = 0;  // then running is equal false or 0
+        break;
+
       default;  // default case 
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is
         exit(2);  // exit 
