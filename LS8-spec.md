@@ -114,6 +114,18 @@ See `IRET`, below, for returning from an interrupt.
 * 1: Keyboard interrupt. This interrupt triggers when a key is pressed.
   The value of the key pressed is stored in address `0xF4`.
 
+
+## Power on State
+
+When the LS-8 is booted, the following steps occur:
+
+* `R0`-`R6` are cleared to `0`.
+* `R7` is set to `0xF4`.
+* `PC` and `FL` registers are cleared to `0`.
+* RAM is cleared to `0`.
+
+Subsequently, the program can be loaded into RAM starting at address `0x00`.
+
 ## Instruction Layout
 
 Meanings of the bits in the first byte of each instruction: `AABCDDDD`
