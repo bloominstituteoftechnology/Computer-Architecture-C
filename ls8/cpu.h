@@ -9,6 +9,12 @@ struct cpu {
   // ram (array)
 };
 
+// ALU operations
+enum alu_op {
+	ALU_MUL
+	// Add more here
+};
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
