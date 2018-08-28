@@ -66,6 +66,19 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+* File Inventory:
+  The ls8 folder contains the following:
+  a. cpu.c - functions inside cpu.c: cpu_load() - loads the .ls8 file that contain binary bytes into the RAM array
+  alu() and cpu_run() - runs the CPU
+  cpu_init() contains a CPU struct
+
+  b. cpu.h - the function cpu() holds all info and data about the CPU
+
+  c. ls8.c - the main() is the function for the ls8 emulator
+
+  The following are some of the things that hasn't been implemented yet: strcut cpu in cpu.h, RAM functions, implementing the core in cpu_run(), HLT handler, LDI and PRN instruction, etc.
+
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
