@@ -187,8 +187,8 @@ A8 0a 0b
 
 Calls a subroutine (function) at the address stored in the register.
 
-1. The address of the _next_ instruction that will execute is pushed onto the
-   stack.
+1. The address of the instruction _directly after_ the `CALL` instruction is
+   pushed onto the stack.
 2. The PC is set to the address stored in the given register.
 
 Machine code:
