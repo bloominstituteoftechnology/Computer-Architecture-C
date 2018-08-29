@@ -3,9 +3,9 @@
 
 // Holds all information about the CPU
 struct cpu {
- unsigned char pc;
- unsigned char reg[8];
- unsigned char ram[256];
+ unsigned char pc;// makes sure its positve
+ unsigned char reg[8];//creates an array with 8 slots in it
+ unsigned char ram[256];// hold the rest of the memory
 };
 
 // Instructions
