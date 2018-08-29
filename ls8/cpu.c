@@ -16,7 +16,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 }
 
 // write to the ram
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
 }
@@ -74,7 +74,6 @@ void cpu_load(struct cpu *cpu, char *filename)
   // storing the bytes in our RAM
   cpu_ram_write(cpu, address++, byte);
   }
-
 }
 
 /**
@@ -85,11 +84,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu->reg[regA] *= cpu->reg[regB];
+      // cpu->reg[regA] *= cpu->reg[regB];
       break;
     // TODO: implement more ALU ops
-    case ALU_ADD
-
   }
 }
 
@@ -116,7 +113,7 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 2;
         break;
 
-      case HLT:
+      case HLT: 
         running = 0;
         break;
 
@@ -127,13 +124,13 @@ void cpu_run(struct cpu *cpu)
       
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->reg[operandA] *= cpu->reg[operandB];
+        cpu->reg[operandA] *= cpu->reg[operandB];
         cpu->pc += 3;
         break;
 
       case ADD:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->reg[operandA] *= cpu->reg[operandB];
+        cpu->reg[operandA] += cpu->reg[operandB];
         cpu->pc += 3;
         break;
 
@@ -146,7 +143,7 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
 
 
-    printf("Trace: %02x: %02x\n", cpu->pc, IR);
+    // printf("Trace: %02x: %02x\n", cpu->pc, IR);
 
 
   }
