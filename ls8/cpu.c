@@ -5,23 +5,31 @@
 
 #define DEBUG 0
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR){
+  return cpu->ram[MAR];
+}
+
+void CPU_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MAR)
+{
+  cpu->ram[MAR] = MDR;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(char *filename, struct cpu *cpu)
+void cpu_load(struct cpu *cpu)
 {
 
-  // Original code that I used for print8:
-  // const int DATA_LEN = 6;
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8  /* instruction */
-  //   0b00000000, /* argument 1 */
-  //   0b00001000, /* argument 2 */
-  //   0b01000111, // PRN R0 /* instruction */
-  //   0b00000000, /* argument 1 */
-  //   0b00000001  // HLT /* instruction */
-  // };
+  Original code that I used for print8:
+  const int DATA_LEN = 6;
+  char data[DATA_LEN] = {
+    // From print8.ls8
+    0b10000010, // LDI R0,8  /* instruction */
+    0b00000000, /* argument 1 */
+    0b00001000, /* argument 2 */
+    0b01000111, // PRN R0 /* instruction */
+    0b00000000, /* argument 1 */
+    0b00000001  // HLT /* instruction */
+  };
 
   // int address = 0;
 

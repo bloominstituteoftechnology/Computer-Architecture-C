@@ -15,6 +15,9 @@ struct cpu {
 
 #define LDI  0b10000010
 #define PRN  0b10000111
+#define HLT  0b00000001
+#define MUL  0b10100010
+#define PUSH 0b01000101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
