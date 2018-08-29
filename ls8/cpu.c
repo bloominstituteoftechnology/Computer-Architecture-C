@@ -45,7 +45,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu->reg[regA] *= cpu->ref[regB];  // multiply values in register A and register B and store value in RegA
+      cpu->reg[regA] *= cpu->reg[regB];  // multiply values in register A and register B and store value in RegA
       break;
 
     // TODO: implement more ALU ops
