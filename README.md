@@ -24,7 +24,7 @@
 - [x] Implement System Stack
 
 ### Day 4: Get `call.ls8` running
-- [ ] Implement Subroutine Calls
+- [x] Implement Subroutine Calls
 
 ### Stretch
 - [ ] Add the timer interrupt to the LS-8 emulator
