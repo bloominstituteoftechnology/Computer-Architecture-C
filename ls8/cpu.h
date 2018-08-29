@@ -4,9 +4,18 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
+  unsigned char pc;
   // PC
+  unsigned char reg[8];
   // registers (array)
+  unsigned char ram[256]; //256 bytes of ram
   // ram (array)
+};
+
+// ALU operations
+enum alu_op {
+  ALU_MUL,
+  ALU_ADD
 };
 
 // Instructions
@@ -14,7 +23,10 @@ struct cpu {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI 0b10000010
+#define PRN 0b01000111
+#define HLT 0b00000001
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
