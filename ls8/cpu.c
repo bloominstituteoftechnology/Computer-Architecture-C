@@ -16,31 +16,52 @@ void CPU_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MAR)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
+ char line[1024];
+ int address = 0;
+
+ FILE *fp + fopen(filename, "r");
+
+ while(fgets(line, sizeof line, fp) != NULL){
+   
+  //  if(line[strlen(len)-1] != '\n'){
+  //    fprintf(stderr, "Line too long!");
+  //    exit(2);
+   }
+   char *endchar;
+   unsigned char v = stroul(line, &endchar, 2);
+
+   if (line == endchar){
+    continue;
+   }
+   cpu_ram_write(cpu, address++, v);
+   
+ }
+}
 
   // Original code that I used for print8:
-  const int DATA_LEN = 6;
-  char data[DATA_LEN] = {
+  // const int DATA_LEN = 6;
+  // char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8  /* instruction */
-    0b00000000, /* argument 1 */
-    0b00001000, /* argument 2 */
-    0b01000111, // PRN R0 /* instruction */
-    0b00000000, /* argument 1 */
-    0b00000001  // HLT /* instruction */
-  };
+  //   0b10000010, // LDI R0,8  /* instruction */
+  //   0b00000000, /* argument 1 */
+  //   0b00001000, /* argument 2 */
+  //   0b01000111, // PRN R0 /* instruction */
+  //   0b00000000, /* argument 1 */
+  //   0b00000001  // HLT /* instruction */
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
-}
+
   // FILE *fp; // file pointer
   // char line[256]; // storage for line of file
-  // int counter = 0; // way to track index in ram
+  // int counter = 0; // way to track index in r am
 
   // if ((fp = fopen(filename, "r")) == NULL) {
   //   fprintf(stderr, "Cannot open file %s\n", filename);
@@ -90,6 +111,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char valB = reg[regB];
   switch (op) {
     case ALU_MUL:
+     cpu->reg[regA *= cpu->reg[regB]];
 
     break;
 
@@ -146,12 +168,12 @@ void cpu_run(struct cpu *cpu)
 
     unsigned char IR = cpu_ram_read(cpu, PC);
 
-    int difference = ((IR >> 6) & 0b11) + 1; // shifts the number 6 places to the right (leaving last two places)
+    // int difference = ((IR >> 6) & 0b11) + 1; // shifts the number 6 places to the right (leaving last two places)
     // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
 
-    printf("TRACE:%02x: %02x\n", cpu->pc, IR);
+    //printf("TRACE:%02x: %02x\n", cpu->pc, IR);
 
     switch(IR)
     {
