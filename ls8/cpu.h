@@ -21,6 +21,7 @@ enum alu_op
 
 // Memory locations
 #define ADDR_PROGRAM_ENTRY 0x00 // Where programs start getting loaded
+#define ADDR_EMPTY_STACK 0xF4   // Where SP is on an empty stack
 
 // Instructions
 
@@ -33,6 +34,8 @@ enum alu_op
 #define MUL 0b10100010
 #define PRA 0b01001000
 #define PRN 0b01000111
+#define PUSH 0b01000101
+#define POP 0b01000110
 
 // Function declarations
 
