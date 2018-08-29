@@ -3,6 +3,24 @@
 #include <string.h>
 #include "retyped_cpu.h"
 
+// // push a value to the CPU stack
+// void cpu_push(struct cpu *cpu, unsigned char val)
+// {
+//     cpu->reg[SP]--;
+
+//     cpu->ram[cpu->reg[SP]] = val;
+// }
+
+// // pop a value from the CPU stack
+// unsigned char cpu_pop(struct cpu *cpu)
+// {
+//     unsigned char val = cpu->ram[cpu->reg[SP]];
+
+//     cpu->reg[SP]++;
+
+//     return val;
+// }
+
 // helper functions
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
 {
@@ -112,6 +130,16 @@ void cpu_run(struct cpu *cpu)
                 alu(cpu, ALU_ADD, operandA, operandB);
                 break;
 
+            case PUSH:
+                cpu->reg[SP]--;
+                cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+                break;
+            
+            case POP:
+                cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+                cpu->reg[SP]++;
+                break;
+
             case HLT:
                 running = 0;
                 break;
@@ -126,12 +154,16 @@ void cpu_run(struct cpu *cpu)
     }
 }
 
+// Initialize a CPU struct
 void cpu_init(struct cpu *cpu)
 {
-    // Todo: init the PC and other special registers
+    // init the PC and other special registers
     cpu->pc = 0;
 
-    //TODO: zero registers and RAM
+    // zero registers and RAM
     memset(cpu->reg, 0, sizeof cpu->reg);
     memset(cpu->ram, 0, sizeof cpu->ram);
+
+    // init SP
+    cpu->reg[SP] = ADDR_EMPTY_STACK;
 }

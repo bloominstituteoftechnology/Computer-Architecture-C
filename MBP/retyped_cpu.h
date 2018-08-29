@@ -12,6 +12,7 @@ struct cpu {
 };
 
 // special register values
+// SP = STACK POINTER
 #define SP 5
 
 // ALU operations
