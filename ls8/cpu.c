@@ -4,6 +4,28 @@
 #include "cpu.h"
 
 /**
+ * Push a value on the CPU stack
+ */
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+/**
+ * Pop a value from the CPU stack
+ */
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return val;
+}
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(char *filename, struct cpu *cpu)
@@ -110,6 +132,14 @@ void cpu_run(struct cpu *cpu)
       printf("%c\n", reg[operandA]);
       break;
 
+    case PUSH:
+      cpu_push(cpu, reg[operandA]);
+      break;
+
+    case POP:
+      reg[operandA] = cpu_pop(cpu);
+      break;
+
     default:
       fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
       exit(3);
@@ -132,4 +162,7 @@ void cpu_init(struct cpu *cpu)
   // Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg); // filling the reg array defined in cpu.h with zeros
   memset(cpu->ram, 0, sizeof cpu->ram); // filling the ram array defined in cpu.h with zeros
+
+  // Initialize SP
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 }
