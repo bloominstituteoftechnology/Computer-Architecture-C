@@ -45,9 +45,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] *= cpu->ref[regB];  // multiply values in register A and register B and store value in RegA
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      break;
   }
 }
 
@@ -74,21 +77,25 @@ void cpu_run(struct cpu *cpu)
 
     switch (IR) { // switch on the IR 
 
-      case LDI;   // LDI instruction
+      case LDI:   // LDI instruction
         cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
         cpu->pc += 3; // increment the pc; LDI is 3 bytes
         break;
       
-      case PRN; // print numeric value in the given register
+      case PRN: // print numeric value in the given register
         printf("%d\n", cpu->reg[operandA]);   
         cpu->pc += 2;
         break;
       
-      case HLT; // if it's halt
+      case HLT: // if it's halt
         running = 0;  // then running is equal false or 0
         break;
+      
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
 
-      default;  // default case 
+      default:  // default case 
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is
         exit(2);  // exit 
     }
