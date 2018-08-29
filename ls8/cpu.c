@@ -19,7 +19,7 @@ void CPU_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MAR)
 void cpu_load(struct cpu *cpu)
 {
 
-  Original code that I used for print8:
+  // Original code that I used for print8:
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
     // From print8.ls8
@@ -31,53 +31,54 @@ void cpu_load(struct cpu *cpu)
     0b00000001  // HLT /* instruction */
   };
 
-  // int address = 0;
+  int address = 0;
 
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  FILE *fp; // file pointer
-  char line[256]; // storage for line of file
-  int counter = 0; // way to track index in ram
-
-  if ((fp = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Cannot open file %s\n", filename);
-    exit(1);
+  for (int i = 0; i < DATA_LEN; i++) {
+    cpu->ram[address++] = data[i];
   }
-    #if DEBUG
-     printf("\n**********Lines from file:***********\n");
-     #endif
 
-    while (fgets(line, sizeof(line), fp) != NULL) { // read line from file and store in line up to 256 bytes.
-      char *ptr;
-      unsigned char byte = strtoul(line, &ptr, 2);
-      if (ptr == line) {
-        continue;
-      }
-      cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
+}
+  // FILE *fp; // file pointer
+  // char line[256]; // storage for line of file
+  // int counter = 0; // way to track index in ram
+
+  // if ((fp = fopen(filename, "r")) == NULL) {
+  //   fprintf(stderr, "Cannot open file %s\n", filename);
+  //   exit(1);
+  // }
+  //   #if DEBUG
+  //    printf("\n**********Lines from file:***********\n");
+  //    #endif
+
+  //   while (fgets(line, sizeof(line), fp) != NULL) { // read line from file and store in line up to 256 bytes.
+  //     char *ptr;
+  //     unsigned char byte = strtoul(line, &ptr, 2);
+  //     if (ptr == line) {
+  //       continue;
+  //     }
+  //     cpu->ram[counter++] = byte; // converts string to unsigned long integer using base 2 and stores in ram
       
-      #if DEBUG
-      printf("Value of line: %s", line);
-      #endif
-    }
+  //     #if DEBUG
+  //     printf("Value of line: %s", line);
+  //     #endif
+  //   }
    
-    #if DEBUG
-    printf("\n*******RAM in Load*******\n");
-    for (unsigned long i = 0; i < 256; i++) {
-      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
-    }
-    #endif
+  //   #if DEBUG
+  //   printf("\n*******RAM in Load*******\n");
+  //   for (unsigned long i = 0; i < 256; i++) {
+  //     printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
+  //   }
+  //   #endif
   // TODO: Replace this with something less hard-coded
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index){
-  return cpu->ram[index];
-}
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-  cpu->ram[address] = value;
-}
+// unsigned char cpu_ram_read(struct cpu *cpu, int index){
+//   return cpu->ram[index];
+// }
+// void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+// {
+//   cpu->ram[address] = value;
+// }
 
 
 /**
@@ -88,21 +89,30 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char *reg = cpu->reg;
   unsigned char valB = reg[regB];
   switch (op) {
+    case ALU_MUL:
+
+    break;
+
     case ALU_ADD:
-      reg[regA] += valB;
-      break;
+
+    break;
+      
+    
+    // case ALU_ADD:
+    //   reg[regA] += valB;
+    //   break;
     // case ALU_AND:
     //   regA = regA & regB;
     //   break;
-    // case ALU_DEC:
-    //   regA = regA - 1;
+    // // case ALU_DEC:
+    // //   regA = regA - 1;
+    // //   break;
+    // // case ALU_SUB:
+    // //   regA = regA - regB;
+    // //   break;
+    // case ALU_MUL:
+    //   reg[regA] *= valB;
     //   break;
-    // case ALU_SUB:
-    //   regA = regA - regB;
-    //   break;
-    case ALU_MUL:
-      reg[regA] *= valB;
-      break;
     // TODO: implement more ALU ops
   }
 }
@@ -118,22 +128,30 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 //   return popped;
 // }
 
+
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char *reg = cpu->reg;
-  unsigned char PC = cpu->PC;
-  int running = 1; // True until we get a HLT instruction
-  unsigned char SP = cpu->reg[7];
+  // unsigned char *reg = cpu->reg;
+  // unsigned char PC = cpu->PC;
+  // int running = 1; // True until we get a HLT instruction
+  // unsigned char SP = cpu->reg[7];
+}
+
+  int running = 1;//True until we get a HLT instruction
   
   while (running) {
+
     unsigned char IR = cpu_ram_read(cpu, PC);
+
     int difference = ((IR >> 6) & 0b11) + 1; // shifts the number 6 places to the right (leaving last two places)
     // since the number of operands can be found in the two high bits, add one for opcode to get to next instruction
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
+
+    printf("TRACE:%02x: %02x\n", cpu->pc, IR);
 
     switch(IR)
     {
