@@ -15,8 +15,12 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
+  // FILE *fp = fopen(filename, "r");  // open a file
+  printf("%s\n", filename);
+
+
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
     // From print8.ls8
