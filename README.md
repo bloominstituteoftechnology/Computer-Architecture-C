@@ -4,7 +4,7 @@
 
 * [Implement the LS-8 Emulator](ls8/)
 
-## Task List: add this to the first comment of your Pull Request (put in PR)
+## Task List: add this to the first comment of your Pull Request
 
 ### Day 1: Get `print8.ls8` running
 - [ ] Inventory what is here
