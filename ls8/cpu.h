@@ -3,10 +3,9 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+ unsigned char pc;
+ unsigned char reg[8];
+ unsigned char ram[256];
 };
 
 // Instructions
@@ -15,6 +14,7 @@ struct cpu {
 // literals should be used.
 
 #define LDI  0b10000010
+#define PRN  0b10000111
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

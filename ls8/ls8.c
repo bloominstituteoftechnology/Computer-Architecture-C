@@ -7,6 +7,10 @@
 int main(void)
 {
   struct cpu cpu;
+  
+  if (argc != 2){
+    fprintf(stderr, "Usage: ./ls8 [filename]\n")
+  }
 
   cpu_init(&cpu);
   cpu_load(&cpu);
