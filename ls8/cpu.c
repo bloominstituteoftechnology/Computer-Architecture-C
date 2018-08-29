@@ -73,9 +73,81 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2)
     // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+      
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        SP--;
+        cpu_ram_write(cpu, SP, cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, SP);
+        SP++;
+        cpu->PC += 2;
+        break;
+      
+      case CMP:
+        if (cpu->reg[operandA] == cpu->reg[operandB])
+        {
+          cpu->FL = 1;
+        } 
+        else if (cpu->reg[operandA] < cpu->reg[operandB])
+        {
+          cpu->FL = 4;
+        } else {
+          cpu->FL = 2;
+        }
+        cpu->PC += 3;
+        break;
+      
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        break;
+      
+      case JEQ:
+        if (cpu->FL == 1) {
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+      
+      case JNE:
+        if(cpu->FL != 1) 
+        {
+          cpu->PC = cpu->reg[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+      
+      case HLT:
+        running = 0;
+        break;
+      
+      default:
+        printf("Uknown Instruction at %02x: %02x\n", cpu->PC, IR);
+        exit(2);
+    }
   }
 }
 
@@ -85,6 +157,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+  cpu->reg[7] = 0fx4;
+  cpu->FL = 0;
 }
