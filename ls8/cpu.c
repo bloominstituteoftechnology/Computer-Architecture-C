@@ -16,6 +16,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 }
 
 // write to the ram
+// 
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
@@ -47,7 +48,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   char line[1024];
 
-  // TODO: Replace this with something less hard-coded
   int address = ADDR_PROGRAM_ENTRY;
 
   if(fp == NULL)
@@ -58,7 +58,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   //Read all the lines and store them in RAM
 
-  while(fgets(line, sizeof line, fp) != NULL)
+  while(fgets(line, sizeof(line), fp) != NULL)
   {
     char *endchar;
     unsigned char byte = strtol(line, &endchar, 2);
@@ -154,6 +154,12 @@ void cpu_run(struct cpu *cpu)
         // cpu->reg[operandA] = cpu_pop(cpu);
         // break;
 
+      case CALL:
+        break;
+      
+      case RET:
+        break;
+
       
       default:
         printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
@@ -175,13 +181,16 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-  cpu->reg[SP] = 0xf4;
+  // cpu->reg[SP] = 0xf4;
 
   // TODO: Zero registers and RAM
 
   // memset() is like fill() in JS
   memset(cpu->ram, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // Initialize SP
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 
 }
 
