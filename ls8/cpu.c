@@ -1,13 +1,18 @@
-#include <stdio.h>
+#include <stdio.h>  // install libraries
 #include <stdlib.h>
+#include <string.h> // for memset string library
 #include "cpu.h"
 
+#define DATA_LEN 6
+
+// reading from the ram
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)  // helper function; return the address of the cpu
 {
-  return cpu->ram[address]; // the cpu at this address will return the bytes that's there
+  return cpu->ram[address]; // return whatever the address of the ram; the cpu at this address will return the bytes that's there
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)  // helper function; return the address of the cpu and value
+//write to the ram
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)  // helper function; pass in a value since we are writing to the ram; return the address of the cpu and value
 {
   cpu->ram[address] = value; 
 }
@@ -67,44 +72,45 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (running) 
+  {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 
-    unsigned char IR = cpu_ram_read(cpu, cpu->pc); // read from RAM at the PC; this is the instruction/ opcode
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc); // instruction register; pass in cpu and the program count er to read off that; read from RAM at the PC; this is the instruction/ opcode
 
-    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // reading at the next address of whatever the pc points at
-    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); // reading the next byte and store in operand B
+    // unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // reading at the next address of whatever the pc points at
+    // unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); // reading the next byte and store in operand B
 
-    printf("TRACE: %02x: %02x\n", cpu->pc, IR);
+    // printf("TRACE: %02x: %02x\n", cpu->pc, IR);
 
-    switch (IR) { // switch on the IR 
+    // switch (IR) { // switch on the IR 
 
-      case LDI:   // LDI instruction
-        cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
-        cpu->pc += 3; // increment the pc; LDI is 3 bytes
-        break;
+    //   case LDI:   // LDI instruction
+    //     cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
+    //     cpu->pc += 3; // increment the pc; LDI is 3 bytes
+    //     break;
       
-      case PRN: // print numeric value in the given register
-        printf("%d\n", cpu->reg[operandA]);   
-        cpu->pc += 2;
-        break;
+    //   case PRN: // print numeric value in the given register
+    //     printf("%d\n", cpu->reg[operandA]);   
+    //     cpu->pc += 2;
+    //     break;
       
-      case HLT: // if it's halt
-        running = 0;  // then running is equal false or 0
-        break;
+    //   case HLT: // if it's halt
+    //     running = 0;  // then running is equal false or 0
+    //     break;
       
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        break;
+    //   case MUL:
+    //     alu(cpu, ALU_MUL, operandA, operandB);
+    //     break;
 
-      default:  // default case 
-        printf("unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is
-        exit(2);  // exit 
-    }
+    //   default:  // default case 
+    //     printf("unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is
+    //     exit(2);  // exit 
+    // }
   }
 }
 
