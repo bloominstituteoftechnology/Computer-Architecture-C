@@ -3,23 +3,23 @@
 #include <string.h>
 #include "retyped_cpu.h"
 
-// // push a value to the CPU stack
-// void cpu_push(struct cpu *cpu, unsigned char val)
-// {
-//     cpu->reg[SP]--;
+// push a value to the CPU stack
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+    cpu->reg[SP]--;
 
-//     cpu->ram[cpu->reg[SP]] = val;
-// }
+    cpu->ram[cpu->reg[SP]] = val;
+}
 
-// // pop a value from the CPU stack
-// unsigned char cpu_pop(struct cpu *cpu)
-// {
-//     unsigned char val = cpu->ram[cpu->reg[SP]];
+// pop a value from the CPU stack
+unsigned char cpu_pop(struct cpu *cpu)
+{
+    unsigned char val = cpu->ram[cpu->reg[SP]];
 
-//     cpu->reg[SP]++;
+    cpu->reg[SP]++;
 
-//     return val;
-// }
+    return val;
+}
 
 // helper functions
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
@@ -110,6 +110,9 @@ void cpu_run(struct cpu *cpu)
         unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
         unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
 
+        // True if this instruction might set the pc;
+        int instruct_set_pc = (IR >> 4) & 1;
+
 
         // 2. switch() over it to decide on a course of action.
         // 3. Do whatever the instruction should do according to the spec.
@@ -140,6 +143,15 @@ void cpu_run(struct cpu *cpu)
                 cpu->reg[SP]++;
                 break;
 
+            case CALL:
+                cpu_push(cpu, cpu->pc + 2);
+                cpu->pc = cpu->reg[operandA];
+                break;
+
+            case RET:
+                cpu->pc = cpu_pop(cpu);
+                break;
+
             case HLT:
                 running = 0;
                 break;
@@ -150,7 +162,10 @@ void cpu_run(struct cpu *cpu)
         }
         
         // 4. Move the PC to the next instruction.
-        cpu->pc += (IR >> 6) + 1;
+        if (!instruct_set_pc)
+        {
+            cpu->pc += (IR >> 6) + 1;
+        }
     }
 }
 
