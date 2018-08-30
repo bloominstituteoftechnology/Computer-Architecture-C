@@ -1,5 +1,7 @@
 ls8
-
+# added .ls8 to remove the examples, but it looks like they'll still be pushed.
+# TODO: check if .ls8 files are being pushed to github, look into if needs be.
+*.ls8
 # Prerequisites
 *.d
 
