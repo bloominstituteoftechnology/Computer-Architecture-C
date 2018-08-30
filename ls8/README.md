@@ -48,9 +48,7 @@ This code above requires the implementation of three instructions:
 
 See [the LS-8 spec](../LS8-SPEC.md) for more details.
 
-The above program is already hardcoded into the source file `cpu.c`. To run it,
-you will eventually:
-
+The above program is already hardcoded into the source file `cc
 ```
 make
 ./ls8

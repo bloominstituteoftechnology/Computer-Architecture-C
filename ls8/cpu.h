@@ -3,7 +3,7 @@
 
 // Holds all information about the CPU
 struct cpu {
- unsigned char pc;// makes sure its positve
+ unsigned char PC;// makes sure its positve
  unsigned char reg[8];//creates an array with 8 slots in it
  unsigned char ram[256];// hold the rest of the memory
 };
@@ -15,8 +15,13 @@ enum alu_op{
     ALU_ADD
 };
 //Memory locations
-#define ADDR_PROGRAM_ENTRY 0x00//where program start getting loaded
-#define ADDR_EMPTY_STACK 0xF4//where SP is in an empty stack
+//where program start getting loaded
+
+#define ADDR_PROGRAM_ENTRY 0x00
+
+//where SP is in an empty stack
+
+#define ADDR_EMPTY_STACK 0xF4
 
 // Instructions
 
@@ -34,7 +39,7 @@ enum alu_op{
 #define PRA  0b01001000
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu, char *filename);
+extern void cpu_load( char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

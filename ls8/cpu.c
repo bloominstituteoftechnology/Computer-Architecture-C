@@ -33,7 +33,7 @@ void cpu_load(char *filename, struct cpu *cpu)
 {
   FILE *fp;
   char line[1024];
-  int address = ADDR_PROGRAM_ENRTY;
+  int address = ADDR_PROGRAM_ENTRY;
 
 //open the source file
 if((fp = fopen(filename, "r"))==NULL){
@@ -120,8 +120,8 @@ while (running){
       //printf("%c", reg[operandA]);fflush(stdout);//without newline
       break;
 
-    case Call:
-      cpu_push(cpu,, cpu->PC + 2);
+    case CALL:
+      cpu_push(cpu, cpu->PC + 2);
       cpu->PC = reg[operandA]; 
       break;
 
@@ -129,7 +129,7 @@ while (running){
       cpu->PC = cpu_pop(cpu);
       break;
 
-    case Push:
+    case PUSH:
       cpu_push(cpu, reg[operandA]);
       break;
 
