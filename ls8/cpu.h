@@ -12,7 +12,7 @@ struct cpu {
   unsigned char ram[256];
 };
 
-#define SP 5
+#define SP 7
 
 // ALU operations
 enum alu_op {

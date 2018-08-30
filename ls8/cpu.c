@@ -44,9 +44,10 @@ unsigned char cpu_pop(struct cpu *cpu)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
+
+  // Open file
   FILE *fp = fopen(filename, "r");
 
-  char line[1024];
 
   int address = ADDR_PROGRAM_ENTRY;
 
@@ -58,9 +59,11 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   //Read all the lines and store them in RAM
 
+  char line[256];
+  char *endchar;
+
   while(fgets(line, sizeof(line), fp) != NULL)
   {
-    char *endchar;
     unsigned char byte = strtol(line, &endchar, 2);
 
     // ignore empty lines
@@ -106,7 +109,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
-    int instruction_set_pc = (IR >> 4) & 1;
     // 2. switch() over it to decide on a course of action.
     // what to do with the instructions?
     // 3. Do whatever the instruction should do according to the spec.
@@ -114,7 +116,6 @@ void cpu_run(struct cpu *cpu)
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        // cpu->pc += 2;
         break;
 
       case HLT: 
@@ -123,19 +124,14 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
-        // cpu->pc += 3;
         break;
       
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->reg[operandA] *= cpu->reg[operandB];
-        // cpu->pc += 3; 
         break;
 
       case ADD:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->reg[operandA] += cpu->reg[operandB];
-        // cpu->pc += 3;
         break;
 
       case PUSH:
@@ -143,21 +139,18 @@ void cpu_run(struct cpu *cpu)
         cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
         break;
 
-        // cpu_push(cpu, cpu->reg[operandA]);
-        // break;
-
       case POP:
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
         cpu->reg[SP]++;
         break;
 
-        // cpu->reg[operandA] = cpu_pop(cpu);
-        // break;
-
       case CALL:
+        cpu_push(cpu, cpu->pc + 2); // 2: next instruction
+        cpu->pc = cpu->reg[operandA];
         break;
       
       case RET:
+        cpu->pc = cpu_pop(cpu);
         break;
 
       
@@ -166,9 +159,13 @@ void cpu_run(struct cpu *cpu)
         exit(2); 
     }
     // 4. Move the PC to the next instruction.
+
+      int instruction_set_pc = (IR >> 4) & 1;
       if (!instruction_set_pc)
         {
-            cpu->pc += (IR >> 6) + 1;
+          // right shift it 6 places
+          // & (Bitwise And)
+          cpu->pc += (IR >> 6 & 0x3) + 1;
         }
 
   }
@@ -181,16 +178,12 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-  // cpu->reg[SP] = 0xf4;
+  // Initialize Stack Pointer
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 
   // TODO: Zero registers and RAM
-
   // memset() is like fill() in JS
   memset(cpu->ram, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
-
-  // Initialize SP
-  cpu->reg[SP] = ADDR_EMPTY_STACK;
-
 }
 
