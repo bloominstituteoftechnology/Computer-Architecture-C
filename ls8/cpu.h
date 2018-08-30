@@ -12,6 +12,9 @@ struct cpu {
   unsigned char ram[256]; // 256 bytes for the RAM; holds the rest of the memory
 };
 
+//Other general purpose register names
+#define SP 7  // initialize stack pointer  
+
 // ALU operations // Math operations 
 enum alu_op { // enum stands for enumerated type
   ALU_MUL,  // MUL stands for multiply; assigned an integer value and defaults to starting at 0
@@ -29,9 +32,9 @@ enum alu_op { // enum stands for enumerated type
 #define MUL 0b10100010  // multiply
 #define PRA 0b01001000
 #define ADD 0b10100000  // add
-#define PUSH  0b01000101 
+#define PUSH 0b01000101 // push 
 #define POP  0b01000110 
-#define CALL  0b01010000 
+#define CALL 0b01010000 
 #define RET  0b00010001
 #define INT  0b01010010 
 #define CMP  0b10100111

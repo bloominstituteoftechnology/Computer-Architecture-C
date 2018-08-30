@@ -151,11 +151,18 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] += cpu->reg[operandB]; // mutiplication 
         cpu->pc += 3; // increment the pc; LDI is 3 bytes      
         break;
+      
+      case PUSH:  // add push function 
+        cpu->reg[SP]--; // Push the value in the given register on the stack; decrement the value
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[openrandA]);  // call ram write function passing in cpu, address we need to push it to which is stored in the Stack Pointer, value of store
+        break;
 
       default:  // default case; if something wrong happes; will catch anything that it doesn't know what to do
         printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is; tell it the pc counter which it's pointing at
         exit(2);  // exit with code 2
     }
+
+    cpu->pc += (IR >> 6) + 1;
   }
 }
 
@@ -166,6 +173,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;  // initialize/ load instructions at address 0
+
+  cpu->reg[SP] = 0xf4;  // setup register; SP points at address F4 if the stack is empty
+
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);  // grab the registers; we fill in the array with zeros
