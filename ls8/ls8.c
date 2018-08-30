@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   
   if (argc != 2){
     fprintf(stderr, "Usage: ./ls8 [filename]\n")
-    exit(1);
+    exit(2);
   }
 
   char *filename = argv[1];

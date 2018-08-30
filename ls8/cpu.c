@@ -3,6 +3,40 @@
 #include <string.h>
 #include <stdlib.h>
 
+//**
+ * Push a value on the CPU stack
+ * /
+ 
+ void cpu_push(struct cpu *cpu, unsigned char val)
+ {
+   cpu->reg[SP]--;
+
+   cpu->ram[cpu->reg[SP]]= val;
+ }
+ //**
+  * Pop a value from the CPU stack
+  * /
+  unsigned char cpu_pop(struct cpu *cpu){
+
+  unsigned char val = cpu->ram[reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return val;
+  }
+  //**.ls8 Source file into a RAM array
+   * 
+   * /
+
+void cpu_load(char *filename, struct cpu *cpu){
+  FILE *fp;
+  char line[1024];
+  int address = ADDR_PROGRAM_ENRTY;
+}
+//open the source file
+if((fp = fopen(filename, "r"))==NULL){
+
+}
 #define DEBUG 0
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR){
