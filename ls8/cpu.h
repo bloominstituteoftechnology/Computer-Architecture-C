@@ -18,13 +18,10 @@ struct cpu {
 enum alu_op {
   ALU_MUL,
   ALU_ADD,
-  // ALU_LDI,
 };
 
 // Memory Location
 #define ADDR_PROGRAM_ENTRY 0x00
-// Stack location
-// #define ADDR_EMPTY_STACK 0xF4
 
 // Instructions
 

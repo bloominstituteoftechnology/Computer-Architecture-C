@@ -114,7 +114,7 @@ void cpu_run(struct cpu *cpu)
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->pc += 2;
+        // cpu->pc += 2;
         break;
 
       case HLT: 
@@ -123,19 +123,19 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->pc += 3;
+        // cpu->pc += 3;
         break;
       
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->reg[operandA] *= cpu->reg[operandB];
-        cpu->pc += 3;
+        // cpu->reg[operandA] *= cpu->reg[operandB];
+        // cpu->pc += 3; 
         break;
 
       case ADD:
         alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->reg[operandA] += cpu->reg[operandB];
-        cpu->pc += 3;
+        // cpu->reg[operandA] += cpu->reg[operandB];
+        // cpu->pc += 3;
         break;
 
       case PUSH:
