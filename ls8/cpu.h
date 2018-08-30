@@ -12,12 +12,19 @@ struct cpu {
   unsigned char ram[256];
 };
 
+#define SP 5
+
 // ALU operations
 enum alu_op {
   ALU_MUL,
   ALU_ADD,
-  ALU_LDI,
+  // ALU_LDI,
 };
+
+// Memory Location
+#define ADDR_PROGRAM_ENTRY 0x00
+// Stack location
+// #define ADDR_EMPTY_STACK 0xF4
 
 // Instructions
 
@@ -31,6 +38,10 @@ enum alu_op {
 #define MUL  0b10100010
 #define ADD  0b10100000
 
+// ADD Push and Pop instructions
+#define PUSH  0b01000101
+#define POP  0b01000110
+
 
 // Function declarations
 
@@ -40,5 +51,8 @@ extern void cpu_run(struct cpu *cpu);
 
 extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address);
 extern void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value);
+
+extern void cpu_push(struct cpu *cpu, unsigned char val);
+extern unsigned char cpu_pop(struct cpu *cpu);
 
 #endif
