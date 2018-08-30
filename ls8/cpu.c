@@ -22,13 +22,12 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
  */
 void cpu_load(struct cpu *cpu, char *filename)  // cpu load taking in cpu and filename
 {
-  // FILE *fp = fopen(filename, "r");  // open a file; grab the pointer to the file and open it
+  FILE *fp = fopen(filename, "r");  // open a file; grab the pointer to the file and open it
   // printf("%s\n", filename);
 
-  // char line[256]; // give a buffer or enough memory for each line to scroll the whole line; 
+  char line[256]; // give a buffer or enough memory for each line to scroll the whole line; 
 
-  // const int DATA_LEN = 6;
-
+/*
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8; 1 operand
@@ -45,8 +44,35 @@ void cpu_load(struct cpu *cpu, char *filename)  // cpu load taking in cpu and fi
   {
     cpu->ram[address++] = data[i];
   }
+*/
 
   // TODO: Replace this with something less hard-coded
+  int address = 0;  // starting address 
+
+  // read the file
+  if(fp == NULL)  // check first if the pointer is not Null
+  {
+    fprintf(stderr, "Cannot open file. %s\n", filename);  // if null, print error
+    exit(2);  // exit 
+  }
+
+  char *endchar;  // to initialize endchar
+
+  // Read all the lines and store them in RAM
+  // use string to line, strlon(), function to read one line at a time
+  while(fgets(line, sizeof line, fp) != NULL)
+  {
+    unsigned char byte = strtol(line, &endchar, 2); // strtol; &endchar to ignore spaces and bad chars
+
+    // ignore empty lines
+    if(endchar == line) 
+    {
+      continue;
+    }
+
+    // storing the bytes in our ram
+    cpu_ram_write(cpu, address++, byte); 
+  }
 }
 
 /**
@@ -58,11 +84,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
     case ALU_MUL:
       // TODO
-      cpu->reg[regA] *= cpu->reg[regB];  // multiply values in register A and register B and store value in RegA
+      // cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];  // multiply values in register A and register B and store value in RegA
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
     case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB]; 
       break;
   }
 }
@@ -112,8 +140,11 @@ void cpu_run(struct cpu *cpu)
       
       case MUL: 
         cpu->reg[operandA] *= cpu->reg[operandB]; // mutiplication 
-        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
         // alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
+
+        // cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
+        
         break;
 
       case ADD: 
