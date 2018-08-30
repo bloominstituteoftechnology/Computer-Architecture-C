@@ -35,6 +35,50 @@ void cpu_load(char *filename, struct cpu *cpu){
 }
 //open the source file
 if((fp = fopen(filename, "r"))==NULL){
+  fprintf(stderr, "Cannot open file %s\n", filename);
+  exit(2);
+
+}
+//Read all the lines and store them in RAM
+while (fgets(line, sizeof line, fp)!=NULL){
+  //Convert string to a number
+  char *endchar;
+  unsigned char byte = strtol(line, &endchar, 2);
+  //ingnore lines from which no numbers were read
+  if(endchar == line){
+    continue;
+  }
+  //Store in ram
+  cpu->ram[address++]=byte;
+}
+//**
+ * ALU
+ * /
+ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB){
+   unsigned char *reg = cpu->reg;
+
+   unsigned char valB = reg[regB];
+
+   switch (op){
+     case ALU_MUL:
+       reg[regA] *= valB;
+       break;
+
+     case ALU_ADD:
+       reg[regA] += valB;
+       break;
+
+
+   }
+ }
+ //**
+  * Run the CPU
+  * /
+  * 
+void cpu_run(struct cpu *cpu){
+  // just so we dont have to type cpu-> every time
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
 
 }
 #define DEBUG 0
