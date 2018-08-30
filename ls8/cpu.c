@@ -15,11 +15,12 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *filename)
+void cpu_load(struct cpu *cpu, char *filename)  // cpu load taking in cpu and filename
 {
-  // FILE *fp = fopen(filename, "r");  // open a file
-  printf("%s\n", filename);
+  FILE *fp = fopen(filename, "r");  // open a file; grab the pointer to the file and open it
+  // printf("%s\n", filename);
 
+  // char line[256]; // give a buffer or enough memory for each line to scroll the whole line; 
 
   const int DATA_LEN = 6;
   char data[DATA_LEN] = {
@@ -32,9 +33,10 @@ void cpu_load(struct cpu *cpu, char *filename)
     0b00000001  // HLT
   };
 
-  int address = 0;
+  int address = 0;  // starting address 
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < DATA_LEN; i++) 
+  {
     cpu->ram[address++] = data[i];
   }
 
@@ -112,7 +114,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->pc = 0;  // load instructions at address 0
+  cpu->pc = 0;  // initialize/ load instructions at address 0
 
   // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof cpu->reg);  // grab the registers; we fill in the array with zeros
+  memset(cpu->ram, 0, sizeof cpu->ram);  // grab the ram; we fill in the array with zeros
 }
