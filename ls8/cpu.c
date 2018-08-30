@@ -94,12 +94,13 @@ while (running){
   int instruction_set_pc = (IR >> 4) & 1;
 
   switch(IR){
-    case LDT:
+
+    case LDI:
      reg[operandA] = operandB;
      break;
 
     case PRN:
-      printf("%d\n", reg[operandA);
+      printf("%d\n", reg[operandA]);
     break;
     
     case MUL:
