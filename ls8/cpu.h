@@ -5,7 +5,7 @@
 struct cpu {
   // TODO
   // PC
-  unsigned char PC; // the type for a single unsigned byte in C; register the pc
+  unsigned char pc; // the type for a single unsigned byte in C; register the pc
   // registers (array)
   unsigned char reg[8]; // create an array with 8 slots in it; we have to specify unsigned with a char otherwise the compiler will be the one to use which one to use
   // ram (array)
