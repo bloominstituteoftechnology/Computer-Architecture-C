@@ -93,24 +93,32 @@ void cpu_run(struct cpu *cpu)
 
     switch (IR) { // switch on the IR 
 
+      case PRN: // call print function; print numeric value in the given register
+        printf("%d\n", cpu->reg[operandA]); // print whatever is in operandA
+        // printf("print 8 manually\n");        
+        cpu->pc += 2;  // move the program counter by 2
+        break;
+      
       case LDI:   // LDI/load instruction
-        printf("We're about to load.\n");
+        // printf("We're about to load.\n");
         cpu->reg[operandA] = operandB; // operandA tells us the register number we need to store the value in; operandB is the value we need to store 
         cpu->pc += 3; // increment the pc; LDI is 3 bytes
         break;
       
-      case PRN: // call print function; print numeric value in the given register
-        printf("print 8 manually\n");        
-        cpu->pc += 2;  // move the program counter by 2
-        break;
-        // printf("%d\n", cpu->reg[operandA]);   
-      
-      case HLT: // if it's halt
+      case HLT: // halt method
+        // printf("This is the halt method.\n"); // does not move the program counter
         running = 0;  // then running is equal false or 0
         break;
       
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
+      case MUL: 
+        cpu->reg[operandA] *= cpu->reg[operandB]; // mutiplication 
+        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
+        // alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD: 
+        cpu->reg[operandA] += cpu->reg[operandB]; // mutiplication 
+        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
         break;
 
       default:  // default case; if something wrong happes; will catch anything that it doesn't know what to do

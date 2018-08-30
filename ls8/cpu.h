@@ -27,6 +27,7 @@ enum alu_op { // enum stands for enumerated type
 #define PRN 0b01000111  // print; 
 #define HLT 0b00000001  // halt; start the program
 #define MUL 0b10100010  // multiply
+#define ADD 0b10100000  // add
 
 // TODO: more instructions here. These can be used in cpu_run().
 
