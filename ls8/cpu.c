@@ -3,7 +3,7 @@
 #include <string.h> // for memset string library
 #include "cpu.h"
 
-#define DATA_LEN 6
+// #define DATA_LEN 6
 
 // reading from the ram
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)  // helper function; return the address of the cpu
@@ -100,6 +100,7 @@ void cpu_load(struct cpu *cpu, char *filename)  // cpu load taking in cpu and fi
 /**
  * ALU
  */
+// doing ALU operations; ALU for Arithmetic Logic Unit which is the fundamental building blocks of the cpu
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) 
@@ -206,7 +207,45 @@ void cpu_run(struct cpu *cpu)
         cpu->pc = cpu_pop(cpu);
         break;
 
+// Sprting Challenge: 
 
+      case CMP:   // Compares register A and register B.        
+        if (cpu->reg[operandA] == cpu->reg[operandB]) // If they are equal, 
+        {
+          cpu->fl = 1;   set the flag to 1.
+        }
+        else
+        {
+          cpu->fl = 0;  // Else set it to 0.
+        }
+        break;
+
+      case JMP: // Jumps to the address stored in the given register.         
+        cpu->pc = cpu->reg[operandA]; // Sets the PC to the address stored in the given register.
+        break;
+
+      case JEQ: // If equal (E) flag is true, jump to the address in the given register.
+        if (cpu->fl)  
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->pc += 2;
+        }
+        break;
+
+      case JNE:           
+        if (!cpu->fl) // If equal (E) flag is clear or false, jump to the address stored in the given register.
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->pc += 2;
+        }
+        break;
+      
       default:  // default case; if something wrong happes; will catch anything that it doesn't know what to do
         printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR); // if we get instruction doesn't know, this will tell us where and what it is; tell it the pc counter which it's pointing at
         exit(2);  // exit with code 2
@@ -217,7 +256,7 @@ void cpu_run(struct cpu *cpu)
 
     int instruction_set_pc = (IR >> 4) & 1; // initialize instruction_set_pc
 
-    if (!instruction_set_pc) 
+    if (!instruction_set_pc)  // if not 
     {
       cpu->pc += ((IR >> 6) & 0x3) + 1; // Shifts 6 places to the right.
     }
@@ -230,9 +269,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the Program Counter (PC) and other special registers
-  cpu->pc = 0;  // initialize/ load instructions at address 0
-  // cpu->pc = START_OF_PROGRAM_ADDR;
-  // cpu->fl = CPU_FLAG;
+  // cpu->pc = 0;  // initialize/ load instructions at address 0
+  cpu->pc = START_OF_PROGRAM_ADDR;  // initialize/ set to start of program address
+  cpu->fl = CPU_FLAG;     // flag
 
   // cpu->reg[SP] = 0xf4;  // setup register; SP points at address F4 if the stack is empty
 
