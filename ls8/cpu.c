@@ -140,7 +140,7 @@ void cpu_run(struct cpu *cpu)
     // unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2); // openrandB will make 2 movements; reading the next byte and store in operand B
 
     unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1)& MAX_ADDR); // openrandA will make 1 movement; reading at the next address of whatever the pc points at
-    unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2)& MAX_ADDR]; // openrandB will make 2 movements; reading the next byte and store in operand B
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2)& MAX_ADDR); // openrandB will make 2 movements; reading the next byte and store in operand B
 
 
     // 2. switch() over it to decide on a course of action.
@@ -212,9 +212,8 @@ void cpu_run(struct cpu *cpu)
       case CMP:   // Compares register A and register B.        
         if (cpu->reg[operandA] == cpu->reg[operandB]) // If they are equal, 
         {
-          cpu->fl = 1;   set the flag to 1.
-        }
-        else
+          cpu->fl = 1;  // set the flag to 1.
+        } else
         {
           cpu->fl = 0;  // Else set it to 0.
         }
