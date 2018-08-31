@@ -7,18 +7,20 @@
 // Holds all information about the CPU
 typedef struct cpu {
   // TODO
-  int fl;
+  int fl; // flag 
   // PC
   unsigned char pc; // the type for a single unsigned byte in C; register the pc
   // registers (array)
   unsigned char reg[8]; // create an array with 8 slots in it; we have to specify unsigned with a char otherwise the compiler will be the one to use which one to use
   // ram (array)
   // unsigned char ram[256]; // 256 bytes for the RAM; holds the rest of the memory
-  unsigned ram[MAX_ADDR +1];
+  unsigned ram[MAX_ADDR +1];  // set ram to MAX_ADDR
 } CPU;
 
 //Other general purpose register names
-#define SP 7  // initialize stack pointer  
+#define SP 7  // initialize special values for register
+#define IS 6
+#define IM 5
 
 // ALU operations // Math operations 
 enum alu_op { // enum stands for enumerated type
@@ -37,6 +39,7 @@ enum alu_op { // enum stands for enumerated type
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
+// for implementing instruction handlers
 #define LDI 0b10000010  // load
 #define PRN 0b01000111  // print; 
 #define HLT 0b00000001  // halt; start the program
