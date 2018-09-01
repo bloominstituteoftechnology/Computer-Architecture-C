@@ -21,7 +21,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 void cpu_push(struct cpu *cpu, unsigned char value)
 {
   cpu->reg[SP]--; // decrement value 
-  cpu_ram_write(cpu, cpu->reg[SP], value);  // call ram write function passing in cpu, address we need to push it to which is stored in the Stack Pointer, value of store
+  cpu_ram_write(cpu, cpu->reg[SP], value);  // call ram write function to push a value on to the stack
   // cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);  // call ram write function passing in cpu, address we need to push it to which is stored in the Stack Pointer, value of store
 }
 
@@ -169,17 +169,18 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case MUL: 
-        cpu->reg[operandA] *= cpu->reg[operandB]; // mutiplication 
-        // alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
+        // cpu->reg[operandA] *= cpu->reg[operandB]; // mutiplication 
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // cpu->pc += 3; // increment the pc; LDI is 3 bytes      
 
         // cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
         
         break;
 
       case ADD: 
-        cpu->reg[operandA] += cpu->reg[operandB]; // mutiplication 
-        cpu->pc += 3; // increment the pc; LDI is 3 bytes      
+        alu(cpu, ALU_ADD, operandA, operandB);
+        // cpu->reg[operandA] += cpu->reg[operandB]; // mutiplication 
+        // cpu->pc += 3; // increment the pc; LDI is 3 bytes      
         break;
       
       case PUSH:  // add push function 
@@ -198,13 +199,13 @@ void cpu_run(struct cpu *cpu)
         printf("%c\n", cpu->reg[operandA]);
         break;
 
-      case CALL:
-        cpu_push(cpu, cpu->pc + 2);
-        cpu->pc = cpu->reg[operandA]; 
-      break;
+      case CALL:  // Call; 
+        cpu_push(cpu, cpu->pc + 2); // push the address of the next instructions; call is 2 bytes long; next instruction after the call is pc + 2
+        cpu->pc = cpu->reg[operandA];   // set the pc to a certain value
+        break;
 
-      case RET:
-        cpu->pc = cpu_pop(cpu);
+      case RET: // return 
+        cpu->pc = cpu_pop(cpu); // pop the value off the stack and set the pc to it
         break;
 
 // Sprting Challenge: 
