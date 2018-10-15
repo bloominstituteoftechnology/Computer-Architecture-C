@@ -14,8 +14,10 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
 	// Add more here
+  LOAD_VALUE,
+  NOTHING
 };
 
 // Instructions

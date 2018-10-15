@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -46,7 +47,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       break;
+    case LOAD_VALUE:
+      cpu->registers[(int)regA] = regB;
+      break;
+    case NOTHING:
+      break;
 
+    default:
+      printf("Default case called in alu\n");
     // TODO: implement more ALU ops
   }
 }
@@ -61,9 +69,32 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    int pc = cpu->pc;
+    unsigned int binary_instruction = cpu_ram_read(cpu, pc);
+    printf("Binary_instruction: %d\n", binary_instruction);
+    unsigned int operandA = cpu_ram_read(cpu, pc + 1);
+    unsigned int operandB = cpu_ram_read(cpu, pc + 2);
+    enum alu_op instruction;
     // 2. switch() over it to decide on a course of action.
+    
+    switch (binary_instruction)
+    {
+      case LDI:
+        printf("LDI called!!!");
+        instruction = LOAD_VALUE;
+        break;
+    
+      default:
+        instruction = NOTHING;
+        break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
+    alu(cpu, instruction, operandA, operandB);
     // 4. Move the PC to the next instruction.
+    int index_increment = (int) (binary_instruction >> 6);
+    cpu->pc = cpu->pc + index_increment;
+    
+    running = 0;
   }
 }
 
@@ -73,6 +104,17 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->pc = 0;
   // TODO: Zero registers and RAM
+  
+  for(int i = 0; cpu->registers[i] != '\0'; i++)
+  {
+    cpu->registers[i] = 0;
+  }
+  
+  for(int i = 0;  cpu->ram[i] != '\0'; i++)
+  {
+    cpu->ram[i] = 0;
+  }
+  
 }
