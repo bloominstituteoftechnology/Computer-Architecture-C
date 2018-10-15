@@ -24,7 +24,22 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
+
 }
+
+//In cpu.c, add functions cpu_ram_read() and cpu_ram_write() that access the RAM inside the struct cpu.
+// We'll make use of these helper function later.
+
+void cpu_ram_read(){
+  //
+  //
+}
+
+void cpu_ram_write(){
+  //
+  //
+}
+
 
 /**
  * ALU
