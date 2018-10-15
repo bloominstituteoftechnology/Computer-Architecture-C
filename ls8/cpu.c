@@ -2,6 +2,7 @@
 
 #define DATA_LEN 6
 
+// Reviewing material, spent most of day on graphs sprint
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
