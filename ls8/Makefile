@@ -3,7 +3,7 @@ HEADERS=$(wildcard *.h)
 DEPS=$(SRC) $(HEADERS)
 
 ls8: $(DEPS)
-	gcc -Wall -Wextra -g -o $@ $(SRC)
+	gcc -Wall -Wextra -g -o $@.o $(SRC)
 
 .PHONY: clean
 
