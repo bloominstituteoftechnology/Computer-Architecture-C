@@ -1,5 +1,5 @@
 #include "cpu.h"
-
+#include <stdio.h>
 #define DATA_LEN 6
 
 /**
@@ -42,6 +42,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  printf("IN READ INDEX, IR %d\t%d", index, cpu->PC);
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
+
 /**
  * Run the CPU
  */
@@ -51,22 +62,12 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
-    // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
-{
-  cpu->ram[index] = value;
 }
 
 /**
