@@ -2,6 +2,18 @@
 
 #define DATA_LEN 6
 
+// Read value from address
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+// Write value to ram at address
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
