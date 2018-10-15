@@ -1,9 +1,7 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
-#define LDI 0b10000010
-#define PRN 0b01000111
-#define HLT 0b00000001
+
 
 unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
