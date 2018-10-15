@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 #define DATA_LEN 6
 
@@ -46,13 +48,29 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char *registers = cpu->registers; // Short cut to registers
+  unsigned char *ram = cpu->ram; // Short cut to ram
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+1);
     // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    switch(IR) {
+      // 3. Do whatever the instruction should do according to the spec.
+      // 4. Move the PC to the next instruction.
+      case LDI:
+        cpu_ram_write(cpu, operandA, operandB);
+        cpu->PC += 2;
+        printf("LDI instructions: %c", IR);
+        break;
+      default:
+        printf("Unknown instructions: %c", IR);
+        exit(0);
+    }
+    
   }
 }
 
@@ -62,11 +80,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
   // TODO: Zero registers and RAM
 }
 
-void cpu_ram_read(struct cpu *cpu, char index)
+unsigned char cpu_ram_read(struct cpu *cpu, char index)
 {
   return cpu->ram[index];
 }
