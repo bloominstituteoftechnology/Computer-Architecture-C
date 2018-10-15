@@ -1,6 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
+
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -47,12 +60,45 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    unsigned char IR = ram[cpu->PC];
+    unsigned char operandA = ram[cpu->PC + 1];
+    unsigned char operandB = ram[cpu->PC + 2];
+
+    int instr_set_pc = (IR >> 4) & 1;
+
+    switch (IR)
+    {
+      case LDI:
+        reg[operandA] = operandB;
+        break;
+      
+      case PRN:
+        printf("%d\n", reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+
+      default:
+        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+        break;
+    }
+
+    if (!instr_set_pc)
+    {
+      cpu->PC += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
