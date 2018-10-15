@@ -5,7 +5,7 @@
 #define PRN 0b01000111
 #define HLT 0b00000001
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index) 
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
   return cpu->ram[index];
 }
@@ -21,12 +21,12 @@ unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
+      // From print8.ls8
+      0b10000010, // LDI R0,8
+      0b00000000,
+      0b00001000,
+      0b01000111, // PRN R0
+      0b00000000,
       0b00000001 // HLT
   };
 
@@ -47,9 +47,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op)
   {
-    case ALU_MUL:
-      // TODO
-      break;
+  case ALU_MUL:
+    // TODO
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -70,17 +70,20 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operand_a = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operand_b = cpu_ram_read(cpu, cpu->PC + 1);
+    printf("%d", cpu->PC);
 
     switch (IR)
     {
     case LDI:
       printf("CPU stored a value\n");
+      unsigned char operand_a = cpu_ram_read(cpu, cpu->PC += 1);
+      unsigned char operand_b = cpu_ram_read(cpu, cpu->PC += 1);
       cpu_ram_write(cpu, operand_a, operand_b);
+      cpu->PC += 1;
       break;
     case PRN:
       printf("Print value\n");
+      cpu->PC += 2;
       break;
     case HLT:
       printf("Program has halted\n");
@@ -99,6 +102,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  
+  cpu->PC = 0;
+
   // TODO: Zero registers and RAM
 }
