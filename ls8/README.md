@@ -66,6 +66,14 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+List of files:
+-cpu.c
+  -Loads ls8 files into ram and runs them
+-cpu.h
+  -holds the info and struct for the cou struct and function definitions for the instructions
+-ls8.c
+  -runs the cpu (I think)
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
