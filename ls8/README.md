@@ -61,8 +61,18 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+cpu.c
+cpu.h
+ls8.c
+Makefile
 * Write a short 3-10-word description of what each file does.
+cpu.c = defines the CPU functions, like init, load and run
+cpu.h = defines the data structure for the CPU and also the ALU
+ls8.c = Calls the CPU and it's methods
 * Note what has been implemented, and what hasn't.
+cpu.c = load is kinda done, but the rest need work
+cpu.h = needs work
+ls8.c = looks done
 * Read this whole file.
 * Skim the spec.
 
