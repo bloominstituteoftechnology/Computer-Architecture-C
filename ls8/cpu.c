@@ -31,7 +31,7 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+    cpu_write_ram(cpu, address++, data[i]);
   }
 
   // TODO: Replace this with something less hard-coded
