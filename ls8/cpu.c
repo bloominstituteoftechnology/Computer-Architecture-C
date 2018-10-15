@@ -28,6 +28,15 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, int index, char value)
+{
+  cpu->ram[index] = value;
+}
+
 /**
  * ALU
  */
@@ -50,24 +59,30 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char *registers = cpu->registers; // Short cut to registers
   unsigned char *ram = cpu->ram; // Short cut to ram
+  unsigned char PC = cpu->PC; // Short cut to ram
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char IR = cpu_ram_read(cpu, PC);
+    unsigned char operandA = cpu_ram_read(cpu, PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, PC+1);
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
       // 3. Do whatever the instruction should do according to the spec.
       case LDI:
         cpu_ram_write(cpu, operandA, operandB);
-        cpu->PC += 3;
+        // alu(cpu, cpu_ram_write, operandA, operandB);
+        PC += 3;
         printf("LDI instructions: %c", IR);
         break;
+      // case HLT:
+      //   running = 0;
+      //   printf("HLT instructions: %c", IR);
+      //   break;      
       default:
         printf("Unknown instructions: %c", IR);
-        exit(0);
+        break;
     }
     // 4. Move the PC to the next instruction.
   }
@@ -81,19 +96,10 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
-  for (int i=0; cup->registers[i] != "\0"; i++) {
+  for (int i=0; i<8; i++) {
     cpu->registers[i] = 0;
   }
-  for (int i=0; cup->ram[i] != "\0"; i++) {
+  for (int i=0; i<256; i++) {
     cpu->ram[i] = 0;
   }
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, char index)
-{
-  return cpu->ram[index];
-}
-void cpu_ram_write(struct cpu *cpu, char index, char value)
-{
-  cpu->ram[index] = value;
 }
