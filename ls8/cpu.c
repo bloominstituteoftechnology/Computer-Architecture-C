@@ -5,6 +5,8 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+#include "./examples/print8.ls8"
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -16,6 +18,7 @@ void cpu_load(struct cpu *cpu)
     0b00000000,
     0b00000001  // HLT
   };
+  
 
   int address = 0;
 

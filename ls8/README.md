@@ -61,10 +61,49 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+cpu.c
+1) import print8 data
+2) replace data with imported print8.ls8 data
+3) add more op cases to ALU
+4) figure out cpu_run function
+5) figure out cpu_init function
+
+
+cpu.h
+--not really sure what this file does, it looks like it defines the structs used in cpu.c
+1) need to define variables inside cpu struct
+2) figure out what enum is, what ALU_MUL is in the alu_op
+3) figure out what extern means/does
+4) how to add more instructions to LDI?
+
+
+ls8.c
+--this appears to be the main loader for the ls8 program...not sure what needs to be done here.
+
+
+Makefile
+--used to build the executable, tells the system
+what commands to execute during the build process.
+
+--example files to use with ls8
+call.ls8
+interrupts.ls8
+keyboard.ls8
+mult.ls8
+print8.ls8
+printstr.ls8
+sctest.ls8
+stack.ls8
+
+
 * Write a short 3-10-word description of what each file does.
+-done
 * Note what has been implemented, and what hasn't.
+-done
 * Read this whole file.
+ -done
 * Skim the spec.
+-done
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
