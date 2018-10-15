@@ -3,12 +3,12 @@
 #define DATA_LEN 6
 
 
-unsigned char cpu_read_ram(struct cpu *cpu, int index) 
+unsigned char cpu_ram_read(struct cpu *cpu, int index) 
 {
   return cpu->ram[index];
 }
 
-unsigned char cpu_write_ram(struct cpu *cpu, int index, unsigned char value)
+unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
   return cpu->ram[index] = value;
 }
@@ -31,7 +31,7 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
-    cpu_write_ram(cpu, address++, data[i]);
+    cpu_ram_write(cpu, address++, data[i]);
   }
 
   // TODO: Replace this with something less hard-coded
@@ -73,6 +73,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  
   // TODO: Zero registers and RAM
 }
