@@ -46,7 +46,7 @@ This code above requires the implementation of three instructions:
   register.
 * `HLT`: halt the CPU and exit the emulator.
 
-See [the LS-8 spec](../LS8-SPEC.md) for more details.
+See [the LS-8 spec](../LS8-spec.md) for more details.
 
 The above program is already hardcoded into the source file `cpu.c`. To run it,
 you will eventually:
