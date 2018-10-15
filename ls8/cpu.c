@@ -29,6 +29,14 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+void cpu_ram_read() {
+  //accesses ram array
+}
+
+void cpu_ram_write() {
+
+}
+
 /**
  * ALU
  */
