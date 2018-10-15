@@ -50,9 +50,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case LOAD_VALUE:
       cpu->registers[(int)regA] = regB;
       break;
-    case NOTHING:
+    case PRINT_VALUE:
+      printf("\nValue at register %d is: %d\n", (int)regA, cpu->registers[(int)regA]);
       break;
-
+    case HALT:
+      break;
     default:
       printf("Default case called in alu\n");
     // TODO: implement more ALU ops
@@ -67,34 +69,46 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
+
     // 1. Get the value of the current instruction (in address PC).
     int pc = cpu->pc;
     unsigned int binary_instruction = cpu_ram_read(cpu, pc);
-    printf("Binary_instruction: %d\n", binary_instruction);
     unsigned int operandA = cpu_ram_read(cpu, pc + 1);
     unsigned int operandB = cpu_ram_read(cpu, pc + 2);
     enum alu_op instruction;
+
+
     // 2. switch() over it to decide on a course of action.
-    
     switch (binary_instruction)
     {
       case LDI:
-        printf("LDI called!!!");
         instruction = LOAD_VALUE;
         break;
-    
+      case PRN:
+        instruction = PRINT_VALUE;
+        break;
+      case HLT:
+        instruction = HALT;
+        break;
       default:
         instruction = NOTHING;
         break;
     }
+
+
     // 3. Do whatever the instruction should do according to the spec.
     alu(cpu, instruction, operandA, operandB);
-    // 4. Move the PC to the next instruction.
-    int index_increment = (int) (binary_instruction >> 6);
+
+
+    // 4. Move the PC to the next instruction. Add 1 to account for instruction argument
+    int index_increment = (int) (binary_instruction >> 6) + 1;
+
     cpu->pc = cpu->pc + index_increment;
-    
-    running = 0;
+
+
+    if(instruction == HALT){
+      running = 0;
+    }
   }
 }
 
