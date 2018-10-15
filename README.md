@@ -10,7 +10,7 @@
 - [X] Inventory what is here
 - [X] Implement `struct cpu` in `cpu.h`
 - [X] Add RAM functions
-- [ ] Implement the core of `cpu_run()`
+- [X] Implement the core of `cpu_run()`
 - [ ] Implement the `HLT` instruction handler
 - [ ] Add the `LDI` instruction
 - [ ] Add the `PRN` instruction
