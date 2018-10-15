@@ -62,6 +62,9 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+  * cpu.h: Declare cpu struct, arithmetic logic unit, and 3 functions cpu_load, cpu_init, and cpu_run
+  * cpu.c: Implementation of functions alu, cpu_load, cpu_init, and cpu_run
+  * ls8.c: Program execution by calling cpu_init, cpu_load, cpu_run with cpu as argument.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
