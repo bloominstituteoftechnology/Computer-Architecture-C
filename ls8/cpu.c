@@ -99,6 +99,10 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
 
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
       default:
         fprintf(stderr, "ERROR finding instruction");
         exit(1);
