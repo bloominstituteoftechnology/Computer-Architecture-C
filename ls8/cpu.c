@@ -1,10 +1,23 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
+void cpu_ram_read()
+{
+
+}
+
+void cpu_ram_write()
+{
+
+}
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -53,6 +66,35 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    unsigned char IR = cpu->ram[cpu->PC];
+
+    unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xff];
+    unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xff];
+
+    int instruction_set_pc = (IR >> 4) & 1;
+
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+
+      default:
+        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+        break;
+    }
+    if (!instruction_set_pc)
+    {
+      cpu->PC += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
