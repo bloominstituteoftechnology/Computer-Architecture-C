@@ -76,12 +76,10 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     case HLT:
       running = 0;
-      printf("\nENDING PROPERLY\n");
       break;
 
     case LDI:
       cpu->reg[operandA] = operandB;
-      // printf("\nREG 0: %d\n", cpu->reg[0]);
       cpu->PC += 3;
       break;
 
@@ -95,8 +93,6 @@ void cpu_run(struct cpu *cpu)
       exit(1);
     }
     // 4. Move the PC to the next instruction.
-
-    // cpu->PC += 3;
   }
 }
 
