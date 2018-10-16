@@ -65,10 +65,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
-    // TODO: implement more ALU ops
+    default:
+      printf("Invalid ALU instruction");
+      exit(3);
   }
 }
 
@@ -102,6 +104,10 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         printf("Halting\n");
         running = 0;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       default:
