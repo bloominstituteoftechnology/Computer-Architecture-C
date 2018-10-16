@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define DATA_LEN 255
+#define STACK_POINTER 7  // Define the register reserved for the stack pointer
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar)
@@ -41,7 +42,8 @@ void cpu_load(struct cpu *cpu, char* fileName)
     unsigned char num;
     num = strtoul(data, NULL, 2);
 
-    cpu->ram[i] = num;
+    cpu_ram_write(cpu, i, num);     // Write binary instructions to ram
+
     i++;
   }
   
@@ -94,6 +96,17 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         instruction = ALU_MUL;
         break;
+      case PUSH:
+        cpu_ram_write(cpu, cpu->registers[STACK_POINTER]--, cpu->registers[operandA]);
+        break;
+      case POP:
+      {
+        unsigned int stack_val = cpu_ram_read(cpu, ++cpu->registers[STACK_POINTER]); // stack pointer sits at empty slot for push, increment first to get last pushed item
+        cpu->ram[cpu->registers[STACK_POINTER]] = 0;    // Set the value in ram (stack) to 0 (cuz popped)
+        cpu->registers[operandA] = stack_val;     // Could maybe recycle LDI function to do this
+        break;
+      }
+
       case HLT:
         running = 0;
         break;
@@ -123,11 +136,14 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+  int BEGIN_STACK = 0xF4;
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
   // TODO: Zero registers and RAM
   
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
+
+  cpu->registers[STACK_POINTER] = BEGIN_STACK;
 
 }
