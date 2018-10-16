@@ -7,23 +7,44 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  FILE *fp;
+  char line[1024];
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  fp = fopen(file, "r");
+  if (fp == NULL) {
+    printf("The file you are looking for doesn't exist\n");
   }
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    // printf("%s", line);
+    if (line[0] == '\n' || line[0] == '#') {
+      continue;
+    }
+
+    unsigned char b;
+    b = strtoul(line, NULL, 2);
+    cpu->ram[address++] = b;
+    // printf("%02X\n", b);
+  }
+
+  fclose(fp);
+
+  // HARD CODED/OLD CODE
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // }; 
+  // int address = 0;
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -44,7 +65,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -76,6 +97,9 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         printf("Halting...\n");
         running = 0;
+        break;      
+      case MUL:
+        alu(cpu, ALU_MUL, argv[0], argv[1]);
         break;      
       default:
         printf("Unknown instructions: %d", cpu->IR);

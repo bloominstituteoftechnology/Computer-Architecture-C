@@ -4,13 +4,17 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
   struct cpu cpu;
 
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+  if (argc == 1) {
+    printf(" \033[0;31mERROR\033[0m Usage: ./ls8 [program]\n");
+  } else {
+    cpu_init(&cpu);
+    cpu_load(&cpu, argv[1]);
+    cpu_run(&cpu);
+  }
 
   return 0;
 }
