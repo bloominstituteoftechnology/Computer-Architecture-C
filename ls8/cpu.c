@@ -60,7 +60,6 @@ void cpu_run(struct cpu *cpu)
 {
   
   int running = 1; // True until we get a HLT instruction
-  
 
   while (running) {
     // TODO
@@ -78,9 +77,11 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         printf("Loading program...\n");
         cpu->reg[operandA] = operandB;
+        cpu->PC += 3;
         break;
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
         break;
       case HLT:
         printf("...Halting program\n");
