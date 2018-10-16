@@ -73,11 +73,11 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case LDI:
-      cpu_ram_write(cpu, operandA, operandB);
+      cpu->registers[operandA] = operandB;
       break;
 
     case PRN:
-      printf("%d\n", cpu_ram_read(cpu, operandA));
+      printf("%d\n", cpu->registers[operandA]);
       break;
 
     case HLT:

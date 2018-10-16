@@ -4,8 +4,15 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
+
+  // if (argc != 2)
+  // {
+  //   fprintf(stderr, "usage: ls8 .ls8 file\n");
+  //   exit(2);
+  // }
+
   struct cpu cpu;
 
   cpu_init(&cpu);
