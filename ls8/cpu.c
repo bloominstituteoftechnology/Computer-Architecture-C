@@ -66,11 +66,53 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+       // `IR`: Instruction Register, contains a copy of the currently executing instruction
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
+
+
+     // True if this instruction might set the PC
+    int instruction_set_pc = (IR >> 4) & 1;
+
+
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
+
+    switch(IR)
+    {
+       // `LDI`: load "immediate", store a value in a register, or "set this register to.
+      case LDI:
+        void
+
+       // `PRN`: a pseudo-instruction that prints the numeric value stored in a register.
+      case PRN:
+        void
+
+       // `HLT`: halt the CPU and exit the emulator.
+      case HLT:
+        void
+
+
+      default:
+        fprintf(strderr, "ERROR: Unknown Instruction\n from cpu_run() in cpu.c\n PC: %02x\n IR: %02X\n", cpu->PC, IR);
+        exit(3);
+    } // <-- END OF switch -->
+
+
     // 4. Move the PC to the next instruction.
-  }
-}
+
+       // `>>` (right shift) Takes two numbers, right shifts the bits of the first operand, the second operand decides the number of places to shift.
+       // `&` (bitwise AND) Takes two numbers as operands and does AND on every bit of two numbers. The result of AND is 1 only if both bits are 1.
+       // https://www.geeksforgeeks.org/bitwise-operators-in-c-cpp/
+
+    if (!instruction_set_pc)
+    {
+      cpu->PC += ((IR >> 6) & 0x3) +1;
+    }
+
+  } // <-- END OF while loop -->
+} // <-- END OF cpu_run() -->
 
 /**
  * Initialize a CPU struct

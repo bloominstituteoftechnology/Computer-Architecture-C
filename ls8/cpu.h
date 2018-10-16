@@ -5,6 +5,7 @@
 struct cpu {
   // TODO
   // PC
+     // `PC`: Program Counter, address of the currently executing instruction
   unsigned char PC:
   // registers (array)
   unsigned char reg[8]
