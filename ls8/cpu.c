@@ -83,15 +83,18 @@ void cpu_run(struct cpu *cpu)
     {
        // `LDI`: load "immediate", store a value in a register, or "set this register to.
       case LDI:
-        void
+        cpu->reg[operandA] = operandB;
+        break;
 
        // `PRN`: a pseudo-instruction that prints the numeric value stored in a register.
       case PRN:
-        void
+        printf("%d\n", cpu->reg[operandA]);
+        break;
 
        // `HLT`: halt the CPU and exit the emulator.
       case HLT:
-        void
+        running = 0;
+        break;
 
 
       default:
