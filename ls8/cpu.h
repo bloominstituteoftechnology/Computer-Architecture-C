@@ -11,7 +11,7 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL = 0b10100010,
+	ALU_MUL = 0b10100010
   // ALU_ADD = 0b10100000,
   // ALU_DEC = 0b01100110,
   // ALU_DIV = 0b10100011,
@@ -35,6 +35,7 @@ enum alu_op {
 #define PRN 0b01000111
 #define HLT 0b00000001
 #define LDI 0b10000010
+#define MUL 0b10100010
 
 // enum non_alu_op {
 //   NOP = 0b0000,
