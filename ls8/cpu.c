@@ -92,12 +92,14 @@ void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  printf("Popping\n");
+  cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
 }
 
 void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  printf("Pushing\n");
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = cpu->registers[operandA];
 }
 
 void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
