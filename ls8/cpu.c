@@ -1,14 +1,31 @@
 #include "cpu.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-#include "./examples/print8.ls8"
+FILE *fileptr;
+char *filename = "./examples/print8.ls8";
+char *newdata;
+
 
 void cpu_load(struct cpu *cpu)
 {
+  // fileptr = fopen(filename, "r");
+  // if (filename==NULL) {
+  //   printf("error opening file %s\n", filename);
+  // } else {
+  //   printf("file opened successfully.");
+  //   int i = 0;
+  //   while (fgets(newdata, 300, fileptr)) {
+  //   i++;
+  //   printf("%s\n", newdata);
+  //   }
+  // }
+
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -24,18 +41,23 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
+    printf("%s", cpu->ram);
   }
 
   // TODO: Replace this with something less hard-coded
 }
 
-void cpu_ram_read() {
-  //accesses ram array
+void cpu_ram_write(struct cpu *cpu)
+{
+  *cpu->ram[0] = "tested";
 }
 
-void cpu_ram_write() {
-
+void cpu_ram_read(struct cpu *cpu)
+{
+  printf("%d\n", *cpu->ram[0]);
 }
+
+
 
 /**
  * ALU
@@ -75,4 +97,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
+
 }
