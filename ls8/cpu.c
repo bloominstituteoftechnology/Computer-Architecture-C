@@ -2,6 +2,13 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
+{
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu)
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -50,6 +57,13 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    IR = cpu_ram_read(cpu, cpu->PC);
+    operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
+
+    
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -62,6 +76,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu->ram, 0);
+  memset(cpu->reg, 0, sizeof cpu->reg, 0);
+
+  cpu->reg[7] = 0b11110100;
 }
