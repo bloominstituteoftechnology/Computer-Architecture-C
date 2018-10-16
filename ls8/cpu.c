@@ -3,8 +3,6 @@
 #include <string.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
-
 unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
   return cpu->ram[index];
@@ -18,25 +16,30 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char line[1024];
+  int address = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+
+    if (endchar == line)
+    {
+      continue;
+    }
+
+    cpu->ram[address++] = byte;
+  }
 }
 
 /**
@@ -71,8 +74,8 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
 
     unsigned char IR = ram[cpu->PC];
-    unsigned char operandA = ram[cpu->PC + 1];
-    unsigned char operandB = ram[cpu->PC + 2];
+    unsigned char operandA = ram[(cpu->PC + 1) & 0xff];
+    unsigned char operandB = ram[(cpu->PC + 2) & 0xff];
 
     int instr_set_pc = (IR >> 4) & 1;
 
@@ -80,6 +83,10 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:
         reg[operandA] = operandB;
+        break;
+
+      case MUL:
+        reg[operandA] *= reg[operandB];
         break;
       
       case PRN:
@@ -92,6 +99,7 @@ void cpu_run(struct cpu *cpu)
 
       default:
         fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+        running = 0;
         break;
     }
 
