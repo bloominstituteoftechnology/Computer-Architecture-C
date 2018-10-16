@@ -2,11 +2,15 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
+// funcs in ls8.c are also declared here
+
 struct cpu {
-  // TODO
-  // PC
+  // PC (program counter)
+  unsigned char PC;
   // registers (array)
+  unsigned char reg[8];
   // ram (array)
+  unsigned char ram[256];
 };
 
 // ALU operations
