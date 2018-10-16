@@ -94,8 +94,16 @@ void cpu_run(struct cpu *cpu)
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-      
+        break;
+
+      case MUL:
+        printf("Command is MUL....\n");
+        cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
+        
+        break;
+
       case HLT:
+        printf("Command is HLT! \n");
         running = 0;
         break;
     }
