@@ -36,7 +36,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     cpu->ram[address++] = strtol(line, NULL, 2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(file);
 }
 
 /**
