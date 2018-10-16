@@ -95,12 +95,16 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
 
-      case HLT:
-        running = 0;
-        break;
-
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case HLT:
+        running = 0;
         break;
 
       default:
