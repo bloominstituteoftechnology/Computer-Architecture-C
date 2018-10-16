@@ -52,13 +52,16 @@ void cpu_load(struct cpu *cpu, char* fileName)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
-    default:
-      printf("Unknown instruction\n");
-    // TODO: implement more ALU ops
+  switch (op) 
+  {
+      case ALU_MUL:
+      {
+        unsigned char product = cpu->registers[regA] * cpu->registers[regB];
+        cpu->registers[regA] = product;
+      }
+        
+      default:
+        break;
   }
 }
 
@@ -73,9 +76,9 @@ void cpu_run(struct cpu *cpu)
 
     // 1. Get the value of the current instruction (in address PC).
     int pc = cpu->pc;
-    unsigned int binary_instruction = cpu_ram_read(cpu, pc);
-    unsigned int operandA = cpu_ram_read(cpu, pc + 1);
-    unsigned int operandB = cpu_ram_read(cpu, pc + 2);
+    unsigned char binary_instruction = cpu_ram_read(cpu, pc);
+    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
     enum alu_op instruction;
 
 
@@ -87,6 +90,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         printf("\nValue at register %d is: %d\n", operandA, cpu->registers[operandA]);
+        break;
+      case MUL:
+        instruction = ALU_MUL;
         break;
       case HLT:
         running = 0;
@@ -103,7 +109,6 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, instruction, operandA, operandB);
     }
     
-
 
     // 4. Move the PC to the next instruction. Add 1 to account for instruction argument
     int index_increment = (int) (binary_instruction >> 6) + 1;
