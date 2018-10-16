@@ -66,6 +66,33 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+#### File Inventory:
+
+* `/examples`: Code instructions to be referenced when performing different tasks.
+* `cpu.c`: 
+  * `cpu_ram_read/write`: read and write addresses to ram
+  * `cpu_load`: loads the binary bytes from a .ls8 source file into a RAM array (currently hard-coded)
+  * `alu`:
+  * `cpu_run`: runs the CPU
+    1. Get the value of the current instruction (in address PC).
+    2. switch() over it to decide on a course of action.
+    3. Do whatever the instruction should do according to the spec.
+    4. Move the PC to the next instruction.
+  * `cpu_init`: initializes a CPU struct, the PC, and other special registers
+
+* `cpu.h`: Holds all information about the CPU.
+  * holds information in CPU struct
+  * `alu_up`:
+  * `LDI` and other instructions will be defined here
+* `ls8.c`: main() runs here
+  * runs `cpu_init`, `cpu_load`, `cpu_run`
+* `Makefile`: 
+  * Assigns all the .c files to SRC
+  * Assigns all the .h files to HEADERS
+  * Assigns all the SRC and HEADERS to DEPS
+  * Runs gcc -Wall -Wextra -g -o with SRC as the last value
+* `/asm`: looks like tests, could be some nuggets in there
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
@@ -91,23 +118,13 @@ We'll make use of these helper function later.
 This is the workhorse function of the entire processor. It's the most difficult
 part to write.
 
-It needs to read the memory address that's stored in register `PC`, and store
-that result in `IR`, the _Instruction Register_. This can just be a local
-variable in `cpu_run()`.
+It needs to read the memory address that's stored in register `PC`, and store that result in `IR`, the _Instruction Register_. This can just be a local variable in `cpu_run()`.
 
-Some instructions requires up to the next two bytes of data _after_ the `PC` in
-memory to perform operations on. Sometimes the byte value is a register number,
-other times it's a constant value (in the case of `LDI`). Using
-`cpu_ram_read()`, read the bytes at `PC+1` and `PC+2` from RAM into variables
-`operandA` and `operandB` in case the instruction needs them.
+Some instructions requires up to the next two bytes of data _after_ the `PC` in memory to perform operations on. Sometimes the byte value is a register number, other times it's a constant value (in the case of `LDI`). Using `cpu_ram_read()`, read the bytes at `PC+1` and `PC+2` from RAM into variables `operandA` and `operandB` in case the instruction needs them.
 
-Then, depending on the value of the opcode, perform the actions needed for the
-instruction per the LS-8 spec. Maybe a `switch` statement...? Plenty of options.
+Then, depending on the value of the opcode, perform the actions needed for the instruction per the LS-8 spec. Maybe a `switch` statement...? Plenty of options.
 
-After the handler returns, the `PC` needs to be updated to point to the next
-instruction for the next iteration of the loop in `cpu_run()`. The number of
-bytes an instruction uses can be determined from the two high bits (bits 6-7) of
-the instruction opcode. See the LS-8 spec for details.
+After the handler returns, the `PC` needs to be updated to point to the next instruction for the next iteration of the loop in `cpu_run()`. The number of bytes an instruction uses can be determined from the two high bits (bits 6-7) of the instruction opcode. See the LS-8 spec for details.
 
 ## Step 4: Implement the `HLT` instruction handler
 

@@ -1,6 +1,19 @@
 #include "cpu.h"
-
+#include <stdio.h>
 #define DATA_LEN 6
+
+/**
+ * read from and write data to RAM
+ */
+unsigned char cpu_ram_read(struct cpu* cpu, unsigned char address)
+{
+    return cpu->ram[ address ];
+}
+ void cpu_ram_write(struct cpu* cpu, unsigned char address, unsigned char value)
+{
+    cpu->ram[ address ] = value;
+}
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -45,7 +58,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+  
   int running = 1; // True until we get a HLT instruction
+  
 
   while (running) {
     // TODO
@@ -53,6 +68,25 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    switch(IR)
+    {
+      case LDI:
+        printf("Loading program...\n");
+        cpu->reg[operandA] = operandB;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+      case HLT:
+        printf("...Halting program\n");
+        running = 0;
+        break;
+    }
   }
 }
 
@@ -62,6 +96,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
 }
