@@ -1,5 +1,7 @@
 ls8
 
+.env
+
 # Prerequisites
 *.d
 
