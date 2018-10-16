@@ -84,7 +84,6 @@ void cpu_run(struct cpu *cpu)
       break;
     }
     // 3. Do whatever the instruction should do according to the spec.
-
     // 4. Move the PC to the next instruction.
     cpu->PC += (IR >> 6) + 1;
   }
