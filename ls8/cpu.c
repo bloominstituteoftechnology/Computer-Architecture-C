@@ -30,6 +30,16 @@ void cpu_load(struct cpu *cpu, char *argv[])
     if (!(*read == *endptr))
       cpu_ram_write(cpu, address++, initial);
   }
+};
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
 }
 
 /**
