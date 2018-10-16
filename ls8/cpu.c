@@ -67,7 +67,7 @@ void cpu_run(struct cpu *cpu)
         PC+=difference;
         break;
       case PRN:
-        printf("%d\n", reg[operandA]);
+        printf("\nValue at register %d is: %d\n", reg[operandA]);
         PC+=difference;
         break;
       case MUL:
