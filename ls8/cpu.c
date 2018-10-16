@@ -3,14 +3,14 @@
 #define DATA_LEN 6
 
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
-  return cpu->ram[index];
+  return cpu->ram[mar];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
-  return cpu->ram[index] = value;
+  cpu->ram[mar] = mdr;
 }
 
 /**
@@ -68,29 +68,29 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    printf("%d\n", cpu->PC);
+    unsigned char operand_a = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
+    unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
+    int add_to_pc = (IR >> 6) + 1;
+    printf("PC is at %d\n\n", cpu->PC);
 
     switch (IR)
     {
     case LDI:
-      printf("CPU stored a value\n");
-      unsigned char operand_a = cpu_ram_read(cpu, cpu->PC += 1);
-      unsigned char operand_b = cpu_ram_read(cpu, cpu->PC += 1);
+      printf("LDI: CPU stored a value\n\n");
       cpu_ram_write(cpu, operand_a, operand_b);
-      cpu->PC += 1;
       break;
     case PRN:
-      printf("Print value %d\n", cpu->ram[0]);
-      cpu->PC += 2;
+      printf("PRN: Print value %d\n\n", cpu->ram[0]);
       break;
     case HLT:
-      printf("Program has halted\n");
+      printf("HLT: Program has halted\n\n");
       running = 0;
-      break;
+      exit(0);
     default:
-      printf("instruction does not exist\n");
+      printf("instruction does not exist\n\n");
       exit(1);
     }
+      cpu->PC += add_to_pc;
   }
 }
 
@@ -101,6 +101,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-
   // TODO: Zero registers and RAM
+  memset(cpu->ram,0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
+
+  cpu->registers[7] = 0b11110100;
 }
