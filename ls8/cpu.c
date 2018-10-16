@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -72,6 +73,10 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       cpu->registers[operandA] = operandB;
+      break;
+
+    case MUL:
+      cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
       break;
 
     case PRN:
