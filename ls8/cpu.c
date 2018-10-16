@@ -67,7 +67,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1); // 1st byte
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2); // 2nd byte
 
-
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
