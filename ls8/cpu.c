@@ -2,6 +2,9 @@
 
 #define DATA_LEN 6
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * HELPER FUNCTIONS
  *  cpu_ram_read()
@@ -67,9 +70,9 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
        // `IR`: Instruction Register, contains a copy of the currently executing instruction
-    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
 
 
      // True if this instruction might set the PC
@@ -98,7 +101,7 @@ void cpu_run(struct cpu *cpu)
 
 
       default:
-        fprintf(strderr, "ERROR: Unknown Instruction\n from cpu_run() in cpu.c\n PC: %02x\n IR: %02X\n", cpu->PC, IR);
+        fprintf(stderr, "ERROR: Unknown Instruction\n from cpu_run() in cpu.c\n PC: %02x\n IR: %02X\n", cpu->PC, IR);
         exit(3);
     } // <-- END OF switch -->
 
