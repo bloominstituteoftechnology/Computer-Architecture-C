@@ -130,6 +130,8 @@ the LS-8 spec.
 
 *At this point, you should be able to run the program and have it print `8` to
 the console!*
+  > dir: `/Computer-Architecture/ls8$`  
+  > command: `./ls8 examples/print8.ls8`
 
 ## Step 7: Un-hardcode the machine code
 
