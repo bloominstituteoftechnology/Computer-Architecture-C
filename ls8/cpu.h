@@ -10,7 +10,7 @@ struct cpu {
 
   unsigned char PC;
   unsigned char reg[8];
-  unsigned char ram[255];
+  unsigned char ram[256];
 
 };
 
@@ -19,6 +19,10 @@ enum alu_op {
 	ALU_MUL
 	// Add more here
 };
+
+// Memory locations
+#define ADDR_PROGRAM_ENTRY 0x00 // Where the program starts getting loaded
+#define ADD_EMPTY_STACK 0xF4 // Where SP is on empty stack
 
 // Instructions
 
@@ -32,7 +36,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
