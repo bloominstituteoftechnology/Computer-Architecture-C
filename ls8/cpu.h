@@ -16,6 +16,10 @@ enum alu_op {
 	// Add more here
 };
 
+#define SP 5
+
+#define ADDR_PROGRAM_ENTRY 0x00
+#define ADDR_EMPTY_STACK 0xF4
 // Instructions
   
 // These use binary literals. If these aren't available with your compiler, hex
