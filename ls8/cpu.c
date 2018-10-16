@@ -72,6 +72,19 @@ void cpu_run(struct cpu *cpu)
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
     // 2. switch() over it to decide on a course of action.
+    switch(IR) {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     cpu->PC += add_to_pc;
