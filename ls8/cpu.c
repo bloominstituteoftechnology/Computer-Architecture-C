@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -50,30 +52,37 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1;
 
   while (running) {
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
-    switch() {
-      
+    switch(IR) {
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        running = 0;
+        cpu->PC += 1;
+        break;
     }
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-
-  // TODO: Zero registers and RAM
+  cpu->PC = 0;
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
 }
