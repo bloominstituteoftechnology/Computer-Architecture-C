@@ -148,18 +148,15 @@ the console!*
 
 ## Step 7: Un-hardcode the machine code
 
-In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded
-into the source. This isn't particularly user-friendly.
+In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded into the source. This isn't particularly user-friendly.
 
-Make changes to `cpu.c` and `ls8.c` so that the program can be specified on the
-command line like so:
+Make changes to `cpu.c` and `ls8.c` so that the program can be specified on the command line like so:
 
 ```
 ./ls8 examples/mult.ls8
 ```
 
-(The programs `print8.ls8` and `mult.ls8` are provided in the `examples/`
-directory for your convenience.)
+(The programs `print8.ls8` and `mult.ls8` are provided in the `examples/` directory for your convenience.)
 
 For processing the command line, the signature of `main()` should be changed to:
 
@@ -167,8 +164,7 @@ For processing the command line, the signature of `main()` should be changed to:
 int main(int argc, char *argv[])
 ```
 
-`argc` is the argument count, and `argv` is an array of strings that hold the
-individual arguments, starting with the command name itself.
+`argc` is the argument count, and `argv` is an array of strings that hold the individual arguments, starting with the command name itself.
 
 If the user runs `./ls8 examples/mult.ls8`, the values in `argv` will be:
 
