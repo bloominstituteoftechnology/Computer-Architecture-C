@@ -3,6 +3,22 @@
 #define DATA_LEN 6
 
 /**
+ * HELPER FUNCTIONS
+ *  cpu_ram_read()
+ *  cpu_ram_write()
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) 
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
@@ -65,3 +81,8 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Zero registers and RAM
 }
+
+/**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
+
