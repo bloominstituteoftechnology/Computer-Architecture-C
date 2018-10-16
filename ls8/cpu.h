@@ -4,9 +4,9 @@
 // Holds all information about the CPU
 struct cpu
 {
-  unsigned char pc;
-  unsigned char reg[8];
-  unsigned char ram[256];
+  unsigned char PC;       // Program Counter
+  unsigned char reg[8];   // 8 Registers
+  unsigned char ram[256]; // 256 bytes of ram.
   // TODO
   // PC
   // registers (array)
@@ -14,7 +14,7 @@ struct cpu
 };
 
 // ALU operations
-enum alu_op
+enum alu_op // enum is making a new integer type.
 {
   ALU_MUL
   // Add more here
