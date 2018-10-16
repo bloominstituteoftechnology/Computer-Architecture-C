@@ -17,7 +17,6 @@ struct cpu
 enum alu_op
 {
   ALU_MUL,
-  ALU_ADD
   // Add more here
 };
 
