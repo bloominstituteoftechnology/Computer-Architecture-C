@@ -81,6 +81,7 @@ void cpu_run(struct cpu *cpu)
       printf("\nValue at register %d: %d\n", operandA, cpu->reg[operandA]);
     case (HLT):
       running = 0;
+      break;
     }
     // 3. Do whatever the instruction should do according to the spec.
 
