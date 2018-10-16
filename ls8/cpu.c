@@ -73,9 +73,9 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 
-    unsigned char IR = ram[cpu->PC];
-    unsigned char operandA = ram[(cpu->PC + 1) & 0xff];
-    unsigned char operandB = ram[(cpu->PC + 2) & 0xff];
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
     int instr_set_pc = (IR >> 4) & 1;
 
