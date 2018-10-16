@@ -37,17 +37,8 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++) {
     // printf("value in address: %d", cpu->ram[address]);
-    printf("Data that will be placed into RAM: %hhX\n", data[i]);
     cpu->ram[address++] = data[i];
   }
-
-    printf("Data in RAM0: %x\n", cpu->ram[0]);
-    printf("Data in RAM1: %x\n", cpu->ram[1]);
-    printf("Data in RAM2: %x\n", cpu->ram[2]);
-    printf("Data in RAM3: %x\n", cpu->ram[3]);
-    printf("Data in RAM4: %x\n", cpu->ram[4]);
-    printf("Data in RAM5: %x\n", cpu->ram[5]);
-    printf("Data in RAM6: %x\n", cpu->ram[6]);
 
   // TODO: Replace this with something less hard-coded
 }
