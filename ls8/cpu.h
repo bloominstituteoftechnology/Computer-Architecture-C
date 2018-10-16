@@ -55,11 +55,13 @@ typedef enum alu_op {
 #define SUB  0b10100001
 #define XOR  0b10101011
 
+#define MAX 255
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

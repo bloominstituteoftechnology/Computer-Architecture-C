@@ -1,36 +1,32 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-#define DATA_LEN 6
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8  /* instruction */
-    0b00000000, /* argument 1 */
-    0b00001000, /* argument 2 */
-    0b01000111, // PRN R0 /* instruction */
-    0b00000000, /* argument 1 */
-    0b00000001  // HLT /* instruction */
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp;
+  char line[256];
+  int counter = 0;
+  char *ptr;
+   if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(1);
   }
-
+    while (fgets(line, sizeof(line), fp) != NULL) {
+      cpu->ram[counter++] = strtoul(line, &ptr, 2);
+    }
   // TODO: Replace this with something less hard-coded
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, int index){
   return cpu->ram[index];
 }
+void cpu_ram_write(struct cpu *cpu);
 
 
 
@@ -60,6 +56,7 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
     unsigned char IR = cpu_ram_read(cpu, PC);
+    int difference = (IR >> 6) + 1;
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
 
@@ -67,11 +64,15 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:
         reg[operandA] = operandB;
-        PC+=3;
+        PC+=difference;
         break;
       case PRN:
         printf("%d\n", reg[operandA]);
-        PC+=2;
+        PC+=difference;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        PC+= difference;
         break;
       case HLT:
         running = 0;
@@ -93,9 +94,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
-
-  memset(cpu->reg, 0, sizeof cpu->reg);
-  memset(cpu->ram, 0, sizeof cpu->ram);
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
