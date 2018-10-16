@@ -1,29 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char line[1024];
+  int address = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+
+    if (endchar == line)
+    {
+      continue;
+    }
+
+    cpu->ram[address++] = byte;
+  }
 }
 
 /**
@@ -47,12 +63,50 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    int instr_set_pc = (IR >> 4) & 1;
+
+    switch (IR)
+    {
+      case LDI:
+        reg[operandA] = operandB;
+        break;
+
+      case MUL:
+        reg[operandA] *= reg[operandB];
+        break;
+      
+      case PRN:
+        printf("%d\n", reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+
+      default:
+        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+        running = 0;
+        break;
+    }
+
+    if (!instr_set_pc)
+    {
+      cpu->PC += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
