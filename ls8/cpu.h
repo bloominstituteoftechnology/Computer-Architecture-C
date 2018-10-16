@@ -5,10 +5,13 @@
 struct cpu {
   // TODO
   // PC
+
+  int fl;
+  // int iFL
   // registers (array)
   // ram (array)
   unsigned char pc;
-  unsigned char registers[8];
+  unsigned char reg[8];
   unsigned char ram[256];
 };
 
