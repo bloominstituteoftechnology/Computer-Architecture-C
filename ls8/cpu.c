@@ -64,11 +64,28 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
-    // TODO
+    //PC
+    int pc = cpu->PC;
+
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, pc); //instruction register
+    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
+
     // 2. switch() over it to decide on a course of action.
+    switch (IR)
+    {
+    case (LDI):
+      cpu->reg[operandA] = operandB;
+    case (PRN):
+      printf("\nValue at register %d: %d\n", operandA, cpu->reg[operandA]);
+    case (HLT):
+      running = 0;
+    }
     // 3. Do whatever the instruction should do according to the spec.
+
     // 4. Move the PC to the next instruction.
+    cpu->PC += (IR >> 6) + 1;
   }
 }
 
