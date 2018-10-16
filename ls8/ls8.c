@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
 
   if (argc != 2)
   {
-    fprintf(stderr, "usage: ls8 .ls8 file\n");
-    exit(2);
+    fprintf(stderr, "usage: ./ls8 .ls8 file\n");
+    exit(1);
   }
 
   struct cpu cpu;
