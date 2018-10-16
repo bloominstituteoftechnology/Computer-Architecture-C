@@ -1,5 +1,7 @@
 #include "cpu.h"
+#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define DATA_LEN 6
 
 /**
@@ -44,7 +46,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
-  printf("IN READ INDEX, IR %d\t%d", index, cpu->PC);
   return cpu->ram[index];
 }
 
@@ -64,9 +65,38 @@ void cpu_run(struct cpu *cpu)
   {
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    // printf("\n\nHERE WE GO!\n\tIR %d\n\topA %d\n\topB %d\n\tPC %d\n", IR, operandA, operandB, cpu->PC);
+
     // 2. switch() over it to decide on a course of action.
+    switch (IR)
+    {
     // 3. Do whatever the instruction should do according to the spec.
+    case HLT:
+      running = 0;
+      printf("\nENDING PROPERLY\n");
+      break;
+
+    case LDI:
+      cpu->reg[operandA] = operandB;
+      // printf("\nREG 0: %d\n", cpu->reg[0]);
+      cpu->PC += 3;
+      break;
+
+    case PRN:
+      printf("%d\n", cpu->reg[operandA]);
+      cpu->PC += 2;
+      break;
+
+    default:
+      printf("\nBad code\n\n");
+      exit(1);
+    }
     // 4. Move the PC to the next instruction.
+
+    // cpu->PC += 3;
   }
 }
 
@@ -76,6 +106,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
 }
