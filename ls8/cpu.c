@@ -26,7 +26,7 @@ void cpu_load(struct cpu *cpu, char* fileName)
   FILE* file_ptr;
   if((file_ptr = fopen(fileName, "r")) == NULL)
   {
-    printf("Error opening file!\n");
+    printf("Error opening file!\nPlease include a relative path with filename\n");
     exit(1);
   }
 
