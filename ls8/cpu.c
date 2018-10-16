@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -53,16 +56,32 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    int inst_len = (IR >> 6) + 1;
     // 2. switch() over it to decide on a course of action.
     switch(IR){
+      // 3. Do whatever the instruction should do according to the spec.
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
       case HLT:
         running = 0;
         break;
       default:
-        printf("Instruction does not exist");
+        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+        exit(3);
     }
-    // 3. Do whatever the instruction should do according to the spec.
+    
     // 4. Move the PC to the next instruction.
+    if(!inst_len) {
+      cpu->PC += ((IR >> 6) & 0x3) + 1;
+    }
+    else
+     cpu->PC += inst_len;
+
   }
 }
 
