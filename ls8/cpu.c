@@ -88,6 +88,11 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
 
+    case MUL:
+      cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
+      cpu->PC += 3;
+      break;
+
     default:
       printf("\nBad code\n\n");
       exit(1);
