@@ -64,8 +64,8 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
-    opA = cpu_ram_read(cpu, cpu->PC+1);
-    opB = cpu_ram_read(cpu, cpu->PC+2);
+    opA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    opB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
 
     int add_to_pc = (IR >> 6) + 1;
 
