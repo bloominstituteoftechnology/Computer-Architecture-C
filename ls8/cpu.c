@@ -2,6 +2,16 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -48,11 +58,13 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    switch() {
+      
+    }
   }
 }
 
