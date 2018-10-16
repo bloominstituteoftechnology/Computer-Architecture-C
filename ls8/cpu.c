@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 6
-
 void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -33,7 +31,7 @@ void cpu_load(struct cpu *cpu, char *filename)
       continue;
     }
 
-    cpu->ram[address++] = strtol(line, NULL, 2);
+    cpu_ram_write(cpu, address++, strtol(line, NULL, 2));
   }
 
   fclose(file);
@@ -92,6 +90,16 @@ void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   cpu->registers[operandA] = operandB;
 }
 
+void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("Popping\n");
+}
+
+void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("Pushing\n");
+}
+
 void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
   cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
@@ -124,4 +132,6 @@ void cpu_init(struct cpu *cpu)
   branchTable[MUL] = handle_MUL;
   branchTable[PRN] = handle_PRN;
   branchTable[HLT] = handle_HLT;
+  branchTable[POP] = handle_POP;
+  branchTable[PUSH] = handle_PUSH;
 }
