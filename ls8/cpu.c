@@ -1,41 +1,50 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define DATA_LEN 6
+#define DATA_LEN 255
 
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
+unsigned char cpu_ram_read(struct cpu *cpu, int mar)
 {
-  return cpu->ram[index];
+  return cpu->ram[mar]; //mar = memory address register
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, int mar, unsigned char value)
 {
-  cpu->ram[index] = value;
+  cpu->ram[mar] = value;
 }
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char* fileName)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  char data[DATA_LEN];
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE* file_ptr;
+  if((file_ptr = fopen(fileName, "r")) == NULL)
+  {
+    printf("Error opening file!\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  int i = 0;
+  while(fgets(data, sizeof(data), file_ptr) != NULL)
+  {
+    if(data[0] == '\n' || data[0] == '#')
+    {
+      continue;
+    }
+
+    unsigned char num;
+    num = strtoul(data, NULL, 2);
+
+    cpu->ram[i] = num;
+    i++;
+  }
+  
 }
 
 /**
@@ -47,16 +56,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       break;
-    case LOAD_VALUE:
-      cpu->registers[(int)regA] = regB;
-      break;
-    case PRINT_VALUE:
-      printf("\nValue at register %d is: %d\n", (int)regA, cpu->registers[(int)regA]);
-      break;
-    case HALT:
-      break;
     default:
-      printf("Default case called in alu\n");
+      printf("Unknown instruction\n");
     // TODO: implement more ALU ops
   }
 }
@@ -82,13 +83,13 @@ void cpu_run(struct cpu *cpu)
     switch (binary_instruction)
     {
       case LDI:
-        instruction = LOAD_VALUE;
+        cpu->registers[operandA] = operandB;
         break;
       case PRN:
-        instruction = PRINT_VALUE;
+        printf("\nValue at register %d is: %d\n", operandA, cpu->registers[operandA]);
         break;
       case HLT:
-        instruction = HALT;
+        running = 0;
         break;
       default:
         instruction = NOTHING;
@@ -97,18 +98,18 @@ void cpu_run(struct cpu *cpu)
 
 
     // 3. Do whatever the instruction should do according to the spec.
-    alu(cpu, instruction, operandA, operandB);
+    if(((binary_instruction >> 5) & 0x1) > 0)   // See if 00x00000 bit is 1 (indicating ALU instruction)
+    {
+      alu(cpu, instruction, operandA, operandB);
+    }
+    
 
 
     // 4. Move the PC to the next instruction. Add 1 to account for instruction argument
     int index_increment = (int) (binary_instruction >> 6) + 1;
 
-    cpu->pc = cpu->pc + index_increment;
+    cpu->pc += index_increment;
 
-
-    if(instruction == HALT){
-      running = 0;
-    }
   }
 }
 
@@ -121,14 +122,7 @@ void cpu_init(struct cpu *cpu)
   cpu->pc = 0;
   // TODO: Zero registers and RAM
   
-  for(int i = 0; cpu->registers[i] != '\0'; i++)
-  {
-    cpu->registers[i] = 0;
-  }
-  
-  for(int i = 0;  cpu->ram[i] != '\0'; i++)
-  {
-    cpu->ram[i] = 0;
-  }
-  
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
+
 }
