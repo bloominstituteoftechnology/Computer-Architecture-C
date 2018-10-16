@@ -67,6 +67,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
       break;
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -100,6 +103,9 @@ void cpu_run(struct cpu *cpu)
         break;      
       case MUL:
         alu(cpu, ALU_MUL, argv[0], argv[1]);
+        break;      
+      case ADD:
+        alu(cpu, ALU_ADD, argv[0], argv[1]);
         break;      
       default:
         printf("Unknown instructions: %d", cpu->IR);
