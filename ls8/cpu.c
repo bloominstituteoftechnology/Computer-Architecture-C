@@ -21,6 +21,9 @@ void cpu_load(char *filename, struct cpu *cpu)
   while (fgets(line, sizeof line, fp) != NULL)
   {
     char *endptr = NULL;
+    // note that strtol 2nd parameter is **endptr
+    // this is the address to the pointer
+    // we have that so strtol change update endptr
     unsigned char code = strtol(line, &endptr, 2);
 
     // check for weirdness
@@ -34,6 +37,30 @@ void cpu_load(char *filename, struct cpu *cpu)
   fclose(fp);
 }
 
+/**
+ * Push a value to the stack
+ */
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  unsigned char SP = --cpu->reg[7];
+  // decrement the value in register 7 (SP)
+  //  cpu->reg[7]--;
+
+  // put the value into ram at the index pointed to by R7
+  cpu->ram[SP] = value;
+}
+
+/**
+ * Pop a value from the stack
+ */
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char value = cpu->ram[cpu->reg[7]];
+
+  cpu->reg[7]++;
+
+  return value;
+}
 /**
  * ALU
  */
@@ -119,10 +146,7 @@ void cpu_run(struct cpu *cpu, _Bool show_trace)
     operandB = cpu_ram_read(cpu, (cpu->PC + 2)) & 0xff; // incase PC > 0xFF
 
     if (show_trace)
-    {
       trace(cpu);
-    }
-    // printf("\tPC:%02X\tIR:%02X\tA:%02X\tB:%02X\n", cpu->PC, IR, operandA, operandB);
 
     // get the number of operands and add 1 (for the opcode)
     // AABCDDDD AA is # of operands
@@ -146,6 +170,14 @@ void cpu_run(struct cpu *cpu, _Bool show_trace)
 
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operandA]);
+      break;
+
+    case POP:
+      cpu->reg[operandA] = cpu_pop(cpu);
       break;
 
     default:
