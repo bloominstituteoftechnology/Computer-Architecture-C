@@ -166,6 +166,11 @@ void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   cpu->PC = cpu_pop(cpu);
 }
 
+void handle_ST(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->ram[operandA] = cpu->registers[operandB];
+}
+
 /**
  * Initialize a CPU struct
  */
@@ -192,4 +197,5 @@ void cpu_init(struct cpu *cpu)
   branchTable[CALL] = handle_CALL;
   branchTable[ADD] = handle_ADD;
   branchTable[RET] = handle_RET;
+  branchTable[ST] = handle_ST;
 }

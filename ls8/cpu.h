@@ -32,6 +32,7 @@ enum alu_op
 #define CALL 0b01010000
 #define ADD 0b10100000
 #define RET 0b00010001
+#define ST 0b10000100
 
 #define SP 7
 
