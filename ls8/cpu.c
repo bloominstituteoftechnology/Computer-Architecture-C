@@ -66,6 +66,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
+void pop(struct cpu *cpu, unsigned char reg)
+{
+  cpu->reg[reg] = cpu->reg[7];
+  cpu->reg[7] ++;
+}
+
+void push(struct cpu *cpu, unsigned char reg)
+{
+  cpu->reg[7] --;
+  cpu->reg[7] = cpu->reg[reg];
+}
 
 /**
  * Run the CPU,
@@ -103,6 +114,15 @@ void cpu_run(struct cpu *cpu)
     case HLT:  //Halting
       running = 0;
       exit(0);
+      case ADD:
+        alu(cpu, ALU_ADD, operand_a, operand_b);
+        break;
+      case POP:
+        pop(cpu, operand_a);
+        break;
+      case PUSH:
+        push(cpu, operand_a);
+        break;
     default:
       printf("Does not exist\n\n");
       exit(1);
