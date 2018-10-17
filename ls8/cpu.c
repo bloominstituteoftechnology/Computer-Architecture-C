@@ -13,6 +13,20 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
   cpu->ram[index] = value;
 }
 
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[5]--;
+
+  cpu->ram[cpu->reg[5]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->reg[5]];
+  cpu->reg[5]++;
+  return val;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -87,6 +101,14 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         reg[operandA] *= reg[operandB];
+        break;
+
+      case PUSH:
+        cpu_push(cpu, reg[operandA]);
+        break;
+
+      case POP:
+        reg[operandA] = cpu_pop(cpu);
         break;
       
       case PRN:
