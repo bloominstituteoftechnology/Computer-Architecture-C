@@ -107,12 +107,12 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, argv[0], argv[1]);
         break;
       case PUSH:
-        cpu->registers[7] -= 1;
-        cpu_ram_write(cpu, cpu->registers[7], cpu->registers[argv[0]]);
+        // cpu->registers[7] -= 1;
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[argv[0]]);
         break;
       case POP:
-        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[7]);
-        cpu->registers[7] += 1;
+        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[7]++);
+        // cpu->registers[7] += 1;
         break;
       default:
         printf("incorrect instruction");
