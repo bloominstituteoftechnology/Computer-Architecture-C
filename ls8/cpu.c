@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#define DATA_LEN 6
-
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -14,41 +12,29 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  char data[1024];
   int address = 0;
+  FILE *fp = fopen(filename, "r");
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while(fgets(data, sizeof data, fp) != NULL)
+  {
+    if (data[0] == '\n' || data[0] == '#')
+    {
+      continue;
+    }
+    cpu_ram_write(cpu, address++, strtoul(data, NULL, 2));
   }
-
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
-/**
- * ALU
- */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
-
-    // TODO: implement more ALU ops
   }
 }
 
@@ -70,6 +56,10 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       case HLT:
