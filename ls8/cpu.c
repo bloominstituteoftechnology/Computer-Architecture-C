@@ -6,7 +6,7 @@
 #define DATA_LEN 255
 #define STACK_POINTER 7  // Define the register reserved for the stack pointer
 
-// Helper functions
+// Instruction handlers
 unsigned char cpu_ram_read(struct cpu *cpu, int mar)
 {
 
@@ -42,7 +42,7 @@ int handle_PUSH(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
   (void)regB;
-  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->registers[regA]); // Decrement stack pointer first, then write value (according to spec)
+  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->registers[regA]); // Decrement stack pointer first, then write value in register A to stack (according to spec)
   return 1;
   
 }
@@ -64,6 +64,27 @@ int handle_HALT(struct cpu* cpu, unsigned char regA, unsigned char regB)
   (void)regA;
   (void)regB;
   return 0;
+
+}
+
+int handle_CALL(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  (void)regB;
+  // Push address of next instruction to the stack
+  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->pc + 2);
+  return cpu->registers[regA];                                            // return the value in register A (the pc value of the called function)
+
+}
+
+int handle_RET(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  (void)regA;
+  (void)regB;
+  // Pop pc address of next instruction off of the stack
+  unsigned int return_pc = cpu_ram_read(cpu, cpu->registers[STACK_POINTER]++); // Get the value at stack pointer, then increment
+  return return_pc;                                            // return the pc value of the address just after the previous call
 
 }
 
@@ -118,6 +139,13 @@ void alu(struct cpu *cpu, unsigned char op, unsigned char regA, unsigned char re
       {
         unsigned char product = cpu->registers[regA] * cpu->registers[regB];
         cpu->registers[regA] = product;
+        break;
+      }
+      case ADD:
+      {
+        unsigned char sum = cpu->registers[regA] + cpu->registers[regB];
+        cpu->registers[regA] = sum;
+        break;
       }
         
       default:
@@ -142,24 +170,29 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, pc + 2);
     
     // 3. Do whatever the instruction should do according to the spec.
-    if(((binary_instruction >> 5) & 0x1) > 0)   // See if 00x00000 bit is 1 (indicating ALU instruction)
+    
+    if(((binary_instruction >> 4) & 0x1) == 1)      // If we have an instruction which changes the PC
+    {
+
+      cpu->pc = (*non_ALU_instructions[binary_instruction])(cpu, operandA, operandB);
+
+    }
+    else if(((binary_instruction >> 5) & 0x1) == 1)   // See if 00x00000 bit is 1 (indicating ALU instruction)
     {
 
       alu(cpu, binary_instruction, operandA, operandB);
+      int index_increment = (int) (binary_instruction >> 6) + 1;
+      cpu->pc += index_increment;
 
     }
     else{
+
       // Finds the correct function in the array and calls it
       running = (*non_ALU_instructions[binary_instruction])(cpu, operandA, operandB); 
+      int index_increment = (int) (binary_instruction >> 6) + 1;
+      cpu->pc += index_increment;
 
     }
-    
-
-    // 4. Move the PC to the next instruction. Add 1 to account for instruction argument
-    int index_increment = (int) (binary_instruction >> 6) + 1;
-
-    cpu->pc += index_increment;
-
   }
 }
 
@@ -168,6 +201,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+  // Place in ram where stack memory begins, decrements downwards
   int BEGIN_STACK = 0xF4;
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
@@ -184,6 +218,8 @@ void cpu_init(struct cpu *cpu)
   non_ALU_instructions[PUSH] = handle_PUSH;
   non_ALU_instructions[POP] = handle_POP;
   non_ALU_instructions[HLT] = handle_HALT;
+  non_ALU_instructions[CALL] = handle_CALL;
+  non_ALU_instructions[RET] = handle_RET;
 
 
 }
