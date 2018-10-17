@@ -32,6 +32,7 @@ int handle_LDI(struct cpu* cpu, unsigned char regA, unsigned char regB)
 int handle_PRN(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
+  (void)regB;
   printf("\nValue at register %d is: %d\n", regA, cpu->registers[regA]);
   return 1;
   
@@ -40,7 +41,8 @@ int handle_PRN(struct cpu* cpu, unsigned char regA, unsigned char regB)
 int handle_PUSH(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
-  cpu_ram_write(cpu, cpu->registers[STACK_POINTER]--, cpu->registers[regA]);
+  (void)regB;
+  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->registers[regA]); // Decrement stack pointer first, then write value (according to spec)
   return 1;
   
 }
@@ -48,8 +50,8 @@ int handle_PUSH(struct cpu* cpu, unsigned char regA, unsigned char regB)
 int handle_POP(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
-  unsigned int stack_val = cpu_ram_read(cpu, ++cpu->registers[STACK_POINTER]); // stack pointer sits at empty slot for push, increment first to get last pushed item
-  cpu->ram[cpu->registers[STACK_POINTER]] = 0;    // Set the value in ram (stack) to 0 (cuz popped)
+  (void)regB;
+  unsigned int stack_val = cpu_ram_read(cpu, cpu->registers[STACK_POINTER]++); // Get the value at stack pointer, then increment
   handle_LDI(cpu, regA, stack_val);               // Set the desired register = popped value
   return 1;
 
@@ -58,6 +60,9 @@ int handle_POP(struct cpu* cpu, unsigned char regA, unsigned char regB)
 int handle_HALT(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
+  (void)cpu;
+  (void)regA;
+  (void)regB;
   return 0;
 
 }
