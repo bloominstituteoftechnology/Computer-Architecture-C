@@ -29,6 +29,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     }
     cpu->ram[address++] = strtol(line, NULL, 2);
   }
+  fclose(file);
   //line below (26-40)commented out and replaced with a "less hard coded" solution
   /* char data[DATA_LEN] = {
     // From print8.ls8
@@ -81,9 +82,15 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
     unsigned char operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
 
-    
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
-    
+    int add_to_pc = (IR >> 6) + 1;
+
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for (int i = 0; i < 8; i++)
+    {
+      printf("%02X", cpu->reg[i]);
+    }
+
     // 2. switch() over it to decide on a course of action.
     switch(IR)
     {
@@ -113,7 +120,7 @@ void cpu_run(struct cpu *cpu)
       }
       // 3. Do whatever the instruction should do according to the spec.
       // 4. Move the PC to the next instruction.
-      cpu->PC = +(IR >> 6) + 1;
+      cpu->PC = add_to_pc;
   }
 }
 
