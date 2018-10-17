@@ -93,13 +93,11 @@ void cpu_run(struct cpu *cpu)
       break;
     case PUSH:
       cpu->registers[7] -= 1;
-      // printf("PUSH: ram: %d for R%d\n\n", cpu->registers[7], operand_a);
       cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operand_a]);
       break;
     case POP:
       cpu->registers[operand_a] = cpu_ram_read(cpu, cpu->registers[7]);
       cpu->registers[7] += 1;
-      // printf("POP: in ram: for R%d\n\n", cpu->registers[7], operand_a);
       break;
     default:
       printf("instruction does not exist\n\n");
