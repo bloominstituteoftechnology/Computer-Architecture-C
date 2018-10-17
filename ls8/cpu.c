@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -72,23 +73,28 @@ void cpu_run(struct cpu *cpu)
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
     // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
+        //cpu->PC += 3;
         break;
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
+        //cpu->PC += 2;
         break;
 
       case HLT:
         running = 0;
-        cpu->PC += 1;
+        //cpu->PC += 1;
         break;
+      
+      default: 
+      printf("ERROR\n");
+      exit(1);
     }
-    // 3. Do whatever the instruction should do according to the spec.
+
     // 4. Move the PC to the next instruction.
     cpu->PC += add_to_pc;
   }
