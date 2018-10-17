@@ -108,16 +108,23 @@ void handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 }
 void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  // int i = cpu->registers[7];
+  unsigned char i = cpu->registers[7];
   // printf("%d\n", i);
-  cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
-  cpu->registers[7]++;
+  cpu->registers[operandA] = cpu->ram[i];
+  i++;
 }
 void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  // int i = cpu->registers[7];
-  cpu->registers[7]--;
-  cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+  // unsigned char i = cpu->registers[7];
+  unsigned char SP = --cpu->registers[7];
+  // i--;
+  // cpu->registers[7] = i;
+  printf("%02x\n", SP);
+  
+  // cpu->registers[7]--;
+  // printf("%02x\n", cpu->registers[7]);
+  // cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+  cpu->ram[SP] = cpu->registers[operandA];
 }
 
 //int i = cpu->registers[7]; //put the sp in i
