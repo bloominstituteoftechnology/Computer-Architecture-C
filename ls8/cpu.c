@@ -8,6 +8,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+void (*branchtable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
 void cpu_ram_read()
 {
@@ -43,8 +44,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     {
       continue;
     }
-
-
+    
     cpu->ram[address++] = byte;
   }
 }
@@ -81,7 +81,29 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xff];
     unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xff];
 
+    
+
     int instruction_set_pc = (IR >> 4) & 1;
+
+    void handle_LDI()
+    {
+      cpu->reg[operandA] = operandB;
+    }
+
+    void handle_PRN()
+    {
+      printf("%d\n", cpu->reg[operandA]);
+    }
+
+    void handle_HLT()
+    {
+      running = 0;
+    }
+
+    void handle_MUL()
+    {
+      alu(cpu, ALU_MUL, operandA, operandB);
+    }
 
     switch(IR)
     {
