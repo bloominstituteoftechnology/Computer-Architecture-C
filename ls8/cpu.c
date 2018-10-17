@@ -9,11 +9,10 @@
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  FILE *fp;
+  FILE *fp = fopen(file, "r");
   char line[1024];
   int address = 0;
 
-  fp = fopen(file, "r");
   if (fp == NULL) {
     printf("The file you are looking for doesn't exist\n");
   }
@@ -23,9 +22,7 @@ void cpu_load(struct cpu *cpu, char *file)
       continue;
     }
 
-    unsigned char b;
-    b = strtoul(line, NULL, 2);
-    cpu->ram[address++] = b;
+    cpu->ram[address++] = strtoul(line, NULL, 2);
     // printf("%02X\n", b);
   }
 
