@@ -50,8 +50,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -66,6 +67,7 @@ void cpu_run(struct cpu *cpu)
   unsigned char IR; //instruction register
  
   printf("\nCPU Running....\n");
+
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
 
@@ -73,12 +75,14 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xFF);
     unsigned char operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xFF);
 
+    printf("HEADR: PC | OC OA OB | R0 R1 R2 R3 R4 R5 R6 R7\n");
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
-    printf("\nTrace:\n");
-    printf("PC: %02X\n" , cpu->PC);
-    printf("Instruct Reg: %02X\n", IR); 
-    printf("Operand A: %02X\n", operandA);
-    printf("Operand B: %02X\n", operandB);
+    for(int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
 
 
     int add_to_pc = (IR >> 6) + 1;
@@ -87,22 +91,24 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         // LDI
         // 3. Do whatever the instruction should do according to the spec.
-        printf("Command is LDI...\n");
+        printf("The trace above is LDI \n\n");
         cpu->reg[operandA] = operandB;
         break;
       
       case PRN:
+        printf("The trace above PRN \n\n");
         printf("%d\n", cpu->reg[operandA]);
         break;
 
       case MUL:
-        printf("Command is MUL....\n");
-        cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
+        printf("The trace above MUL \n\n");
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
         
         break;
 
       case HLT:
-        printf("Command is HLT! \n");
+        printf("The trace above HLT \n\n");
         running = 0;
         break;
     }
@@ -125,7 +131,7 @@ void cpu_init(struct cpu *cpu)
  
   // PC and FL registers are cleared to 0.
   // RAM is cleared to 0.
-  printf("CPU Init starting...\n");
+  printf("\nCPU Init starting...\n");
   
   // Initialize the PC and other special registers
   cpu->PC = 0;
