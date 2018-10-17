@@ -1,8 +1,9 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-// Initialize branchTable
+// Declare an array of pointers to functions and initialize them to NULL
 void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
 // Return the value in memory
@@ -11,10 +12,24 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   return cpu->ram[address];
 }
 
-// Write to
+// Write to memory with the given address / value
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char value = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+
+  return value;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = value;
 }
 
 /**
@@ -27,6 +42,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   int address = 0;
 
+  // Writes the value of each line into memory
   while (fgets(line, sizeof line, file) != NULL)
   {
     if (line[0] == '\n' || line[0] == '#')
@@ -72,21 +88,28 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
+    // Declare handler to be a pointer to a function
     void (*handler)(struct cpu * cpu, unsigned char, unsigned char);
 
+    // Initialize handler to one of the handler functions in the branchTable array
     handler = branchTable[IR];
 
+    // Checks if handler doesn't exist
     if (handler == NULL)
     {
       printf("Unknown instruction\n");
       return;
     }
 
+    // Call the function given by the branchTable array
     handler(cpu, operandA, operandB);
 
+    // Move on to the next instruction
     cpu->PC += (IR >> 6) + 1;
   }
 }
+
+// Handler Functions
 
 void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
@@ -95,14 +118,12 @@ void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
-  cpu->registers[SP]++;
+  cpu->registers[operandA] = cpu_pop(cpu);
 }
 
 void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  cpu->registers[SP]--;
-  cpu->ram[cpu->registers[SP]] = cpu->registers[operandA];
+  cpu_push(cpu, cpu->registers[operandA]);
 }
 
 void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)

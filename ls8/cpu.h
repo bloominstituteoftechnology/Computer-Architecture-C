@@ -21,6 +21,7 @@ enum alu_op
   // Add more here
 };
 
+// Define Instructions
 #define LDI 0b10000010
 #define PRN 0b01000111
 #define HLT 0b00000001
