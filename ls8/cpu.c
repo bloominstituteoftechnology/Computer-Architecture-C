@@ -106,20 +106,53 @@ void cpu_run(struct cpu *cpu)
         // 3. Do whatever the instruction should do according to the spec.
         printf("The trace above is LDI \n\n");
         cpu->reg[operandA] = operandB;
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         break;
       
       case PRN:
         printf("The trace above PRN \n\n");
         printf("%d\n", cpu->reg[operandA]);
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         break;
 
       case MUL:
         printf("The trace above MUL \n\n");
         alu(cpu, ALU_MUL, operandA, operandB);
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+
+      case PUSH:
+        printf("The trace above PUSH \n\n");
+        // Decrement the SP.
+        // Copy the value in the given register to the address pointed to by SP.
+        cpu_ram_write(cpu, --cpu->reg[7], cpu->reg[operandA]);
+        printf("Read from RAM at SP: %02X\n", cpu_ram_read(cpu, cpu->reg[7]));
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+
+      case POP:
+        printf("The trace above POP \n\n");
+        //Copy the value from the address pointed to by SP to the given register.
+        //Increment SP.
+        cpu->reg[operandA] = cpu_ram_read(cpu,cpu->reg[7]++);
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         break;
 
       case HLT:
         printf("The trace above HLT \n\n");
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         running = 0;
         break;
     }
@@ -151,7 +184,7 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->reg, 0, sizeof(cpu->reg));
 
- cpu->reg[7] = 0b11110100;
+  cpu->reg[7] = 0b11110100;
 }
 
 
