@@ -7,7 +7,7 @@
  */
 int main(int argc, char *argv[])
 {
-  printf("Starting Main....\n");
+  printf("\nStarting Main....\n");
   
   if (argv[0]) printf("argv0: %s\n", argv[0]);
   if (argv[1]) printf("args1: %s\n", argv[1]);
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   unsigned char mar = 0;
 
 	while (fgets(line, sizeof line, fp) != NULL) {
-    printf("%s", line);
+    // printf("%s", line);
 
 		if (line[0] == '\n' || line[0] == '#') {
 			printf("Ignoring this line.\n");
