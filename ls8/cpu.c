@@ -130,6 +130,10 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->ram, 0, sizeof cpu->registers);
 
+  // Point SP to 0xF4 since stack is empty
+  cpu->registers[SP] = 0xF4;
+
+  // Initialize branchTable with the handler functions
   branchTable[LDI] = handle_LDI;
   branchTable[MUL] = handle_MUL;
   branchTable[PRN] = handle_PRN;
