@@ -16,8 +16,8 @@
 - [x] Add the `PRN` instruction
 
 ### Day 2: Get `mult.ls8` running, load files dynamically
-- [ ] Un-hardcode the machine code
-- [ ] Implement a Multiply and Print the Result (run `mult8.ls8`)
+- [x] Un-hardcode the machine code
+- [x] Implement a Multiply and Print the Result (run `mult8.ls8`)
 - [ ] Beautify your `cpu_run()` function, if needed
 
 ### Day 3: Get `stack.ls8` running
