@@ -38,81 +38,80 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     // TODO: Replace this with something less hard-coded
   FILE *fp;
-    char line[256];
-    int counter = 0;
-    char *ptr;
+  char data[1024];
+  int address = 0;
 
-    if ((fp = fopen(filename, "r")) == NULL) {
-      fprintf(stderr, "This files does not exist");
-      exit(1);
+  fp = fopen(filename, "r");
+
+  while (fgets(data, sizeof data, fp) != NULL) {
+    unsigned char code = strtoul(data, NULL, 2);
+    printf("%c\n", data[0]);
+    if(data[0] == '\n' || data[0] == '#') {
+      continue;
     }
-      while (fgets(line, sizeof(line), fp) != NULL) {
-        cpu->ram[counter++] = strtoul(line, &ptr, 2);
-    }
-    fclose(fp);
+    cpu->ram[address++] = code;
+  }
+  fclose(fp);
+  // TODO: Replace this with something less hard-coded
 }
-
 /**
  * ALU
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  unsigned char *reg = cpu->reg;
-
-  unsigned char valB = reg[regB];
-
   switch (op) {
     case ALU_MUL:
-      reg[regA] *= valB;
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
-
     // TODO: implement more ALU ops
   }
 }
 
 /**
- * Run the CPU
+ * Run the CPU,
  */
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (running)
+  {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
 
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1); // 1st byte
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2); // 2nd byte
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    unsigned char operand_a = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);  //1st byte
+    unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);  //2nd byte
+
+    int add_to_pc = (IR >> 6) + 1;
+
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC);
 
     // 2. switch() over it to decide on a course of action.
-    switch(IR) {
-      case LDI: //Loading Program
-        cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
-        break;
-
-      case PRN:  //  Print
-        printf("%d\n", cpu->reg[operandA]);
-         cpu->PC += 2;
-        break;
-
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        break;
-
-      case HLT:  //Halting
-        running = 0;
-        cpu->PC += 1;
-        break;
+    switch (IR)
+    {
+    case LDI:  //Loading Program
+      cpu->reg[operand_a] = operand_b;
+      break;
+    case PRN:  //Print
+      printf("PRN: Print value %d\n\n", cpu->reg[operand_a]);
+      break;
+    case MUL:  //Multiply
+      alu(cpu, ALU_MUL, operand_a, operand_b);
+      break;
+    case HLT:  //Halting
+      running = 0;
+      exit(0);
+    default:
+      printf("Does not exist\n\n");
+      exit(1);
     }
+      cpu->PC += add_to_pc;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
 }
-
 /**
  * Initialize a CPU struct
  */
