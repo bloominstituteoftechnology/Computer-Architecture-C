@@ -104,6 +104,12 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         alu(cpu, ALU_ADD, argv[0], argv[1]);
         break;      
+      case PUSH:
+        cpu_ram_write(cpu, --cpu->registers[cpu->SP], cpu->registers[argv[0]]);
+        break;      
+      case POP:
+        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[cpu->SP]++);
+        break;      
       default:
         printf("Unknown instructions: %d", cpu->IR);
         break;
@@ -131,6 +137,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->IR = 0;
+  cpu->SP = 0xF4;
   // TODO: Zero registers and RAM
   for (int i=0; i<8; i++) {
     cpu->registers[i] = 0;

@@ -7,6 +7,7 @@ struct cpu {
   // PC
   unsigned char PC;
   unsigned char IR;
+  unsigned char SP;
   // registers (array)
   unsigned char registers[8];
   // ram (array)
@@ -33,9 +34,11 @@ enum alu_op {
 #define HLT 0b00000001
 #define MUL 0b10100010
 #define ADD 0b10100000
-#define SUB 0b10100001
-#define DIV 0b10100011
-#define MOD 0b10100100
+#define PUSH 0b01000101
+#define POP 0b01000110
+// #define SUB 0b10100001
+// #define DIV 0b10100011
+// #define MOD 0b10100100
 
 // TODO: more instructions here. These can be used in cpu_run().
 
