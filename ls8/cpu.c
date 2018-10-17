@@ -31,6 +31,11 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     unsigned char b = strtoul(line, &endptr, 2);
 
+    if (endptr == line) {
+      //printf("Ignoring: %s", line)
+      continue;
+    }
+
     cpu_ram_write(cpu, addr++, b);
   }
   fclose(fp);
@@ -47,7 +52,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB])
       break;
 
     // TODO: implement more ALU ops
@@ -71,6 +76,12 @@ void cpu_run(struct cpu *cpu)
 
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB)
 
+    for (int i=0; i<8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
+
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -82,6 +93,10 @@ void cpu_run(struct cpu *cpu)
 
       case HLT:
         running = 0;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
     }
     cpu->PC += add_to_pc;
