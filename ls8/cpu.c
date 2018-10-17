@@ -27,7 +27,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   while (fgets(data, sizeof data, fp) != NULL) {
     unsigned char code = strtoul(data, NULL, 2);
-    printf("%c\n", data[0]);
     if(data[0] == '\n' || data[0] == '#') {
       continue;
     }
@@ -59,6 +58,9 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  // Stack pointer 11110100 - 244 - F4
+  unsigned char stack_p = 244;
+  cpu->registers[6] = stack_p;
   while (running)
   {
     // TODO
@@ -67,12 +69,11 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
- 
-
+    
+  
     unsigned char operand_a = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
     int add_to_pc = (IR >> 6) + 1;
-    printf("PC is at %d\n\n", cpu->PC);
 
     switch (IR)
     {
@@ -91,10 +92,15 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
     case PUSH:
+      printf("PUSH\n");
+      cpu->registers[6] -= 1;
+      cpu_ram_write(cpu, cpu->registers[6], operand_a);
       break;
-
     case POP:
-      break; 
+      printf("POP\n");
+      cpu_ram_write(cpu, cpu->registers[6], operand_a);
+      cpu->registers[6] += 1;
+      break;
     default:
       printf("instruction does not exist\n\n");
       exit(1);
