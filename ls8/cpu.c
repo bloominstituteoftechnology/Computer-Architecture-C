@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DATA_LEN 6
+//#define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -27,7 +27,8 @@ void cpu_load(struct cpu *cpu, char *filename)
     if (line[0]=='\n' || line[0] =='#'){
       continue;
     }
-    cpu->ram[address++] = strtol(line, NULL, 2);
+    
+    cpu_ram_write(cpu, address++, strtol(line, NULL, 2));
   }
   fclose(file);
   //line below (26-40)commented out and replaced with a "less hard coded" solution
@@ -86,13 +87,30 @@ void cpu_run(struct cpu *cpu)
 
     printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
-    for (int i = 0; i < 8; i++)
+    /* for (int i = 0; i < 8; i++)
     {
-      printf("%02X", cpu->reg[i]);
+      printf(" %02X", cpu->reg[i]);
+    } */
+
+    // POP stack
+    void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+    {
+      cpu->reg[operandA] = cpu->ram[cpu->reg[SP]];
+
+      cpu->reg[SP]++;
+
+      
+    }
+
+    unsigned handle_PUSH(struct cpu * cpu, unsigned char operandA, unsigned char operandB)
+    {
+      cpu->reg[SP]--;
+
+      cpu->ram[cpu->reg[SP]] = cpu->reg[operandA];
     }
 
     // 2. switch() over it to decide on a course of action.
-    switch(IR)
+    switch (IR)
     {
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -115,10 +133,13 @@ void cpu_run(struct cpu *cpu)
         break;
 
       default:
-        fprintf(stderr, "ERROR finding instruction");
+        fprintf(stderr, "ERROR %02X: finding instruction %02X\n", add_to_pc, IR);
         exit(1);
       }
       // 3. Do whatever the instruction should do according to the spec.
+      if (!add_to_pc){
+
+      }
       // 4. Move the PC to the next instruction.
       cpu->PC = add_to_pc;
   }
