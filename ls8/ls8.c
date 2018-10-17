@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
 
   //Call the initialize function on address of cpu:
   cpu_init(&cpu);
-  cpu_load(&cpu); 
+  // cpu_load(&cpu); 
 
-  //Open file and read in every line and place it into RAM:
+  // Open file and read in every line and place it into RAM:
 	FILE *fp;
 	char line[1024];
 
