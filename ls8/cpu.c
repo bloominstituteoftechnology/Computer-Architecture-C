@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+// #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
@@ -70,7 +71,14 @@ void cpu_run(struct cpu *cpu)
 
     int add_to_pc = (IR >> 6) + 1;
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, opA, opB);
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, opA, opB);
+
+    for (int i = 0; i < 8; i++)
+    {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
 
     // 2. switch() over it to decide on a course of action.
     switch(IR)
@@ -81,6 +89,20 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, opA, opB);
+        break;
+
+      case PUSH:
+        // decrement the SP 
+        cpu->reg[SP]--;
+        // copy the value in the given register to the address pointed to by SP 
+        cpu->ram[cpu->reg[SP]] = cpu->reg[opA]; 
+        break;
+
+      case POP:
+        // copy the value from the address pointed by SP to the given register
+        cpu->reg[opA] = cpu->ram[cpu->reg[SP]];
+        // increment the SP
+        cpu->reg[SP]++;
         break;
 
       case PRN:
@@ -110,5 +132,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof cpu->ram); 
   memset(cpu->reg, 0, sizeof cpu->reg); 
 
-  // cpu->reg[7] = 0xF4;
+  cpu->reg[SP] = 0xF4;
 }
