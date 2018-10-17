@@ -14,52 +14,45 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char data)
   cpu->ram[index] = data;
 }
 
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return val;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
   FILE *fp;
   char line[1024];
-  int address = 0x00;
-  char *filename = "./examples/mult.ls8";
+  int address = ADDR_PROGRAM_ENTRY;
+
   // Open the source file
-  if ((fp = fopen(filename, "r")) == NULL)
-  {
+  if ((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Cannot open file %s\n", filename);
     exit(2);
   }
 
   // Read all the lines and store them in RAM
-  while (fgets(line, sizeof line, fp) != NULL)
-  {
+  while (fgets(line, sizeof line, fp) != NULL) {
 
     // Convert string to a number
     char *endchar;
-    unsigned char byte = strtol(line, &endchar, 2);
-    ;
+    unsigned char byte = strtol(line, &endchar, 2);;
 
     // Ignore lines from whicn no numbers were read
-    if (endchar == line)
-    {
+    if (endchar == line) {
       continue;
     }
 
@@ -67,6 +60,7 @@ void cpu_load(struct cpu *cpu)
     cpu->ram[address++] = byte;
   }
 }
+
 
 /**
  * ALU
@@ -137,4 +131,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+   // Initialize SP
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 }
