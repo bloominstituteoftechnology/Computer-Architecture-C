@@ -4,6 +4,15 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -15,15 +24,13 @@ void cpu_load(struct cpu *cpu, char *file)
 
   if (fp == NULL) {
     printf("The file you are looking for doesn't exist\n");
+    exit(2);
   }
   while (fgets(line, sizeof(line), fp) != NULL) {
-    // printf("%s", line);
     if (line[0] == '\n' || line[0] == '#') {
       continue;
     }
-
-    cpu->ram[address++] = strtoul(line, NULL, 2);
-    // printf("%02X\n", b);
+    cpu_ram_write(cpu, address++, strtoul(line, NULL, 2));
   }
 
   fclose(fp);
@@ -44,15 +51,6 @@ void cpu_load(struct cpu *cpu, char *file)
   // }
 
   // TODO: Replace this with something less hard-coded
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
-{
-  return cpu->ram[index];
-}
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
-{
-  cpu->ram[index] = value;
 }
 
 /**
