@@ -65,13 +65,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-
+void cpu_switch(struct cpu *cpu, unsigned char address)
+{
+  cpu->pc = cpu->reg[address];
+}
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1; 
 
   while (running) {
     // TODO
@@ -83,7 +86,72 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
 
-    
+    int instruction_set_pc = (IR >> 4) & 1;
+    switch (IR)
+    {
+    case JMP:
+      cpu_switch(cpu, operandA);
+      instruction_set_pc = 1;
+      break;
+    case JNE:
+      if (!cpu->fl)
+        cpu_switch(cpu, operandA);
+      else
+        cpu->pc += 2;
+      break;
+    case JEQ:
+      if (cpu->fl)
+        cpu_switch(cpu, operandA);
+      else
+        cpu->pc += 2;
+      break;
+    case CMP:
+      if (cpu->reg[operandA] == cpu->reg[operandB])
+        cpu->fl = 1;
+      break;
+    case ST:
+      cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+    case CALL:
+      cpu->fl--;
+      cpu_ram_write(cpu, cpu->fl, (cpu->pc + 2));
+      cpu_switch(cpu, operandA);
+      break;
+    case RET:
+      cpu->pc = cpu_ram_read(cpu, cpu->fl++);
+      break;
+    case PUSH:
+      cpu->fl--;
+      cpu_ram_write(cpu, cpu->fl, cpu->reg[operandA]);
+      break;
+    case POP:
+      if (cpu->fl == 244)
+        fprintf(stderr, "Stack is empty, cant pop!\n");
+      cpu->reg[operandA] = cpu_ram_read(cpu, cpu->fl++);
+      break;
+    case LDI:
+      cpu->reg[operandA] = operandB;
+      break;
+    case HLT:
+      running = 0;
+      break;
+    case PRN:
+      printf("%d\n", cpu->reg[operandA]);
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    default:
+      printf("Unknown instruction at %02x: %02x\n", cpu->pc, IR);
+      exit(2);
+    }
+    if (!instruction_set_pc)
+    {
+      cpu->pc += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
