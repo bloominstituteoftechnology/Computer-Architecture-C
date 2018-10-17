@@ -90,6 +90,11 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
+    case PUSH:
+      break;
+
+    case POP:
+      break; 
     default:
       printf("instruction does not exist\n\n");
       exit(1);
