@@ -4,6 +4,18 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define SP 5
+
+void cpu_push(struct cpu *cpu, unsigned char val){
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu){
+  unsigned char value = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+  return value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
