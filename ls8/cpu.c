@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -23,7 +24,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 void cpu_load(struct cpu *cpu, char *filename)
 {
   //Init the file
-  FILE = *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "r");
 	
   //Init the line that hold 1024 characters
   char line[1024];
@@ -37,22 +38,18 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(2);
   }
 
-  //Open the file
-	fp = fopen(*filename, "r");
-
   //While there's lines in the file...
 	while (fgets(line, sizeof line, fp) != NULL) {
     char *endptr;
-
 		unsigned char machine_code = strtoul(line, &endptr, 2);
 
-    if (line == endptr){
+    if (endptr == line){
       //we got no numbers
       continue;
     }
 
     //Write it into Memory
-    cpu_ram_write(&cpu, mar++, machine_code);
+    cpu_ram_write(cpu, mar++, machine_code);
   }
 
 	fclose(fp);
