@@ -59,8 +59,8 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   // Stack pointer 11110100 - 244 - F4
-  unsigned char stack_p = 244;
-  cpu->registers[6] = stack_p;
+  unsigned char stack_p = 0xF4;
+  cpu->registers[7] = stack_p;
   while (running)
   {
     // TODO
@@ -78,11 +78,11 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case LDI:
-      printf("LDI: CPU stored a value\n\n");
+      printf("LDI: R%d: stored value: %d\n\n", operand_a, operand_b);
       cpu->registers[operand_a] = operand_b;
       break;
     case PRN:
-      printf("PRN: Print value %d\n\n", cpu->registers[operand_a]);
+      printf("PRN: R%d: value is %d\n\n", operand_a, cpu->registers[operand_a]);
       break;
     case HLT:
       printf("HLT: Program has halted\n\n");
@@ -92,14 +92,14 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
     case PUSH:
-      printf("PUSH\n");
-      cpu->registers[6] -= 1;
-      cpu_ram_write(cpu, cpu->registers[6], operand_a);
+      cpu->registers[7] -= 1;
+      // printf("PUSH: ram: %d for R%d\n\n", cpu->registers[7], operand_a);
+      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operand_a]);
       break;
     case POP:
-      printf("POP\n");
-      cpu_ram_write(cpu, cpu->registers[6], operand_a);
-      cpu->registers[6] += 1;
+      cpu->registers[operand_a] = cpu_ram_read(cpu, cpu->registers[7]);
+      cpu->registers[7] += 1;
+      // printf("POP: in ram: for R%d\n\n", cpu->registers[7], operand_a);
       break;
     default:
       printf("instruction does not exist\n\n");
