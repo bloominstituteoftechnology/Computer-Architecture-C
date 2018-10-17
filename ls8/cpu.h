@@ -19,6 +19,7 @@ enum alu_op {
   NOTHING
 };
 
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex

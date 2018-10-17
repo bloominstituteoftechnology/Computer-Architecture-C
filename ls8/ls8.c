@@ -16,6 +16,5 @@ int main(int argc, char **argv)
     printf("Please enter a valid filename\n");
   }
 
-
   return 0;
 }
