@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 
 // Declare an array of pointers to functions and initialize them to NULL
 void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
@@ -82,12 +82,46 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+  struct timeval tval;
+  long next = 0;
 
   while (cpu->running)
   {
+
+    gettimeofday(&tval, NULL);
+
+    // Timer - checks if a second has elapsed and interrupts are enabled
+    if (tval.tv_sec == next && cpu->interrupts)
+    {
+      cpu->registers[IS] = 1;
+      unsigned char maskedInterrupts = cpu->registers[IS] & cpu->registers[IM];
+
+      for (int i = 0; i < 8; i++)
+      {
+        if ((maskedInterrupts >> i) == 1)
+        {
+          // Disable interrupts
+          cpu->interrupts = 0;
+          // Clear bit in IS register
+          cpu->registers[IS] = 0;
+          // Push PC on to the stack
+          cpu_push(cpu, cpu->PC);
+          // Push registers R0-R6 on to the stack
+          for (int i = 0; i <= 6; i++)
+          {
+            cpu_push(cpu, cpu->registers[i]);
+          }
+          // Set PC to the appropriate handler in the interrupt vector table
+          cpu->PC = cpu->ram[0xF8 + i];
+        }
+      }
+    }
+
+    next = tval.tv_sec + 1;
+
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1) & 0xff;
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2) & 0xff;
 
     // Declare handler to be a pointer to a function
     void (*handler)(struct cpu * cpu, unsigned char, unsigned char);
@@ -164,12 +198,30 @@ void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_ST(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  cpu->ram[operandA] = cpu->registers[operandB];
+  cpu_ram_write(cpu, cpu->registers[operandA], cpu->registers[operandB]);
 }
 
 void handle_JMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
   cpu->PC = cpu->registers[operandA];
+}
+
+void handle_PRA(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("%c\n", cpu->registers[operandA]);
+}
+
+void handle_IRET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  // Set registers back to where they were before the interrupt
+  for (int i = 6; i <= 0; i++)
+  {
+    cpu->registers[i] = cpu_pop(cpu);
+  }
+  // Set PC back to where it was before the interrupt
+  cpu->PC = cpu_pop(cpu);
+  // Re-enable interrupts
+  cpu->interrupts = 1;
 }
 
 /**
@@ -180,10 +232,11 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->running = 1;
+  cpu->interrupts = 1;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
-  memset(cpu->ram, 0, sizeof cpu->registers);
+  memset(cpu->registers, 0, sizeof cpu->registers);
 
   // Point SP to 0xF4 since stack is empty
   cpu->registers[SP] = 0xF4;
@@ -200,4 +253,6 @@ void cpu_init(struct cpu *cpu)
   branchTable[RET] = handle_RET;
   branchTable[ST] = handle_ST;
   branchTable[JMP] = handle_JMP;
+  branchTable[PRA] = handle_PRA;
+  branchTable[IRET] = handle_IRET;
 }

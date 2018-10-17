@@ -10,8 +10,10 @@ struct cpu
   unsigned char registers[8];
   // ram (array)
   unsigned char ram[256];
-
-  int running;
+  // run loop
+  unsigned int running;
+  // run interrupts
+  unsigned int interrupts;
 };
 
 // ALU operations
@@ -34,7 +36,12 @@ enum alu_op
 #define RET 0b00010001
 #define ST 0b10000100
 #define JMP 0b01010100
+#define PRA 0b01001000
+#define IRET 0b00010011
 
+// Define Registers
+#define IM 5
+#define IS 6
 #define SP 7
 
 // Function declarations
