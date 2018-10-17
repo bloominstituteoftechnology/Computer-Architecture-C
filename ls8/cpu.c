@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -44,18 +45,17 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1)) & 0xff;
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2)) & 0xff;
+    int add_to_pc = (IR >> 6) + 1;
 
     switch(IR) {
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->PC += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
-        cpu->PC += 2;
         break;
 
       case MUL:
@@ -64,9 +64,9 @@ void cpu_run(struct cpu *cpu)
 
       case HLT:
         running = 0;
-        cpu->PC += 1;
         break;
     }
+    cpu->PC += add_to_pc;
   }
 }
 
