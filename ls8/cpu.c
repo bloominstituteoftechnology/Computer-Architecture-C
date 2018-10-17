@@ -20,10 +20,11 @@ void cpu_load(char *filename, struct cpu *cpu)
 
   while (fgets(line, sizeof line, fp) != NULL)
   {
-    unsigned char code = strtol(line, NULL, 2);
+    char *endptr = NULL;
+    unsigned char code = strtol(line, &endptr, 2);
 
     // check for weirdness
-    if (line[0] == '\n' || line[0] == '#')
+    if (line == endptr)
     {
       continue;
     }
