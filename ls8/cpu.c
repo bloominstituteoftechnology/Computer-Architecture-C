@@ -42,9 +42,8 @@ void cpu_load(char *filename, struct cpu *cpu)
  */
 void cpu_push(struct cpu *cpu, unsigned char value)
 {
-  unsigned char SP = --cpu->reg[7];
   // decrement the value in register 7 (SP)
-  //  cpu->reg[7]--;
+  unsigned char SP = --cpu->reg[7];
 
   // put the value into ram at the index pointed to by R7
   cpu->ram[SP] = value;
@@ -55,8 +54,10 @@ void cpu_push(struct cpu *cpu, unsigned char value)
  */
 unsigned char cpu_pop(struct cpu *cpu)
 {
+  // get value from ram pointed at by R7
   unsigned char value = cpu->ram[cpu->reg[7]];
 
+  // increment the pointer
   cpu->reg[7]++;
 
   return value;
@@ -116,6 +117,14 @@ void trace(struct cpu *cpu)
 
   case 0xA2:
     sprintf(instruction, "%s R%d R%d", "MUL", operandA, operandB);
+    break;
+
+  case 0x45:
+    sprintf(instruction, "%s R%d", "PUSH", operandA);
+    break;
+
+  case 0x46:
+    sprintf(instruction, "%s R%d", "POP", operandA);
     break;
 
   case 0x01:
@@ -200,4 +209,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // set initial address of stack pointer
+  cpu->reg[7] = 0xF4;
 }
