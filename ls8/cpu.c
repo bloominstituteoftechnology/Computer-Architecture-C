@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -17,22 +18,21 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  FILE *fp;
+  char line[1024];
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  fp = fopen(file, "r");
+
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
+    if (line[0] == '\n' || line[0] == '#') continue;
+
+    unsigned char b;
+    b = strtoul(line, NULL, 2);
+    cpu->ram[address++] = b;
   }
 
   // TODO: Replace this with something less hard-coded
