@@ -214,23 +214,16 @@ One you run it with `./ls8 examples/mult.ls8`, you should see:
 
 Check the LS-8 spec for what the `MUL` instruction does.
 
-Note that doing the multiply is the responsiblity of the ALU, so it would be
-nice if your code eventually called the `alu()` function with appropriate
-arguments to get the work done.
+Note that doing the multiply is the responsiblity of the ALU, so it would be nice if your code eventually called the `alu()` function with appropriate arguments to get the work done.
 
 ## Step 9: Beautify your `cpu_run()` loop, if needed
 
-Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`
-function? Is there a way to better modularize your code?
+Do you have a big `if-else-if` block or `switch` block in your `cpu_run()` function? Is there a way to better modularize your code?
 
-If you haven't done so, consider having independent handler functions, one per
-instruction, that does each instruction's work.
+If you haven't done so, consider having independent handler functions, one per instruction, that does each instruction's work.
 
-Another option is to use something called a _branch table_ or _dispatch table_
-to simplify the instruction handler dispatch code. This is an array of functions
-that you can index by opcode value. The upshot is that you fetch the instruction
-value from RAM, then use that value to look up the handler function in the
-branch table. Then call it.
+Another option is to use something called a _branch table_ or _dispatch table_ to simplify the instruction handler dispatch code. This is an array of functions that you can index by opcode value. The upshot is that you fetch the instruction
+value from RAM, then use that value to look up the handler function in the branch table. Then call it.
 
 ```js
 // !PSEUDOCODE!
@@ -302,14 +295,10 @@ Whether you do a `switch` or a branch table or anything else is up to you.
 
 ##  Implement System Stack
 
-All CPUs manage a _stack_ that can be used to store information temporarily.
-This stack resides in main memory and typically starts at the top of memory (at
-a high address) and grows _downward_ as things are pushed on. The LS-8 is no
+All CPUs manage a _stack_ that can be used to store information temporarily. This stack resides in main memory and typically starts at the top of memory (at a high address) and grows _downward_ as things are pushed on. The LS-8 is no
 exception to this.
 
-* Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
-  the beginning of the spec to see which register is the stack pointer, and
-  where the stack starts in memory.
+* Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read the beginning of the spec to see which register is the stack pointer, and where the stack starts in memory.
 
 If you run `./ls8 examples/stack.ls8` you should see the output:
 
@@ -320,25 +309,15 @@ If you run `./ls8 examples/stack.ls8` you should see the output:
 
 ## Implement Subroutine Calls
 
-Back in my day, functions were called _subroutines_. In machine code, this
-enables you to jump to an address with the `CALL` instruction, and then return
-back to where you called from with the `RET` instruction. This enables you to
-create reusable functions.
+Back in my day, functions were called _subroutines_. In machine code, this enables you to jump to an address with the `CALL` instruction, and then return back to where you called from with the `RET` instruction. This enables you to create reusable functions.
 
-The stack is used to hold the return address, so you **must** implement the
-stack, above, first.
+The stack is used to hold the return address, so you **must** implement the stack, above, first.
 
 * Add subroutine calls. `CALL` and `RET`.
 
-For `CALL`, you will likely have to modify your handler call in `cpu_run()`. The
-problem is that some instructions want to execute and move to the next
-instruction like normal, but others, like `CALL` and `JMP` want to go to a
-specific address.
+For `CALL`, you will likely have to modify your handler call in `cpu_run()`. The problem is that some instructions want to execute and move to the next instruction like normal, but others, like `CALL` and `JMP` want to go to a specific address.
 
-In **any** case where the instruction handler sets the `PC` directly, you
-_don't_ want to advance the PC to the next instruction. So you'll have to set up
-a special case for those types of instructions. This can be a flag you
-explicitly set per-instruction... but can also be computed from the value in
+In **any** case where the instruction handler sets the `PC` directly, you _don't_ want to advance the PC to the next instruction. So you'll have to set up a special case for those types of instructions. This can be a flag you explicitly set per-instruction... but can also be computed from the value in
 `IR`. Check out the spec for more.
 
 If you run `./ls8 examples/call.ls8` you should see the output:

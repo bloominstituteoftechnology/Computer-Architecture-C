@@ -46,7 +46,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   fclose(fp);
 
-
   // char data[DATA_LEN] = {
   //   // From print8.ls8
   //   0b10000010, // LDI R0,8
@@ -74,8 +73,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
-      break;
-
+      cpu->reg[regA] *= cpu->reg[regB];
+      // break;
     // TODO: implement more ALU ops
   }
 }
@@ -87,6 +86,7 @@ void cpu_run(struct cpu *cpu)
 {
   
   int running = 1; // True until we get a HLT instruction
+  unsigned char SP = cpu->reg[7];
 
   while (running) {
     // TODO
@@ -98,6 +98,9 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    // unsigned char SP = cpu->registers[7];
+
+    printf("TRACE: %02x: %02x %02x %02x\n", cpu->PC, IR, operandA, operandB);
 
     switch(IR)
     {
@@ -106,8 +109,24 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] = operandB;
         cpu->PC += 3;
         break;
+      case MUL:
+        printf("Multiplying...\n");
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // break; makes it hang at multiplying...
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+      case PUSH: 
+        printf("Pushing...\n");
+        --cpu->reg[7];
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+      case POP: 
+        printf("Popping...\n");
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++; 
         cpu->PC += 2;
         break;
       case HLT:
@@ -125,5 +144,6 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
 }

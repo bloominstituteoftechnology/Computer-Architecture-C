@@ -28,6 +28,10 @@ enum alu_op {
 #define PRN  0b01000111
 #define HLT  0b00000001
 // Function declarations
+#define MUL  0b10100010
+// Stack functions
+#define PUSH  0b01000101
+#define POP 0b01000110
 
 extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
