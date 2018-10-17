@@ -2,13 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
+// Initialize branchTable
 void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
+// Return the value in memory
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
+// Write to
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
@@ -45,7 +48,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] *= cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -104,7 +107,7 @@ void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB
 
 void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+  alu(cpu, ALU_MUL, operandA, operandB);
 }
 
 void handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
