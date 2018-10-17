@@ -20,27 +20,43 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  printf("\nCPU Loading....\n");
-  unsigned char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  //Init the file
+  FILE = *fp = fopen(filename, "r");
+	
+  //Init the line that hold 1024 characters
+  char line[1024];
 
-  int address = 0;
+  //Init the Mem Address Register to 0
+  unsigned char mar = 0x00;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    // printf("value in address: %d", cpu->ram[address]);
-    cpu->ram[address++] = data[i];
+  //Check if the file exits:
+  if (fp == NULL){
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  //Open the file
+	fp = fopen(*filename, "r");
+
+  //While there's lines in the file...
+	while (fgets(line, sizeof line, fp) != NULL) {
+    char *endptr;
+
+		unsigned char machine_code = strtoul(line, &endptr, 2);
+
+    if (line == endptr){
+      //we got no numbers
+      continue;
+    }
+
+    //Write it into Memory
+    cpu_ram_write(&cpu, mar++, machine_code);
+  }
+
+	fclose(fp);
+
 }
 
 /**
@@ -103,8 +119,6 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         printf("The trace above MUL \n\n");
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
-        
         break;
 
       case HLT:
