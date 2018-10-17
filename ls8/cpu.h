@@ -33,6 +33,6 @@ enum alu_op
 
 extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
-extern void cpu_run(struct cpu *cpu);
+extern void cpu_run(struct cpu *cpu, _Bool show_trace);
 
 #endif

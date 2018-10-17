@@ -30,6 +30,7 @@ void cpu_load(char *filename, struct cpu *cpu)
 
     cpu->ram[index++] = code;
   }
+  fclose(fp);
 }
 
 /**
@@ -40,7 +41,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
+    cpu->reg[regA] *= cpu->reg[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -60,9 +61,51 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 }
 
 /**
+* Trace function
+*/
+void trace(struct cpu *cpu)
+{
+  unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1)) & 0xff;
+  unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2)) & 0xff;
+  unsigned char IR = IR = cpu_ram_read(cpu, cpu->PC);
+  char instruction[50];
+
+  printf("\tTRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+  for (int i = 0; i < 8; i++)
+  {
+    printf(" %02X", cpu->reg[i]);
+  }
+  switch (IR)
+  {
+  case 0x82:
+    sprintf(instruction, "%s R%d %02X", "LDI", operandA, operandB);
+    break;
+
+  case 0x47:
+    sprintf(instruction, "%s R%d", "PRN", operandA);
+    break;
+
+  case 0xA2:
+    sprintf(instruction, "%s R%d R%d", "MUL", operandA, operandB);
+    break;
+
+  case 0x01:
+    sprintf(instruction, "%s", "HLT");
+    break;
+
+  default:
+    sprintf(instruction, "%s", "unknown");
+    break;
+  }
+  printf(" | %s", instruction);
+  printf("\n");
+}
+
+/**
  * Run the CPU
  */
-void cpu_run(struct cpu *cpu)
+void cpu_run(struct cpu *cpu, _Bool show_trace)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
@@ -74,7 +117,11 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, (cpu->PC + 1)) & 0xff; // incase PC > 0xFF
     operandB = cpu_ram_read(cpu, (cpu->PC + 2)) & 0xff; // incase PC > 0xFF
 
-    printf("\tPC:%02X\tIR:%02X\tA:%02X\tB:%02X\n", cpu->PC, IR, operandA, operandB);
+    if (show_trace)
+    {
+      trace(cpu);
+    }
+    // printf("\tPC:%02X\tIR:%02X\tA:%02X\tB:%02X\n", cpu->PC, IR, operandA, operandB);
 
     // get the number of operands and add 1 (for the opcode)
     // AABCDDDD AA is # of operands
