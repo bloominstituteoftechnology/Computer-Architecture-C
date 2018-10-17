@@ -34,7 +34,9 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     unsigned char b = strtoul(line, &endptr, 2);
 
-
+    if (endptr == line) {
+      continue;
+    }
 
     cpu_ram_write(cpu, addr++, b);
   }
@@ -50,7 +52,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -84,6 +86,10 @@ void cpu_run(struct cpu *cpu)
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       case HLT:
