@@ -18,6 +18,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
+// Pops an item off the stack and returns it
 unsigned char cpu_pop(struct cpu *cpu)
 {
   unsigned char value = cpu->ram[cpu->registers[SP]];
@@ -26,6 +27,7 @@ unsigned char cpu_pop(struct cpu *cpu)
   return value;
 }
 
+// Pushes an item to the stack
 void cpu_push(struct cpu *cpu, unsigned char value)
 {
   cpu->registers[SP]--;
@@ -67,6 +69,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->registers[regA] *= cpu->registers[regB];
     break;
 
+  case ALU_ADD:
+    cpu->registers[regA] += cpu->registers[regB];
+
     // TODO: implement more ALU ops
   }
 }
@@ -105,7 +110,11 @@ void cpu_run(struct cpu *cpu)
     handler(cpu, operandA, operandB);
 
     // Move on to the next instruction
-    cpu->PC += (IR >> 6) + 1;
+    int changed = (IR >> 4) & 1;
+    if (!changed)
+    {
+      cpu->PC += (IR >> 6) + 1;
+    }
   }
 }
 
@@ -141,6 +150,22 @@ void handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   cpu->running = 0;
 }
 
+void handle_CALL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu_push(cpu, cpu->PC + 2);
+  cpu->PC = cpu->registers[operandA];
+}
+
+void handle_ADD(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  alu(cpu, ALU_ADD, operandA, operandB);
+}
+
+void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->PC = cpu_pop(cpu);
+}
+
 /**
  * Initialize a CPU struct
  */
@@ -164,4 +189,7 @@ void cpu_init(struct cpu *cpu)
   branchTable[HLT] = handle_HLT;
   branchTable[POP] = handle_POP;
   branchTable[PUSH] = handle_PUSH;
+  branchTable[CALL] = handle_CALL;
+  branchTable[ADD] = handle_ADD;
+  branchTable[RET] = handle_RET;
 }
