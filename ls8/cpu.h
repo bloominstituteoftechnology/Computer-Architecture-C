@@ -6,7 +6,12 @@ struct cpu {
   unsigned char PC;
   unsigned char reg[8];
   unsigned char ram[256];
+  int halted;
+  int inst_set_pc;
 };
+
+// Special register values
+#define SP 5
 
 // ALU operations
 enum alu_op {

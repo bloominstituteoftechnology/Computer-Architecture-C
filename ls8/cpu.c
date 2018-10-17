@@ -10,15 +10,15 @@
  */
 void (*branchtable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
-void cpu_ram_read()
-{
+// void cpu_ram_read()
+// {
 
-}
+// }
 
-void cpu_ram_write()
-{
+// void cpu_ram_write()
+// {
 
-}
+// }
 void cpu_load(char *filename, struct cpu *cpu)
 {
   FILE *fp;
@@ -68,9 +68,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  //int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (!cpu->halted) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
@@ -81,58 +81,87 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xff];
     unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xff];
 
-    
+    void (*handler)(struct cpu*, unsigned char, unsigned char);
 
-    int instruction_set_pc = (IR >> 4) & 1;
+    handler = branchtable[IR];
 
-    void handle_LDI()
+    if (handler == NULL)
     {
-      cpu->reg[operandA] = operandB;
+      fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR );
+      exit(3);
     }
 
-    void handle_PRN()
-    {
-      printf("%d\n", cpu->reg[operandA]);
-    }
+    // int instruction_set_pc = (IR >> 4) & 1;
 
-    void handle_HLT()
-    {
-      running = 0;
-    }
+    cpu->inst_set_pc = (IR >> 4) & 1;
 
-    void handle_MUL()
-    {
-      alu(cpu, ALU_MUL, operandA, operandB);
-    }
+    handler(cpu, operandA, operandB);
 
-    switch(IR)
-    {
-      case LDI:
-        cpu->reg[operandA] = operandB;
-        break;
-
-      case PRN:
-        printf("%d\n", cpu->reg[operandA]);
-        break;
-
-      case HLT:
-        running = 0;
-        break;
-
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        break;
-
-      default:
-        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
-        break;
-    }
-    if (!instruction_set_pc)
+    if (!cpu->inst_set_pc)
     {
       cpu->PC += ((IR >> 6) & 0x3) + 1;
     }
+
+    // switch(IR)
+    // {
+    //   case LDI:
+    //     cpu->reg[operandA] = operandB;
+    //     break;
+
+    //   case PRN:
+    //     printf("%d\n", cpu->reg[operandA]);
+    //     break;
+
+    //   case HLT:
+    //     running = 0;
+    //     break;
+
+    //   case MUL:
+    //     alu(cpu, ALU_MUL, operandA, operandB);
+    //     break;
+
+    //   default:
+    //     fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+    //     break;
+    // }
+    // if (!instruction_set_pc)
+    // {
+    //   cpu->PC += ((IR >> 6) & 0x3) + 1;
+    // }
   }
 }
+
+void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+  {
+    cpu->reg[operandA] = operandB;
+  }
+
+void handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+  {
+    (void)operandB;
+    printf("%d\n", cpu->reg[operandA]);
+  }
+
+void handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+  {
+    (void)operandA;
+    (void)operandB;
+
+    cpu->halted = 1;
+  }
+
+void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+  {
+    alu(cpu, ALU_MUL, operandA, operandB);
+  }
+
+void init_branchtable(void)
+  {
+    branchtable[LDI] = handle_LDI;
+    branchtable[MUL] = handle_MUL;
+    branchtable[PRN] = handle_PRN;
+    branchtable[HLT] = handle_HLT;
+  }
 
 /**
  * Initialize a CPU struct
@@ -144,4 +173,6 @@ void cpu_init(struct cpu *cpu)
   // Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+
+  init_branchtable();
 }
