@@ -1,11 +1,19 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
-// Reviewing material, spent most of day on graphs sprint
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
+{
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+{
+  cpu->ram[mar] = mdr;
+}
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -47,9 +55,32 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char IR, operandA, operandB;
 
   while (running) {
-    // TODO
+    IR = cpu_ram_read(cpu, cpu->PC);
+    operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff;
+
+    int add_to_pc = (IR >> 6) + 1;
+
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB)
+
+    switch(IR) {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+
+      case PRN:
+        print("%d\n", cpu->reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+    }
+    cpu->PC += add_to_pc;
+
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
@@ -62,7 +93,10 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
-  // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu ->ram);
+  memset(cpu->reg, 0, sizeof cpu ->reg);
+
+  cpu->reg[7] = 0xF4
 }
