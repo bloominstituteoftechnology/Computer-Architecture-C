@@ -68,6 +68,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1));
     unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2));
     int shiftIndex = (IR >> 6) + 1;
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
     switch (IR)
     {
     case LDI:
@@ -81,6 +82,15 @@ void cpu_run(struct cpu *cpu)
       break;
     case HLT:
       running = 0;
+      break;
+    case PUSH:
+      cpu->SP--;
+      *cpu->SP = cpu->reg[operandA];
+      break;
+    case POP:
+      cpu->reg[operandA] = *cpu->SP;
+      cpu->SP++;
+      break;
     }
     cpu->PC += shiftIndex;
   }
@@ -96,4 +106,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->reg[7] = 0xF4;
+  cpu->SP = &cpu->ram[245];
 }

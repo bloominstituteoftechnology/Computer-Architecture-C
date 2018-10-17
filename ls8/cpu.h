@@ -11,6 +11,7 @@ struct cpu
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
+  unsigned char *SP;
 };
 
 // ALU operations
@@ -29,6 +30,12 @@ enum alu_op
 #define PRN 0b01000111
 #define HLT 0b00000001
 #define MUL 0b10100010
+#define POP 0b01000110
+#define PUSH 0b01000101
+#define IRET 0b00010011
+#define JMP 0b01010100
+#define PRA 0b01001000
+#define ST 0b10000100
 
 // TODO: more instructions here. These can be used in cpu_run().
 
