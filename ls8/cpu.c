@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -16,25 +17,23 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
+  FILE *fp;
+  char data[1024];
   int address = 0;
+  
+  fp = fopen(filename, "r");
 
-  for (int i = 0; i < DATA_LEN; i++)
-  {
-    cpu_ram_write(cpu, address++, data[i]);
+  while (fgets(data, sizeof data, fp) != NULL) {
+    unsigned char code = strtoul(data, NULL, 2);
+    printf("%c\n", data[0]);
+    if(data[0] == '\n' || data[0] == '#') {
+      continue;
+    }
+    cpu->ram[address++] = code;
   }
-
+  fclose(fp);
   // TODO: Replace this with something less hard-coded
 }
 
@@ -46,7 +45,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -68,6 +67,8 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+ 
+
     unsigned char operand_a = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
     int add_to_pc = (IR >> 6) + 1;
@@ -77,15 +78,18 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       printf("LDI: CPU stored a value\n\n");
-      cpu_ram_write(cpu, operand_a, operand_b);
+      cpu->registers[operand_a] = operand_b;
       break;
     case PRN:
-      printf("PRN: Print value %d\n\n", cpu->ram[0]);
+      printf("PRN: Print value %d\n\n", cpu->registers[operand_a]);
       break;
     case HLT:
       printf("HLT: Program has halted\n\n");
       running = 0;
       exit(0);
+    case MUL:
+      alu(cpu, ALU_MUL, operand_a, operand_b);
+      break;
     default:
       printf("instruction does not exist\n\n");
       exit(1);
