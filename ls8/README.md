@@ -111,7 +111,16 @@ RAM inside the `struct cpu`.
 
 We'll make use of these helper function later.
 
-## Step 3: Implement the core of `cpu_run()`
+## Step 3: Implement the core of `cpu_init()`
+
+The `cpu_init()` function takes a pointer to a `struct cpu` and initializes it
+as necessary. At first, the PC, registers, and RAM should be cleared to zero.
+(`memset()` might help you clear registers and RAM.)
+
+Later on, you might do further initialization here, e.g. setting the initial
+value of the stack pointer.
+
+## Step 4: Implement the core of `cpu_run()`
 
 This is the workhorse function of the entire processor. It's the most difficult
 part to write.
@@ -124,21 +133,21 @@ Then, depending on the value of the opcode, perform the actions needed for the i
 
 After the handler returns, the `PC` needs to be updated to point to the next instruction for the next iteration of the loop in `cpu_run()`. The number of bytes an instruction uses can be determined from the two high bits (bits 6-7) of the instruction opcode. See the LS-8 spec for details.
 
-## Step 4: Implement the `HLT` instruction handler
+## Step 5: Implement the `HLT` instruction handler
 
 Add the `HLT` instruction to `cpu.h`.
 
 In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
 encountered.
 
-## Step 5: Add the `LDI` instruction
+## Step 6: Add the `LDI` instruction
 
 This instruction sets a specified register to a specified value.
 
 See the LS-8 spec for the details of what this instructions does and its opcode
 value.
 
-## Step 6: Add the `PRN` instruction
+## Step 7: Add the `PRN` instruction
 
 This is a very similar process to adding `LDI`, but the handler is simpler. See
 the LS-8 spec.
@@ -146,7 +155,7 @@ the LS-8 spec.
 *At this point, you should be able to run the program and have it print `8` to
 the console!*
 
-## Step 7: Un-hardcode the machine code
+## Step 8: Un-hardcode the machine code
 
 In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded into the source. This isn't particularly user-friendly.
 
@@ -185,7 +194,7 @@ comment.
 You'll have to convert the binary strings to integer values to store in RAM. The
 built-in `strtoul()` library function might help you here.
 
-## Step 8: Implement a Multiply and Print the Result
+## Step 9: Implement a Multiply and Print the Result
 
 Extend your LS8 emulator to support the following program:
 
@@ -218,7 +227,7 @@ Note that doing the multiply is the responsiblity of the ALU, so it would be
 nice if your code eventually called the `alu()` function with appropriate
 arguments to get the work done.
 
-## Step 9: Beautify your `cpu_run()` loop, if needed
+## Step 10: Beautify your `cpu_run()` loop, if needed
 
 Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`
 function? Is there a way to better modularize your code?
