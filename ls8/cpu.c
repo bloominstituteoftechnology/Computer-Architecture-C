@@ -1,29 +1,42 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
+
+void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *file = fopen(filename, "r");
+  char line[1024];
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while (fgets(line, sizeof line, file) != NULL)
+  {
+    if (line[0] == '\n' || line[0] == '#')
+    {
+      continue;
+    }
+
+    cpu->ram[address++] = strtol(line, NULL, 2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(file);
 }
 
 /**
@@ -31,10 +44,11 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -45,16 +59,69 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (cpu->running)
+  {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+
+    void (*handler)(struct cpu * cpu, unsigned char, unsigned char);
+
+    handler = branchTable[IR];
+
+    if (handler == NULL)
+    {
+      printf("Unknown instruction\n");
+      return;
+    }
+
+    handler(cpu, operandA, operandB);
+
+    cpu->pc += (IR >> 6) + 1;
   }
 }
+
+void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->registers[operandA] = operandB;
+}
+
+void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+}
+
+void handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("%d\n", cpu->registers[operandA]);
+}
+
+void handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->running = 0;
+}
+void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  // int i = cpu->registers[7];
+  // printf("%d\n", i);
+  cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
+}
+void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  // int i = cpu->registers[7];
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+}
+
+//int i = cpu->registers[7]; //put the sp in i
+//cpu->ram[i] = 
 
 /**
  * Initialize a CPU struct
@@ -62,6 +129,17 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->pc = 0;
+  cpu->running = 1;
 
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->ram, 0, sizeof cpu->registers);
+
+  branchTable[LDI] = handle_LDI;
+  branchTable[MUL] = handle_MUL;
+  branchTable[PRN] = handle_PRN;
+  branchTable[HLT] = handle_HLT;
+  branchTable[POP] = handle_POP;
+  branchTable[PUSH] = handle_PUSH;
 }
