@@ -93,7 +93,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     switch (ir) {
       case LDI:
-        printf("Loading\n");
+        //printf("Loading\n");
         cpu->registers[operandA] = operandB;
         break;
 
@@ -102,12 +102,24 @@ void cpu_run(struct cpu *cpu)
         break;
   
       case HLT:
-        printf("Halting\n");
+        //printf("Halting\n");
         running = 0;
         break;
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        //printf("Pushing\n");
+        cpu->registers[7]--;
+        cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+        break;
+
+      case POP:
+        //printf("Popping\n");
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
         break;
 
       default:
@@ -135,4 +147,7 @@ void cpu_init(struct cpu *cpu)
   for (int i = 0; i < 256; i++) {
     cpu->ram[i] = 0;
   }
+
+  cpu->registers[7] = 0xF4;
+
 }
