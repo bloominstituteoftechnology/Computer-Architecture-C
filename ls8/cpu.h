@@ -14,7 +14,7 @@ enum alu_op {
 	// Add more here
 };
 
-// Instructions
+#define MUL 10100010
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
@@ -25,7 +25,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
