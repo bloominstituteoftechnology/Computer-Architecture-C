@@ -22,7 +22,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
  */
 void cpu_load(struct cpu *cpu)
 {
-  printf("CPU Loading....\n");
+  printf("\nCPU Loading....\n");
   unsigned char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -52,7 +52,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       break;
-
     // TODO: implement more ALU ops
   }
 }
@@ -66,7 +65,7 @@ void cpu_run(struct cpu *cpu)
 
   unsigned char IR; //instruction register
  
-  printf("CPU Running....\n");
+  printf("\nCPU Running....\n");
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
 
