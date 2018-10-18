@@ -52,7 +52,6 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
-
 /**
  * ALU
  */
