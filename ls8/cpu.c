@@ -51,8 +51,20 @@ void cpu_load(struct cpu *cpu, char *filename)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
+      break;
+
+    case ALU_SUB:
+      cpu->reg[regA] -= cpu->reg[regB];
+      break;
+
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
+      break;
+
+    case ALU_DIV:
+      cpu->reg[regA] /= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -95,8 +107,20 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case SUB:
+        alu(cpu, ALU_SUB, operandA, operandB);
+        break;
+
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case DIV:
+        alu(cpu, ALU_DIV, operandA, operandB);
         break;
       
       case POP:
