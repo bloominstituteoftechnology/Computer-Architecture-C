@@ -16,7 +16,8 @@ struct cpu {
 // literals should be used.
 
 enum alu_op {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD
 };
 
 #define LDI  0b10000010
