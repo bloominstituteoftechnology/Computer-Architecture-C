@@ -21,7 +21,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 {
   FILE *fp;
   char data[1024];
-  int address = 0;
+  unsigned char address = 0;
   
   fp = fopen(filename, "r");
 
@@ -63,6 +63,7 @@ void cpu_run(struct cpu *cpu)
   cpu->registers[7] = stack_p;
   while (running)
   {
+
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
@@ -75,6 +76,13 @@ void cpu_run(struct cpu *cpu)
     unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
     int add_to_pc = (IR >> 6) + 1;
 
+    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operand_a, operand_b);
+
+    // for(int i = 0; i < 8; i++) {
+    //   printf(" %02X", cpu->registers[i]);
+    // }
+
+    // printf("\n");
     switch (IR)
     {
     case LDI:
@@ -88,6 +96,10 @@ void cpu_run(struct cpu *cpu)
       printf("HLT: Program has halted\n\n");
       running = 0;
       exit(0);
+    // case JMP:
+    //   cpu->PC = cpu->registers[operand_a];
+    //   add_to_pc = 0;
+    //   break;
     case MUL:
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
