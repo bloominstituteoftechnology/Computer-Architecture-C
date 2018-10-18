@@ -116,6 +116,16 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->reg[operandA] = cpu_pop(cpu);
         break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      case CALL:
+        stack_push(cpu, cpu->PC + 2);
+        cpu->PC = cpu->reg[operandA];
+        break;
+      case RET:
+        cpu->PC = cpu_pop(cpu);
+        break;
       default:
         fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
         exit(3);
