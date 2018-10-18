@@ -92,6 +92,14 @@ void cpu_run(struct cpu *cpu)
       cpu->reg[operandA] *= cpu->reg[operandB];
       break;
 
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operandA]);
+      break;
+
+    case POP:
+      cpu->reg[operandA] = cpu_pop(cpu);
+      break;
+
     case PRN:
       printf("%d\n", cpu->reg[operandA]);
       break;
