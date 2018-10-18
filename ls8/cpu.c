@@ -10,14 +10,14 @@
  *  cpu_ram_read()
  *  cpu_ram_write()
  */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char memory_ADDRESS_registry)
 {
-  return cpu->ram[address];
+  return cpu->ram[memory_ADDRESS_registry];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char memory_ADDRESS_registry, unsigned char memory_DATA_registry)
 {
-  cpu->ram[address] = value;
+  cpu->ram[memory_ADDRESS_registry] = memory_DATA_registry;
 }
 
 
@@ -71,12 +71,15 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
        // `IR`: Instruction Register, contains a copy of the currently executing instruction
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
 
 
      // True if this instruction might set the PC
-    int instruction_set_pc = (IR >> 4) & 1;
+    // int instruction_set_pc = (IR >> 4) & 1;
+    int instruction_set_pc = (IR >> 6) + 1;
+
+    printf("TRACE: pc:%02X: ir:%02X opA:%02X opB:%02X\n", cpu->PC, IR, operandA, operandB);
 
 
     // 2. switch() over it to decide on a course of action.
@@ -112,10 +115,11 @@ void cpu_run(struct cpu *cpu)
        // `&` (bitwise AND) Takes two numbers as operands and does AND on every bit of two numbers. The result of AND is 1 only if both bits are 1.
        // https://www.geeksforgeeks.org/bitwise-operators-in-c-cpp/
 
-    if (!instruction_set_pc)
-    {
-      cpu->PC += ((IR >> 6) & 0x3) +1;
-    }
+    // if (!instruction_set_pc)
+    // {
+    //   cpu->PC += ((IR >> 6) & 0x3) +1;
+    // }
+    cpu->PC += instruction_set_pc;
 
   } // <-- END OF while loop -->
 } // <-- END OF cpu_run() -->
@@ -126,8 +130,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->reg, 0, sizeof cpu->reg);
 }
 
 /**
