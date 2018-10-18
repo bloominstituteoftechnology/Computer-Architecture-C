@@ -66,6 +66,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] *= cpu->reg[regB];
       break;
 
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -127,6 +130,14 @@ void cpu_run(struct cpu *cpu)
         printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         break;
 
+      case ADD:
+        printf("The trace above ADD \n\n");
+        alu(cpu, ALU_ADD, operandA, operandB);
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+
       case PUSH:
         printf("The trace above PUSH \n\n");
         // Decrement the SP.
@@ -143,6 +154,27 @@ void cpu_run(struct cpu *cpu)
         //Copy the value from the address pointed to by SP to the given register.
         //Increment SP.
         cpu->reg[operandA] = cpu_ram_read(cpu,cpu->reg[7]++);
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+
+      case CALL:
+        printf("The trace above CALL \n\n");
+        //The address of the instruction directly after the CALL instruction is pushed onto the stack.
+        cpu_ram_write(cpu, --cpu->reg[7] , ++cpu->PC);
+        //The PC is set to the address stored in the given register.
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc = 0;
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+
+      case RET:
+        printf("The trace above RET \n\n");
+        //Pop the value from the top of the stack and store it in the PC.
+        cpu->PC = cpu_ram_read(cpu,cpu->reg[7]++);
         printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
         printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
         printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
