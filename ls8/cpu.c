@@ -9,25 +9,33 @@
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   return cpu->ram[address] = value;
 }
 
-void cpu_load(struct cpu *cpu)
+unsigned char cpu_pop(struct cpu *cpu)
 {
-  FILE *fileptr;
-  // char filename = "./examples/print8.ls8";
-  char newdata[1024];
-  fileptr = fopen("print8.ls8", "r");
-    while (fgets(newdata, sizeof newdata, fileptr) != NULL) {
-    printf("%s\n", newdata);
-    }
+  unsigned char value = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+
+  return value;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = value;
+}
+
+void cpu_load(struct cpu *cpu, char *filename)
+{
+  
 
 
   char data[DATA_LEN] = {
@@ -39,15 +47,37 @@ void cpu_load(struct cpu *cpu)
     0b00000000,
     0b00000001  // HLT
   };
-  
 
+  char pathname[30] = "./examples/";
+  char line[1024];
   int address = 0;
+  strcat(pathname, filename);
+  strcat(pathname, ".ls8");
+  FILE *fileptr;
+  fileptr = fopen(pathname, "r");
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fileptr == NULL)
+  {
+    puts("couldnt open file");
+    exit(0);
   }
 
-  // TODO: Replace this with something less hard-coded
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  while (fgets(line, sizeof line, fileptr) != NULL)
+  {
+    if (line[0] == '\n' || line[0] == '#') // if its a new line or a comment, skip it.
+    {
+      continue;
+    }
+    unsigned char longline;
+    longline = strtoul(line, NULL, 2);
+    cpu->ram[address++] = longline;
+  }
+  fclose(fileptr);  
+
 }
 
 
@@ -58,12 +88,14 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
-
-    // TODO: implement more ALU ops
+  switch (op)
+  {
+  case ALU_MUL:
+    cpu->registers[regA] *= cpu->registers[regB];
+    break;
+  case ALU_ADD:
+    cpu->registers[regA] += cpu->registers[regB];
+    break;
   }
 }
 
@@ -73,36 +105,56 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR, operandA, operandB;
-  
-  while (running) {
+  unsigned char i,IR, operandA, operandB;
+  char next = 1;
+
+    while (running) {
     IR = cpu_ram_read(cpu, cpu->pc);
-    operandA = cpu_ram_read(cpu, cpu->pc+1);
-    operandB = cpu_ram_read(cpu, cpu->pc+2);
+    operandA = cpu_ram_read(cpu, (cpu->pc+1));
+    operandB = cpu_ram_read(cpu, (cpu->pc+2));
+    int shiftIndex = (IR >> 6) + 1;
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->pc, IR, operandA, operandB);
+    for (int i = 0; i < 8; i++)
+    {
+      printf(" %02X", cpu->registers[i]);
+    }
+    printf("\n");
+
     switch(IR) {
-      case LDI:
-        cpu_ram_write(cpu, operandA, operandB);
-        printf("writing to ram");
-        break;
+    case LDI:
+      cpu->registers[operandA] = operandB;
+      break;
+    case PRN:
+      printf("%d\n", cpu->registers[operandA]);
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    case HLT:
+      running = 0;
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+    case PUSH:
+      i = --cpu->registers[7];
+      cpu->ram[i] = cpu->registers[operandA];
+      break;
+    case POP:
+      i = cpu->registers[7];
+      cpu->registers[operandA] = cpu->ram[i];
+      cpu->registers[7]++;
+      break;
 
-      case PRN:
-        printf("%d\n", cpu_ram_read(cpu, operandA));
-        break;
 
-      case HLT:
-        printf("stopping");
-        running = 0;
-        break;
-
-      default:
+    default:
       break;
     }
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    if (next)
+    {
+      cpu->pc += shiftIndex;
+    }
+  
   }
 }
 
@@ -118,4 +170,5 @@ void cpu_init(struct cpu *cpu)
 
   memset(cpu->ram, 0, sizeof cpu-> ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
+  cpu->registers[7] = 0xF4;
 }
