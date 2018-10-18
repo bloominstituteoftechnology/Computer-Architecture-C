@@ -1,7 +1,7 @@
-#include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cpu.h"
 
 //#define DATA_LEN 6
 
@@ -63,8 +63,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] *= cpu->reg[regB];
       break;
     // TODO: implement more ALU ops
-    case ALU_ADD:
-      cpu->reg[regA] += cpu->reg[regB];
+     case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB]; 
       break;
     }
 }
@@ -87,27 +87,11 @@ void cpu_run(struct cpu *cpu)
 
     printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
-    /* for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
       printf(" %02X", cpu->reg[i]);
-    } */
-
-    // POP stack
-    void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
-    {
-      cpu->reg[operandA] = cpu->ram[cpu->reg[SP]];
-
-      cpu->reg[SP]++;
-
-      
     }
-
-    unsigned handle_PUSH(struct cpu * cpu, unsigned char operandA, unsigned char operandB)
-    {
-      cpu->reg[SP]--;
-
-      cpu->ram[cpu->reg[SP]] = cpu->reg[operandA];
-    }
+    
 
     // 2. switch() over it to decide on a course of action.
     switch (IR)
@@ -122,7 +106,7 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        break;
+        //break;
 
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
@@ -132,17 +116,46 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
 
+      case PUSH:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        /* cpu->reg[operandA] = handle_PoP(cpu); */
+        break;
+      
+      case JMP:
+        cpu->PC = cpu->reg[operandA & 7];
+        add_to_pc = 0;
+        break;
+
       default:
-        fprintf(stderr, "ERROR %02X: finding instruction %02X\n", add_to_pc, IR);
+        fprintf(stderr, "ERROR %02X: finding instruction %02X\n");
         exit(1);
       }
       // 3. Do whatever the instruction should do according to the spec.
-      if (!add_to_pc){
-
-      }
+      
       // 4. Move the PC to the next instruction.
       cpu->PC = add_to_pc;
   }
+}
+
+// POP stack
+void handle_PoP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->reg[operandA] = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+}
+
+void handle_Push(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = cpu->reg[operandA];
 }
 
 /**
