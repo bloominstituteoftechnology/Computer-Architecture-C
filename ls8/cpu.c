@@ -141,6 +141,8 @@ void cpu_run(struct cpu *cpu)
 
   while (cpu->running)
   {
+    // Checks to see if a key has been pressed and sets the IS register
+    // Writes to the memory address 0xF4 with the value of the key which was pressed
     if (kbhit())
     {
       cpu->registers[IS] = 0x1 << 1; // Keyboard interrupt
