@@ -19,34 +19,24 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   return cpu->ram[address] = value;
 }
 
-unsigned char cpu_pop(struct cpu *cpu)
-{
-  unsigned char value = cpu->ram[cpu->registers[SP]];
-  cpu->registers[SP]++;
 
-  return value;
-}
-
-void cpu_push(struct cpu *cpu, unsigned char value)
-{
-  cpu->registers[SP]--;
-  cpu->ram[cpu->registers[SP]] = value;
-}
 
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  
 
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   char pathname[30] = "./examples/";
   char line[1024];
@@ -62,9 +52,6 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(0);
   }
 
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
 
   while (fgets(line, sizeof line, fileptr) != NULL)
   {
@@ -79,9 +66,6 @@ void cpu_load(struct cpu *cpu, char *filename)
   fclose(fileptr);  
 
 }
-
-
-
 
 /**
  * ALU

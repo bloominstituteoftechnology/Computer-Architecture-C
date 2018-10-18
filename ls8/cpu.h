@@ -24,9 +24,7 @@ enum alu_op
   // Add more here
 };
 
-#define IM 5
-#define IS 6
-#define SP 7
+
 
 // Instructions
 
