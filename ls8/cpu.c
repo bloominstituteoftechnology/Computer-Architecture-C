@@ -69,6 +69,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[regA] *= cpu->reg[regB];
     break;
 
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -107,23 +111,35 @@ void trace(struct cpu *cpu)
     sprintf(instruction, "%s R%d %02X", "LDI", operandA, operandB);
     break;
 
-  case 0x47:
+  case PRN:
     sprintf(instruction, "%s R%d", "PRN", operandA);
     break;
 
-  case 0xA2:
+  case MUL:
     sprintf(instruction, "%s R%d R%d", "MUL", operandA, operandB);
     break;
 
-  case 0x45:
+  case ADD:
+    sprintf(instruction, "%s R%d R%d", "ADD", operandA, operandB);
+    break;
+
+  case PUSH:
     sprintf(instruction, "%s R%d", "PUSH", operandA);
     break;
 
-  case 0x46:
+  case POP:
     sprintf(instruction, "%s R%d", "POP", operandA);
     break;
 
-  case 0x01:
+  case CALL:
+    sprintf(instruction, "%s R%d", "CALL", operandA);
+    break;
+
+  case RET:
+    sprintf(instruction, "%s R%d", "RET", operandA);
+    break;
+
+  case HLT:
     sprintf(instruction, "%s", "HLT");
     break;
 
@@ -146,6 +162,9 @@ void cpu_run(struct cpu *cpu, _Bool show_trace)
   while (running)
   {
     // 1. Get the value of the current instruction (in address PC).
+
+    // PC: Program Counter, address of the currently executing instruction
+    // IR: Instruction Register, contains a copy of the currently executing instruction
     IR = cpu_ram_read(cpu, cpu->PC);
     operandA = cpu_ram_read(cpu, (cpu->PC + 1)) & 0xff; // incase PC > 0xFF
     operandB = cpu_ram_read(cpu, (cpu->PC + 2)) & 0xff; // incase PC > 0xFF
@@ -153,9 +172,13 @@ void cpu_run(struct cpu *cpu, _Bool show_trace)
     if (show_trace)
       trace(cpu);
 
-    // get the number of operands and add 1 (for the opcode)
-    // AABCDDDD AA is # of operands
-    int add_to_pc = (IR >> 6) + 1;
+    // check to see if PC is being set by the instruction
+    _Bool pc_is_set = (IR >> 4) & 1;
+
+    if (!pc_is_set)
+      // get the number of operands and add 1 (for the opcode)
+      // AABCDDDD AA is # of operands
+      cpu->PC += (IR >> 6) + 1;
 
     // 2. switch() over it to decide on a course of action.
     switch (IR)
@@ -166,31 +189,49 @@ void cpu_run(struct cpu *cpu, _Bool show_trace)
       break;
 
     case LDI:
-      cpu->reg[operandA] = operandB;
+      // & 7 will keep it from 0 - 7 (because 7 = 2^3 - 1)
+      // this works for 2^x - 1 values (1, 11, 111, 1111, ...)
+      cpu->reg[operandA & 7] = operandB;
       break;
 
     case PRN:
-      printf("%d\n", cpu->reg[operandA]);
+      printf("%d\n", cpu->reg[operandA & 7]);
       break;
 
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+
     case PUSH:
-      cpu_push(cpu, cpu->reg[operandA]);
+      cpu_push(cpu, cpu->reg[operandA & 7]);
       break;
 
     case POP:
       cpu->reg[operandA] = cpu_pop(cpu);
       break;
 
+    case CALL:
+      // The address of the instruction directly after the
+      // CALL instruction is pushed onto the stack.
+      // so increment PC by 2
+      cpu_push(cpu, cpu->PC + 2);
+      cpu->PC = cpu->reg[operandA];
+      break;
+
+    case RET:
+      cpu->PC = cpu_pop(cpu);
+      break;
+
     default:
-      printf("\nBad code\n\n");
+      printf("\nBad code: %02X\n\n", IR);
       exit(1);
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC += add_to_pc;
+    // cpu->PC += add_to_pc;
   }
 }
 
