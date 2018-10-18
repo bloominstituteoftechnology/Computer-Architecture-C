@@ -96,6 +96,10 @@ void cpu_run(struct cpu *cpu)
     int add_to_pc = (IR >> 6) + 1;
 
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    for (int i = 0; i < 8; i++) {
+      printf("%02X", cpu->reg[i]);
+    }
+    printf("\n");
 
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
@@ -110,6 +114,16 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+        break;
+
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc = 0;
         break;
 
       case HLT:
