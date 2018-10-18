@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
+#include <sys/select.h>
 
 // Declare an array of pointers to functions and initialize them to NULL
 void (*branchTable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
@@ -77,20 +80,71 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+struct termios orig_termios;
+
+void reset_terminal_mode()
+{
+  tcsetattr(0, TCSANOW, &orig_termios);
+}
+
+struct termios orig_termios;
+
+void disableRawMode()
+{
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+void enableRawMode()
+{
+  tcgetattr(STDIN_FILENO, &orig_termios);
+  atexit(disableRawMode);
+
+  struct termios raw = orig_termios;
+
+  raw.c_lflag &= ~(ECHO);
+  raw.c_lflag &= ~(ECHO | ICANON);
+
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+int kbhit()
+{
+  struct timeval tv = {0L, 0L};
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(0, &fds);
+  return select(1, &fds, NULL, NULL, &tv);
+}
+
+int getch()
+{
+  int r;
+  unsigned char c;
+  if ((r = read(0, &c, sizeof(c))) < 0)
+  {
+    return r;
+  }
+  else
+  {
+    return c;
+  }
+}
+
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
+  enableRawMode();
   struct timeval tval;
   long next = 0;
 
   while (cpu->running)
   {
-    if (1)
+    if (kbhit())
     {
       cpu->registers[IS] = 0x1 << 1; // Keyboard interrupt
-      cpu_ram_write(cpu, 0xF4, 65);
+      cpu_ram_write(cpu, 0xF4, getch());
     }
 
     gettimeofday(&tval, NULL);
@@ -124,7 +178,6 @@ void cpu_run(struct cpu *cpu)
             cpu_push(cpu, cpu->registers[i]);
           }
           // Set PC to the appropriate handler in the interrupt vector table
-          printf("MOVING PC TO: %d\n", cpu->ram[0xF8 + i]);
           cpu->PC = cpu->ram[0xF8 + i];
         }
       }
@@ -222,7 +275,6 @@ void handle_ST(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_JMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
-  printf("Moving with JMP\n");
   (void)operandB;
   cpu->PC = cpu->registers[operandA];
 }
