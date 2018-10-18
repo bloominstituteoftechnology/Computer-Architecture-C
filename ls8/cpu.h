@@ -34,6 +34,7 @@ enum alu_op {
 #define ADD 0b10100000
 #define CALL 0b01010000 
 #define RET 0b00010001
+#define ST 0b10000100
 
 // TODO: more instructions here. These can be used in cpu_run().
 
@@ -42,5 +43,17 @@ enum alu_op {
 extern void cpu_load(struct cpu *cpu, char* fileName);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern unsigned char cpu_ram_read(struct cpu *cpu, int mar);
+extern void cpu_ram_write(struct cpu *cpu, int mar, unsigned char value);
+extern int handle_LDI(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_PRN(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_HLT(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_MUL(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_PUSH(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_POP(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_ADD(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_CALL(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_RET(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB);
 
 #endif

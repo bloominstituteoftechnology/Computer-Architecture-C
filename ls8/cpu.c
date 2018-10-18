@@ -6,7 +6,125 @@
 #define DATA_LEN 255
 #define STACK_POINTER 7  // Define the register reserved for the stack pointer
 
-// Instruction handlers
+// Declare an array of pointers to functions, add functions to array in cpu_init
+int (*instructions[DATA_LEN]) (struct cpu * cpu, unsigned char regA, unsigned char regB) = {0};
+
+/**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
+void cpu_load(struct cpu *cpu, char* fileName)
+{
+  char data[DATA_LEN];
+
+  FILE* file_ptr;
+
+  if((file_ptr = fopen(fileName, "r")) == NULL)
+  {
+    printf("Error opening file!\nPlease include a relative path with filename\n");
+    exit(1);
+  }
+
+  int i = 0;
+  while(fgets(data, sizeof(data), file_ptr) != NULL)
+  {
+    char * endptr;
+
+    unsigned char num;
+    num = strtoul(data, &endptr, 2);
+
+    if(endptr == data)
+    {
+      continue;
+    }
+
+
+    cpu_ram_write(cpu, i, num);     // Write binary instructions to ram
+
+    i++;
+  }
+  
+  fclose(file_ptr);
+}
+
+/**
+ * ALU
+ */
+int alu(struct cpu *cpu, unsigned char op, unsigned char regA, unsigned char regB)
+{
+  switch (op) 
+  {
+      case MUL:
+      {
+        unsigned char product = cpu->registers[regA] * cpu->registers[regB];
+        cpu->registers[regA] = product;
+        return 1;
+        break;
+      }
+      case ADD:
+      {
+        unsigned char sum = cpu->registers[regA] + cpu->registers[regB];
+        cpu->registers[regA] = sum;
+        return 1;
+        break;
+      }
+        
+      default:
+        return 1;
+
+  }
+}
+
+
+/**
+ * Run the CPU
+ */
+void cpu_run(struct cpu *cpu)
+{
+
+  int running = 1; // True until we get a HLT instruction
+
+  while (running) {
+
+    // 1. Get the value of the current instruction (in address PC).
+    int pc = cpu->pc;
+    unsigned char binary_instruction = cpu_ram_read(cpu, pc);
+    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
+    
+    // Set and check our instruction handler
+
+    int (*handler)(struct cpu*, unsigned char, unsigned char);
+
+    handler = instructions[binary_instruction];
+
+    if(handler == 0)
+    {
+
+      printf("Invalid instruction entered, exiting program.\n");
+      break;
+
+    }
+
+    // 3. Do whatever the instruction should do according to the spec.
+    
+    if(((binary_instruction >> 4) & 0x1) != 1)  // If we have an instruction which DOES NOT change the pc (indicated by bit 000x0000)
+    {
+      
+      running = handler(cpu, operandA, operandB); 
+      cpu->pc += (int) (binary_instruction >> 6) + 1;
+
+    }
+    else// If we have an instruction which DOES change the PC
+    {
+
+      cpu->pc = handler(cpu, operandA, operandB);
+
+    }
+
+  }
+}
+
+// Instruction Handlers
 unsigned char cpu_ram_read(struct cpu *cpu, int mar)
 {
 
@@ -34,6 +152,22 @@ int handle_PRN(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
   (void)regB;
   printf("\nValue at register %d is: %d\n", regA, cpu->registers[regA]);
+  return 1;
+  
+}
+
+int handle_MUL(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  alu(cpu, MUL, regA, regB);
+  return 1;
+  
+}
+
+int handle_ADD(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  alu(cpu, ADD, regA, regB);
   return 1;
   
 }
@@ -88,113 +222,15 @@ int handle_RET(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
 }
 
-// Declare an array of pointers to functions, add functions to array in cpu_init
-int (*non_ALU_instructions[DATA_LEN]) (struct cpu * cpu, unsigned char regA, unsigned char regB);
-
-
-
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu, char* fileName)
-{
-  char data[DATA_LEN];
-
-  FILE* file_ptr;
-
-  if((file_ptr = fopen(fileName, "r")) == NULL)
-  {
-    printf("Error opening file!\nPlease include a relative path with filename\n");
-    exit(1);
-  }
-
-  int i = 0;
-  while(fgets(data, sizeof(data), file_ptr) != NULL)
-  {
-    if(data[0] == '\n' || data[0] == '#')
-    {
-      continue;
-    }
-
-  
-    unsigned char num;
-    num = strtoul(data, NULL, 2);
-
-    cpu_ram_write(cpu, i, num);     // Write binary instructions to ram
-
-    i++;
-  }
-  
-  fclose(file_ptr);
-}
-
-/**
- * ALU
- */
-void alu(struct cpu *cpu, unsigned char op, unsigned char regA, unsigned char regB)
-{
-  switch (op) 
-  {
-      case MUL:
-      {
-        unsigned char product = cpu->registers[regA] * cpu->registers[regB];
-        cpu->registers[regA] = product;
-        break;
-      }
-      case ADD:
-      {
-        unsigned char sum = cpu->registers[regA] + cpu->registers[regB];
-        cpu->registers[regA] = sum;
-        break;
-      }
-        
-      default:
-        break;
-  }
-}
-
-/**
- * Run the CPU
- */
-void cpu_run(struct cpu *cpu)
+int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
 
-  int running = 1; // True until we get a HLT instruction
+  // Store value in registerB in the address stored in registerA.
+  cpu_ram_write(cpu, cpu->registers[regA], cpu->registers[regB]);
+  return 1;
 
-  while (running) {
-
-    // 1. Get the value of the current instruction (in address PC).
-    int pc = cpu->pc;
-    unsigned char binary_instruction = cpu_ram_read(cpu, pc);
-    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
-    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
-    
-    // 3. Do whatever the instruction should do according to the spec.
-    
-    if(((binary_instruction >> 4) & 0x1) == 1)      // If we have an instruction which changes the PC
-    {
-
-      cpu->pc = (*non_ALU_instructions[binary_instruction])(cpu, operandA, operandB);
-
-    }
-    else if(((binary_instruction >> 5) & 0x1) == 1)   // See if 00x00000 bit is 1 (indicating ALU instruction)
-    {
-
-      alu(cpu, binary_instruction, operandA, operandB);
-      int index_increment = (int) (binary_instruction >> 6) + 1;
-      cpu->pc += index_increment;
-
-    }
-    else{
-
-      // Finds the correct function in the array and calls it
-      running = (*non_ALU_instructions[binary_instruction])(cpu, operandA, operandB); 
-      int index_increment = (int) (binary_instruction >> 6) + 1;
-      cpu->pc += index_increment;
-
-    }
-  }
 }
+
 
 /**
  * Initialize a CPU struct
@@ -213,13 +249,16 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[STACK_POINTER] = BEGIN_STACK;
 
   // Assign our functions to the array of function handlers
-  non_ALU_instructions[LDI] = handle_LDI;
-  non_ALU_instructions[PRN] = handle_PRN;
-  non_ALU_instructions[PUSH] = handle_PUSH;
-  non_ALU_instructions[POP] = handle_POP;
-  non_ALU_instructions[HLT] = handle_HALT;
-  non_ALU_instructions[CALL] = handle_CALL;
-  non_ALU_instructions[RET] = handle_RET;
+  instructions[LDI] = handle_LDI;
+  instructions[PRN] = handle_PRN;
+  instructions[MUL] = handle_MUL;
+  instructions[ADD] = handle_ADD;
+  instructions[PUSH] = handle_PUSH;
+  instructions[POP] = handle_POP;
+  instructions[HLT] = handle_HALT;
+  instructions[CALL] = handle_CALL;
+  instructions[RET] = handle_RET;
+  instructions[ST] = handle_ST;
 
 
 }
