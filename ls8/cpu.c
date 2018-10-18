@@ -46,6 +46,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_MUL:
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
+  case ALU_ADD:
+    cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -61,6 +64,7 @@ void cpu_run(struct cpu *cpu)
   // Stack pointer 11110100 - 244 - F4
   unsigned char stack_p = 0xF4;
   cpu->registers[7] = stack_p;
+  unsigned char prev_loc = 0;
   while (running)
   {
 
@@ -86,22 +90,34 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case LDI:
-      printf("LDI: R%d: stored value: %d\n\n", operand_a, operand_b);
+      printf("\nLDI: R%d: stored value: %d\n\n", operand_a, operand_b);
       cpu->registers[operand_a] = operand_b;
       break;
     case PRN:
-      printf("PRN: R%d: value is %d\n\n", operand_a, cpu->registers[operand_a]);
+      printf("\nPRN: R%d: value is %d\n\n", operand_a, cpu->registers[operand_a]);
       break;
     case HLT:
-      printf("HLT: Program has halted\n\n");
+      printf("\nHLT: Program has halted\n\n");
       running = 0;
       exit(0);
-    // case JMP:
-    //   cpu->PC = cpu->registers[operand_a];
-    //   add_to_pc = 0;
-    //   break;
+    
+    case CALL:
+      printf("\nCALL");
+      prev_loc += cpu->PC + add_to_pc;
+      cpu->PC = cpu->registers[operand_a];
+      add_to_pc = 0;
+      break;
+    case RET:
+      printf("\nRET");
+      cpu->PC = prev_loc;
+      prev_loc = 0;
+      add_to_pc = 0;
+      break;
     case MUL:
       alu(cpu, ALU_MUL, operand_a, operand_b);
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operand_a, operand_b);
       break;
     case PUSH:
       cpu->registers[7] -= 1;
@@ -112,7 +128,7 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[7] += 1;
       break;
     default:
-      printf("instruction does not exist\n\n");
+      printf("\ninstruction does not exist\n\n");
       exit(1);
     }
       cpu->PC += add_to_pc;
