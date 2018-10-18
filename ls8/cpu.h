@@ -5,8 +5,8 @@
 struct cpu {
   // TODO
   unsigned char PC;
-  unsigned char reg[8];
-  unsigned char ram[256];
+  unsigned char *reg;
+  unsigned char *ram;
 
 };
 
@@ -15,9 +15,9 @@ struct cpu {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-typedef enum alu_op {
+enum alu_op {
   ALU_MUL
-} op;
+};
 
 #define LDI  0b10000010
 #define ADD  0b10100000
@@ -54,8 +54,6 @@ typedef enum alu_op {
 #define ST   0b10000100
 #define SUB  0b10100001
 #define XOR  0b10101011
-
-#define MAX 255
 
 // TODO: more instructions here. These can be used in cpu_run().
 
