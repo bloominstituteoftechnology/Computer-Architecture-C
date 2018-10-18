@@ -18,25 +18,49 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char addr = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fp == NULL) {
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(line, sizeof line, fp) != NULL) {
+
+    char *endchar;
+    unsigned char b = strtoul(line, &endchar, 2);
+
+    if (endchar == line) {
+      continue;
+    }
+
+    cpu_ram_write(cpu, addr++, b);
+  }
+
+  fclose(fp);
+
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  // // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -46,7 +70,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      // TODO 
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -77,17 +102,18 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        //cpu->PC += 3;
         break;
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        //cpu->PC += 2;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       case HLT:
         running = 0;
-        //cpu->PC += 1;
         break;
       
       default: 
