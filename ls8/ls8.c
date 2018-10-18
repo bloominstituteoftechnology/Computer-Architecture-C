@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
   char *filename = argv[1];
-  if (!filename)
+  if (argc != 2)
   {
     puts("need a program to run");
     exit(0);
