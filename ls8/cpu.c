@@ -99,6 +99,10 @@ void cpu_run(struct cpu *cpu)
         reg[operandA] = operandB;
         break;
 
+      case ADD:
+       reg[operandA] += reg[operandB];
+       break;
+
       case MUL:
         reg[operandA] *= reg[operandB];
         break;
@@ -111,8 +115,17 @@ void cpu_run(struct cpu *cpu)
         reg[operandA] = cpu_pop(cpu);
         break;
       
+      case CALL:
+        cpu_push(cpu, cpu->PC + 2);
+        cpu->PC = reg[operandA];
+        break;
+
       case PRN:
         printf("%d\n", reg[operandA]);
+        break;
+
+      case RET:
+        cpu->PC = cpu_pop(cpu);
         break;
 
       case HLT:
