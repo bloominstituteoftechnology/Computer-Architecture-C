@@ -39,20 +39,24 @@ void cpu_load(char *filename, struct cpu *cpu)
   int address = ADDR_PROGRAM_ENTRY;
 
   // Open the source file
-  if ((fp = fopen(filename, "r")) == NULL) {
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
     fprintf(stderr, "Cannot open file %s\n", filename);
     exit(2);
   }
 
   // Read all the lines and store them in RAM
-  while (fgets(line, sizeof line, fp) != NULL) {
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
 
     // Convert string to a number
     char *endchar;
-    unsigned char byte = strtol(line, &endchar, 2);;
+    unsigned char byte = strtol(line, &endchar, 2);
+    ;
 
     // Ignore lines from whicn no numbers were read
-    if (endchar == line) {
+    if (endchar == line)
+    {
       continue;
     }
 
@@ -60,7 +64,6 @@ void cpu_load(char *filename, struct cpu *cpu)
     cpu->ram[address++] = byte;
   }
 }
-
 
 /**
  * ALU
@@ -132,6 +135,6 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
 
-   // Initialize SP
+  // Initialize SP
   cpu->reg[SP] = ADDR_EMPTY_STACK;
 }
