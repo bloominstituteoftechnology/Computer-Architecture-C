@@ -105,24 +105,31 @@ void cpu_run(struct cpu *cpu)
     case LDI:  //Loading Program
       cpu->reg[operand_a] = operand_b;
       break;
+
     case PRN:  //Print
       printf("PRN: Print value %d\n\n", cpu->reg[operand_a]);
       break;
+
     case MUL:  //Multiply
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
+
     case HLT:  //Halting
       running = 0;
       exit(0);
-      case ADD:
-        alu(cpu, ALU_ADD, operand_a, operand_b);
-        break;
-      case POP:
-        pop(cpu, operand_a);
-        break;
-      case PUSH:
-        push(cpu, operand_a);
-        break;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operand_a, operand_b);
+      break;
+
+    case POP:
+      pop(cpu, operand_a);
+      break;
+
+    case PUSH:
+      push(cpu, operand_a);
+      break;
+
     default:
       printf("Does not exist\n\n");
       exit(1);
