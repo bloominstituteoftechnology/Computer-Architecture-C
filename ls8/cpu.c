@@ -3,22 +3,26 @@
 #include <string.h>
 #include <stdlib.h>
 
-//#define DATA_LEN 6
-
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void (*branchtable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
 
-// void cpu_ram_read()
-// {
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
 
-// }
+  cpu->ram[cpu->reg[SP]] = val;
+}
 
-// void cpu_ram_write()
-// {
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->reg[SP]];
 
-// }
+  cpu->reg[SP]++;
+
+  return val;
+}
 void cpu_load(char *filename, struct cpu *cpu)
 {
   FILE *fp;
@@ -60,6 +64,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
   }
 }
 
@@ -68,7 +75,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  //int running = 1; // True until we get a HLT instruction
 
   while (!cpu->halted) {
     // TODO
@@ -91,8 +97,6 @@ void cpu_run(struct cpu *cpu)
       exit(3);
     }
 
-    // int instruction_set_pc = (IR >> 4) & 1;
-
     cpu->inst_set_pc = (IR >> 4) & 1;
 
     handler(cpu, operandA, operandB);
@@ -101,33 +105,6 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->PC += ((IR >> 6) & 0x3) + 1;
     }
-
-    // switch(IR)
-    // {
-    //   case LDI:
-    //     cpu->reg[operandA] = operandB;
-    //     break;
-
-    //   case PRN:
-    //     printf("%d\n", cpu->reg[operandA]);
-    //     break;
-
-    //   case HLT:
-    //     running = 0;
-    //     break;
-
-    //   case MUL:
-    //     alu(cpu, ALU_MUL, operandA, operandB);
-    //     break;
-
-    //   default:
-    //     fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
-    //     break;
-    // }
-    // if (!instruction_set_pc)
-    // {
-    //   cpu->PC += ((IR >> 6) & 0x3) + 1;
-    // }
   }
 }
 
@@ -155,12 +132,28 @@ void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
     alu(cpu, ALU_MUL, operandA, operandB);
   }
 
+void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+
+  cpu_push(cpu, cpu->reg[operandA]);
+}
+
+void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+
+  cpu->reg[operandA] = cpu_pop(cpu);
+}
+
 void init_branchtable(void)
   {
     branchtable[LDI] = handle_LDI;
     branchtable[MUL] = handle_MUL;
     branchtable[PRN] = handle_PRN;
     branchtable[HLT] = handle_HLT;
+    branchtable[PUSH] = handle_PUSH;
+    branchtable[POP] = handle_POP;
   }
 
 /**
