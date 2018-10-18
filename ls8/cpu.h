@@ -14,7 +14,7 @@ enum alu_op {
 	// Add more here
 };
 
-#define MUL 10100010
+#define MUL 0b10100010
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
@@ -22,8 +22,11 @@ enum alu_op {
 #define LDI  0b10000010 
 #define PRN  0b01000111
 #define HLT  0b00000001 
-#define POP 01000110
-#define PUSH 01000101
+#define POP  0b01000110
+#define PUSH 0b01000101
+#define CALL 0b01010000
+#define RET  0b00010001
+#define JMP  0b01010100
 
 // Function declarations
 

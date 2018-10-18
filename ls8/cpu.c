@@ -63,11 +63,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR, operandA, operandB;
+  unsigned char IR, operandA, operandB, sp;
 
   IR = cpu_ram_read(cpu, cpu->pc);
   operandA = cpu_ram_read(cpu, cpu->pc+1);
   operandB = cpu_ram_read(cpu, cpu->pc+2);
+  sp = cpu->registers[7];
 
   int add_to_pc = (IR >> 6) +1;
 
@@ -84,15 +85,33 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+
       case PUSH:
-        unsigned char sp = cpu->registers[7];
         sp--;
-        cpu->ram[sp] = cpu->registers[operandA];
+        cpu->ram[sp] = cpu->registers[operandA & 7];
         break;
+
       case POP: 
-        cpu->registers[operandA] = cpu->ram[sp];
+        cpu->registers[operandA & 7] = cpu->ram[sp];
         sp++;
         break;
+
+      case JMP:
+        cpu->pc = cpu->registers[operandA & 7];
+        add_to_pc=0;
+        break;
+
+      case CALL:
+        sp--;
+        cpu->ram[sp] = cpu->registers[operandA];
+        cpu->pc = cpu->registers[operandA &7];
+        add_to_pc=0;
+        break;
+
+      case RET:
+        cpu->pc = cpu->ram[sp];
+        break;
+        
       case HLT:
         running = 0;
         break;
