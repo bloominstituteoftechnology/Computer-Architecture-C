@@ -5,6 +5,10 @@
 
 #define DATA_LEN 255
 #define STACK_POINTER 7  // Define the register reserved for the stack pointer
+#define IM 5 // Interrupt mask
+#define IS 6 // Interrupt status
+
+
 
 // Declare an array of pointers to functions, add functions to array in cpu_init
 int (*instructions[DATA_LEN]) (struct cpu * cpu, unsigned char regA, unsigned char regB) = {0};
@@ -85,7 +89,7 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
 
-    // 1. Get the value of the current instruction (in address PC).
+    // Get the value of the current instruction (in address PC).
     int pc = cpu->pc;
     unsigned char binary_instruction = cpu_ram_read(cpu, pc);
     unsigned char operandA = cpu_ram_read(cpu, pc + 1);
@@ -105,19 +109,19 @@ void cpu_run(struct cpu *cpu)
 
     }
 
-    // 3. Do whatever the instruction should do according to the spec.
+    // Do whatever the instruction should do according to the spec.
     
     if(((binary_instruction >> 4) & 0x1) != 1)  // If we have an instruction which DOES NOT change the pc (indicated by bit 000x0000)
     {
       
-      running = handler(cpu, operandA, operandB); 
+      running = handler(cpu, operandA, operandB);   // Returns 1 if continue, 0 if halt
       cpu->pc += (int) (binary_instruction >> 6) + 1;
 
     }
     else// If we have an instruction which DOES change the PC
     {
 
-      cpu->pc = handler(cpu, operandA, operandB);
+      cpu->pc = handler(cpu, operandA, operandB);   // Returns the pc position to jump to
 
     }
 
@@ -237,12 +241,14 @@ int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // Place in ram where stack memory begins, decrements downwards
+  // Place in ram where stack memory begins
   int BEGIN_STACK = 0xF4;
+
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-  // TODO: Zero registers and RAM
-  
+
+
+  // Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
 
