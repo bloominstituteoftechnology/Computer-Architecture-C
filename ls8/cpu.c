@@ -91,13 +91,27 @@ void cpu_run(struct cpu *cpu)
         print("%d\n", cpu->reg[operandA]);
         break;
 
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+      cpu->reg[7]--;
+      cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+      break;
+
+      case JMP:
+        cpu->PC = cpu->reg[operandA]
+        add_to_pc = 0;
+        break;
+
       case HLT:
         running = 0;
         break;
 
-      case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
-        break;
+      default:
+        printf("Unknown instruction %02x\n", IR);
+        exit(3);
     }
     cpu->PC += add_to_pc;
 
