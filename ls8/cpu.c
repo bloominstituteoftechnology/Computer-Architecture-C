@@ -58,6 +58,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       // TODO
       cpu->registers[regA] *= cpu->registers[regB];
       break;
+    case ALU_ADD:
+      // TODO
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -114,16 +118,30 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[7]++);
         // cpu->registers[7] += 1;
         break;
-      default:
-        printf("incorrect instruction");
+      case JMP:
+        cpu->pc = cpu->registers[argv[0] & 7];
         break;
-    }
-    int changed = cpu->ir >> 4 & 1;
-    if (!changed) {
-      cpu->pc += 1 + argc;
+      case CALL:
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->pc + 2);
+        cpu->pc = cpu->registers[argv[0]];
+        break;
+      case RET:
+        cpu->pc = cpu_ram_read(cpu, cpu->registers[7]++);
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, argv[0], argv[1]);
+        break;
+      default:
+        printf("incorrect instruction\n");
+        exit(3);
     }
     // 4. Move the PC to the next instruction.
-    // cpu->pc += 1;
+    int changed = cpu->ir >> 4 & 1;
+    if (!changed) {
+      // printf("YOU ARE MOVING FORWARD\n");
+      cpu->pc += 1 + argc;
+    }
+
   }
 }
 
