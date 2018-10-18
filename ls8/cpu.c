@@ -93,7 +93,7 @@ void cpu_run(struct cpu *cpu)
     // Timer - checks if a second has elapsed and interrupts are enabled
     if (tval.tv_sec == next && cpu->interrupts)
     {
-      cpu->registers[IS] = 1;
+      cpu->registers[IS] = 0x1 << 0; // Timer interrupt
       unsigned char maskedInterrupts = cpu->registers[IS] & cpu->registers[IM];
 
       for (int i = 0; i < 8; i++)
@@ -236,6 +236,11 @@ void handle_IRET(struct cpu *cpu, unsigned char operandA, unsigned char operandB
   cpu->interrupts = 1;
 }
 
+void handle_LD(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[operandB]);
+}
+
 /**
  * Initialize a CPU struct
  */
@@ -267,4 +272,5 @@ void cpu_init(struct cpu *cpu)
   branchTable[JMP] = handle_JMP;
   branchTable[PRA] = handle_PRA;
   branchTable[IRET] = handle_IRET;
+  branchTable[LD] = handle_LD;
 }

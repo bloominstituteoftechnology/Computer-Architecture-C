@@ -38,6 +38,7 @@ enum alu_op
 #define JMP 0b01010100
 #define PRA 0b01001000
 #define IRET 0b00010011
+#define LD 0b10000011
 
 // Define Registers
 #define IM 5
