@@ -4,16 +4,16 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
-#define SR 5
+#define SP 5
 
 void stack_push(struct cpu *cpu, unsigned char val){
-  cpu->reg[SR]--;
-  cpu->ram[cpu->reg[SR]] = val;
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val;
 }
 
 unsigned char stack_pop(struct cpu *cpu){
-  unsigned char value = cpu->ram[cpu->reg[SR]];
-  cpu->reg[SR]++;
+  unsigned char value = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
   return value;
 }
 
@@ -61,6 +61,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
+      break;
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -140,6 +143,6 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
 
-  cpu->reg[SR] = 0xF4;
+  cpu->reg[5] = 0xF4;
 }
 
