@@ -23,7 +23,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     char *endptr = NULL;
     // note that strtol 2nd parameter is **endptr
     // this is the address to the pointer
-    // we have that so strtol change update endptr
+    // we have that so strtol can update endptr
     unsigned char code = strtol(line, &endptr, 2);
 
     // check for weirdness
