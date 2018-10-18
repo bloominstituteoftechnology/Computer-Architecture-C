@@ -4,16 +4,16 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
-#define SP 5
+#define SR 5
 
-void cpu_push(struct cpu *cpu, unsigned char val){
-  cpu->reg[SP]--;
-  cpu->ram[cpu->reg[SP]] = val;
+void stack_push(struct cpu *cpu, unsigned char val){
+  cpu->reg[SR]--;
+  cpu->ram[cpu->reg[SR]] = val;
 }
 
-unsigned char cpu_pop(struct cpu *cpu){
-  unsigned char value = cpu->ram[cpu->reg[SP]];
-  cpu->reg[SP]++;
+unsigned char stack_pop(struct cpu *cpu){
+  unsigned char value = cpu->ram[cpu->reg[SR]];
+  cpu->reg[SR]++;
   return value;
 }
 
@@ -107,6 +107,12 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case PUSH:
+        stack_push(cpu, cpu->reg[operandA]);
+        break;
+      case POP:
+        cpu->reg[operandA] = cpu_pop(cpu);
+        break;
       default:
         fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
         exit(3);
@@ -134,5 +140,6 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
 
+  cpu->reg[SR] = 0xF4;
 }
 
