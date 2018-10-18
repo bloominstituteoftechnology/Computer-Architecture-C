@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * HELPER FUNCTIONS
@@ -24,6 +25,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char memory_ADDRESS_registry, unsig
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+/*
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -41,18 +43,59 @@ void cpu_load(struct cpu *cpu)
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
-
-  // TODO: Replace this with something less hard-coded
 }
+*/
+// TODO: Replace above with something less hard-coded
+void cpu_load(char *filename, struct cpu *cpu)
+{
+  FILE *fp;
+  char line[1024];
+  // below, 0x00 initializes to zero
+  unsigned char address = 0x00;
+  // Open the source file
+  // below, has to be "r", not 'r'
+  if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot open file %s/n", filename);
+    exit(2);
+  }
+  // Read all the lines and store them in RAM
+  while (fgets(line, sizeof line, fp) != NULL) {
+    // Convert string to num
+    char *endpointer;
+    unsigned char byte = strtoul(line, &endpointer, 2);
+    // Ignore lines from which no numbers were read
+    if (endpointer == line) {
+      // printf("Ignoring: %s", line);
+      continue;
+    }
+    // Store in RAM
+      // ok below, but used helper function instead
+    // cpu->ram[address++] = byte;
+
+    cpu_ram_write(cpu, address++, byte);
+  }
+  fclose(fp);
+} // <-- END OF cpu_load() -->
 
 /**
  * ALU
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  /*
+  // below, 3 lines to disable compiler warnings (temp, until impl)
+  (void)cpu;
+  (void)regA;
+  (void)regB;
+  //
+  */
   switch (op) {
     case ALU_MUL:
       // TODO
+        // Multiply the values in two registers together and store the result in registerA.
+      //below, to shorthand
+      // cpu->reg[regA] += cpu->reg[regB];
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -79,7 +122,11 @@ void cpu_run(struct cpu *cpu)
     // int instruction_set_pc = (IR >> 4) & 1;
     int instruction_set_pc = (IR >> 6) + 1;
 
-    printf("TRACE: pc:%02X: ir:%02X opA:%02X opB:%02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: --> pc:%02X | ir:%02X | opA:%02X | opB:%02X | reg:", cpu->PC, IR, operandA, operandB);
+    for (int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+    printf(" |\n");
 
 
     // 2. switch() over it to decide on a course of action.
@@ -100,6 +147,11 @@ void cpu_run(struct cpu *cpu)
        // `HLT`: halt the CPU and exit the emulator.
       case HLT:
         running = 0;
+        break;
+
+      // `MUL`: Multiply the values in two registers together and store the result in registerA.
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
 
