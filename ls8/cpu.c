@@ -42,7 +42,7 @@ void cpu_load(char *filename, struct cpu *cpu)
  */
 void cpu_push(struct cpu *cpu, unsigned char value)
 {
-  // decrement the value in register 7 (SP)
+  // decrement the value in register 7 (SP), then put it in SP
   unsigned char SP = --cpu->reg[7];
 
   // put the value into ram at the index pointed to by R7
@@ -54,11 +54,8 @@ void cpu_push(struct cpu *cpu, unsigned char value)
  */
 unsigned char cpu_pop(struct cpu *cpu)
 {
-  // get value from ram pointed at by R7
-  unsigned char value = cpu->ram[cpu->reg[7]];
-
-  // increment the pointer
-  cpu->reg[7]++;
+  // get value from ram pointed at by R7, then increment
+  unsigned char value = cpu->ram[cpu->reg[7]++];
 
   return value;
 }
@@ -107,7 +104,7 @@ void trace(struct cpu *cpu)
   }
   switch (IR)
   {
-  case 0x82:
+  case LDI:
     sprintf(instruction, "%s R%d %02X", "LDI", operandA, operandB);
     break;
 
