@@ -66,7 +66,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
-  unsigned char *SP = &cpu->reg[7];
+  unsigned char SP = cpu->reg[7];
 
   while (running) {
 
@@ -100,13 +100,11 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case POP:
-        cpu->reg[operandA] = cpu_ram_read(cpu, *SP++);
-        cpu->PC += 2;
+        cpu->reg[operandA] = cpu_ram_read(cpu, SP++);
         break;
 
       case PUSH:
-        cpu_ram_write(cpu, *SP--, cpu->reg[operandA]);
-        cpu->PC +=2;
+        cpu_ram_write(cpu, --SP, cpu->reg[operandA]);
         break;
 
       case HLT:
