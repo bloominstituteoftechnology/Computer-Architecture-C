@@ -22,6 +22,8 @@ enum alu_op {
 #define LDI  0b10000010 
 #define PRN  0b01000111
 #define HLT  0b00000001 
+#define POP 01000110
+#define PUSH 01000101
 
 // Function declarations
 

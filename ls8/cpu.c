@@ -84,6 +84,15 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case PUSH:
+        unsigned char sp = cpu->registers[7];
+        sp--;
+        cpu->ram[sp] = cpu->registers[operandA];
+        break;
+      case POP: 
+        cpu->registers[operandA] = cpu->ram[sp];
+        sp++;
+        break;
       case HLT:
         running = 0;
         break;
