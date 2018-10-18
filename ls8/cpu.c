@@ -23,7 +23,7 @@ void cpu_load(struct cpu *cpu, char *file)
   int address = 0;
 
   if (fp == NULL) {
-    printf("The file you are looking for doesn't exist\n");
+    printf("\033[0;31mERROR\033[0m The file you are looking for doesn't exist\n");
     exit(2);
   }
   while (fgets(line, sizeof(line), fp) != NULL) {
@@ -34,23 +34,6 @@ void cpu_load(struct cpu *cpu, char *file)
   }
 
   fclose(fp);
-
-  // HARD CODED/OLD CODE
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // }; 
-  // int address = 0;
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -65,8 +48,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->registers[regA] += cpu->registers[regB];
       break;
-
-    // TODO: implement more ALU ops
   }
 }
 
@@ -103,10 +84,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, argv[0], argv[1]);
         break;      
       case PUSH:
-        cpu_ram_write(cpu, --cpu->registers[cpu->SP], cpu->registers[argv[0]]);
+        cpu_ram_write(cpu, --cpu->registers[cpu->registers[7]], cpu->registers[argv[0]]);
         break;      
       case POP:
-        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[cpu->SP]++);
+        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[cpu->registers[7]]++);
         break;      
       default:
         printf("Unknown instructions: %d", cpu->IR);
@@ -117,13 +98,6 @@ void cpu_run(struct cpu *cpu)
     if (!changed) {
       cpu->PC += 1 + argc;
     }
-    
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // unsigned char IR = cpu_ram_read(cpu, PC);
-    // 2. switch() over it to decide on a course of action.
-      // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
@@ -132,15 +106,14 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->IR = 0;
-  cpu->SP = 0xF4;
-  // TODO: Zero registers and RAM
+
   for (int i=0; i<8; i++) {
     cpu->registers[i] = 0;
   }
   for (int i=0; i<256; i++) {
     cpu->ram[i] = 0;
   }
+  cpu->registers[7] = 0xF4;
 }
