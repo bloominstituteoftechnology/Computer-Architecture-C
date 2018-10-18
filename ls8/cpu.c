@@ -98,7 +98,7 @@ void cpu_run(struct cpu *cpu)
 
       for (int i = 0; i < 8; i++)
       {
-        if ((maskedInterrupts >> i) == 1)
+        if (((maskedInterrupts >> i) & 1) == 1)
         {
           // Disable interrupts
           cpu->interrupts = 0;
@@ -157,11 +157,13 @@ void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   cpu->registers[operandA] = cpu_pop(cpu);
 }
 
 void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   cpu_push(cpu, cpu->registers[operandA]);
 }
 
@@ -172,16 +174,20 @@ void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   printf("%d\n", cpu->registers[operandA]);
 }
 
 void handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandA;
+  (void)operandB;
   cpu->running = 0;
 }
 
 void handle_CALL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   cpu_push(cpu, cpu->PC + 2);
   cpu->PC = cpu->registers[operandA];
 }
@@ -193,6 +199,8 @@ void handle_ADD(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandA;
+  (void)operandB;
   cpu->PC = cpu_pop(cpu);
 }
 
@@ -203,16 +211,20 @@ void handle_ST(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_JMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   cpu->PC = cpu->registers[operandA];
 }
 
 void handle_PRA(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandB;
   printf("%c\n", cpu->registers[operandA]);
 }
 
 void handle_IRET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  (void)operandA;
+  (void)operandB;
   // Set registers back to where they were before the interrupt
   for (int i = 6; i <= 0; i++)
   {
