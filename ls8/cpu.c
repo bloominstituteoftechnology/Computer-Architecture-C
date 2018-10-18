@@ -14,6 +14,12 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
   cpu->ram[mar] = mdr;
 }
 
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->reg[5]--;
+  cpu->ram[cpu->reg[5]] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -62,7 +68,6 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1;  // True until we get a HLT instruction
   unsigned char IR; // Get the value of the current instruction, which is in the address of the pc
-
   while (running)
   {
 
@@ -81,6 +86,10 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       cpu->reg[operandA] = operandB; // We take register number 0, and set it to the value 8.
       //cpu->PC += 3;                  // Move the pc to the next instruction.
+      break;
+
+    case MUL:
+      cpu->reg[operandA] *= cpu->reg[operandB];
       break;
 
     case PRN:
