@@ -66,6 +66,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
+  unsigned char *SP = &cpu->reg[7];
 
   while (running) {
 
@@ -76,7 +77,13 @@ void cpu_run(struct cpu *cpu)
 
     int add_to_pc = (IR >> 6) + 1;
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for(int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
@@ -90,6 +97,16 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, *SP++);
+        cpu->PC += 2;
+        break;
+
+      case PUSH:
+        cpu_ram_write(cpu, *SP--, cpu->reg[operandA]);
+        cpu->PC +=2;
         break;
 
       case HLT:
