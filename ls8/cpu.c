@@ -83,7 +83,13 @@ void cpu_run(struct cpu *cpu)
 
     handler(cpu, operandA, operandB);
 
-    cpu->pc += (IR >> 6) + 1;
+    
+
+    int changed = (IR >> 4) & 1;
+    if (!changed)
+    {
+      cpu->pc += (IR >> 6) + 1;
+    }
   }
 }
 
@@ -95,6 +101,11 @@ void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 void handle_MUL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
   cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+}
+void handle_ADD(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("%d in return");
+  cpu->registers[operandA] = cpu->registers[operandA] + cpu->registers[operandB];
 }
 
 void handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
@@ -126,9 +137,42 @@ void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB
   // cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
   cpu->ram[SP] = cpu->registers[operandA];
 }
+void handle_CALL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  printf("%d in return");
+  unsigned char address = cpu->pc +2;
 
-//int i = cpu->registers[7]; //put the sp in i
-//cpu->ram[i] = 
+unsigned char SP = --cpu->registers[7];
+cpu->ram[SP] = address;
+
+cpu->pc = cpu->registers[operandA];
+
+// Calls a subroutine (function) at the address stored in the register.
+
+// The address of the instruction directly after the CALL instruction is pushed onto the stack.
+// The PC is set to the address stored in the given register.
+  // pushes address of instructions in operandA, then move cpu->pc to subroutine address
+  // cpu->registers[operandA] =
+  // cpu->ram[0] = cpu->registers[operandB];
+  // handle_PUSH(cpu, cpu->registers[operandB], operandB);
+   
+}
+  
+void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+//   RET
+// Return from subroutine.
+// Pop the value from the top of the stack and store it in the PC.
+  // pop ret address off the stack and store on cpu->pc
+  printf("%d in return");
+   unsigned char SP = cpu->registers[7];
+  // printf("%d\n", i);
+  cpu->pc = cpu->ram[SP];
+  SP++;
+
+  
+
+}
 
 /**
  * Initialize a CPU struct
@@ -138,6 +182,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
   cpu->running = 1;
+  cpu->registers[7] = 0xF4;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
@@ -149,4 +194,7 @@ void cpu_init(struct cpu *cpu)
   branchTable[HLT] = handle_HLT;
   branchTable[POP] = handle_POP;
   branchTable[PUSH] = handle_PUSH;
+  branchTable[CALL] = handle_CALL;
+  branchTable[RET] = handle_RET;
+  branchTable[ADD] = handle_ADD;
 }
