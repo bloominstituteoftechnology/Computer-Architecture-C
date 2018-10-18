@@ -22,6 +22,21 @@ void cpu_ram_write(struct cpu *cpu, unsigned char memory_ADDRESS_registry, unsig
 }
 
 
+// Push the value in the given register on the stack.
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->reg[STACK_POINTER]--;
+
+  cpu->ram[cpu->reg[STACK_POINTER]] = value;
+}
+// Pop the value at the top of the stack into the given register.
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char value = cpu->ram[cpu->reg[STACK_POINTER]];
+  cpu->reg[STACK_POINTER]++;
+  return value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -51,6 +66,7 @@ void cpu_load(char *filename, struct cpu *cpu)
   FILE *fp;
   char line[1024];
   // below, 0x00 initializes to zero
+    // Where programs start getting loaded
   unsigned char address = 0x00;
   // Open the source file
   // below, has to be "r", not 'r'
@@ -149,9 +165,16 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
 
-      // `MUL`: Multiply the values in two registers together and store the result in registerA.
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu_push(cpu, cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_pop(cpu);
         break;
 
 
@@ -186,6 +209,9 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
+
+  //Initialize SP
+  cpu->reg[STACK_POINTER] = 0xF4; // <-- Where SP is on an empty stack
 }
 
 /**
