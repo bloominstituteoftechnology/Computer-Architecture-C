@@ -87,13 +87,25 @@ void cpu_run(struct cpu *cpu)
 
   while (cpu->running)
   {
+    if (1)
+    {
+      cpu->registers[IS] = 0x1 << 1; // Keyboard interrupt
+      cpu_ram_write(cpu, 0xF4, 65);
+    }
 
     gettimeofday(&tval, NULL);
 
-    // Timer - checks if a second has elapsed and interrupts are enabled
-    if (tval.tv_sec == next && cpu->interrupts)
+    // Timer - checks if a second has elapsed and sets the IS register
+    if (tval.tv_sec == next)
     {
       cpu->registers[IS] = 0x1 << 0; // Timer interrupt
+    }
+
+    next = tval.tv_sec + 1;
+
+    // Checks to see if there is an interrupt
+    if (cpu->interrupts)
+    {
       unsigned char maskedInterrupts = cpu->registers[IS] & cpu->registers[IM];
 
       for (int i = 0; i < 8; i++)
@@ -112,12 +124,11 @@ void cpu_run(struct cpu *cpu)
             cpu_push(cpu, cpu->registers[i]);
           }
           // Set PC to the appropriate handler in the interrupt vector table
+          printf("MOVING PC TO: %d\n", cpu->ram[0xF8 + i]);
           cpu->PC = cpu->ram[0xF8 + i];
         }
       }
     }
-
-    next = tval.tv_sec + 1;
 
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1) & 0xff;
@@ -132,7 +143,7 @@ void cpu_run(struct cpu *cpu)
     // Checks if handler doesn't exist
     if (handler == NULL)
     {
-      printf("Unknown instruction\n");
+      printf("Unknown instruction: %02x\n", IR);
       return;
     }
 
@@ -211,6 +222,7 @@ void handle_ST(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 
 void handle_JMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 {
+  printf("Moving with JMP\n");
   (void)operandB;
   cpu->PC = cpu->registers[operandA];
 }
@@ -226,7 +238,7 @@ void handle_IRET(struct cpu *cpu, unsigned char operandA, unsigned char operandB
   (void)operandA;
   (void)operandB;
   // Set registers back to where they were before the interrupt
-  for (int i = 6; i <= 0; i++)
+  for (int i = 6; i >= 0; i--)
   {
     cpu->registers[i] = cpu_pop(cpu);
   }
