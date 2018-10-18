@@ -15,6 +15,7 @@
 - [x] Add the `LDI` instruction
 - [x] Add the `PRN` instruction
 
+
 ### Day 2: Get `mult.ls8` running, load files dynamically
 - [x] Un-hardcode the machine code
 - [x] Implement a Multiply and Print the Result (run `mult8.ls8`)
