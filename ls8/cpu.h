@@ -7,7 +7,6 @@ struct cpu {
   // PC
   unsigned char PC;
   unsigned char IR;
-  unsigned char SP;
   // registers (array)
   unsigned char registers[8];
   // ram (array)
@@ -36,6 +35,8 @@ enum alu_op {
 #define ADD 0b10100000
 #define PUSH 0b01000101
 #define POP 0b01000110
+#define CALL 0b01010000
+#define RET 0b00010001
 // #define SUB 0b10100001
 // #define DIV 0b10100011
 // #define MOD 0b10100100

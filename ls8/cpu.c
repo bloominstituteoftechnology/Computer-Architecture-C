@@ -84,14 +84,21 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, argv[0], argv[1]);
         break;      
       case PUSH:
-        cpu_ram_write(cpu, --cpu->registers[cpu->registers[7]], cpu->registers[argv[0]]);
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[argv[0]]);
         break;      
       case POP:
-        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[cpu->registers[7]]++);
+        cpu->registers[argv[0]] = cpu_ram_read(cpu, cpu->registers[7]++);
         break;      
-      default:
-        printf("Unknown instructions: %d", cpu->IR);
+      case CALL:
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->PC + 2);
+        cpu->PC = cpu->registers[argv[0]];
+        break;      
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->registers[7]++);
         break;
+      default:
+        printf("Unknown instructions: %d\n", cpu->IR);
+        exit(3);
     }
 
     int changed = cpu->IR >> 4 & 1;
@@ -115,5 +122,5 @@ void cpu_init(struct cpu *cpu)
   for (int i=0; i<256; i++) {
     cpu->ram[i] = 0;
   }
-  cpu->registers[7] = 0xF4;
+  cpu->registers[7] = 0xf4;
 }
