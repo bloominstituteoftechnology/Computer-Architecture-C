@@ -55,9 +55,8 @@ void cpu_push(struct cpu *cpu, unsigned char value)
 unsigned char cpu_pop(struct cpu *cpu)
 {
   // get value from ram pointed at by R7, then increment
-  unsigned char value = cpu->ram[cpu->reg[7]++];
-
-  return value;
+  // unsigned char value = cpu->ram[cpu->reg[7]++];
+  return cpu->ram[cpu->reg[7]++];
 }
 /**
  * ALU
