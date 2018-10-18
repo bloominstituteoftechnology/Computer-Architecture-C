@@ -63,6 +63,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
       break;
+
+      case ALU_ADD:
+      // TODO
+      cpu->reg[regA] += cpu->reg[regB];
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -129,6 +134,9 @@ void cpu_run(struct cpu *cpu)
     case PUSH:
       push(cpu, operand_a);
       break;
+    case JMP:
+      cpu->PC = cpu->reg[operand_a & 7];
+      add_to_pc = 0;
 
     default:
       printf("Does not exist\n\n");
@@ -146,6 +154,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->reg[7] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
