@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h> // for timeval (timed interrupts)
 
 #define DATA_LEN 255
 #define STACK_POINTER 7  // Define the register reserved for the stack pointer
@@ -86,8 +87,16 @@ void cpu_run(struct cpu *cpu)
 
   int running = 1; // True until we get a HLT instruction
 
+  struct timeval tv;
+  int last_sec = -1;
+
   while (running) {
 
+    // If interrupts are enabled. Interrupt mask will be > 0
+    if(cpu->registers[IM] > 0)
+    {
+
+    }
     // Get the value of the current instruction (in address PC).
     int pc = cpu->pc;
     unsigned char binary_instruction = cpu_ram_read(cpu, pc);
@@ -295,6 +304,15 @@ int handle_JNE(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
 }
 
+int handle_PRA(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  (void)regB;
+  printf("\nValue at register %d is: %c\n", regA, cpu->registers[regA]);
+  return 1;
+
+}
+
 
 
 /**
@@ -330,6 +348,7 @@ void cpu_init(struct cpu *cpu)
   instructions[JMP] = handle_JMP;
   instructions[JEQ] = handle_JEQ;
   instructions[JNE] = handle_JNE;
+  instructions[PRA] = handle_PRA;
 
 
 }
