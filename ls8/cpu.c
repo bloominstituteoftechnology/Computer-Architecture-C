@@ -96,6 +96,10 @@ void cpu_run(struct cpu *cpu)
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->registers[7]++);
         break;
+      case CMP:
+        // compare the values in the given registers
+        // and set the flag based which value is larger
+        // or 1 if both are equal
       default:
         printf("Unknown instructions: %d\n", cpu->IR);
         exit(3);
@@ -115,6 +119,7 @@ void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
   cpu->IR = 0;
+  cpu->FL = 0;
 
   for (int i=0; i<8; i++) {
     cpu->registers[i] = 0;
