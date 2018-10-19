@@ -24,6 +24,8 @@ enum alu_op
   // Add more here
 };
 
+#define SP 7
+
 
 
 // Instructions
