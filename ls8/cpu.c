@@ -330,7 +330,32 @@ void handle_CMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
     cpu->FL &= ~(0x1 << 1);
     cpu->FL &= ~(0x1 << 0);
   }
-  printf("%d\n", cpu->FL);
+}
+
+void handle_JEQ(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+  if ((cpu->FL & (0x1 << 0)) == 1)
+  {
+    cpu->PC = cpu->registers[operandA];
+  }
+  else
+  {
+    cpu->PC += 2;
+  }
+}
+
+void handle_JNE(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+  if ((cpu->FL & (0x1 << 0)) == 0)
+  {
+    cpu->PC = cpu->registers[operandA];
+  }
+  else
+  {
+    cpu->PC += 2;
+  }
 }
 
 /**
@@ -367,4 +392,6 @@ void cpu_init(struct cpu *cpu)
   branchTable[IRET] = handle_IRET;
   branchTable[LD] = handle_LD;
   branchTable[CMP] = handle_CMP;
+  branchTable[JEQ] = handle_JEQ;
+  branchTable[JNE] = handle_JNE;
 }
