@@ -174,6 +174,8 @@ void cpu_run(struct cpu *cpu)
           cpu->registers[IS] &= ~(1 << i);
           // Push PC on to the stack
           cpu_push(cpu, cpu->PC);
+          // PUSH FL on to the stack
+          cpu_push(cpu, cpu->FL);
           // Push registers R0-R6 on to the stack
           for (int i = 0; i <= 6; i++)
           {
@@ -296,6 +298,8 @@ void handle_IRET(struct cpu *cpu, unsigned char operandA, unsigned char operandB
   {
     cpu->registers[i] = cpu_pop(cpu);
   }
+  // Set flags to what it was before the interrupt
+  cpu->FL = cpu_pop(cpu);
   // Set PC back to where it was before the interrupt
   cpu->PC = cpu_pop(cpu);
   // Re-enable interrupts
