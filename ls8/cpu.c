@@ -146,9 +146,15 @@ void cpu_run(struct cpu *cpu)
         if (cpu->FL)
           cpu->PC = cpu->reg[operandA];
         else
-          cpu->PC =+ 2;
+          cpu->PC += 2;
         break;
 
+      case JNE:
+        if (!cpu->FL)
+          cpu->PC = cpu->reg[operandA];
+        else
+          cpu->PC += 2;
+        break;
 
       case HLT:
         running = 0;
