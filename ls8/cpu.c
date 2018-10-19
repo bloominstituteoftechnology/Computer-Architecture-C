@@ -141,6 +141,10 @@ void cpu_run(struct cpu *cpu)
         }
         break;
 
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        break;
+
       case HLT:
         running = 0;
         break;
