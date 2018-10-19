@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -9,7 +10,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
   return cpu->ram[index];
 }
 
-// Write to memory
 void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val)
 {
   cpu->ram[index] = val;
@@ -19,28 +19,37 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  printf("\nCPU Loading....\n");
-  unsigned char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  //Init the file
+  FILE *fp = fopen(filename, "r");
+	
+  char line[1024];
 
-  int address = 0;
+  unsigned char mem = 0x00;
 
-  int i;
-  for (i = 0; i < DATA_LEN; i++) {
-    // printf("value in address: %d", cpu->ram[address]);
-    cpu->ram[address++] = data[i];
+  //Check if the file exits:
+  if (fp == NULL){
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  //While there's lines in the file...
+	while (fgets(line, sizeof line, fp) != NULL) {
+    char *endptr;
+		unsigned char machine_code = strtoul(line, &endptr, 2);
+
+    if (endptr == line){
+      //we got no numbers
+      continue;
+    }
+
+    //Write it into Memory
+    cpu_ram_write(cpu, mem++, machine_code);
+  }
+
+	fclose(fp);
+
 }
 
 /**
@@ -50,8 +59,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -66,6 +76,7 @@ void cpu_run(struct cpu *cpu)
   unsigned char IR; //instruction register
  
   printf("\nCPU Running....\n");
+
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
 
@@ -74,12 +85,10 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xFF);
 
 
-    printf("\nTrace:\n");
-    printf("PC: %02X\n" , cpu->PC);
-    printf("Instruct Reg: %02X\n", IR); 
-    printf("Operand A: %02X\n", operandA);
-    printf("Operand B: %02X\n", operandB);
-
+    int i;
+    for(i = 0; i < 8; i++) {
+      // printf(" %02X", cpu->reg[i]);
+    }
 
     int add_to_pc = (IR >> 6) + 1;
       // 2. switch() over it to decide on a course of action.
@@ -87,7 +96,6 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         // LDI
         // 3. Do whatever the instruction should do according to the spec.
-        printf("Command is LDI...\n");
         cpu->reg[operandA] = operandB;
         break;
       
@@ -96,13 +104,61 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case MUL:
-        printf("Command is MUL....\n");
-        cpu->reg[operandA] = cpu->reg[operandA] * cpu->reg[operandB];
-        
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu_ram_write(cpu, --cpu->reg[7], cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu,cpu->reg[7]++);
+        break;
+
+      case CALL:
+        cpu_ram_write(cpu, --cpu->reg[7] , ++cpu->PC);
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc = 0;
+        break;
+
+      case RET:
+        cpu->PC = cpu_ram_read(cpu,cpu->reg[7]++);
+        break;
+      
+      case CMP:
+        if (cpu->reg[operandA] == cpu->reg[operandB]){
+          cpu->flag_reg[0] = 1; // E = Equals = 0th bit
+        }else if (cpu->reg[operandA] > cpu->reg[operandB]){
+          cpu->flag_reg[1] = 1; // G = Greater than = 1st bit
+        }else {
+          cpu->flag_reg[2] = 1; // L = Less than = 2nd bit
+        }
+        break;
+      
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc = 0;
+        break;
+      
+      case JEQ:
+        if (cpu->flag_reg[0] == 1){
+          cpu->PC = cpu->reg[operandA];
+          add_to_pc = 0;
+        }
+        break;
+      
+      case JNE:
+        if (cpu->flag_reg[0] == 0){
+          cpu->PC = cpu->reg[operandA];
+          add_to_pc = 0;
+        }
         break;
 
       case HLT:
-        printf("Command is HLT! \n");
         running = 0;
         break;
     }
@@ -125,7 +181,6 @@ void cpu_init(struct cpu *cpu)
  
   // PC and FL registers are cleared to 0.
   // RAM is cleared to 0.
-  printf("CPU Init starting...\n");
   
   // Initialize the PC and other special registers
   cpu->PC = 0;
@@ -133,7 +188,9 @@ void cpu_init(struct cpu *cpu)
   // // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->flag_reg, 0, sizeof(cpu->flag_reg));
 
- cpu->reg[7] = 0b11110100;
+
+  cpu->reg[7] = 0b11110100;
 }
 
