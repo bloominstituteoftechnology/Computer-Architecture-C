@@ -6,6 +6,8 @@ struct cpu
 {
   // PC
   unsigned char PC;
+  // flags
+  unsigned char FL;
   // registers (array)
   unsigned char registers[8];
   // ram (array)
@@ -39,6 +41,7 @@ enum alu_op
 #define PRA 0b01001000
 #define IRET 0b00010011
 #define LD 0b10000011
+#define CMP 0b10100111
 
 // Define Registers
 #define IM 5

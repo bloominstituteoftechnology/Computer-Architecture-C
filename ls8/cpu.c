@@ -145,7 +145,7 @@ void cpu_run(struct cpu *cpu)
     // Writes to the memory address 0xF4 with the value of the key which was pressed
     if (kbhit())
     {
-      cpu->registers[IS] = 0x1 << 1; // Keyboard interrupt
+      cpu->registers[IS] |= (0x1 << 1); // Keyboard interrupt
       cpu_ram_write(cpu, 0xF4, getch());
     }
 
@@ -154,7 +154,7 @@ void cpu_run(struct cpu *cpu)
     // Timer - checks if a second has elapsed and sets the IS register
     if (tval.tv_sec == next)
     {
-      cpu->registers[IS] = 0x1 << 0; // Timer interrupt
+      cpu->registers[IS] |= (0x1 << 0); // Timer interrupt
     }
 
     next = tval.tv_sec + 1;
@@ -171,7 +171,7 @@ void cpu_run(struct cpu *cpu)
           // Disable interrupts
           cpu->interrupts = 0;
           // Clear bit in IS register
-          cpu->registers[IS] = 0;
+          cpu->registers[IS] &= ~(1 << i);
           // Push PC on to the stack
           cpu_push(cpu, cpu->PC);
           // Push registers R0-R6 on to the stack
@@ -307,6 +307,32 @@ void handle_LD(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[operandB]);
 }
 
+void handle_CMP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  if (cpu->registers[operandA] == cpu->registers[operandB])
+  {
+    cpu->FL |= (0x1 << 0);
+    // Clear other bits
+    cpu->FL &= ~(0x1 << 1);
+    cpu->FL &= ~(0x1 << 2);
+  }
+  else if (cpu->registers[operandA] > cpu->registers[operandB])
+  {
+    cpu->FL |= (0x1 << 1);
+    // Clear other bits
+    cpu->FL &= ~(0x1 << 2);
+    cpu->FL &= ~(0x1 << 0);
+  }
+  else
+  {
+    cpu->FL |= (0x1 << 2);
+    // Clear other bits
+    cpu->FL &= ~(0x1 << 1);
+    cpu->FL &= ~(0x1 << 0);
+  }
+  printf("%d\n", cpu->FL);
+}
+
 /**
  * Initialize a CPU struct
  */
@@ -314,6 +340,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
   cpu->running = 1;
   cpu->interrupts = 1;
 
@@ -339,4 +366,5 @@ void cpu_init(struct cpu *cpu)
   branchTable[PRA] = handle_PRA;
   branchTable[IRET] = handle_IRET;
   branchTable[LD] = handle_LD;
+  branchTable[CMP] = handle_CMP;
 }
