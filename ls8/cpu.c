@@ -179,7 +179,57 @@ void cpu_run(struct cpu *cpu)
         printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
         printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
         break;
-
+      
+      case CMP:
+        printf("The trace above CMP \n\n");
+        //Compare the values in RegA and RegB and set the appropriate flag
+        if (cpu->reg[operandA] == cpu->reg[operandB]){
+          cpu->flag_reg[0] = 1; // E = Equals = 0th bit
+        }else if (cpu->reg[operandA] > cpu->reg[operandB]){
+          cpu->flag_reg[1] = 1; // G = Greater than = 1st bit
+        }else {
+          cpu->flag_reg[2] = 1; // L = Less than = 2nd bit
+        }
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+      
+      case JMP:
+        printf("The trace above JMP \n\n");
+        //Jump to the address stored in the given register.
+        //Set the PC to the address stored in the given register.
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc = 0;
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+      
+      case JEQ:
+        printf("The trace above JEQ \n\n");
+        //If equal flag is set (true), jump to the address stored in the given register.
+        if (cpu->flag_reg[0] == 1){
+          cpu->PC = cpu->reg[operandA];
+          add_to_pc = 0;
+        }
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+      
+      case JNE:
+        printf("The trace above JNE \n\n");
+        // If E flag is clear (false, 0), jump to the address stored in the given register.
+        if (cpu->flag_reg[0] == 0){
+          cpu->PC = cpu->reg[operandA];
+          add_to_pc = 0;
+        }
+        printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+        printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+        printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+        break;
+      
       case HLT:
         printf("The trace above HLT \n\n");
         printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
@@ -212,11 +262,13 @@ void cpu_init(struct cpu *cpu)
   // Initialize the PC and other special registers
   cpu->PC = 0;
 
-  // // TODO: Zero registers and RAM
+  // // TODO: Zero registers and RAM and Flag Registers
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->flag_reg, 0, sizeof(cpu->flag_reg));
 
   cpu->reg[7] = 0b11110100;
+  
 }
 
 
