@@ -5,7 +5,7 @@
 struct cpu {
   // TODO
   // PC Program counter. Index of which instruction we need to execute
-  int pc;
+  int PC;
   // registers (array)
   unsigned char registers[8];
   // ram (array)
@@ -42,6 +42,7 @@ enum alu_op {
 #define JEQ 0b01010101
 #define JNE 0b01010110
 #define PRA 0b01001000
+#define IRET 0b00010011
 
 // TODO: more instructions here. These can be used in cpu_run().
 
@@ -66,5 +67,8 @@ extern int handle_CMP(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_JMP(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_JEQ(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_JNE(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern void handle_interrupt(struct cpu* cpu);
+extern int handle_IRET(struct cpu* cpu, unsigned char regA, unsigned char regB);
+
 
 #endif

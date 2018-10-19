@@ -87,21 +87,26 @@ void cpu_run(struct cpu *cpu)
 
   int running = 1; // True until we get a HLT instruction
 
-  struct timeval tv;
+  struct timeval tv;  
   int last_sec = -1;
 
   while (running) {
 
-    // If interrupts are enabled. Interrupt mask will be > 0
-    if(cpu->registers[IM] > 0)
-    {
-
+    gettimeofday(&tv, NULL);
+    
+    if (tv.tv_sec != last_sec) {
+      cpu->registers[IS] |= 0b00000001; // Set first bit of Interrupt Status to 1;
+      last_sec = tv.tv_sec;
     }
+    
+    handle_interrupt(cpu);
+
+
     // Get the value of the current instruction (in address PC).
-    int pc = cpu->pc;
-    unsigned char binary_instruction = cpu_ram_read(cpu, pc);
-    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
-    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
+    int PC = cpu->PC;
+    unsigned char binary_instruction = cpu_ram_read(cpu, PC);
+    unsigned char operandA = cpu_ram_read(cpu, PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, PC + 2);
     
     // Set and check our instruction handler
 
@@ -112,29 +117,30 @@ void cpu_run(struct cpu *cpu)
     if(handler == 0)
     {
 
-      printf("Invalid instruction PC: %02X entered, exiting program.\n", pc);
+      printf("Invalid instruction PC: %02X entered, exiting program.\n", PC);
       break;
 
     }
 
     // Do whatever the instruction should do according to the spec.
     
-    if(((binary_instruction >> 4) & 0x1) != 1)  // If we have an instruction which DOES NOT change the pc (indicated by bit 000x0000)
+    if(((binary_instruction >> 4) & 0x1) != 1)  // If we have an instruction which DOES NOT change the PC (indicated by bit 000x0000)
     {
       
       running = handler(cpu, operandA, operandB);   // Returns 1 if continue, 0 if halt
-      cpu->pc += (int) (binary_instruction >> 6) + 1;
+      cpu->PC += (int) (binary_instruction >> 6) + 1;
 
     }
     else// If we have an instruction which DOES change the PC
     {
 
-      cpu->pc = handler(cpu, operandA, operandB);   // Returns the pc position to jump to
+      cpu->PC = handler(cpu, operandA, operandB);   // Returns the PC position to jump to
 
     }
 
   }
 }
+
 
 // Instruction Handlers
 unsigned char cpu_ram_read(struct cpu *cpu, int mar)
@@ -218,8 +224,8 @@ int handle_CALL(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
   (void)regB;
   // Push address of next instruction to the stack
-  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->pc + 2);
-  return cpu->registers[regA];                                            // return the value in register A (the pc value of the called function)
+  cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->PC + 2);
+  return cpu->registers[regA];                                            // return the value in register A (the PC value of the called function)
 
 }
 
@@ -228,9 +234,9 @@ int handle_RET(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
   (void)regA;
   (void)regB;
-  // Pop pc address of next instruction off of the stack
+  // Pop PC address of next instruction off of the stack
   unsigned int return_pc = cpu_ram_read(cpu, cpu->registers[STACK_POINTER]++); // Get the value at stack pointer, then increment
-  return return_pc;                                            // return the pc value of the address just after the previous call
+  return return_pc;                                            // return the PC value of the address just after the previous call
 
 }
 
@@ -284,9 +290,9 @@ int handle_JEQ(struct cpu* cpu, unsigned char regA, unsigned char regB)
   {
     return handle_JMP(cpu, regA, regB);
   }
-  // If not equal, increment pc by 2 and return value
+  // If not equal, increment PC by 2 and return value
   int move_increment = 2;
-  return cpu->pc + move_increment;
+  return cpu->PC + move_increment;
 
 }
 
@@ -298,9 +304,9 @@ int handle_JNE(struct cpu* cpu, unsigned char regA, unsigned char regB)
   {
     return handle_JMP(cpu, regA, regB);
   }
-  // If equal, increment pc by 2 and return value
+  // If equal, increment PC by 2 and return value
   int move_increment = 2;
-  return cpu->pc + move_increment;
+  return cpu->PC + move_increment;
 
 }
 
@@ -310,6 +316,60 @@ int handle_PRA(struct cpu* cpu, unsigned char regA, unsigned char regB)
   (void)regB;
   printf("\nValue at register %d is: %c\n", regA, cpu->registers[regA]);
   return 1;
+
+}
+
+int handle_IRET(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  (void)regA;
+  (void)regB;
+
+  for(int i = 0; i < 7; i++)  // pop registers 0 through 6 off the stack
+  {
+    handle_POP(cpu, i, 0);
+  }
+
+  cpu->FL = cpu_ram_read(cpu, cpu->registers[STACK_POINTER]++); // Pop off Flags
+  cpu->PC = cpu_ram_read(cpu, cpu->registers[STACK_POINTER]++); // Pop off PC
+  handle_POP(cpu, IM, 0); // Pop old IM off stack, re-enabling interrupts
+  
+  return cpu->PC;
+
+}
+
+// Check for interrupts and handle
+
+void handle_interrupt(struct cpu* cpu)
+{
+    // Check if interrupts are enabled. Interrupt mask will be > 0
+    if(cpu->registers[IM] > 0)
+    {
+      unsigned char maskedInterrupts = cpu->registers[IM] & cpu->registers[IS];
+
+      for (int i = 0; i < 8; i++) {
+        // Right shift interrupts down by i, then mask with 1 to see if that bit was set
+        int interrupt_happened = ((maskedInterrupts >> i) & 1) == 1;
+
+        if(interrupt_happened)
+        {
+          cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->registers[IM]); // push IM to stack
+          cpu->registers[IM] &= 0;       // Set IM to 0, disabling further interrupts
+          cpu->registers[IS] &= 0;      // Clear all interrupts
+          cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->PC); // push PC to stack
+          cpu_ram_write(cpu, --cpu->registers[STACK_POINTER], cpu->FL); // push FL to stack
+          
+          for(int i = 0; i < 7; i++)  // push registers 0 through 6 to the stack
+          {
+            handle_PUSH(cpu, i, 0);
+          }
+          
+          cpu->PC = cpu->ram[0xF8 + i];
+        }
+
+        break;
+      }
+    }
 
 }
 
@@ -324,7 +384,7 @@ void cpu_init(struct cpu *cpu)
   int BEGIN_STACK = 0xF4;
 
   // TODO: Initialize the PC and other special registers
-  cpu->pc = 0;
+  cpu->PC = 0;
   cpu->FL = 0;
 
   // Zero registers and RAM
@@ -349,6 +409,7 @@ void cpu_init(struct cpu *cpu)
   instructions[JEQ] = handle_JEQ;
   instructions[JNE] = handle_JNE;
   instructions[PRA] = handle_PRA;
+  instructions[IRET] = handle_IRET;
 
 
 }
