@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -17,8 +18,34 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char address = 0;
+
+  if (fp == NULL)
+  {
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
+  }
+
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
+    char *endpointer = NULL;
+    unsigned char byte = strtoul(line, &endpointer, 2);
+
+    if (endpointer == line)
+    {
+      continue;
+    }
+
+    cpu_ram_write(cpu, address++, byte);
+  }
+
+  fclose(fp);
+
+#if 0
   char data[DATA_LEN] = {
       // From print8.ls8
       0b10000010, // LDI R0,8
@@ -35,7 +62,7 @@ void cpu_load(struct cpu *cpu)
   {
     cpu->ram[address++] = data[i];
   }
-
+#endif
   // TODO: Replace this with something less hard-coded
 }
 
@@ -44,10 +71,12 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+
   switch (op)
   {
   case ALU_MUL:
     // TODO
+    cpu->registers[regA] *= cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -71,7 +100,14 @@ void cpu_run(struct cpu *cpu)
 
     int add_to_pc = (IR >> 6) + 1;
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for (int i = 0; i < 8; i++)
+    {
+      printf(" %02X", cpu->registers[i]);
+    }
+
+    printf("\n");
 
     // 2. switch() over it to decide on a course of action.
     switch (IR)
@@ -82,6 +118,10 @@ void cpu_run(struct cpu *cpu)
 
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
     case HLT:
@@ -104,4 +144,5 @@ void cpu_init(struct cpu *cpu)
   // Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
+  // cpu->registers[7] = 0b11110100; //Beej said to add this?
 }
