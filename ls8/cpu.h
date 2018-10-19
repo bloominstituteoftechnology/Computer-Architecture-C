@@ -20,6 +20,11 @@ enum alu_op
   // Add more here
 };
 
+//Memory Location
+#define SP 7
+#define PROGRAM_START 0x00
+#define EMPTY_STACK 0xF4
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -63,7 +68,7 @@ enum alu_op
 #define XOR 0b10101011
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu, unsigned char *filename);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

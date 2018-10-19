@@ -1,7 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>>
+#include <string.h>
 
 #define DATA_LEN 1024;
 
@@ -13,32 +13,35 @@ unsigned char cpu_ram_read(struct cpu *cpu, int idx)
   return cpu->ram[idx];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, int idx, unsigned char val)
+void cpu_ram_write(struct cpu *cpu, int idx, unsigned char val)
 {
   cpu->ram[idx] = val;
+}
+
+void push(struct cpu *cpu, unsigned char val)
+{
+  //Decrement the SP.
+  //Copy the value in the given register to the address pointed to by SP.
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+unsigned char pop(struct cpu *cpu)
+{
+  //Copy the value from the address pointed to by SP to the given register.
+  //Increment SP.
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+  return val;
 }
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, unsigned char *filename)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
 
-  int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
+  int address = PROGRAM_START;
 
   // TODO: Replace this with something less hard-coded
   FILE *fp;
@@ -48,17 +51,20 @@ void cpu_load(struct cpu *cpu, unsigned char *filename)
 
   while (fgets(line, sizeof line, fp) != NULL)
   {
-    printf("%s", line);
 
-    if (line[0] == '\n' || line[0] == '#')
+    // Convert string to a number
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+    ;
+
+    // Ignore lines from whicn no numbers were read
+    if (endchar == line)
     {
-      printf("Ignoring this line.\n");
       continue;
     }
 
-    unsigned char b;
-    b = strtoul(line, NULL, 2);
-    cpu_ram_write(cpu, address++, b);
+    // Store in ram
+    cpu->ram[address++] = byte;
   }
 
   fclose(fp);
@@ -110,9 +116,17 @@ void cpu_run(struct cpu *cpu)
     case (MUL):
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
-    case (HLT):
-      running = 0;
+    case (PUSH):
+      printf("Pushed value %d to stack\n", operandA);
+      push(cpu, operandA);
       break;
+    case (POP):
+      printf("POPPING\n");
+      break;
+
+      // default:
+      //   fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+      //   exit(3);
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -130,4 +144,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
+  cpu->reg[SP] = EMPTY_STACK;
 }
