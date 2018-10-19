@@ -1,9 +1,7 @@
-#include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define DATA_LEN 1024;
+#include "cpu.h"
 
 /**
  * cpu_ram_read/cpu_ram_write
@@ -18,20 +16,25 @@ void cpu_ram_write(struct cpu *cpu, int idx, unsigned char val)
   cpu->ram[idx] = val;
 }
 
-void push(struct cpu *cpu, unsigned char val)
+/**
+ * Push a value on the CPU stack
+ */
+void cpu_push(struct cpu *cpu, unsigned char val)
 {
-  //Decrement the SP.
-  //Copy the value in the given register to the address pointed to by SP.
   cpu->reg[SP]--;
+
   cpu->ram[cpu->reg[SP]] = val;
 }
 
-unsigned char pop(struct cpu *cpu)
+/**
+ * Pop a value from the CPU stack
+ */
+unsigned char cpu_pop(struct cpu *cpu)
 {
-  //Copy the value from the address pointed to by SP to the given register.
-  //Increment SP.
   unsigned char val = cpu->ram[cpu->reg[SP]];
+
   cpu->reg[SP]++;
+
   return val;
 }
 
@@ -40,15 +43,18 @@ unsigned char pop(struct cpu *cpu)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-
-  int address = PROGRAM_START;
-
-  // TODO: Replace this with something less hard-coded
   FILE *fp;
   char line[1024];
+  int address = 0;
 
-  fp = fopen(filename, "r");
+  // Open the source file
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
+  }
 
+  // Read all the lines and store them in RAM
   while (fgets(line, sizeof line, fp) != NULL)
   {
 
@@ -66,8 +72,6 @@ void cpu_load(struct cpu *cpu, char *filename)
     // Store in ram
     cpu->ram[address++] = byte;
   }
-
-  fclose(fp);
 }
 
 /**
@@ -81,9 +85,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO
     cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
     break;
-
-    // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
   }
+  // TODO: implement more ALU ops
 }
 
 /**
@@ -95,42 +101,69 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
-    //PC
-    int pc = cpu->PC;
-
-    // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, pc); //instruction register
-    unsigned char operandA = cpu_ram_read(cpu, pc + 1);
-    unsigned char operandB = cpu_ram_read(cpu, pc + 2);
+    int PC = cpu->PC;
+    unsigned char IR = cpu_ram_read(cpu, PC); //instruction register
+    unsigned char operandA = cpu_ram_read(cpu, PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, PC + 2);
 
     printf("TRACE: %02X:  %02X  %02X  %02X\n", cpu->PC, IR, operandA, operandB);
-    // 2. switch() over it to decide on a course of action.
+    // True if this instruction might set the PC
+    int instruction_set_pc = (IR >> 4) & 1;
+
     switch (IR)
     {
-    case (LDI):
+
+    case LDI:
       cpu->reg[operandA] = operandB;
       break;
-    case (PRN):
+
+    case PRN:
       printf("\nValue at register %d: %d\n", operandA, cpu->reg[operandA]);
       break;
-    case (MUL):
+
+    case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
-    case (PUSH):
-      printf("Pushed value %d to stack\n", operandA);
-      push(cpu, operandA);
-      break;
-    case (POP):
-      printf("POPPING\n");
+
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
       break;
 
-      // default:
-      //   fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
-      //   exit(3);
+    case HLT:
+      running = 0;
+      break;
+
+    case PRA:
+      printf("%c\n", cpu->reg[operandA]);
+      //printf("%c", cpu->reg[operandA]); fflush(stdout); // Without newline
+      break;
+
+      // case CALL:
+      //   cpu_push(cpu, cpu->PC + 2);
+      //   cpu->PC = cpu->reg[operandA];
+      //   break;
+
+      // case RET:
+      //   cpu->PC = cpu_pop(cpu);
+      //   break;
+
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operandA]);
+      break;
+
+    case POP:
+      cpu->reg[operandA] = cpu_pop(cpu);
+      break;
+
+    default:
+      fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+      exit(3);
     }
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
+
+    if (!instruction_set_pc)
+    {
+      cpu->PC += (IR >> 6) + 1;
+    }
   }
 }
 
@@ -139,10 +172,12 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  // TODO: Zero registers and RAM
-  memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+
+  // Initialize SP
   cpu->reg[SP] = EMPTY_STACK;
 }
