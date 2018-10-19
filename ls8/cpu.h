@@ -44,6 +44,8 @@ enum alu_op
 #define CMP 0b10100111
 #define JEQ 0b01010101
 #define JNE 0b01010110
+#define INC 0b01100101
+#define DEC 0b01100110
 
 // Define Registers
 #define IM 5

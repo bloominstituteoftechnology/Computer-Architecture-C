@@ -362,6 +362,18 @@ void handle_JNE(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   }
 }
 
+void handle_INC(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+  cpu->registers[operandA]++;
+}
+
+void handle_DEC(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+  cpu->registers[operandA]--;
+}
+
 /**
  * Initialize a CPU struct
  */
@@ -398,4 +410,6 @@ void cpu_init(struct cpu *cpu)
   branchTable[CMP] = handle_CMP;
   branchTable[JEQ] = handle_JEQ;
   branchTable[JNE] = handle_JNE;
+  branchTable[INC] = handle_INC;
+  branchTable[DEC] = handle_DEC;
 }
