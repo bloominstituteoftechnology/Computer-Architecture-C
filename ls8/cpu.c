@@ -80,6 +80,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->registers[regA] += cpu->registers[regB];
     break;
+  case ALU_CMP:
+        puts("ALU_CMP COMMAND\n");
+        if (regA == regB) {
+          cpu->fl = 0b0000001;
+        } else if (regA < regB) {
+          cpu->fl = 0b0000100;
+        } else {
+          cpu->fl = 0b000010;
+        }
+        printf("fl...%d\n", cpu->fl);
+        break;
   }
 }
 
@@ -97,13 +108,14 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, (cpu->pc+1));
     operandB = cpu_ram_read(cpu, (cpu->pc+2));
     int shiftIndex = (IR >> 6) + 1;
-    // printf("TRACE: %02X: %02X %02X %02X\n", cpu->pc, IR, operandA, operandB);
+    int flags;
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->pc, IR, operandA, operandB);
     
-    // for (int i = 0; i < 8; i++)
-    // {
-    //   printf(" %02X", cpu->registers[i]);
-    // }
-    // printf("\n");
+    for (int i = 0; i < 8; i++)
+    {
+      printf(" %02X", cpu->registers[i]);
+    }
+    printf("\n");
 
     switch(IR) {
     case LDI:
@@ -119,11 +131,17 @@ void cpu_run(struct cpu *cpu)
       printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
       printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
       break;
+    case CMP:
+      puts("(case CMP) - sending to ALU\n");
+      alu(cpu, ALU_CMP, operandA, operandB);
+      printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+      printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+      printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
     case HLT:
-      // puts("halting");
-      // printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
-      // printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
-      // printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+      puts("halting");
+      printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+      printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+      printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
       running = 0;
       break;
     case ADD:
@@ -148,15 +166,25 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
       break;
     case JMP:
+      printf("JMPing!");
       cpu->pc = cpu->registers[operandA];
       shiftIndex = 0;
-      // printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
-      // printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
-      // printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
+      printf("RAM value at F4: %02X\n", cpu_ram_read(cpu, 0xF4));
+      printf("RAM value at F3: %02X\n", cpu_ram_read(cpu, 0xF3));
+      printf("RAM value at F2: %02X\n", cpu_ram_read(cpu, 0xF2));
       break;
-    case CMP:
-    break;
-
+    case JEQ:
+      if (cpu->fl == 0b00000001) {
+        printf("JEQ...jumping to %d", operandA);
+        cpu->pc = cpu->registers[operandA];
+      } else if (cpu->fl == 0b00000010) {
+        puts("regA > regB, sorry.");
+        break;
+      } else {
+        puts("regA < regB, sorry.");
+        break;
+      }
+      break;
     default:
       break;
     }

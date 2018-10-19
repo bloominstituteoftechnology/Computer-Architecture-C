@@ -14,17 +14,22 @@ unsigned char ram[256];
 unsigned int running;
 
 unsigned int interrupts;
+unsigned int fl;
 };
 
 // ALU operations
 enum alu_op
 {
   ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
   // Add more here
 };
 
+#define IM 5
+#define IS 6
 #define SP 7
+
 
 
 
@@ -46,12 +51,15 @@ enum alu_op
 #define JMP 0b01010100
 #define PRA 0b01001000
 #define IRET 0b00010011
+#define CMP 0b10100111
+#define JEQ 0b01010001
 
-// TODO: more instructions here. These can be used in cpu_run().
+    // TODO: more instructions here. These can be used in cpu_run().
 
-// Function declarations
+    // Function declarations
 
-extern void cpu_load(struct cpu *cpu, char *filename);
+    extern void
+    cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
