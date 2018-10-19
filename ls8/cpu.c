@@ -65,6 +65,8 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, opA, opB;
 
+  printf("TRACE: PC | IR oA oB | 00 01 02 03 04 05 06 07\n");
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -126,31 +128,38 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[opA];
         cpu->reg[SP]++;
         break;
-
+/*
       case CMP:
         if (cpu->reg[opA] == cpu->reg[opB])
         {
-          cpu->FL = 1;
+          cpu->FL = 0b00000001;
         }
         else if (cpu->reg[opA] < cpu->reg[opB])
         {
-          cpu->FL = 4;
+          cpu->FL = 0b00000100;
+        }
+        else if (cpu->reg[opA] > cpu->reg[opB])
+        {
+          cpu->FL = 0b00000010;
         }
         else
         {
-          cpu->FL = 2;
+          cpu->FL = 0b00000000;
         }
         break;
 
       case JMP:
+        cpu->PC = cpu->reg[opA]; 
         break;
 
       case JEQ:
+        cpu->PC = cpu->reg[opA]; 
         break;
 
       case JNE:
+        cpu->PC = cpu->reg[opA]; 
         break;
-
+*/
       case PRN:
         printf("%d\n", cpu->reg[opA]);
         break;
