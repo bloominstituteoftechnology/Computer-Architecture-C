@@ -41,7 +41,6 @@ void cpu_load(struct cpu *cpu, char* fileName)
       continue;
     }
 
-
     cpu_ram_write(cpu, i, num);     // Write binary instructions to ram
 
     i++;
@@ -101,10 +100,12 @@ void cpu_run(struct cpu *cpu)
 
     handler = instructions[binary_instruction];
 
+    printf("PC: %02X\n", pc);
+
     if(handler == 0)
     {
 
-      printf("Invalid instruction entered, exiting program.\n");
+      printf("Invalid instruction PC: %02X entered, exiting program.\n", pc);
       break;
 
     }
@@ -237,6 +238,7 @@ int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
 int handle_CMP(struct cpu* cpu, unsigned char regA, unsigned char regB)
 {
+
   // Clear the current flags
   cpu->FL &= 0;
 
@@ -255,6 +257,43 @@ int handle_CMP(struct cpu* cpu, unsigned char regA, unsigned char regB)
   }
 
   return 1;
+
+}
+
+int handle_JMP(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+  
+  (void)regB;
+  // Jump to the address stored in the given register
+  return cpu->registers[regA];
+
+}
+
+int handle_JEQ(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  // If equal flag is set (true), jump to the address stored in the given register
+  if((cpu->FL & 1) == 1)
+  {
+    return handle_JMP(cpu, regA, regB);
+  }
+  // If not equal, increment pc by 2 and return value
+  int move_increment = 2;
+  return cpu->pc + move_increment;
+
+}
+
+int handle_JNE(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+
+  // If E flag is clear (false, 0), jump to the address stored in the given register
+  if((cpu->FL & 1) != 1)
+  {
+    return handle_JMP(cpu, regA, regB);
+  }
+  // If equal, increment pc by 2 and return value
+  int move_increment = 2;
+  return cpu->pc + move_increment;
 
 }
 
@@ -289,6 +328,10 @@ void cpu_init(struct cpu *cpu)
   instructions[CALL] = handle_CALL;
   instructions[RET] = handle_RET;
   instructions[ST] = handle_ST;
+  instructions[CMP] = handle_CMP;
+  instructions[JMP] = handle_JMP;
+  instructions[JEQ] = handle_JEQ;
+  instructions[JNE] = handle_JNE;
 
 
 }
