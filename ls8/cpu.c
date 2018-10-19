@@ -67,6 +67,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
     case ALU_ADD:
       cpu->reg[regA] += cpu->reg[regB];
+      break;
   }
 }
 
@@ -93,7 +94,7 @@ void cpu_run(struct cpu *cpu)
 
     if (handler == NULL)
     {
-      fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR );
+      fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
       exit(3);
     }
 
@@ -146,6 +147,22 @@ void handle_POP(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
   cpu->reg[operandA] = cpu_pop(cpu);
 }
 
+void handle_CALL(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandB;
+
+  cpu_push(cpu, cpu->PC + 2);
+  cpu->PC = cpu->reg[operandA];
+}
+
+void handle_RET(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+  (void)operandA;
+  (void)operandB;
+
+  cpu->PC = cpu_pop(cpu);
+}
+
 void init_branchtable(void)
   {
     branchtable[LDI] = handle_LDI;
@@ -154,6 +171,8 @@ void init_branchtable(void)
     branchtable[HLT] = handle_HLT;
     branchtable[PUSH] = handle_PUSH;
     branchtable[POP] = handle_POP;
+    branchtable[CALL] = handle_CALL;
+    branchtable[RET] = handle_RET;
   }
 
 /**
