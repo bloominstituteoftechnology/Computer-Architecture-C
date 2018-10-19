@@ -76,7 +76,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  int FL = 0;
   while (running)
   {
     int PC = cpu->PC;
@@ -137,12 +137,61 @@ void cpu_run(struct cpu *cpu)
       cpu->reg[SP]++;
       break;
 
+    case CMP:
+      if (cpu->reg[operandA] < cpu->reg[operandB])
+      {
+        printf("CMP: %d < %d\n", cpu->reg[operandA], cpu->reg[operandB]);
+        FL = 4;
+      }
+      else if (cpu->reg[operandA] > cpu->reg[operandB])
+      {
+        printf("CMP: %d > %d\n", cpu->reg[operandA], cpu->reg[operandB]);
+        FL = 2;
+      }
+      else
+      {
+        printf("CMP: %d = %d\n", cpu->reg[operandA], cpu->reg[operandB]);
+        FL = 1;
+      }
+      break;
+
+    case JEQ:
+      if (FL == 1)
+      {
+        printf("JEQ: Jumping to %02X\n", cpu->reg[operandA]);
+        cpu->PC = cpu->reg[operandA];
+      }
+      else
+      {
+        printf("JEQ: Not Jumping\n");
+        cpu->PC += 2;
+      }
+
+      break;
+
+    case JNE:
+      if (FL == 2 || FL == 4)
+      {
+        printf("JNE: Jumping to %02X\n", cpu->reg[operandA]);
+        cpu->PC = cpu->reg[operandA];
+      }
+      else
+      {
+        printf("JNE: Not Jumping\n");
+        cpu->PC += 2;
+      }
+      break;
+
+    case JMP:
+      cpu->PC = cpu->reg[operandA];
+      break;
+
     default:
-      fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+      fprintf(stderr, "PC %02x: unknown instruction %02X\n", cpu->PC, IR);
       exit(3);
     }
 
-    if (!instruction_set_pc)
+    if (!instruction_set_pc && IR != JMP && IR != JEQ && IR != JNE)
     {
       cpu->PC += (IR >> 6) + 1;
     }
