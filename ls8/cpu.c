@@ -56,6 +56,58 @@ void cpu_ram_write(struct cpu *cpu, int index, char value)
 {
     cpu->ram[index] = value;
 }
+
+// Helping functions
+void cmpring(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
+{
+    if (cpu->reg[operandA] == cpu->reg[operandB])
+    {
+        cpu->FL = 00000001;
+    }
+}
+void jne(struct cpu *cpu, unsigned char operandA, unsigned char IR)
+{
+    if (!cpu->FL)
+    {
+        cpu->PC = cpu->reg[operandA];
+    }
+    else
+    {
+        cpu->PC += (IR >> 6) + 1; // Check the top two bits
+        cpu->PC &= 0xff;
+    }
+}
+void jeq(struct cpu *cpu, unsigned char operandA, unsigned char IR)
+{
+    if (cpu->FL)
+    {
+        cpu->PC = cpu->reg[operandA];
+    }
+    else
+    {
+        cpu->PC += (IR >> 6) + 1; // Check the top two bits
+        cpu->PC &= 0xff;
+    }
+}
+void pop(struct cpu *cpu, unsigned char operandA)
+{
+    int i = cpu->reg[7];
+    cpu->reg[operandA] = cpu->ram[i];
+    cpu->reg[7]++;
+}
+void ret(struct cpu *cpu)
+{
+
+    int i = cpu->reg[7];
+    cpu->PC = cpu->ram[i];
+    cpu->reg[7]++;
+}
+void call(struct cpu *cpu, unsigned char operandA, int shiftIndex)
+{
+    int i = --cpu->reg[7];
+    cpu->ram[i] = cpu->PC + shiftIndex;
+    cpu->PC = cpu->reg[operandA];
+}
 /**
  * Run the CPU
  */
@@ -70,7 +122,6 @@ void cpu_run(struct cpu *cpu)
         unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2));
         int shiftIndex = (IR >> 6) + 1;
         int i;
-        char next = 1;
 
         printf("TRACE: %02X: %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
         for (int i = 0; i < 8; i++)
@@ -80,6 +131,14 @@ void cpu_run(struct cpu *cpu)
         printf("\n");
         switch (IR)
         {
+        case CMP:
+            cmpring(cpu, operandA, operandB);
+            break;
+        case JNE:
+            jne(cpu, operandA, shiftIndex);
+            break;
+        case JEQ:
+            jeq(cpu, operandA, shiftIndex);
         case LDI:
             cpu->reg[operandA] = operandB;
             break;
@@ -100,30 +159,26 @@ void cpu_run(struct cpu *cpu)
             cpu->ram[i] = cpu->reg[operandA];
             break;
         case POP:
-            i = cpu->reg[7];
-            cpu->reg[operandA] = cpu->ram[i];
-            cpu->reg[7]++;
+            pop(cpu, operandA);
             break;
         case RET:
-            i = cpu->reg[7];
-            cpu->PC = cpu->ram[i];
-            cpu->reg[7]++;
-            next = 0;
-
+            ret(cpu);
+            break;
+        case JMP:
+            cpu->PC = cpu->reg[operandA];
             break;
         case CALL:
-            i = --cpu->reg[7];
-            cpu->ram[i] = cpu->PC + shiftIndex;
-            cpu->PC = cpu->reg[operandA];
-            next = 0;
+            call(cpu, operandA, shiftIndex);
             break;
         default:
             break;
         }
 
-        if (next)
+        int change = (IR >> 4) & 1;
+        if (!change)
         {
-            cpu->PC += shiftIndex;
+            cpu->PC += (IR >> 6) + 1; // Check the top two bits
+            cpu->PC &= 0xff;
         }
     }
 }
@@ -139,4 +194,5 @@ void cpu_init(struct cpu *cpu)
     memset(cpu->reg, 0, sizeof(cpu->reg));
     memset(cpu->ram, 0, sizeof(cpu->ram));
     cpu->reg[7] = 0xF4;
+    cpu->FL = 0;
 }
