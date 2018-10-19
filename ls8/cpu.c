@@ -97,9 +97,30 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu_ram_read(cpu, cpu->registers[7]++);
         break;
       case CMP:
-        // compare the values in the given registers
-        // and set the flag based which value is larger
-        // or 1 if both are equal
+        if (cpu->registers[argv[0]] < cpu->registers[argv[1]]) {
+          cpu->FL = 0b00000100;
+        } else if (cpu->registers[argv[0]] > cpu->registers[argv[1]]) {
+          cpu->FL = 0b00000010;
+        } else if (cpu->registers[argv[0]] == cpu->registers[argv[1]]) {
+          cpu->FL = 0b00000001;
+        }
+        break;
+      case JMP:
+        cpu->PC = cpu->registers[argv[0]];
+        break;
+      case JEQ:
+        if ((cpu->FL & 1) == 1) {
+          cpu->PC = cpu->registers[argv[0]];
+        } else {
+          cpu->PC += argc + 2;
+        }
+      case JNE:
+        if ((cpu->FL & 1) == 0) {
+          cpu->PC = cpu->registers[argv[0]];
+        } else {
+          cpu->PC += argc + 2;
+        }
+        break;
       default:
         printf("Unknown instructions: %d\n", cpu->IR);
         exit(3);
