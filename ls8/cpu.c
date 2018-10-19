@@ -112,6 +112,45 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, opA, opB);
         break;
 
+      case CALL:
+        // push address of instruction onto stack after call instruction
+        cpu->reg[SP]--;
+        cpu->ram[cpu->reg[SP]] = cpu->PC + 2; 
+        // PC is set to the address stored in the given register
+        cpu->PC = cpu->reg[opA];
+        break;
+
+      case RET:
+        // pop the value from the top of the stack and store it in the PC
+        cpu->reg[opA] = cpu->ram[cpu->reg[SP]];
+        cpu->PC = cpu->reg[opA];
+        cpu->reg[SP]++;
+        break;
+
+      case CMP:
+        if (cpu->reg[opA] == cpu->reg[opB])
+        {
+          cpu->FL = 1;
+        }
+        else if (cpu->reg[opA] < cpu->reg[opB])
+        {
+          cpu->FL = 4;
+        }
+        else
+        {
+          cpu->FL = 2;
+        }
+        break;
+
+      case JMP:
+        break;
+
+      case JEQ:
+        break;
+
+      case JNE:
+        break;
+
       case PRN:
         printf("%d\n", cpu->reg[opA]);
         break;
@@ -134,6 +173,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0; 
+  cpu->FL = 0;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram); 
