@@ -17,28 +17,6 @@ void cpu_ram_write(struct cpu *cpu, int idx, unsigned char val)
 }
 
 /**
- * Push a value on the CPU stack
- */
-void cpu_push(struct cpu *cpu, unsigned char val)
-{
-  cpu->reg[SP]--;
-
-  cpu->ram[cpu->reg[SP]] = val;
-}
-
-/**
- * Pop a value from the CPU stack
- */
-unsigned char cpu_pop(struct cpu *cpu)
-{
-  unsigned char val = cpu->ram[cpu->reg[SP]];
-
-  cpu->reg[SP]++;
-
-  return val;
-}
-
-/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *filename)
@@ -106,7 +84,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, PC + 2);
 
-    printf("TRACE: %02X:  %02X  %02X  %02X\n", cpu->PC, IR, operandA, operandB);
+    // printf("TRACE: %02X:  %02X  %02X  %02X\n", cpu->PC, IR, operandA, operandB);
     // True if this instruction might set the PC
     int instruction_set_pc = (IR >> 4) & 1;
 
@@ -138,21 +116,25 @@ void cpu_run(struct cpu *cpu)
       //printf("%c", cpu->reg[operandA]); fflush(stdout); // Without newline
       break;
 
-      // case CALL:
-      //   cpu_push(cpu, cpu->PC + 2);
-      //   cpu->PC = cpu->reg[operandA];
-      //   break;
+    case CALL:
+      cpu->reg[SP]--;
+      cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + 2);
+      cpu->PC = cpu->reg[operandA];
+      break;
 
-      // case RET:
-      //   cpu->PC = cpu_pop(cpu);
-      //   break;
+    case RET:
+      cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
+      cpu->reg[SP]++;
+      break;
 
     case PUSH:
-      cpu_push(cpu, cpu->reg[operandA]);
+      cpu->reg[SP]--;
+      cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
       break;
 
     case POP:
-      cpu->reg[operandA] = cpu_pop(cpu);
+      cpu->reg[operandA] = cpu->ram[cpu->reg[SP]];
+      cpu->reg[SP]++;
       break;
 
     default:
