@@ -48,6 +48,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->registers[regA] += cpu->registers[regB];
       break;
+    case ALU_SUB:
+      cpu->registers[regA] -= cpu->registers[regB];
+      break;
+    case ALU_DIV:
+      if (cpu->registers[regB] == 0) {
+        printf("\033[0;31mERROR\033[0m Cannot divide by 0");
+        exit(2);
+      }
+      cpu->registers[regA] /= cpu->registers[regB];
+      break;
   }
 }
 
@@ -70,8 +80,14 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->registers[argv[0]] = argv[1];
         break;
+      case LD:
+        cpu->registers[argv[0]] =  cpu_ram_read(cpu, cpu->registers[argv[1]]);
+        break;
       case PRN:
         printf("%d\n", cpu->registers[argv[0]]);
+        break;      
+      case PRA:
+        printf("%c", cpu->registers[argv[0]]);
         break;      
       case HLT:
         printf("Halting...\n");
@@ -83,6 +99,18 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         alu(cpu, ALU_ADD, argv[0], argv[1]);
         break;      
+      case SUB:
+        alu(cpu, ALU_SUB, argv[0], argv[1]);
+        break;      
+      case DIV:
+        alu(cpu, ALU_DIV, argv[0], argv[1]);
+        break;      
+      case INC:
+        cpu->registers[argv[0]] += 1;
+        break;
+      case DEC:
+        cpu->registers[argv[0]] -= 1;
+        break;
       case PUSH:
         cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[argv[0]]);
         break;      
@@ -123,7 +151,7 @@ void cpu_run(struct cpu *cpu)
         }
         break;
       default:
-        printf("Unknown instructions: %d\n", cpu->IR);
+        printf("\033[0;31mERROR\033[0m Unknown instructions: %d\n", cpu->IR);
         exit(3);
     }
 

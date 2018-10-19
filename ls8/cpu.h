@@ -18,10 +18,8 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
 	ALU_ADD,
-  // ALU_SUB,
-	// ALU_DIV,
-	// ALU_MOD
-	// Add more here
+  ALU_SUB,
+	ALU_DIV,
 };
 
 // Instructions
@@ -30,10 +28,14 @@ enum alu_op {
 // literals should be used.
 
 #define LDI 0b10000010
+#define LD 0b10000011
 #define PRN 0b01000111
+#define PRA 0b01001000
 #define HLT 0b00000001
 #define MUL 0b10100010
 #define ADD 0b10100000
+#define INC 0b01100101
+#define DEC 0b01100110
 #define PUSH 0b01000101
 #define POP 0b01000110
 #define CALL 0b01010000
@@ -42,9 +44,8 @@ enum alu_op {
 #define JEQ 0b01010101
 #define JMP 0b01010100
 #define JNE 0b01010110
-// #define SUB 0b10100001
-// #define DIV 0b10100011
-// #define MOD 0b10100100
+#define SUB 0b10100001
+#define DIV 0b10100011
 
 // TODO: more instructions here. These can be used in cpu_run().
 
