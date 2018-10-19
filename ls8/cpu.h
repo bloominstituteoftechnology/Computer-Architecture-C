@@ -52,14 +52,15 @@ enum alu_op
 #define PRA 0b01001000
 #define IRET 0b00010011
 #define CMP 0b10100111
-#define JEQ 0b01010001
+#define JEQ 0b01010101
+#define JNE 0b01010110
 
-    // TODO: more instructions here. These can be used in cpu_run().
+// TODO: more instructions here. These can be used in cpu_run().
 
-    // Function declarations
+// Function declarations
 
-    extern void
-    cpu_load(struct cpu *cpu, char *filename);
+extern void
+cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
