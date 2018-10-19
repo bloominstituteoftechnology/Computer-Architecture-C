@@ -88,6 +88,7 @@ void cpu_run(struct cpu *cpu)
   unsigned char *ram = cpu->ram;
 
   int running = 1; // True until we get a HLT instruction
+  int equals = 0;
 
   while (running) {
     unsigned char IR = ram[cpu->PC];
@@ -140,16 +141,33 @@ void cpu_run(struct cpu *cpu)
       case POP:
         reg[operandA] = cpu_pop(cpu);
         break;
-      
+
       case CMP:
-        alu(cpu, ALU_CMP, cpu->reg[operandA], cpu->reg[operandB]);
-        cpu->PC+=difference;
+        if (reg[operandA] == reg[operandB])
+        {equals = 1;}
+        else 
+        {equals = 0;}
         break;
 
       case JMP:
-        cpu->PC = cpu->registers[regA];
+        cpu->PC = cpu->reg[regA];
         add_to_pc = 0;
         break;
+
+      case JEQ:
+        if (equals == 1)
+        {
+          cpu->PC = cpu->reg[operandA];
+          add_to_pc = 0;
+        }
+        break;
+
+       case JNE:
+       if (equals == 0)
+       {
+         cpu->PC = cpu->reg[operandA];
+         add_to_pc = 0;
+       }
 
       default:
         fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
