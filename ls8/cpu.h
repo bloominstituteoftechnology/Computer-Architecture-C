@@ -11,6 +11,8 @@ struct cpu {
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
+  // Flage
+  unsigned char FL;
 };
 
 // ALU operations
@@ -36,6 +38,9 @@ enum alu_op {
 #define ADD  0b10100000
 #define DIV  0b10100011
 #define SUB  0b10100001
+#define CMP  0b10100111
+
+#define FLAG  0x00
 
 // TODO: more instructions here. These can be used in cpu_run().
 

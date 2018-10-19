@@ -131,6 +131,16 @@ void cpu_run(struct cpu *cpu)
         cpu_ram_write(cpu, --SP, cpu->reg[operandA]);
         break;
 
+      case CMP:
+        if (cpu->reg[operandA] == cpu->reg[operandB])
+        {
+          cpu->FL = 1;
+        } else
+        {
+          cpu->FL = 0;
+        }
+        break;
+
       case HLT:
         running = 0;
         break;
@@ -148,6 +158,7 @@ void cpu_init(struct cpu *cpu)
 {
   // Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = FLAG;
 
   // Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
