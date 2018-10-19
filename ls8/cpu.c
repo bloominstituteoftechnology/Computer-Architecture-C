@@ -100,8 +100,6 @@ void cpu_run(struct cpu *cpu)
 
     handler = instructions[binary_instruction];
 
-    printf("PC: %02X\n", pc);
-
     if(handler == 0)
     {
 
