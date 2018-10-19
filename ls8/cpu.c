@@ -133,17 +133,22 @@ void cpu_run(struct cpu *cpu)
 
       case CMP:
         if (cpu->reg[operandA] == cpu->reg[operandB])
-        {
           cpu->FL = 1;
-        } else
-        {
+        else
           cpu->FL = 0;
-        }
         break;
 
       case JMP:
         cpu->PC = cpu->reg[operandA];
         break;
+
+      case JEQ:
+        if (cpu->FL)
+          cpu->PC = cpu->reg[operandA];
+        else
+          cpu->PC =+ 2;
+        break;
+
 
       case HLT:
         running = 0;

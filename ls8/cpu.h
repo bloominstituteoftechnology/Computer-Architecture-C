@@ -40,6 +40,7 @@ enum alu_op {
 #define SUB  0b10100001
 #define CMP  0b10100111
 #define JMP  0b01010100
+#define JEQ  0b01010101
 
 #define FLAG  0x00
 
