@@ -10,6 +10,8 @@ struct cpu {
   unsigned char registers[8];
   // ram (array)
   unsigned char ram[256];
+  // Flags
+  unsigned char FL;
 };
 
 // ALU operations
@@ -35,6 +37,7 @@ enum alu_op {
 #define CALL 0b01010000 
 #define RET 0b00010001
 #define ST 0b10000100
+#define CMP 0b10100111
 
 // TODO: more instructions here. These can be used in cpu_run().
 
@@ -55,5 +58,6 @@ extern int handle_ADD(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_CALL(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_RET(struct cpu* cpu, unsigned char regA, unsigned char regB);
 extern int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB);
+extern int handle_CMP(struct cpu* cpu, unsigned char regA, unsigned char regB);
 
 #endif

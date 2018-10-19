@@ -235,6 +235,30 @@ int handle_ST(struct cpu* cpu, unsigned char regA, unsigned char regB)
 
 }
 
+int handle_CMP(struct cpu* cpu, unsigned char regA, unsigned char regB)
+{
+  // Clear the current flags
+  cpu->FL &= 0;
+
+  // |= is or equals, sets any 1 to true
+  if(cpu->registers[regA] < cpu->registers[regB])
+  {
+    cpu->FL |= 0b0000100;
+  }
+  else if(cpu->registers[regA] > cpu->registers[regB])
+  {
+    cpu->FL |= 0b0000010;
+  }
+  else if(cpu->registers[regA] == cpu->registers[regB])
+  {
+    cpu->FL |= 0b0000001;
+  }
+
+  return 1;
+
+}
+
+
 
 /**
  * Initialize a CPU struct
@@ -246,7 +270,7 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-
+  cpu->FL = 0;
 
   // Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
