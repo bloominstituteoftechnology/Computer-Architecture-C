@@ -5,45 +5,21 @@
 /**
  * Main
  */
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-  printf("Starting Main....\n");
-  
-  if (argv[0]) printf("argv0: %s\n", argv[0]);
-  if (argv[1]) printf("args1: %s\n", argv[1]);
-  
+  printf("\nStarting Main....\n");
+    
   //Instantiate the cpu structure:
   struct cpu cpu;
 
+  if (argc != 2){
+    fprintf(stderr, "usage: ls8 filename.ls8\n");
+    return 1;
+  }
+  
   //Call the initialize function on address of cpu:
   cpu_init(&cpu);
-  // cpu_load(&cpu); 
-
-  // Open file and read in every line and place it into RAM:
-	FILE *fp;
-	char line[1024];
-
-	fp = fopen(argv[1], "r");
-  unsigned char mar = 0;
-
-	while (fgets(line, sizeof line, fp) != NULL) {
-    printf("%s", line);
-
-		if (line[0] == '\n' || line[0] == '#') {
-			printf("Ignoring this line.\n");
-			continue;
-		}
-
-		unsigned char assembly_command;
-		assembly_command = strtoul(line, NULL, 2);
-
-    //Should write it into Memory
-    cpu_ram_write(&cpu, mar++, assembly_command);
-    
-	}
-
-	fclose(fp);
-
+  cpu_load(&cpu, argv[1]); 
   cpu_run(&cpu);
 
   return 0;
