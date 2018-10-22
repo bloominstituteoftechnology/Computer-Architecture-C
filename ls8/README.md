@@ -1,5 +1,5 @@
 # Project: The LS-8 Emulator
-
+##
 ## Implementation of the LS-8 Emulator
 
 Objective: to gain a deeper understanding of how a CPU functions at a
