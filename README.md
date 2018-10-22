@@ -7,8 +7,8 @@
 ## Task List: add this to the first comment of your Pull Request
 
 ### Day 1: Get `print8.ls8` running
-- [ ] Inventory what is here
-- [ ] Implement `struct cpu` in `cpu.h`
+- [x] Inventory what is here
+- [x] Implement `struct cpu` in `cpu.h`
 - [ ] Add RAM functions
 - [ ] Implement `cpu_init()`
 - [ ] Implement the core of `cpu_run()`
