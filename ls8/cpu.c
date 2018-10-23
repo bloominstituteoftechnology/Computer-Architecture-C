@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DATA_LEN 6
+// #define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, int i)
 {
@@ -18,25 +18,52 @@ void cpu_ram_write(struct cpu *cpu, int i, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  FILE *fp;
+  char line[1024];
+  int address = ADDR_PROGRAM_ENTRY;
+
+  if((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Can't open file %s\n", filename);
+    exit(0);
   };
 
-  int address = 0;
+  while (fgets(line, sizeof line, fp) != NULL) {
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+    printf("%s", line);
 
-  // TODO: Replace this with something less hard-coded
+    if (line[0] == '\n' || line[0] == '#') {
+      printf("Ignoring this line");
+      continue;
+    }
+    unsigned char b;
+    b = strtoul(line, NULL, 2);
+
+    printf("%02X\n", b);
+
+    cpu->ram[address++] = byte;
+  };
+
+  fclose(fp);
 }
 
 /**

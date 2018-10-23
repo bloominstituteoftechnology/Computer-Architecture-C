@@ -21,6 +21,9 @@ enum alu_op {
 	// Add more here
 };
 
+#define ADDR_PROGRAM_ENTRY 0x00 // Load
+#define ADD_EMPTY_STACK 0xF4 // Empty Stack
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -33,7 +36,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
