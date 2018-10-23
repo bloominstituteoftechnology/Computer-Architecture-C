@@ -9,7 +9,7 @@
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
 {
-    return cpu->ram[MAR]; // cpu.ram[address]
+    return cpu->ram[MAR]; // cpu.ram[mar]   // returning
 }
 // unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 // {
@@ -17,7 +17,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
 // }
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 {
-    return cpu->ram[MAR] = MDR;
+    cpu->ram[MAR] = MDR; // setting
 }
 
 /**
@@ -67,7 +67,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
         // TODO
         break;
-        }
+    }
 }
 
 /**
@@ -112,7 +112,7 @@ void cpu_run(struct cpu *cpu)
             cpu->reg[operandA] = operandB; // store value of B in a register A
             // operandA registers number that we need to store the value in
             // operandB is the value that we need to store
-            cpu->pc += 3;
+            cpu->pc += 3; // jump from LDI to PRN
             break;
         case PRN:
             printf("%d\n", cpu->reg[operandA]);
@@ -125,7 +125,7 @@ void cpu_run(struct cpu *cpu)
             printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
             exit(2);
         }
-        cpu->pc += (IR >> 6) + 1;
+        cpu->pc += (IR >> 6) + 1; // +1 - instruction code
     }
 }
 
@@ -142,4 +142,8 @@ void cpu_init(struct cpu *cpu)
     // TODO: Initialize the PC and other special registers
     cpu->pc = 0;
     // TODO: Zero registers and RAM
+    memset(cpu->ram, 0, sizeof cpu->ram);
+    memset(cpu->reg, 0, sizeof cpu->reg);
+
+    // cpu->reg[7] = 0xF4;
 }

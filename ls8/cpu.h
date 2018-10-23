@@ -25,9 +25,9 @@ struct cpu
 };
 
 // ALU operations
-enum alu_op
+enum alu_op // for debugger
 {
-    ALU_MUL,
+    ALU_MUL, // 0
     ALU_ADD
     // Add more here
 };
