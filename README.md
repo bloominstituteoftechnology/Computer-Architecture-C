@@ -9,12 +9,12 @@
 ### Day 1: Get `print8.ls8` running
 - [x] Inventory what is here
 - [x] Implement `struct cpu` in `cpu.h`
-- [ ] Add RAM functions
-- [ ] Implement `cpu_init()`
-- [ ] Implement the core of `cpu_run()`
-- [ ] Implement the `HLT` instruction handler
-- [ ] Add the `LDI` instruction
-- [ ] Add the `PRN` instruction
+- [x] Add RAM functions
+- [x] Implement `cpu_init()`
+- [x] Implement the core of `cpu_run()`
+- [x] Implement the `HLT` instruction handler
+- [x] Add the `LDI` instruction
+- [x] Add the `PRN` instruction
 
 ### Day 2: Get `mult.ls8` running, load files dynamically
 - [ ] Un-hardcode the machine code
