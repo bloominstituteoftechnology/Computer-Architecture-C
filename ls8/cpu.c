@@ -1,12 +1,14 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
-char cpu_ram_read(struct cpu *cpu, unsigned char address){
+char cpu_read(struct cpu *cpu, unsigned char address){
   return cpu->ram[address];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
+void cpu_write(struct cpu *cpu, unsigned char address, unsigned char value){
   cpu->ram[address] = value;
 }
 /**
@@ -53,21 +55,38 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char ir = cpu_read(cpu, cpu->pc);
+  unsigned char operandA = cpu_read(cpu, cpu->pc+1);
+  unsigned char operandB = cpu_read(cpu, cpu->pc+2);
 
-  while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    unsigned char ir = cpu_ram_read(cpu, cpu->pc);
-    unsigned char operandA = cpu_read(cpu, cpu->pc+1);
-    unsigned char operandB = cpu_read(cpu, cpu->pc+2);
-    // 2. switch() over it to decide on a course of action.
-    // switch (ir) {
-    //   case ir: printf("%c\n", ir);
-    // }
-    printf("%c\n", ir);
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+  switch(ir){
+    case LDI:
+    cpu->pc +=3;
+    cpu->reg[operandA] = operandB;
+    break;
+
+    case PRN:
+    printf("%d\n", cpu->reg[operandA]);
+    cpu->pc +=2;
+    break;
+
+    case HLT:
+    running = 0;
+    cpu->pc +=1;
+    break;
+
   }
+  // while (running) {
+  //   // TODO
+  //   // 1. Get the value of the current instruction (in address PC).
+  //   // 2. switch() over it to decide on a course of action.
+  //   // switch (ir) {
+  //   //   case ir: printf("%c\n", ir);
+  //   // }
+  //   printf("%c\n", ir);
+  //   // 3. Do whatever the instruction should do according to the spec.
+  //   // 4. Move the PC to the next instruction.
+  // }
 }
 
 /**
@@ -78,5 +97,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
   // TODO: Zero registers and RAM
-  cpu->reg[SP] = 0xf4;
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->reg, 0, sizeof cpu->reg);
 }
