@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "cpu.h"
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -96,15 +97,22 @@ void cpu_run(struct cpu *cpu)
         // 2. switch() over it to decide on a course of action.
         // 3. Do whatever the instruction should do according to the spec.
         // 4. Move the PC to the next instruction.
-        unsigned char IR = cpu_ram_read(cpu, cpu->pc);
-        unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+        unsigned char IR = cpu_ram_read(cpu, cpu->pc);           // pc - is the index of the currently executing instruction in the ram array
+        unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // pc+1 - index of the byte after the insctuction
+        // unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1) & 0xff); // pc+1 - index of the byte after the insctuction
         unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+        // unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2) & 0xff);
 
         //   00011001
         // & 00000011
         // ----------
         //   00000001
-        // printf("traces %02x: %02x\n", cpu->pc, IR);
+
+        // int add_to_pc = (IR >> 6) + 1;
+        printf("Traces %02x: %02x %02x %02x\n", cpu->pc, IR, operandA, operandB);
+        // 2 means the field width to be 2 chars
+        // 0 means to pad with leading zero if necessary
+        // x - hex
 
         switch (IR)
         {
@@ -112,11 +120,11 @@ void cpu_run(struct cpu *cpu)
             cpu->reg[operandA] = operandB; // store value of B in a register A
             // operandA registers number that we need to store the value in
             // operandB is the value that we need to store
-            cpu->pc += 3; // jump from LDI to PRN
+            // cpu->pc += 3; // jump from LDI to PRN
             break;
         case PRN:
             printf("%d\n", cpu->reg[operandA]);
-            cpu->pc += 2;
+            // cpu->pc += 2; // from PRN to HLT
             break;
         case HLT:
             running = 0;
@@ -145,5 +153,5 @@ void cpu_init(struct cpu *cpu)
     memset(cpu->ram, 0, sizeof cpu->ram);
     memset(cpu->reg, 0, sizeof cpu->reg);
 
-    // cpu->reg[7] = 0xF4;
+    // cpu->reg[7] = 0xF4; // for stacks
 }
