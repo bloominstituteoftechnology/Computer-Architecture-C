@@ -5,14 +5,30 @@
 
 // #define DATA_LEN 6
 
-unsigned char cpu_ram_read(struct cpu *cpu, int i)
-{
-  return cpu->ram[i];
+// unsigned char cpu_ram_read(struct cpu *cpu, int i)
+// {
+//   return cpu->ram[i];
+// }
+
+// void cpu_ram_write(struct cpu *cpu, int i, unsigned char value)
+// {
+//   cpu->ram[i] = value;
+// }
+
+void (*branchtable[256])(struct cpu *cpu, unsigned char, unsigned char) = {0};
+
+void cpu_push(struct cpu *cpu, unsigned char val) {
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = val;
 }
 
-void cpu_ram_write(struct cpu *cpu, int i, unsigned char value)
-{
-  cpu->ram[i] = value;
+unsigned char cpu_pop(struct cpu *cpu) {
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return val;
 }
 
 /**
@@ -36,31 +52,27 @@ void cpu_load(char *filename, struct cpu *cpu)
   //   cpu->ram[address++] = data[i];
   // }
 
-  FILE *fp;
+  FILE *fp = fopen(filename, "r");
   char line[1024];
-  int address = ADDR_PROGRAM_ENTRY;
+  unsigned char addr = 0x00;
 
-  if((fp = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Can't open file %s\n", filename);
-    exit(0);
+  if(fp == NULL) {
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
   };
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    char *endchar;
-    unsigned char byte = strtol(line, &endchar, 2);
+    char *endptr;
 
-    printf("%s", line);
-
-    if (line[0] == '\n' || line[0] == '#') {
-      printf("Ignoring this line");
-      continue;
-    }
     unsigned char b;
     b = strtoul(line, NULL, 2);
 
-    printf("%02X\n", b);
+    if (endptr == line) {
+      continue;
+    }
+    // printf("%02X\n", b);
 
-    cpu->ram[address++] = byte;
+    cpu_ram_write(cpu, addr++, b);
   };
 
   fclose(fp);
@@ -74,16 +86,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
     {
-      unsigned char product = regA * regB;
-      cpu->reg[regA] = product;
-      return 1;
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
     }
     case ALU_ADD:
     {
-      unsigned char sum = regA + regB;
+      unsigned char sum = cpu->reg[regA] + cpu->reg[regB];
       cpu->reg[regA] = sum;
-      return 1;
       break;
     }
     case LOAD_VALUE:
@@ -119,6 +128,11 @@ void cpu_run(struct cpu *cpu)
     int add_to_pc = (IR >> 6) + 1;
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
+    for(int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
       case LDI:
@@ -126,6 +140,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         print("%d\n", cpu->reg[operandA]);
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case HLT:
         running = 0;
