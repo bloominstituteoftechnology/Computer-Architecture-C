@@ -6,6 +6,7 @@
 # NOP "No operation. Do nothing for this instruction." 
 00000000 
 
+# The binary number of the argument (aka the operand) - the value 8. 
 00001000 
 
 # PRN `PRN register` pseudo-instruction "Print numeric value stored in the given register. Print to the console the decimal integer value that is stored in the given register."

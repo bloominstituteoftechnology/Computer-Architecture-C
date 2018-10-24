@@ -2,6 +2,9 @@
 
 #define DATA_LEN 6
 
+
+// "In cpu.c, add functions cpu_ram_read() and cpu_ram_write() that access the RAM inside the struct cpu."
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
