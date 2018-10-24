@@ -4,6 +4,16 @@
 
 
 // "In cpu.c, add functions cpu_ram_read() and cpu_ram_write() that access the RAM inside the struct cpu."
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) 
+{
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+{
+  cpu->ram[mar] = mdr;
+}
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
