@@ -24,27 +24,67 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MD
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-    char data[DATA_LEN] = {
-        // From print8.ls8
-        0b10000010, // LDI R0,8  // LDI: load "immediate", store a value in a register, or "set this register to this value".
-        0b00000000,
-        0b00001000,
-        0b01000111, // PRN R0 // PRN: a pseudo-instruction that prints the numeric value stored in a register.
-        0b00000000,
-        0b00000001 // HLT // HLT: halt the CPU and exit the emulator.
-    };
-
+    char line[1024];
     int address = 0;
+    FILE *fp = fopen(filename, "r");
+    // printf("%s\n", filename);
 
-    for (int i = 0; i < DATA_LEN; i++)
+    while (fgets(line, sizeof line, fp) != NULL)
     {
-        cpu->ram[address++] = data[i];
+        char *endchar;
+        // puts(line);
+        unsigned char v = strtoul(line, &endchar, 2);
+        if (line == endchar)
+        {
+            continue;
+        }
+        // printf("%u\n", v);
+        cpu_ram_write(cpu, address++, v);
     }
-
-    // TODO: Replace this with something less hard-coded
 }
+
+//     char data[DATA_LEN] = {
+//         // From print8.ls8
+//         0b10000010, // LDI R0,8  // LDI: load "immediate", store a value in a register, or "set this register to this value".
+//         0b00000000,
+//         0b00001000,
+//         0b01000111, // PRN R0 // PRN: a pseudo-instruction that prints the numeric value stored in a register.
+//         0b00000000,
+//         0b00000001 // HLT // HLT: halt the CPU and exit the emulator.
+//     };
+
+//     int address = 0;
+
+//     for (int i = 0; i < DATA_LEN; i++)
+//     {
+//         cpu->ram[address++] = data[i];
+//     }
+
+//     // TODO: Replace this with something less hard-coded
+// }
+// void cpu_load(struct cpu *cpu)
+// {
+//     char data[DATA_LEN] = {
+//         // From print8.ls8
+//         0b10000010, // LDI R0,8  // LDI: load "immediate", store a value in a register, or "set this register to this value".
+//         0b00000000,
+//         0b00001000,
+//         0b01000111, // PRN R0 // PRN: a pseudo-instruction that prints the numeric value stored in a register.
+//         0b00000000,
+//         0b00000001 // HLT // HLT: halt the CPU and exit the emulator.
+//     };
+
+//     int address = 0;
+
+//     for (int i = 0; i < DATA_LEN; i++)
+//     {
+//         cpu->ram[address++] = data[i];
+//     }
+
+//     // TODO: Replace this with something less hard-coded
+// }
 
 /**
  * ALU - An arithmetic logic unit (ALU) is a digital circuit used to perform arithmetic and logic operations. 
@@ -62,6 +102,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     {
     case ALU_MUL:
         // TODO
+        cpu->reg[regA] *= cpu->reg[regB];
         break;
 
         // TODO: implement more ALU ops
@@ -132,6 +173,9 @@ void cpu_run(struct cpu *cpu)
         default:
             printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
             exit(2);
+        case MUL:
+            alu(cpu, ALU_MUL, operandA, operandB);
+            break;
         }
         cpu->pc += (IR >> 6) + 1; // +1 - instruction code
     }
