@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-#define DATA_LEN 6
+#define DATA_LEN 50
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar )
 {
@@ -19,12 +19,19 @@ void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
+0b10000010, // # LDI R0,8
+0b00000000, //
+0b00001000, //
+0b10000010, // # LDI R1,9
+0b00000001, //
+0b00001001, //
+0b10100010, // # MUL R0,R1
+0b00000000, //
+0b00000001, //
+0b01000111, // # PRN R0
+0b00000000, //
+0b00000001, // # HLT
+ // HLT
   };
 
   int address = 0;
@@ -55,7 +62,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char IR, operandA, operandB, operandC, operandD;
+  unsigned char IR, operandA, operandB;
   int instruction_index;
 
 
@@ -63,58 +70,44 @@ void cpu_run(struct cpu *cpu)
 
   int running = 1; // True until we get a HLT instruction
 
-//  operandA = cpu_ram_read(cpu, cpu->pc + 1); // r0
-//  operandB = cpu_ram_read(cpu, cpu->pc + 2); // 8 value
-
-
-//  printf("A: %u\n B: %u\n", operandA, operandB);
-  // printf("%d \n", instruction_index);
-  // printf("%u \n", IR);
-
-  // IR = cpu_ram_read(cpu, instruction_index);
-
-  instruction_index = cpu->pc;
-
+  instruction_index = cpu->pc; // initialize index of instruction
 
   while (running) {
-  IR = cpu_ram_read(cpu, instruction_index);
+  IR = cpu_ram_read(cpu, instruction_index); // set IR to current value of instruction index
 
+     switch(IR) { // switch based on IR's instruction
 
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
+      case LDI: //Set the value of a register to an integer.
+        operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
+        operandB = cpu_ram_read(cpu, instruction_index + 2); // if two instructions sets operandB to the 2nd line below instruction
 
-     // r0
+          cpu->registers[operandA] = operandB;
+          instruction_index += 3; // increments instruction index to next instruction line
+          break; // breaks switch and re-runs loops
 
-    // 8 value
-
-
-
-    // 2. switch() over it to decide on a course of action.
-     switch(IR) {
-
-      case LDI:
-      operandA = cpu_ram_read(cpu, instruction_index + 1); 
-      operandB = cpu_ram_read(cpu, instruction_index + 2);
-
-        cpu->registers[operandA] = operandB;
-        instruction_index += 3;
-        break;
-
-       case PRN:
+      case PRN: // print value of integer saved to register address
         operandA = cpu_ram_read(cpu, instruction_index + 1); 
 
-        printf("%d\n", cpu->registers[operandA]);
-        instruction_index += 2;
-        break;
+          printf("%d\n", cpu->registers[operandA]);
+          instruction_index += 2; // increments instruction index to next instruction line
+          break; // breaks switch and re-runs loops
 
+      case MUL:
+        operandA = cpu_ram_read(cpu, instruction_index + 1); 
+        operandB = cpu_ram_read(cpu, instruction_index + 2); 
+
+          cpu->registers[operandA] = cpu->registers[operandA]*cpu->registers[operandB];
+          instruction_index += 3; // increments instruction index to next instruction line
+          break;
+          
       case HLT:
-        running = 0;
-        break;
+        running = 0; // kill while loop
+          break;
 
 
        default:
         printf("Nothing to run \n");
-        running = 0;
+        running = 0; // kill while loop
      } 
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
