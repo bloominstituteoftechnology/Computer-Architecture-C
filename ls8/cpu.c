@@ -2,7 +2,7 @@
 
 #define DATA_LEN 6
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
+unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
   return cpu->ram[mar];
 }
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
@@ -52,37 +52,34 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  // unsigned char ir = cpu->registers;
-  int pc = cpu->PC;
-  unsigned char ir = cpu_ram_read(cpu, pc);
   
   while (running) {
+    
     // TODO
-    // 1. Get the value of the current instruction (in address PC).    
-    unsigned char operandA = cpu_ram_read(cpu, pc+1);
-    unsigned char operandB = cpu_ram_read(cpu, pc+2);
-    printf("%d", ir);
+    // 1. Get the value of the current instruction (in address PC). 
+    unsigned char ir = cpu_ram_read(cpu, cpu->PC); 
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 2. switch() over it to decide on a course of action.
     switch(ir) {
-      case 'HLT':
+      case 1:
         running = 0;
         break;
 
-      case 'LDI':
+      case 130:
         cpu->registers[operandA] = operandB;
-        ir = cpu_ram_read(cpu, pc+3);
+        cpu->PC += 3;        
         break; 
 
-      case 'PRN':
-        ir = cpu_ram_read(cpu, pc+2);
-        printf("%d", cpu->registers[operandA]);
-        running = 0;
+      case 71:
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;        
         break;
       
-      default: 
-        break;
+      default:
+        printf("PC %02x: unknown instruction %02x\n", cpu->PC, ir);
+        exit(3);
     }
-    // printf("%s", ir);
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.  
   }
@@ -97,9 +94,9 @@ void cpu_init(struct cpu *cpu)
   
   // TODO: Zero registers and RAM
 
-  cpu->PC = '0';
-  memset(cpu->registers, '0', 8*sizeof(char));
-  memset(cpu->ram, '0', 256*sizeof(char));
+  cpu->PC = 0;
+  memset(cpu->registers, 0, 8*sizeof(char));
+  memset(cpu->ram, 0, 256*sizeof(char));
 
   return 0;
 }
