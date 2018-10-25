@@ -62,8 +62,8 @@ void cpu_run(struct cpu *cpu)
 
   int running = 1; // True until we get a HLT instruction
 
- operandA = cpu_ram_read(cpu, cpu->pc + 1); // r0
- operandB = cpu_ram_read(cpu, cpu->pc + 2); // 8 value
+//  operandA = cpu_ram_read(cpu, cpu->pc + 1); // r0
+//  operandB = cpu_ram_read(cpu, cpu->pc + 2); // 8 value
 
 
  printf("A: %u\n B: %u\n", operandA, operandB);
