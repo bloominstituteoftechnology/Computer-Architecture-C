@@ -24,6 +24,9 @@ struct cpu
     unsigned char ram[256];
 };
 
+// Other general purpose reg. names
+#define SP 7
+
 // ALU operations
 enum alu_op // for debugger
 {
@@ -41,6 +44,12 @@ enum alu_op // for debugger
 #define MUL 0b10100010
 #define HLT 0b00000001
 #define PRN 0b01000111
+#define PUSH 0b01000101
+#define POP 0b01000110
+#define JMP 0b01010100
+#define CALL 0b01010000
+#define RET 0b00010001
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

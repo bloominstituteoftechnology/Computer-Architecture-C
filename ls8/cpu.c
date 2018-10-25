@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define DATA_LEN 6
+#define DEBUG 0
 
 //  add functions cpu_ram_read() and cpu_ram_write()
 // that access the RAM inside the struct cpu.
@@ -138,25 +139,25 @@ void cpu_run(struct cpu *cpu)
 {
     int running = 1; // True until we get a HLT instruction
 
+    // TODO
+    // 1. Get the value of the current instruction (in address PC).
+    // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
+
+    //   00011001
+    // & 00000011
+    // ----------
+    //   00000001
+
     while (running)
     {
-        // TODO
-        // 1. Get the value of the current instruction (in address PC).
-        // 2. switch() over it to decide on a course of action.
-        // 3. Do whatever the instruction should do according to the spec.
-        // 4. Move the PC to the next instruction.
         unsigned char IR = cpu_ram_read(cpu, cpu->pc);           // pc - is the index of the currently executing instruction in the ram array
         unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1); // pc+1 - index of the byte after the insctuction
         // unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1) & 0xff); // pc+1 - index of the byte after the insctuction
         unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
         // unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2) & 0xff);
-
-        //   00011001
-        // & 00000011
-        // ----------
-        //   00000001
-
-        // int add_to_pc = (IR >> 6) + 1;
+        int add_to_pc = (IR >> 6) + 1; // +1 - instruction code
         printf("Traces %02x: %02x %02x %02x\n", cpu->pc, IR, operandA, operandB);
         // 2 means the field width to be 2 chars
         // 0 means to pad with leading zero if necessary
@@ -177,14 +178,27 @@ void cpu_run(struct cpu *cpu)
         case HLT:
             running = 0;
             break;
-        default:
-            printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
-            exit(2);
         case MUL:
             alu(cpu, ALU_MUL, operandA, operandB);
             break;
+        case PUSH:
+            cpu->reg[SP]--;
+            cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+            // cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; // same as above
+            break;
+        case POP:
+            cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+            cpu->reg[SP]++;
+            break;
+        case JMP:
+            cpu->pc = cpu->reg[operandA];
+            add_to_pc = 0;
+            break;
+        default:
+            printf("unknown instruction at %02x: %02x\n", cpu->pc, IR);
+            exit(2);
         }
-        cpu->pc += (IR >> 6) + 1; // +1 - instruction code
+        cpu->pc += add_to_pc;
     }
 }
 
@@ -201,8 +215,9 @@ void cpu_init(struct cpu *cpu)
     // TODO: Initialize the PC and other special registers
     cpu->pc = 0;
     // TODO: Zero registers and RAM
+
     memset(cpu->ram, 0, sizeof cpu->ram);
     memset(cpu->reg, 0, sizeof cpu->reg);
 
-    // cpu->reg[7] = 0xF4; // for stacks
+    cpu->reg[SP] = 0xF4; // for stacks
 }
