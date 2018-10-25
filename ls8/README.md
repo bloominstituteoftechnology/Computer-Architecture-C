@@ -3,7 +3,7 @@
 ## Implementation of the LS-8 Emulator
 
 Objective: to gain a deeper understanding of how a CPU functions at a
-low level.
+low level
 
 We're going to write an emulator for the world-famous LambdaSchool-8 computer,
 otherwise known as LS-8! This is an 8-bit computer with 8-bit memory addressing,
