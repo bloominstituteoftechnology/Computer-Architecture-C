@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "cpu.h"
+#include <stdlib.h>
 
 /**
  * Main
  */
-int main(int argc, char **argv[])
+// int main(int argc, char **argv)
+int main(int argc, char *argv[])
 // int main(void)
 {
     struct cpu cpu; // more flexible
