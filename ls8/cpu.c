@@ -2,6 +2,12 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
+  return cpu->ram[mar];
+}
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
+  cpu->ram[mar] = mdr;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -46,13 +52,39 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  // unsigned char ir = cpu->registers;
+  int pc = cpu->PC;
+  unsigned char ir = cpu_ram_read(cpu, pc);
+  
   while (running) {
     // TODO
-    // 1. Get the value of the current instruction (in address PC).
+    // 1. Get the value of the current instruction (in address PC).    
+    unsigned char operandA = cpu_ram_read(cpu, pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, pc+2);
+    printf("%d", ir);
     // 2. switch() over it to decide on a course of action.
+    switch(ir) {
+      case 'HLT':
+        running = 0;
+        break;
+
+      case 'LDI':
+        cpu->registers[operandA] = operandB;
+        ir = cpu_ram_read(cpu, pc+3);
+        break; 
+
+      case 'PRN':
+        ir = cpu_ram_read(cpu, pc+2);
+        printf("%d", cpu->registers[operandA]);
+        running = 0;
+        break;
+      
+      default: 
+        break;
+    }
+    // printf("%s", ir);
     // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    // 4. Move the PC to the next instruction.  
   }
 }
 
@@ -62,6 +94,12 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  
   // TODO: Zero registers and RAM
+
+  cpu->PC = '0';
+  memset(cpu->registers, '0', 8*sizeof(char));
+  memset(cpu->ram, '0', 256*sizeof(char));
+
+  return 0;
 }
