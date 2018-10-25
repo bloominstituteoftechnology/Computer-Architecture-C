@@ -31,6 +31,12 @@ void cpu_load(struct cpu *cpu, char *filename)
     FILE *fp = fopen(filename, "r");
     // printf("%s\n", filename);
 
+    if (fp == NULL)
+    {
+        fprintf(stderr, "cannot open file %s\n", filename);
+        exit(2);
+    }
+
     while (fgets(line, sizeof line, fp) != NULL)
     {
         char *endchar;
@@ -43,6 +49,7 @@ void cpu_load(struct cpu *cpu, char *filename)
         // printf("%u\n", v);
         cpu_ram_write(cpu, address++, v);
     }
+    fclose(fp);
 }
 
 //     char data[DATA_LEN] = {
