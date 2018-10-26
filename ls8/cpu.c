@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 50
 
@@ -15,30 +17,58 @@ void cpu_ram_write(struct cpu *cpu,unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-0b10000010, // # LDI R0,8
-0b00000000, //
-0b00001000, //
-0b10000010, // # LDI R1,9
-0b00000001, //
-0b00001001, //
-0b10100010, // # MUL R0,R1
-0b00000000, //
-0b00000001, //
-0b01000111, // # PRN R0
-0b00000000, //
-0b00000001, // # HLT
- // HLT
-  };
+//   char data[DATA_LEN] = {
+//     // From print8.ls8
+// 0b10000010, // # LDI R0,8
+// 0b00000000, //
+// 0b00001000, //
+// 0b10000010, // # LDI R1,9
+// 0b00000001, //
+// 0b00001001, //
+// 0b10100010, // # MUL R0,R1
+// 0b00000000, //
+// 0b00000001, //
+// 0b01000111, // # PRN R0
+// 0b00000000, //
+// 0b00000001, // # HLT
+//  // HLT
+//   };
+
+  // printf("%s\n", filename);
 
   int address = 0;
+  FILE *fd;
+  char line[1024];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  fd = fopen(filename, "r");
+
+  // checks if argv exists
+  if (fd == NULL) {
+    printf("Cannot read file.");
+    return;
   }
+
+  while (fgets(line, sizeof line, fd) != NULL) {
+    char *end_of_byte;
+    unsigned char data = strtol(line, &end_of_byte, 2);
+
+    // printf("DATA %u\n", data);
+
+    if (data == line) {
+      continue;
+    }
+    else {
+      cpu->ram[address++] = data;
+    }
+  }
+  
+  fclose(fd);
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
