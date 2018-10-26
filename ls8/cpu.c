@@ -1,6 +1,6 @@
 #include "cpu.h"
 #include <stdio.h>
-#include <stdlib>
+#include <stdlib.h>
 #define DATA_LEN 6
 
 /**
@@ -12,19 +12,36 @@ void cpu_load(struct cpu *cpu)
     // From print8.ls8
     FILE *fp;
     int address = 0;
+    char line[1024];
+
+    // open file
     fp = fopen( filename, 'r');
     if (fp == NULL) {
       printf("Could not print file");
       return
     }
-    fscanf(fp);
+
+    while (fgets(line, sizeof line, fp) != NULL) {
+      char *end_of_instr;
+      unsigned char *data;
+
+      data = strtol(line, &end_of_instr, 2);
+    }
+    if(){
+
+    } else {
+        cpu->ram[address++] = data[i];
+    }
+    // fscanf(fp, '%s', line);
+    
+    // if ( strchr(line, '#') != NULL) {
+    
+    // }
   };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  
 
   // TODO: Replace this with something less hard-coded
 }
