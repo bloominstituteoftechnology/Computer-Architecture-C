@@ -5,6 +5,7 @@
 struct cpu
 {
   unsigned char PC;
+  unsigned char FL;
   unsigned char reg[8];
   unsigned char ram[256];
 };
@@ -16,7 +17,8 @@ struct cpu
 enum alu_op
 {
   ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
 };
 
 // Memory locations
@@ -38,6 +40,9 @@ enum alu_op
 #define PRN 0b01000111
 #define PUSH 0b01000101
 #define RET 0b00010001
+#define CMP 0b10100111
+#define JNE 0b01010110
+#define JEQ 0b01010101
 
 // Function declarations
 

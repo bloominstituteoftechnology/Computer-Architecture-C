@@ -79,6 +79,20 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     reg[regA] += valB;
     break;
+
+  case ALU_CMP:
+
+    if (cpu->reg[regA] == cpu->reg[regB])
+    {
+      cpu->FL = 0b00000001;
+    }
+    else
+    {
+
+      cpu->FL = 0b00000000;
+    }
+
+    break;
   }
 }
 
@@ -148,6 +162,15 @@ void cpu_run(struct cpu *cpu)
       reg[operandA] = cpu_pop(cpu);
       break;
 
+    case CMP:
+      alu(cpu, ALU_CMP, operandA, operandB);
+      break;
+
+    case JMP:
+      cpu->PC = cpu->reg[operandA & 7];
+      add_to_pc = 0;
+      break;
+
     default:
       fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
       exit(3);
@@ -166,6 +189,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->FL = 0;
 
   // Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
