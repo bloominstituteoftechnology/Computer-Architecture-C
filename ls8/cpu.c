@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -16,27 +19,25 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char addr = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fp == NULL) {
+    fprintf(stderr, "error opening file %\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
-}
+  while (fgets(line, sizeof line, fp) != NULL) {
+    unsigned char b = strtoul(line, NULL, 2);
 
+    cpu_ram_write(cpu, addr++, b);
+  }
+
+  fclose(fp);
+}
 /**
  * ALU
  */
@@ -63,28 +64,31 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
-    operandA = cpu_ram_read(cpu, cpu->PC+1);
-    operandB = cpu_ram_read(cpu, cpu->PC+2);
+    operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
+
+    int add_to_pc = (IR >> 6) + 1;
+
+    // traces operands
+    print("TRACE: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
         break;
 
       case PRN:
         print("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
         break;
 
       case HLT:
         running = 0;
-        cpu->PC += 1;
         break;
     }
-    // 3. Do whatever the instruction should do according to the spec.
+
     // 4. Move the PC to the next instruction.
+    cpu->PC += add_to_pc;
   }
 }
 
