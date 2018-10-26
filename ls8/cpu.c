@@ -1,5 +1,6 @@
 #include "cpu.h"
-
+#include <stdio.h>
+#include <stdlib>
 #define DATA_LEN 6
 
 /**
@@ -9,12 +10,14 @@ void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
+    FILE *fp;
+    int address = 0;
+    fp = fopen( filename, 'r');
+    if (fp == NULL) {
+      printf("Could not print file");
+      return
+    }
+    fscanf(fp);
   };
 
   int address = 0;
@@ -61,6 +64,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+  
   // TODO: Initialize the PC and other special registers
 
   // TODO: Zero registers and RAM
