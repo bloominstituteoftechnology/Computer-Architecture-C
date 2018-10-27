@@ -1,9 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-// Holds all information about the CPU
 struct cpu {
-  // TODO
   unsigned char pc;
   unsigned char registers[8];
   unsigned char ram[256];
@@ -19,7 +17,8 @@ enum alu_op {
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
-
+#define PUSH 0b01000101
+#define POP  0b01000110
 #define LDI  0b10000010
 #define MUL  0b10100010
 #define PRN  0b01000111

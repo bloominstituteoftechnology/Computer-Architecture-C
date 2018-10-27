@@ -1,0 +1,43 @@
+10000010 # LDI R0,1
+00000000
+00000001
+#Load 1 to Register 0
+#register 0 = 1
+10000010 # LDI R1,2
+00000001
+00000010
+#load 2 to register 1
+#register 1 = 2
+01000101 # PUSH R0
+00000000
+#push register 0 to register 7
+#register 7 = 1
+01000110 # POP R1
+00000001
+#Pop register 7 to register 1
+#register 1 = 2
+01000111 # PRN R1
+00000001
+#print register 1
+#register 1 = 2
+10000010 # LDI R0,2
+00000000
+00000010
+#load 2 to register 0
+01000101 # PUSH R0
+00000000
+#push register 0 to register 7
+#register 7 = 2
+10000010 # LDI R0,3
+00000000
+00000011
+#load 3 to register 0
+#register 0 = 3
+01000110 # POP R0
+00000000
+#pop register 7 to register 0
+#register 0 = 3
+01000111 # PRN R0
+00000000
+#print register 0 
+00000001 # HLT

@@ -6,73 +6,42 @@
 
 #define DATA_LEN 50
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar )
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR )
 {
-  return cpu->ram[mar];
+  return cpu->ram[MAR];
 }
 
-void cpu_ram_write(struct cpu *cpu,unsigned char mar, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu,unsigned char MAR, unsigned char MDR)
 {
-  cpu->ram[mar] = mdr;
+  cpu->ram[MAR] = MDR;
 }
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
 void cpu_load(char *filename, struct cpu *cpu)
 {
-//   char data[DATA_LEN] = {
-//     // From print8.ls8
-// 0b10000010, // # LDI R0,8
-// 0b00000000, //
-// 0b00001000, //
-// 0b10000010, // # LDI R1,9
-// 0b00000001, //
-// 0b00001001, //
-// 0b10100010, // # MUL R0,R1
-// 0b00000000, //
-// 0b00000001, //
-// 0b01000111, // # PRN R0
-// 0b00000000, //
-// 0b00000001, // # HLT
-//  // HLT
-//   };
+  int RAM_address = 0; // initalizes address counter to 0 to be used as index for where values will be stored within RAM
+  FILE *fd; // initializes file descriptor pointer to fd
+  char line[1024]; // temp variable to hold each line of the file being read
 
-  // printf("%s\n", filename);
+  fd = fopen(filename, "r"); // open filename specified in argv and read file.
 
-  int address = 0;
-  FILE *fd;
-  char line[1024];
-
-  fd = fopen(filename, "r");
-
-  // checks if argv exists
   if (fd == NULL) {
-    printf("Cannot read file.");
+    printf("Cannot read file."); //print error if file cannot be read
     return;
   }
 
-  while (fgets(line, sizeof line, fd) != NULL) {
-    char *end_of_byte;
-    unsigned char data = strtol(line, &end_of_byte, 2);
+  while (fgets(line, sizeof line, fd) != NULL) { // while loop to loop through file and assign each line of file to RAM while loop exits once fgets returns NULL indicating EOF
+    char *end_of_byte; //initialize pointer to end of byte
+    unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
 
-    // printf("DATA %u\n", data);
-
-    if (data == *line) {
+    if (data == *line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
       continue;
     }
     else {
-      cpu->ram[address++] = data;
+      cpu->ram[RAM_address++] = data; // loads each line of data to a new RAM address location for cpu to read from when performing instructions.
     }
   }
   
-  fclose(fd);
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
+  fclose(fd); //close file.
 }
 
 /**
@@ -89,18 +58,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char IR, operandA, operandB;
-  int instruction_index;
-
-
-// gives LDI
-
-  int running = 1; // True until we get a HLT instruction
+  unsigned char IR, operandA, operandB; // initializes IR, OpA, and OpB as "bytes"
+  int instruction_index; // used to track location within RAM corresponding to sequential instructions.
+  int running = 1; // True until we get a HLT instruction or if instruction fails to match switch case
 
   instruction_index = cpu->pc; // initialize index of instruction
 
@@ -125,27 +87,42 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[operandA] = cpu->registers[operandA]*cpu->registers[operandB];
         instruction_index += 3; // increments instruction index to next instruction line
         break;
+
+      case PUSH:
+        if(cpu->registers[7] == cpu->registers[0xF4]) {
+          cpu->registers[7] = cpu->registers[operandA];
+        } else {
+          cpu->registers[7]--;
+          cpu->registers[7] = cpu->registers[operandA];
+        }
+        instruction_index += 2; // increments instruction index to next instruction line
+        break;
+
+      case POP:
+        if(cpu->registers[7] == cpu->registers[0xF4]) {
+          printf("Stack empty nothing to pop");
+          break;
+        } else {
+          cpu->registers[7] = cpu->registers[operandA];
+          cpu->registers[7]++;
+        }
+        instruction_index += 2; // increments instruction index to next instruction line
+        break;
           
       case HLT:
         running = 0; // kill while loop
           break;
 
-
-       default:
-        printf("Nothing to run \n");
-        running = 0; // kill while loop
+      default:
+       printf("Nothing to run \n");
+       running = 0; // kill while loop
      } 
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
-  cpu->pc = 0;
-  memset(cpu->registers, 0, sizeof cpu->registers);
-  memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->pc = 0; //sets register to 0
+  memset(cpu->registers, 0, sizeof cpu->registers); // uses memset to set register to 0
+  memset(cpu->ram, 0, sizeof cpu->ram); // uses memset to set ram to 0
 }
