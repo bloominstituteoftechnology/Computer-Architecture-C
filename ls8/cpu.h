@@ -5,8 +5,8 @@
 struct cpu {
   // PC is an array of index addresses
   unsigned char PC;
-  unsigned char registers[8];
-  unsigned char RAM[256];
+  unsigned char registers[8]; // registers are memory closest to my CPU
+  unsigned char RAM[256];     // RAM is outside of the CPU
 };
 // PC = [0, 1, 2, 3, 4];
 // ALU operations

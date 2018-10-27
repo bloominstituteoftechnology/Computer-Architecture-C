@@ -93,19 +93,45 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+  unsigned char opA, opB;
   int running = 1; // True until we get a HLT instruction
 
-  // while (running) {
-  //   // TODO
-  //   // 1. Get the value of the current instruction (in address PC).
-  //   // 2. switch() over it to decide on a course of action.
-  //   // 3. Do whatever the instruction should do according to the spec.
-  //   // 4. Move the PC to the next instruction.
+  while (running) {
+    // TODO
+    // 1. Get the value of the current instruction (in address PC).
+    // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
+    // we need the next two bytes of instructions!!!!!!11
+    opA = cpu_ram_read(cpu, cpu->PC + 1);
+    opB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char current_instruction = cpu->RAM[cpu->PC];
     
-  // }
-  unsigned char test;
-  test = cpu_ram_read(cpu, cpu->PC);
-  printf("Here is the test: %u", test);
+    // let's do this...word to the trizzle
+    switch(current_instruction) {
+        case LDI:
+            // 0b10000010 
+            cpu->registers[opA] = opB;
+            cpu->PC += 3;
+            break;
+        case PRN:
+            printf("%d\n", cpu->registers[opA]);
+            cpu->PC+= 2;
+            break;
+        case HLT:
+            running = 0;
+            break;
+
+    default:
+         printf("You cain't code fool!");
+         running = 0;
+         break;
+    
+    }
+  }
+  // unsigned char test;
+  // test = cpu_ram_read(cpu, cpu->PC);
+  // printf("Here is the test: %u", test);
 }
 
 /**
