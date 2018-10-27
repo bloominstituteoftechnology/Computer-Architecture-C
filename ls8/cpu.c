@@ -71,7 +71,7 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
     operandB = cpu_ram_read(cpu, instruction_index + 2); // sets operandB to the second line below instruction, will only be used if needed in switch statement
 
-     switch(IR) { // switch based on IR's instruction
+     switch(IR||call) { // switch based on IR's instruction
 
       case LDI: //Set the value of a register to an integer.
         cpu->registers[operandA] = operandB; // save value in targeted register
@@ -112,6 +112,11 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         running = 0; // kill while loop
           break;
+
+      case CALL:
+        unsigned char call:
+        call = cpu->registers[operandA]
+        instruction_index += 2; // increments instruction index to next instruction line
 
       default:
        printf("Nothing to run \n");
