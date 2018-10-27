@@ -3,12 +3,12 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // PC is an array of index addresses
+  unsigned char PC;
+  unsigned char registers[8];
+  unsigned char RAM[256];
 };
-
+// PC = [0, 1, 2, 3, 4];
 // ALU operations
 enum alu_op {
 	ALU_MUL
@@ -20,7 +20,9 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI  0b10000010 // Load Immediate
+#define PRN 0b01000111 // print command
+#define HLT 0b00000001 // Halt command
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
