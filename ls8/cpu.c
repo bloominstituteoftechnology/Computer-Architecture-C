@@ -1,6 +1,8 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define DATA_LEN 50
 
@@ -56,7 +58,7 @@ void cpu_load(char *filename, struct cpu *cpu)
 
     // printf("DATA %u\n", data);
 
-    if (data == line) {
+    if (data == *line) {
       continue;
     }
     else {
@@ -103,32 +105,26 @@ void cpu_run(struct cpu *cpu)
   instruction_index = cpu->pc; // initialize index of instruction
 
   while (running) {
-  IR = cpu_ram_read(cpu, instruction_index); // set IR to current value of instruction index
+    IR = cpu_ram_read(cpu, instruction_index); // set IR to current value of instruction index
+    operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
+    operandB = cpu_ram_read(cpu, instruction_index + 2); // sets operandB to the second line below instruction, will only be used if needed in switch statement
 
      switch(IR) { // switch based on IR's instruction
 
       case LDI: //Set the value of a register to an integer.
-        operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
-        operandB = cpu_ram_read(cpu, instruction_index + 2); // if two instructions sets operandB to the 2nd line below instruction
-
-          cpu->registers[operandA] = operandB;
-          instruction_index += 3; // increments instruction index to next instruction line
-          break; // breaks switch and re-runs loops
+        cpu->registers[operandA] = operandB; // save value in targeted register
+        instruction_index += 3; // increments instruction index to next instruction line
+        break; // breaks switch and re-runs loops
 
       case PRN: // print value of integer saved to register address
-        operandA = cpu_ram_read(cpu, instruction_index + 1); 
-
-          printf("%d\n", cpu->registers[operandA]);
-          instruction_index += 2; // increments instruction index to next instruction line
-          break; // breaks switch and re-runs loops
+        printf("%d\n", cpu->registers[operandA]); // print value in targeted register
+        instruction_index += 2; // increments instruction index to next instruction line
+        break; // breaks switch and re-runs loops
 
       case MUL:
-        operandA = cpu_ram_read(cpu, instruction_index + 1); 
-        operandB = cpu_ram_read(cpu, instruction_index + 2); 
-
-          cpu->registers[operandA] = cpu->registers[operandA]*cpu->registers[operandB];
-          instruction_index += 3; // increments instruction index to next instruction line
-          break;
+        cpu->registers[operandA] = cpu->registers[operandA]*cpu->registers[operandB];
+        instruction_index += 3; // increments instruction index to next instruction line
+        break;
           
       case HLT:
         running = 0; // kill while loop
@@ -149,10 +145,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-
-  // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);
 }
