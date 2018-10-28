@@ -10,7 +10,7 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
+  // PC (Program Counter)
   unsigned char PC;
   // registers (array)
   unsigned char reg[8];
