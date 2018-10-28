@@ -18,61 +18,31 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
 }
 
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->RAM[address++] = data[i];
-  }
+  int RAM_INDEX = 0;
+  FILE *file;
+  char instruction[1024];
+  file = fopen(filename, 'r');
+  // need to reimplement to not be hard-coded
   // char data[DATA_LEN] = {
   //   // From print8.ls8
-  //   FILE *fp;
-  //   int address = 0;
-  //   char line[1024];
-
-  //   // open file
-  //   fp = fopen( filename, 'r');
-  //   if (fp == NULL) {
-  //     printf("Could not print file");
-  //     return
-  //   }
-
-  //   while (fgets(line, sizeof line, fp) != NULL) {
-  //     char *end_of_instr;
-  //     unsigned char *data;
-
-  //     data = strtol(line, &end_of_instr, 2);
-  //   }
-  //   if(){
-
-  //   } else {
-  //       cpu->ram[address++] = data[i];
-  //   }
-  //   // fscanf(fp, '%s', line);
-    
-  //   // if ( strchr(line, '#') != NULL) {
-    
-  //   // }
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
   // };
-}
 
   // int address = 0;
 
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->RAM[address++] = data[i];
+  // }
+}
+
   
-
-  // TODO: Replace this with something less hard-coded
-
 
 /**
  * ALU
