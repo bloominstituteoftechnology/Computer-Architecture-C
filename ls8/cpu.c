@@ -5,12 +5,12 @@
 
 
 // "In cpu.c, add functions cpu_ram_read() and cpu_ram_write() that access the RAM inside the struct cpu."
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) // mar <=> memory address register
 {
   return cpu->ram[mar];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) // mdr <=> memory data register
 {
   cpu->ram[mar] = mdr;
 }
