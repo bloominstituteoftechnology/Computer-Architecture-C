@@ -1,6 +1,12 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+// .h extension implies this is a header file (to be included with a 
+// preprocessor #include directive.) Contains stuff that is normally deemed
+// to be shared with other parts of your code, like function prototypes, 
+// #define'd stuff, external declaration for global vars and the like. 
+
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
