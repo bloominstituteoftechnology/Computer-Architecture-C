@@ -76,7 +76,8 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
 
     switch(IR) {
-      case LDI:
+      case LDI: // instruction LDI
+        // set value of register operandA to the value operandB
         cpu->reg[operandA] = operandB;
         break;
       
