@@ -83,6 +83,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -106,7 +107,13 @@ void cpu_run(struct cpu *cpu)
 
     int add_to_pc = (IR >> 6) + 1;
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for (int i = 0; i <8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+    printf("\n");
+
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
 
@@ -119,6 +126,11 @@ void cpu_run(struct cpu *cpu)
       case PRN: // instruction PRN prints the numeric value stored in the given register
         printf("%d\n", cpu->reg[operandA]);
         break;
+      
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
       
       case HLT:
         running = 0;
