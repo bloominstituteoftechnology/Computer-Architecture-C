@@ -102,7 +102,7 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu,cpu->PC); // index of the instruction
-    operandA = cpu_ram_read(cpu,(cpu->PC+1) & 0xff); // 1 byte after instruction
+    operandA = cpu_ram_read(cpu,(cpu->PC+1) & 0xff); // 1 byte after instruction; the & 0xff serves to set the maximum of the value(0xff <=> 255) on the LHS
     operandB = cpu_ram_read(cpu,(cpu->PC+2) & 0xff); // 2 bytes after instruction
 
     int add_to_pc = (IR >> 6) + 1;
@@ -126,18 +126,38 @@ void cpu_run(struct cpu *cpu)
       case PRN: // instruction PRN prints the numeric value stored in the given register
         printf("%d\n", cpu->reg[operandA]);
         break;
+
+      case PUSH:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA & 7]); // & 7 clamps range of operandA to number up to 7  
+        // cpu->ram[cpu->reg[7]] = cpu->reg[operandA]; same functionality as line above
+        break;
+      
+      case POP:
+        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        break;
       
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
-
+      
+      case JMP:
+        cpu->PC = cpu->reg[operandA];
+        add_to_pc=0;
+        break;
       
       case HLT:
         running = 0;
         break;
+
+      default:
+        printf("Unknown instruction %02x\n", IR);
+        exit(3);
     }
     // 4. Move the PC to the next instruction.
     cpu->PC += add_to_pc;
+    cpu->PC &= 0xff;
   }
 }
 
