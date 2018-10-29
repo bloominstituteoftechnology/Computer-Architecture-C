@@ -33,8 +33,20 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    unsigned char b = strtoul(line, NULL,2);
+    char *endptr;
 
+    unsigned char b = strtoul(line, &endptr, 2);
+
+    //              endptr
+    //                v 
+    // Input "10000010 # Comment"
+    //        ^
+    //      line
+
+    if (endptr == line) {
+      // we go no numbers
+      continue;
+    }
     cpu_ram_write(cpu, addr++, b);
   }
   
