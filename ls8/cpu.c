@@ -101,12 +101,12 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    IR = cpu_ram_read(cpu,cpu->PC); // index of the instruction
+    IR = cpu_ram_read(cpu,cpu->PC); // index/address of the instruction in the ram array
     operandA = cpu_ram_read(cpu,(cpu->PC+1) & 0xff); // 1 byte after instruction; the & 0xff serves to set the maximum of the value(0xff <=> 255) on the LHS
     operandB = cpu_ram_read(cpu,(cpu->PC+2) & 0xff); // 2 bytes after instruction
 
     // >> operator takes the binary representation of a number and shifts the number of bits to the right (putting in zeros for the new bits and the ones the get shifted out gets discarded); << to shift to the left 
-    //        -the IR >> 6 is the number of operands and the plus 1 is for the opcode itself, adding up to the number of bytes making up instruction
+    //        -the (IR >> 6) is the number of operands and the plus 1 is for the opcode itself, adding up to the number of bytes making up instruction
     int add_to_pc = (IR >> 6) + 1;
 
     printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
