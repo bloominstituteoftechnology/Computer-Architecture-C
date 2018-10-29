@@ -76,12 +76,12 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
 
     switch(IR) {
-      case LDI: // instruction LDI
+      case LDI: // instruction LDI sets the value of a register to an integer
         // set value of register operandA to the value operandB
         cpu->reg[operandA] = operandB;
         break;
       
-      case PRN:
+      case PRN: // instruction PRN prints the numeric value stored in the given register
         printf("%d\n", cpu->reg[operandA]);
         break;
       
@@ -103,6 +103,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
 
   // TODO: Zero registers and RAM
-  memset(cpu->ram, sizeof(cpu->ram), 0);
-  memset(cpu->reg, sizeof(cpu->reg), 0);
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->reg, 0,  sizeof(cpu->reg));
 }
