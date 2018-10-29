@@ -24,6 +24,23 @@ void cpu_load(struct cpu *cpu, char *filename)
   FILE *file;
   char instruction[1024];
   file = fopen(filename, 'r');
+
+
+  if (file == NULL) {
+    printf("Unable to read file.");
+    return;
+  }
+
+  while (fgets(instruction, sizeof instruction, file) != NULL) {
+      char *end_byte;
+      unsigned char data = strtol(instruction, &end_byte, 2);
+      if (data == *instruction) {
+        continue;
+      } else {
+        cpu->RAM[RAM_INDEX++] = data;
+      }
+      fclose(file);
+  }
   // need to reimplement to not be hard-coded
   // char data[DATA_LEN] = {
   //   // From print8.ls8
