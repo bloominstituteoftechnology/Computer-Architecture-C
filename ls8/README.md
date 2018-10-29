@@ -314,7 +314,7 @@ If you run `./ls8 examples/stack.ls8` you should see the output:
 ```
 1
 2
-```
+        ```
 
 ## Implement Subroutine Calls
 

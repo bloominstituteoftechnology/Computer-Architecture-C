@@ -60,7 +60,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char IR, operandA, operandB; // initializes IR, OpA, and OpB as "bytes"
+  unsigned char IR, operandA, operandB, call;; // initializes IR, OpA, and OpB as "bytes"
+  // int call;
   int instruction_index; // used to track location within RAM corresponding to sequential instructions.
   int running = 1; // True until we get a HLT instruction or if instruction fails to match switch case
 
@@ -71,51 +72,109 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
     operandB = cpu_ram_read(cpu, instruction_index + 2); // sets operandB to the second line below instruction, will only be used if needed in switch statement
 
-     switch(IR||call) { // switch based on IR's instruction
+    void load_immediate(opA, opB) {
+      cpu->registers[opA] = opB; // save value in targeted register
+    }
+
+    int print(opA) {
+      return printf("%d\n", cpu->registers[opA]); // print value in targeted register
+    }
+
+    void multiply(opA, opB) {
+      cpu->registers[opA] = cpu->registers[opA]*cpu->registers[opB];
+    }
+
+    void push(stack, opA) {
+      stack = cpu->registers[opA];
+    }
+
+    int pop(stack, opA) {
+      return stack = cpu->registers[opA];
+    }
+
+    void add(opA, opB) {
+      cpu->registers[opA] = cpu->registers[opA] + cpu->registers[opB];
+    }
+
+     switch(IR) { // switch based on IR's instruction
 
       case LDI: //Set the value of a register to an integer.
-        cpu->registers[operandA] = operandB; // save value in targeted register
+        load_immediate(operandA, operandB);
         instruction_index += 3; // increments instruction index to next instruction line
         break; // breaks switch and re-runs loops
 
       case PRN: // print value of integer saved to register address
-        printf("%d\n", cpu->registers[operandA]); // print value in targeted register
+        print(operandA);
         instruction_index += 2; // increments instruction index to next instruction line
         break; // breaks switch and re-runs loops
 
       case MUL:
-        cpu->registers[operandA] = cpu->registers[operandA]*cpu->registers[operandB];
+        multiply(operandA, operandB);
         instruction_index += 3; // increments instruction index to next instruction line
         break;
 
       case PUSH:
         if(cpu->registers[7] == cpu->registers[0xF4]) {
-          cpu->registers[7] = cpu->registers[operandA];
+          push(cpu->registers[7], operandA);
         } else {
           cpu->registers[7]--;
-          cpu->registers[7] = cpu->registers[operandA];
+          push(cpu->registers[7], operandA);
         }
         instruction_index += 2; // increments instruction index to next instruction line
         break;
 
       case POP:
-        if(cpu->registers[7] == cpu->registers[0xF4]) {
-          printf("Stack empty nothing to pop");
-          break;
-        } else {
-          cpu->registers[7] = cpu->registers[operandA];
+        // if(cpu->registers[7] == cpu->registers[0xF4]) {
+        //   printf("Stack empty nothing to pop\n");
+        // } else {
+          pop(cpu->registers[7], operandA);
           cpu->registers[7]++;
-        }
+        // }
         instruction_index += 2; // increments instruction index to next instruction line
         break;
           
       case HLT:
         running = 0; // kill while loop
           break;
+      
+      case ADD:
+        add(operandA, operandB);
+        instruction_index += 3; // increments instruction index to next instruction line
+        break;
+
+      case RET:
+        printf("return");
+        break;
 
       case CALL:
-        unsigned char call:
-        call = cpu->registers[operandA]
+        call = cpu->registers[operandA];
+        printf("%u \n", call);
+          if (call == LDI) {
+            load_immediate(operandA, operandB);
+          }
+          else if (call == PRN) {
+            print(operandA);
+          }
+          else if (call == MUL) {
+            multiply(operandA, operandB);
+          }
+          else if (call == PUSH) {
+            if(cpu->registers[7] == cpu->registers[0xF4]) {
+              push(cpu->registers[7], operandA);
+            } else {
+              cpu->registers[7]--;
+              push(cpu->registers[7], operandA);
+            }
+          }
+          else if (call == POP) {
+            if(cpu->registers[7] == cpu->registers[0xF4]) {
+              printf("Stack empty nothing to pop");
+              break;
+            } else {
+              pop(cpu->registers[7], operandA);
+              cpu->registers[7]++;
+            }
+          }
         instruction_index += 2; // increments instruction index to next instruction line
 
       default:
