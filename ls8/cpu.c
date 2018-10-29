@@ -60,7 +60,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char IR, operandA, operandB, call;; // initializes IR, OpA, and OpB as "bytes"
+  unsigned char IR, operandA, operandB, call; // initializes IR, OpA, and OpB as "bytes"
   // int call;
   int instruction_index; // used to track location within RAM corresponding to sequential instructions.
   int running = 1; // True until we get a HLT instruction or if instruction fails to match switch case
@@ -72,27 +72,38 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
     operandB = cpu_ram_read(cpu, instruction_index + 2); // sets operandB to the second line below instruction, will only be used if needed in switch statement
 
-    void load_immediate(opA, opB) {
+    void load_immediate(int opA, int opB) {
       cpu->registers[opA] = opB; // save value in targeted register
     }
 
-    int print(opA) {
+    int print(int opA) {
       return printf("%d\n", cpu->registers[opA]); // print value in targeted register
     }
 
-    void multiply(opA, opB) {
+    void multiply(int opA, int opB) {
       cpu->registers[opA] = cpu->registers[opA]*cpu->registers[opB];
     }
 
-    void push(stack, opA) {
-      stack = cpu->registers[opA];
+    void push(int opA) {
+      if (cpu->registers[7] == cpu->registers[0xf4]) {
+        cpu->registers[7] = cpu->registers[opA];
+      } else {
+      cpu->registers[7]--;
+      cpu->registers[7] = cpu->registers[opA]; 
+      }
     }
 
-    int pop(stack, opA) {
-      return stack = cpu->registers[opA];
+    int pop(int opA) {
+      if(cpu->registers[7] == cpu->registers[0xF4]) {
+        printf("Stack empty nothing to pop\n");
+      } else {
+        cpu->registers[opA] = cpu->registers[7];
+        cpu->registers[7]++;
+      }
+      return cpu->registers[opA];
     }
 
-    void add(opA, opB) {
+    void add(int opA, int opB) {
       cpu->registers[opA] = cpu->registers[opA] + cpu->registers[opB];
     }
 
@@ -114,22 +125,12 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PUSH:
-        if(cpu->registers[7] == cpu->registers[0xF4]) {
-          push(cpu->registers[7], operandA);
-        } else {
-          cpu->registers[7]--;
-          push(cpu->registers[7], operandA);
-        }
+        push(operandA);
         instruction_index += 2; // increments instruction index to next instruction line
         break;
 
       case POP:
-        // if(cpu->registers[7] == cpu->registers[0xF4]) {
-        //   printf("Stack empty nothing to pop\n");
-        // } else {
-          pop(cpu->registers[7], operandA);
-          cpu->registers[7]++;
-        // }
+        pop(operandA);
         instruction_index += 2; // increments instruction index to next instruction line
         break;
           
@@ -143,12 +144,12 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case RET:
-        printf("return");
+        printf("return from RET just to see if RET successfully called.");
+        pop(operandA);
         break;
 
       case CALL:
         call = cpu->registers[operandA];
-        printf("%u \n", call);
           if (call == LDI) {
             load_immediate(operandA, operandB);
           }
@@ -160,25 +161,25 @@ void cpu_run(struct cpu *cpu)
           }
           else if (call == PUSH) {
             if(cpu->registers[7] == cpu->registers[0xF4]) {
-              push(cpu->registers[7], operandA);
+              push(operandA);
             } else {
               cpu->registers[7]--;
-              push(cpu->registers[7], operandA);
+              push(operandA);
             }
           }
           else if (call == POP) {
-            if(cpu->registers[7] == cpu->registers[0xF4]) {
-              printf("Stack empty nothing to pop");
-              break;
+            if (cpu->registers[7] == cpu->registers[0xF4]) {
+              printf("Stack empty nothing to pop (within call switch)");
             } else {
-              pop(cpu->registers[7], operandA);
+              pop(operandA);
               cpu->registers[7]++;
             }
           }
+        printf("This is running within call switch before instruction increment \n");
         instruction_index += 2; // increments instruction index to next instruction line
 
       default:
-       printf("Nothing to run \n");
+       printf("Nothing to run, this is default of switch \n");
        running = 0; // kill while loop
      } 
   }
