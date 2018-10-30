@@ -95,7 +95,7 @@ void cpu_run(struct cpu *cpu)
 
     int pop(int opA) {
       if(cpu->registers[7] == cpu->registers[0xF4]) {
-        printf("Stack empty nothing to pop\n");
+        return printf("Stack empty nothing to pop\n");
       } else {
         cpu->registers[opA] = cpu->registers[7];
         cpu->registers[7]++;
@@ -104,7 +104,7 @@ void cpu_run(struct cpu *cpu)
     }
 
     void add(int opA, int opB) {
-      cpu->registers[opA] = cpu->registers[opA] + cpu->registers[opB];
+      cpu->registers[opA] += cpu->registers[opB];
     }
 
      switch(IR) { // switch based on IR's instruction
@@ -135,18 +135,23 @@ void cpu_run(struct cpu *cpu)
         break;
           
       case HLT:
-        running = 0; // kill while loop
-        instruction_index += 1; // increments instruction index to next instruction line
+        if(cpu_ram_read(cpu, instruction_index+1)) {
+          instruction_index += 1; // increments instruction index to next instruction line
+          cpu_run(&cpu);
+        } else {
+          running = 0; // kill while loop
+        }
         break;
-      
+    
       case ADD:
         add(operandA, operandB);
         instruction_index += 3; // increments instruction index to next instruction line
         break;
 
       case RET:
-        printf("return from RET just to see if RET successfully called.");
+        // printf("return from RET just to see if RET successfully called.");
         pop(operandA);
+        instruction_index += 1; // increments instruction index to next instruction line
         break;
 
       case CALL:
