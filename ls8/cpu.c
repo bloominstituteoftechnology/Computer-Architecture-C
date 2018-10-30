@@ -85,19 +85,16 @@ void cpu_run(struct cpu *cpu)
     }
 
     void push(int opA) {
-      if (cpu->registers[7] == cpu->registers[0xF4]) {
-        cpu->registers[7] = cpu->registers[opA];
-      } else {
       cpu->registers[7]--;
-      cpu->registers[7] = cpu->registers[opA]; 
-      }
+      cpu->ram[cpu->registers[7]] = cpu->registers[opA];
     }
+    
 
     int pop(int opA) {
-      if(cpu->registers[7] == cpu->registers[0xF4]) {
+      if(cpu->registers[7] == 0xF4) {
         return printf("Stack empty nothing to pop\n");
       } else {
-        cpu->registers[opA] = cpu->registers[7];
+        cpu->registers[opA] = cpu->ram[cpu->registers[7]];
         cpu->registers[7]++;
       }
       return cpu->registers[opA];
@@ -137,7 +134,7 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         if(cpu_ram_read(cpu, instruction_index+1)) {
           instruction_index += 1; // increments instruction index to next instruction line
-          cpu_run(&cpu);
+          // cpu_run(&cpu);
         } else {
           running = 0; // kill while loop
         }
@@ -166,20 +163,10 @@ void cpu_run(struct cpu *cpu)
             multiply(operandA, operandB);
           }
           else if (call == PUSH) {
-            if(cpu->registers[7] == cpu->registers[0xF4]) {
-              push(operandA);
-            } else {
-              cpu->registers[7]--;
-              push(operandA);
-            }
+            push(operandA);
           }
           else if (call == POP) {
-            if (cpu->registers[7] == cpu->registers[0xF4]) {
-              printf("Stack empty nothing to pop (within call switch)");
-            } else {
-              pop(operandA);
-              cpu->registers[7]++;
-            }
+            pop(operandA);
           }
           else if (call == MULT2PRINT) {
             cpu->registers[0] *= 2;
