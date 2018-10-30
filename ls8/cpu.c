@@ -81,7 +81,7 @@ void cpu_run(struct cpu *cpu)
     }
 
     void multiply(int opA, int opB) {
-      cpu->registers[opA] = cpu->registers[opA]*cpu->registers[opB];
+      cpu->registers[opA] *= cpu->registers[opB];
     }
 
     void push(int opA) {
@@ -136,7 +136,7 @@ void cpu_run(struct cpu *cpu)
           
       case HLT:
         running = 0; // kill while loop
-          break;
+        break;
       
       case ADD:
         add(operandA, operandB);
@@ -175,11 +175,16 @@ void cpu_run(struct cpu *cpu)
               cpu->registers[7]++;
             }
           }
-        printf("This is running within call switch before instruction increment \n");
+          else if (call == MULT2PRINT) {
+            multiply(operandA, operandA);
+            print(operandA);
+          }
+        // printf("This is running within call switch before instruction increment \n");
         instruction_index += 2; // increments instruction index to next instruction line
+        break;
 
       default:
-       printf("Nothing to run, this is default of switch \n");
+       printf("Nothing to run, this is default of switch, current instruction: %u \n", IR);
        running = 0; // kill while loop
      } 
   }
