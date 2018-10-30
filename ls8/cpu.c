@@ -136,6 +136,7 @@ void cpu_run(struct cpu *cpu)
           
       case HLT:
         running = 0; // kill while loop
+        instruction_index += 1; // increments instruction index to next instruction line
         break;
       
       case ADD:
@@ -176,8 +177,8 @@ void cpu_run(struct cpu *cpu)
             }
           }
           else if (call == MULT2PRINT) {
-            multiply(operandA, operandA);
-            print(operandA);
+            cpu->registers[0] *= 2;
+            print(0);
           }
         // printf("This is running within call switch before instruction increment \n");
         instruction_index += 2; // increments instruction index to next instruction line
