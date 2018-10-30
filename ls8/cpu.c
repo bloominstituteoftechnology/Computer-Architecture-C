@@ -1,7 +1,10 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #define DATA_LEN 6
+// #define DATA_LEN 50
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
