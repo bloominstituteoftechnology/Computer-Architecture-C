@@ -29,7 +29,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     return;
   }
 
-  while (fgets(line, sizeof line, fd) != NULL) { // while loop to loop through file and assign each line of file to RAM while loop exits once fgets returns NULL indicating EOF
+  while (RAM_address < 256 && fgets(line, sizeof line, fd) != NULL) { // while loop to loop through file and assign each line of file to RAM while loop exits once fgets returns NULL indicating EOF
     char *end_of_byte; //initialize pointer to end of byte
     unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
 
@@ -85,7 +85,7 @@ void cpu_run(struct cpu *cpu)
     }
 
     void push(int opA) {
-      if (cpu->registers[7] == cpu->registers[0xf4]) {
+      if (cpu->registers[7] == cpu->registers[0xF4]) {
         cpu->registers[7] = cpu->registers[opA];
       } else {
       cpu->registers[7]--;
@@ -196,4 +196,6 @@ void cpu_init(struct cpu *cpu)
   cpu->pc = 0; //sets register to 0
   memset(cpu->registers, 0, sizeof cpu->registers); // uses memset to set register to 0
   memset(cpu->ram, 0, sizeof cpu->ram); // uses memset to set ram to 0
+
+  cpu->registers[7] = 0xF4;
 }
