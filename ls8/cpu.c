@@ -4,8 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#define DATA_LEN 50
-
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR )
 {
   return cpu->ram[MAR];
@@ -35,7 +33,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
 
     if (data == *line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
-      instruction_counter++;
+      instruction_counter++; //increment instruction counter each time data equals *line (it will equal NULL at EOF)
       continue;
     }
     else {
@@ -43,7 +41,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     }
   }
   
-  cpu->instruction_counter = instruction_counter;
+  cpu->instruction_counter = instruction_counter; // sets incremented instruction counter to be used to prevent stack from overwriting instructions
   fclose(fd); //close file.
 }
 
@@ -84,31 +82,30 @@ void cpu_run(struct cpu *cpu)
     }
 
     void multiply(int opA, int opB) {
-      cpu->registers[opA] *= cpu->registers[opB];
+      cpu->registers[opA] *= cpu->registers[opB]; // take value of register opA and multiply it by value in register opB and assign to register opA
     }
 
     void push(int opA) {
-      cpu->registers[7]--;
-      if (cpu->ram[cpu->registers[7]] == cpu->ram[cpu->instruction_counter]) {
+      cpu->registers[7]--; // decrement stack pointer to next stack address 
+      if (cpu->ram[cpu->registers[7]] == cpu->ram[cpu->instruction_counter]) { // checks to insure stack pointer does not point to an address in RAM that an instruction was loaded
         printf("Stack overflow; recontemplate your life (or just inc ram or load a smaller program)");
       } else {
-      cpu->ram[cpu->registers[7]] = cpu->registers[opA];
+      cpu->ram[cpu->registers[7]] = cpu->registers[opA]; // loads value in register opA to current RAM address of stack
       }
     }
-    
 
     int pop(int opA) {
-      if(cpu->registers[7] == 0xF4) {
+      if(cpu->registers[7] == 0xF4) { // check if stack pointer is pointed to intial state
         return printf("Stack empty nothing to pop\n");
       } else {
-        cpu->registers[opA] = cpu->ram[cpu->registers[7]];
-        cpu->registers[7]++;
+        cpu->registers[opA] = cpu->ram[cpu->registers[7]]; // set register opA to value of RAM indicated by current stack pointer address
+        cpu->registers[7]++; // increment stack pointer (removing access to the top the the stack)
       }
-      return cpu->registers[opA];
+      return cpu->registers[opA]; // returns popped value
     }
 
     void add(int opA, int opB) {
-      cpu->registers[opA] += cpu->registers[opB];
+      cpu->registers[opA] += cpu->registers[opB]; // add values of register opA and register opB and assign them to register opA
     }
 
      switch(IR) { // switch based on IR's instruction
@@ -139,12 +136,7 @@ void cpu_run(struct cpu *cpu)
         break;
           
       case HLT:
-        if(cpu_ram_read(cpu, instruction_index+1)) {
-          instruction_index += 1; // increments instruction index to next instruction line
-          // cpu_run(&cpu);
-        } else {
-          running = 0; // kill while loop
-        }
+        running = 0; // kill while loop
         break;
     
       case ADD:
@@ -153,8 +145,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case RET:
-        // printf("return from RET just to see if RET successfully called.");
-        pop(operandA);
+        pop(operandA); // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
         instruction_index += 1; // increments instruction index to next instruction line
         break;
 
@@ -197,5 +188,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0, sizeof cpu->registers); // uses memset to set register to 0
   memset(cpu->ram, 0, sizeof cpu->ram); // uses memset to set ram to 0
 
-  cpu->registers[7] = 0xF4;
+  cpu->registers[7] = 0xF4; // initialize the stack pointer to address 0xF4(244) to be used to locate top of stack in RAM
 }
