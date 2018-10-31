@@ -1,6 +1,11 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
+#define LDI 0b10000010
+#define HLT 0b00000001
+#define PRN 0b01000111
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
   return cpu->ram[mar];
@@ -11,25 +16,33 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char md
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  FILE *fp;
+  char data[1024];
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if( (fp = fopen(argv[1], "r") ) == NULL ) {
+
+    printf("Error...\nCannot open file: %s\n", argv[1]);
+    return -1;
+
+  }
+  
+  while (fgets(data, sizeof data, fp) != NULL) {
+
+    // Convert string to a number
+    char *endchar;
+    unsigned char byte = strtol(data, &endchar, 2);;
+
+    // Ignore lines from whicn no numbers were read
+    if (endchar == data) {
+      continue;
+    }
+    cpu->ram[address++] = byte;
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -37,11 +50,16 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *registers = cpu->registers;
+
+  unsigned char valB = registers[regB];
   switch (op) {
     case ALU_MUL:
-      // TODO
+      registers[regA] *= valB;
       break;
-
+    case ALU_ADD:
+      registers[regA] += valB;
+      breakl
     // TODO: implement more ALU ops
   }
 }
@@ -60,22 +78,30 @@ void cpu_run(struct cpu *cpu)
     unsigned char ir = cpu_ram_read(cpu, cpu->PC); 
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+
+    unsigned char opcode = ir & 0b00001111;
+
+    printf("%d\n", opcode);
+    
     // 2. switch() over it to decide on a course of action.
-    switch(ir) {
-      case 1:
+    switch(opcode) {
+      case HLT:
         running = 0;
         break;
 
-      case 130:
+      case LDI:
         cpu->registers[operandA] = operandB;
         cpu->PC += 3;        
         break; 
 
-      case 71:
+      case PRN:
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;        
         break;
       
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        
       default:
         printf("PC %02x: unknown instruction %02x\n", cpu->PC, ir);
         exit(3);
