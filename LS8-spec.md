@@ -184,7 +184,6 @@ A8 0a 0b
 ### CALL register
 
 `CALL register`
-
 Calls a subroutine (function) at the address stored in the register.
 
 1. The address of the instruction _directly after_ the `CALL` instruction is

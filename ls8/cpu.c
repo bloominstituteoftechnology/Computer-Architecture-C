@@ -1,29 +1,48 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#define DATA_LEN 6
-
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR )
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  return cpu->ram[MAR];
+}
 
-  int address = 0;
+void cpu_ram_write(struct cpu *cpu,unsigned char MAR, unsigned char MDR)
+{
+  cpu->ram[MAR] = MDR;
+}
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+void cpu_load(char *filename, struct cpu *cpu)
+{
+  int RAM_address = 0; // initalizes address counter to 0 to be used as index for where values will be stored within RAM
+  FILE *fd; // initializes file descriptor pointer to fd
+  char line[1024]; // temp variable to hold each line of the file being read
+  int instruction_counter = 0;
+
+  fd = fopen(filename, "r"); // open filename specified in argv and read file.
+
+  if (fd == NULL) {
+    printf("Cannot read file."); //print error if file cannot be read
+    return;
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (RAM_address < 256 && fgets(line, sizeof line, fd) != NULL) { // while loop to loop through file and assign each line of file to RAM while loop exits once fgets returns NULL indicating EOF
+    char *end_of_byte; //initialize pointer to end of byte
+    unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
+
+    if (data == *line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
+      instruction_counter++; //increment instruction counter each time data equals *line (it will equal NULL at EOF)
+      continue;
+    }
+    else {
+      cpu->ram[RAM_address++] = data; // loads each line of data to a new RAM address location for cpu to read from when performing instructions.
+    }
+  }
+  
+  cpu->instruction_counter = instruction_counter; // sets incremented instruction counter to be used to prevent stack from overwriting instructions
+  fclose(fd); //close file.
 }
 
 /**
@@ -40,28 +59,134 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  unsigned char IR, operandA, operandB, call; // initializes IR, OpA, and OpB as "bytes"
+  // int call;
+  int instruction_index; // used to track location within RAM corresponding to sequential instructions.
+  int running = 1; // True until we get a HLT instruction or if instruction fails to match switch case
+
+  instruction_index = cpu->pc; // initialize index of instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    IR = cpu_ram_read(cpu, instruction_index); // set IR to current value of instruction index
+    operandA = cpu_ram_read(cpu, instruction_index + 1); // sets operandA to the next line below instruction
+    operandB = cpu_ram_read(cpu, instruction_index + 2); // sets operandB to the second line below instruction, will only be used if needed in switch statement
+
+    void load_immediate(int opA, int opB) {
+      cpu->registers[opA] = opB; // save value in targeted register
+    }
+
+    int print(int opA) {
+      return printf("%d\n", cpu->registers[opA]); // print value in targeted register
+    }
+
+    void multiply(int opA, int opB) {
+      cpu->registers[opA] *= cpu->registers[opB]; // take value of register opA and multiply it by value in register opB and assign to register opA
+    }
+
+    void push(int opA) {
+      cpu->registers[7]--; // decrement stack pointer to next stack address 
+      if (cpu->ram[cpu->registers[7]] == cpu->ram[cpu->instruction_counter]) { // checks to insure stack pointer does not point to an address in RAM that an instruction was loaded
+        printf("Stack overflow; recontemplate your life (or just inc ram or load a smaller program)");
+      } else {
+      cpu->ram[cpu->registers[7]] = cpu->registers[opA]; // loads value in register opA to current RAM address of stack
+      }
+    }
+
+    int pop(int opA) {
+      if(cpu->registers[7] == 0xF4) { // check if stack pointer is pointed to intial state
+        return printf("Stack empty nothing to pop\n");
+      } else {
+        cpu->registers[opA] = cpu->ram[cpu->registers[7]]; // set register opA to value of RAM indicated by current stack pointer address
+        cpu->registers[7]++; // increment stack pointer (removing access to the top the the stack)
+      }
+      return cpu->registers[opA]; // returns popped value
+    }
+
+    void add(int opA, int opB) {
+      cpu->registers[opA] += cpu->registers[opB]; // add values of register opA and register opB and assign them to register opA
+    }
+
+     switch(IR) { // switch based on IR's instruction
+
+      case LDI: //Set the value of a register to an integer.
+        load_immediate(operandA, operandB);
+        instruction_index += 3; // increments instruction index to next instruction line
+        break; // breaks switch and re-runs loops
+
+      case PRN: // print value of integer saved to register address
+        print(operandA);
+        instruction_index += 2; // increments instruction index to next instruction line
+        break; // breaks switch and re-runs loops
+
+      case MUL:
+        multiply(operandA, operandB);
+        instruction_index += 3; // increments instruction index to next instruction line
+        break;
+
+      case PUSH:
+        push(operandA);
+        instruction_index += 2; // increments instruction index to next instruction line
+        break;
+
+      case POP:
+        pop(operandA);
+        instruction_index += 2; // increments instruction index to next instruction line
+        break;
+          
+      case HLT:
+        running = 0; // kill while loop
+        break;
+    
+      case ADD:
+        add(operandA, operandB);
+        instruction_index += 3; // increments instruction index to next instruction line
+        break;
+
+      case RET:
+        pop(operandA); // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
+        instruction_index += 1; // increments instruction index to next instruction line
+        break;
+
+      case CALL:
+        call = cpu->registers[operandA];
+          if (call == LDI) {
+            load_immediate(operandA, operandB);
+          }
+          else if (call == PRN) {
+            print(operandA);
+          }
+          else if (call == MUL) {
+            multiply(operandA, operandB);
+          }
+          else if (call == PUSH) {
+            push(operandA);
+          }
+          else if (call == POP) {
+            pop(operandA);
+          }
+          else if (call == MULT2PRINT) {
+            add(0, 0);
+            print(0);
+            // pop(operandA);
+          }
+        // printf("This is running within call switch before instruction increment \n");
+        instruction_index += 2; // increments instruction index to next instruction line
+        break;
+
+      default:
+       printf("Nothing to run, this is default of switch, current instruction: %u \n", IR);
+       running = 0; // kill while loop
+     } 
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  cpu->pc = 0; //sets register to 0
+  memset(cpu->registers, 0, sizeof cpu->registers); // uses memset to set register to 0
+  memset(cpu->ram, 0, sizeof cpu->ram); // uses memset to set ram to 0
 
-  // TODO: Zero registers and RAM
+  cpu->registers[7] = 0xF4; // initialize the stack pointer to address 0xF4(244) to be used to locate top of stack in RAM
 }
