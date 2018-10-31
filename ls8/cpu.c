@@ -21,6 +21,7 @@ void cpu_load(char *filename, struct cpu *cpu)
   int RAM_address = 0; // initalizes address counter to 0 to be used as index for where values will be stored within RAM
   FILE *fd; // initializes file descriptor pointer to fd
   char line[1024]; // temp variable to hold each line of the file being read
+  int instruction_counter = 0;
 
   fd = fopen(filename, "r"); // open filename specified in argv and read file.
 
@@ -34,6 +35,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
 
     if (data == *line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
+      instruction_counter++;
       continue;
     }
     else {
@@ -41,6 +43,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     }
   }
   
+  cpu->instruction_counter = instruction_counter;
   fclose(fd); //close file.
 }
 
@@ -86,7 +89,11 @@ void cpu_run(struct cpu *cpu)
 
     void push(int opA) {
       cpu->registers[7]--;
+      if (cpu->ram[cpu->registers[7]] == cpu->ram[cpu->instruction_counter]) {
+        printf("Stack overflow; recontemplate your life (or just inc ram or load a smaller program)");
+      } else {
       cpu->ram[cpu->registers[7]] = cpu->registers[opA];
+      }
     }
     
 
@@ -169,8 +176,9 @@ void cpu_run(struct cpu *cpu)
             pop(operandA);
           }
           else if (call == MULT2PRINT) {
-            cpu->registers[0] *= 2;
+            add(0, 0);
             print(0);
+            // pop(operandA);
           }
         // printf("This is running within call switch before instruction increment \n");
         instruction_index += 2; // increments instruction index to next instruction line
