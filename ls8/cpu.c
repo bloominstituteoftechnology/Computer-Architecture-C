@@ -6,6 +6,9 @@
 #define LDI 0b10000010
 #define HLT 0b00000001
 #define PRN 0b01000111
+#define POP 0b01000110
+#define PUSH 0b01000101
+
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
   return cpu->ram[mar];
@@ -33,7 +36,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
     // Convert string to a number
     char *endchar;
-    unsigned char byte = strtol(data, &endchar, 2);;
+    unsigned char byte = strtol(data, &endchar, 2);
 
     // Ignore lines from whicn no numbers were read
     if (endchar == data) {
@@ -50,20 +53,32 @@ void cpu_load(struct cpu *cpu, char *argv[])
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  unsigned char *registers = cpu->registers;
+  // unsigned char *registers = cpu->registers;
 
-  unsigned char valB = registers[regB];
-  switch (op) {
-    case ALU_MUL:
-      registers[regA] *= valB;
-      break;
-    case ALU_ADD:
-      registers[regA] += valB;
-      breakl
-    // TODO: implement more ALU ops
-  }
+  // unsigned char valB = registers[regB];
+  // switch (op) {
+  //   case ALU_MUL:
+  //     registers[regA] *= valB;
+  //     break;
+  //   case ALU_ADD:
+  //     registers[regA] += valB;
+  //     breakl
+  //   // TODO: implement more ALU ops
+  // }
 }
 
+void cpu_push(struct cpu *cpu, unsigned char val) {
+  unsigned char SP = cpu_ram_read(cpu, cpu->SP);
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu) {
+  unsigned char SP = cpu_ram_read(cpu, cpu->SP);
+  unsigned char value = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return value;
+}
 /**
  * Run the CPU
  */
@@ -79,9 +94,9 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
 
-    unsigned char opcode = ir & 0b00001111;
+    unsigned char opcode = ir;
 
-    printf("%d\n", opcode);
+    // printf("%d\n", opcode);
     
     // 2. switch() over it to decide on a course of action.
     switch(opcode) {
@@ -91,17 +106,30 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->PC += 3;        
+        cpu->PC += 3;
+        printf("LDI %d\n", cpu->registers[operandA]);
         break; 
 
       case PRN:
-        printf("%d\n", cpu->registers[operandA]);
+        printf("PRN %d\n", cpu->registers[operandA]);
         cpu->PC += 2;        
         break;
       
-      case ADD:
-        alu(cpu, ALU_ADD, operandA, operandB);
-        
+      // case ADD:
+      //   alu(cpu, ALU_ADD, operandA, operandB);
+
+      case PUSH:
+        printf("PUSH %d\n", cpu->registers[operandA]);
+        cpu_push(cpu, cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case POP:
+        cpu->registers[operandA] = cpu_pop(cpu);
+        printf("POP %d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
       default:
         printf("PC %02x: unknown instruction %02x\n", cpu->PC, ir);
         exit(3);
