@@ -8,7 +8,6 @@
 #define PRN 0b01000111
 #define POP 0b01000110
 #define PUSH 0b01000101
-#define SP 5
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
@@ -69,13 +68,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 void cpu_push(struct cpu *cpu, unsigned char val) {
-  cpu->registers[SP]--;
-  cpu->ram[cpu->registers[SP]] = val;
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = val;
 }
 
 unsigned char cpu_pop(struct cpu *cpu) {
-  unsigned char value = cpu->ram[cpu->registers[SP]];
-  cpu->registers[SP]++;
+  unsigned char value = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
   return value;
 }
 /**
