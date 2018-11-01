@@ -1,21 +1,21 @@
 /**
  * Assembler for LS-8 v4.0
- * 
+ *
  * Example code:
- * 
+ *
  *  INC R0   ; A comment
  *  Label1:
  *  DEC R2
  *  LDI R3,Label1
- * 
+ *
  *  DS A String that is declared
  *  DB 0x0a   ; a hex byte
  *  DB 12   ; a decimal byte
  *  DB 0b0001 ; a binary byte
  */
 
-const fs = require('fs');
-const readline = require('readline');
+const fs = require("fs");
+const readline = require("readline");
 
 // Process command line
 
@@ -25,15 +25,12 @@ let input, output;
 if (args.length === 0) {
   input = process.stdin;
   output = process.stdout.fd;
-
 } else if (args.length === 1) {
   input = fs.createReadStream(args[0]);
   output = process.stdout.fd;
-
 } else if (args.length == 2) {
   input = fs.createReadStream(args[0]);
-  output = fs.openSync(args[1], 'w');
-
+  output = fs.openSync(args[1], "w");
 } else {
   console.error("usage: asm infile.asm [outfile.ls8]");
   process.exit(1);
@@ -50,40 +47,40 @@ const sym = {};
 
 // Operands:
 const ops = {
-  "ADD":  { type: 2, code: '10100000' },
-  "AND":  { type: 2, code: '10101000' },
-  "CALL": { type: 1, code: '01010000' },
-  "CMP":  { type: 2, code: '10100111' },
-  "DEC":  { type: 1, code: '01100110' },
-  "DIV":  { type: 2, code: '10100011' },
-  "HLT":  { type: 0, code: '00000001' },
-  "INC":  { type: 1, code: '01100101' },
-  "INT":  { type: 1, code: '01010010' },
-  "IRET": { type: 0, code: '00010011' },
-  "JEQ":  { type: 1, code: '01010101' },
-  "JGE":  { type: 1, code: '01011010' },
-  "JGT":  { type: 1, code: '01010111' },
-  "JLE":  { type: 1, code: '01011001' },
-  "JLT":  { type: 1, code: '01011000' },
-  "JMP":  { type: 1, code: '01010100' },
-  "JNE":  { type: 1, code: '01010110' },
-  "LD":   { type: 2, code: '10000011' },
-  "LDI":  { type: 8, code: '10000010' },
-  "MOD":  { type: 2, code: '10100100' },
-  "MUL":  { type: 2, code: '10100010' },
-  "NOP":  { type: 0, code: '00000000' },
-  "NOT":  { type: 1, code: '01101001' },
-  "OR":   { type: 2, code: '10101010' },
-  "POP":  { type: 1, code: '01000110' },
-  "PRA":  { type: 1, code: '01001000' },
-  "PRN":  { type: 1, code: '01000111' },
-  "PUSH": { type: 1, code: '01000101' },
-  "RET":  { type: 0, code: '00010001' },
-  "SHL":  { type: 2, code: '10101100' },
-  "SHR":  { type: 2, code: '10101101' },
-  "ST":   { type: 2, code: '10000100' },
-  "SUB":  { type: 2, code: '10100001' },
-  "XOR":  { type: 2, code: '10101011' },
+  ADD: { type: 2, code: "10100000" },
+  AND: { type: 2, code: "10101000" },
+  CALL: { type: 1, code: "01010000" },
+  CMP: { type: 2, code: "10100111" },
+  DEC: { type: 1, code: "01100110" },
+  DIV: { type: 2, code: "10100011" },
+  HLT: { type: 0, code: "00000001" },
+  INC: { type: 1, code: "01100101" },
+  INT: { type: 1, code: "01010010" },
+  IRET: { type: 0, code: "00010011" },
+  JEQ: { type: 1, code: "01010101" },
+  JGE: { type: 1, code: "01011010" },
+  JGT: { type: 1, code: "01010111" },
+  JLE: { type: 1, code: "01011001" },
+  JLT: { type: 1, code: "01011000" },
+  JMP: { type: 1, code: "01010100" },
+  JNE: { type: 1, code: "01010110" },
+  LD: { type: 2, code: "10000011" },
+  LDI: { type: 8, code: "10000010" },
+  MOD: { type: 2, code: "10100100" },
+  MUL: { type: 2, code: "10100010" },
+  NOP: { type: 0, code: "00000000" },
+  NOT: { type: 1, code: "01101001" },
+  OR: { type: 2, code: "10101010" },
+  POP: { type: 1, code: "01000110" },
+  PRA: { type: 1, code: "01001000" },
+  PRN: { type: 1, code: "01000111" },
+  PUSH: { type: 1, code: "01000101" },
+  RET: { type: 0, code: "00010001" },
+  SHL: { type: 2, code: "10101100" },
+  SHR: { type: 2, code: "10101101" },
+  ST: { type: 2, code: "10000100" },
+  SUB: { type: 2, code: "10100001" },
+  XOR: { type: 2, code: "10101011" }
 };
 
 // Type to function mapping
@@ -91,7 +88,7 @@ const typeF = {
   0: out0,
   1: out1,
   2: out2,
-  8: out8,
+  8: out8
 };
 
 // Set up the machine code output
@@ -113,17 +110,17 @@ const regexDB = /(?:(\w+?):)?\s*DB\s*(.+)/i;
 
 /**
  * Pass 1
- * 
+ *
  * Read the source code lines
  * Parse labels, opcodes, and operands
  * Record label offsets
  * Emit machine code
  */
-rl.on('line', (input) => {
+rl.on("line", input => {
   line++;
 
   // Strip comments
-  const commentIndex = input.indexOf(';');
+  const commentIndex = input.indexOf(";");
   if (commentIndex !== -1) {
     input = input.substr(0, commentIndex);
   }
@@ -132,7 +129,7 @@ rl.on('line', (input) => {
   input = input.trim();
 
   // Ignore blank lines
-  if (input === '') {
+  if (input === "") {
     return;
   }
 
@@ -141,7 +138,7 @@ rl.on('line', (input) => {
 
   if (m) {
     let [, label, opcode, opA, opB] = m;
-    
+
     label = uppercase(label);
     opcode = uppercase(opcode);
     opA = uppercase(opA);
@@ -158,10 +155,10 @@ rl.on('line', (input) => {
 
     if (opcode !== undefined) {
       switch (opcode) {
-        case 'DS':
+        case "DS":
           handleDS(input);
           break;
-        case 'DB':
+        case "DB":
           handleDB(input);
           break;
         default:
@@ -177,20 +174,18 @@ rl.on('line', (input) => {
           break;
       }
     }
-
   } else {
     console.log("No match: " + input);
     process.exit(3);
   }
-
 });
 
 /**
  * Pass 2
- * 
+ *
  * Output the code, substituting in any symbols
  */
-rl.on('close', () => {
+rl.on("close", () => {
   // Pass two
 
   // Output result
@@ -198,18 +193,18 @@ rl.on('close', () => {
     let c = code[i];
 
     // Replace symbols
-    if (c.substr(0,4) == 'sym:') {
+    if (c.substr(0, 4) == "sym:") {
       let s = c.substr(4).trim();
 
       if (s in sym) {
         c = p8(sym[s]);
       } else {
-        console.error('unknown symbol: ' + s);
+        console.error("unknown symbol: " + s);
         process.exit(2);
       }
     }
 
-    fs.writeSync(output, c + '\n');
+    fs.writeSync(output, c + "\n");
   }
 });
 
@@ -217,7 +212,6 @@ rl.on('close', () => {
  * Check operands for sanity with a particular opcode
  */
 function checkOps(opcode, opA, opB) {
-
   // Makes sure we have right operand count
   function checkOpsCount(desired, found) {
     if (found < desired) {
@@ -237,12 +231,12 @@ function checkOps(opcode, opA, opB) {
 
   const type = ops[opcode].type;
 
-  const totalOperands = (opA !== undefined? 1: 0) + (opB !== undefined? 1: 0);
+  const totalOperands =
+    (opA !== undefined ? 1 : 0) + (opB !== undefined ? 1 : 0);
 
   if (type === 0 || type === 1 || type === 2) {
     // 0, 1, or 2 register operands
     checkOpsCount(type, totalOperands);
-
   } else if (type === 8) {
     // LDI r,i or LDI r,label
     checkOpsCount(2, totalOperands);
@@ -252,7 +246,7 @@ function checkOps(opcode, opA, opB) {
 /**
  * Get a register number from a string, e.g. "R2" -> 2
  */
-function getReg(op, fatal=true) {
+function getReg(op, fatal = true) {
   const m = op.match(/R([0-7])/);
 
   if (m === null) {
@@ -264,14 +258,14 @@ function getReg(op, fatal=true) {
     }
   }
 
-  return m[1]|0;
+  return m[1] | 0;
 }
 
 /**
  * Return a value as an 8-digit binary number
  */
 function p8(v) {
-  return v.toString(2).padStart(8, '0');
+  return v.toString(2).padStart(8, "0");
 }
 
 /**
@@ -346,8 +340,8 @@ function out8(opcode, opA, opB, machineCode) {
  */
 function handleDS(input) {
   const m = input.match(regexDS);
-  
-  if (m === null || m[2] === '') {
+
+  if (m === null || m[2] === "") {
     console.error(`line ${line}: missing argument to DS`);
     process.exit(2);
   }
@@ -357,8 +351,8 @@ function handleDS(input) {
   for (let i = 0; i < data.length; i++) {
     let printChar = data.charAt(i);
 
-    if (printChar === ' ') {
-      printChar = '[space]';
+    if (printChar === " ") {
+      printChar = "[space]";
     }
 
     code.push(`${p8(data.charCodeAt(i))} # ${printChar}`);
@@ -372,8 +366,8 @@ function handleDS(input) {
  */
 function handleDB(input) {
   const m = input.match(regexDB);
-  
-  if (m === null || m[2] === '') {
+
+  if (m === null || m[2] === "") {
     console.error(`line ${line}: missing argument to DB`);
     process.exit(2);
   }
