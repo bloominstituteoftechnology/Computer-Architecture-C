@@ -117,42 +117,51 @@ void cpu_run(struct cpu *cpu)
     }
     // let's do this...word to the trizzle
     switch(IR) {
-        case LDI:
+        case LDI: {
             // 0b10000010 
             cpu->registers[opA] = opB;
             RAM_INDEX += 3;
             break;
-        case PRN:
+        }
+        case PRN: 
             printf("%d\n", cpu->registers[opA]);
             RAM_INDEX += 2;
             break;
-         case ADD:
+        
+        case ADD: 
             add(opA, opB);
             RAM_INDEX += 3;
             break;
-        case RET:
+        
+        case RET: 
             pop(opA);
             RAM_INDEX += 1;
             break;
-        case MUL:
+        
+        case MUL: 
             multiply(opA, opB);
             RAM_INDEX += 3;
             break;
-        case PUSH:
+        
+        case PUSH: 
             push(opA);
             RAM_INDEX += 2;
             break;
-        case POP:
+        
+        case POP: 
             pop(opA);
             RAM_INDEX += 2;
             break;
-         RAM_INDEX += 2;
-         break;
 
-        default: 
+        case HLT:
+            running = 0;
+            break;
+        
+        default:  
             printf("You cain't code fool!");
             running = 0;
     }
+    RAM_INDEX += 2;
   }
   // unsigned char test;
   // test = cpu_ram_read(cpu, cpu->PC);
