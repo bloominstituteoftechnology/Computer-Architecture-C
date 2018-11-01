@@ -126,6 +126,14 @@ void cpu_run(struct cpu *cpu)
             printf("%d\n", cpu->registers[opA]);
             RAM_INDEX += 2;
             break;
+         case ADD:
+            add(opA, opB);
+            RAM_INDEX += 3;
+            break;
+        case RET:
+            pop(opA);
+            RAM_INDEX += 1;
+            break;
         case MUL:
             multiply(opA, opB);
             RAM_INDEX += 3;
@@ -138,16 +146,12 @@ void cpu_run(struct cpu *cpu)
             pop(opA);
             RAM_INDEX += 2;
             break;
-        case ADD:
-            add(opA, opB);
-            RAM_INDEX += 3;
-            break;
-        case RET:
-            pop(opA);
-            RAM_INDEX += 1;
-            break;
          RAM_INDEX += 2;
          break;
+
+        default: 
+            printf("You cain't code fool!");
+            running = 0;
     }
   }
   // unsigned char test;
