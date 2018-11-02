@@ -145,35 +145,44 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case RET:
-        pop(operandA); // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
-        instruction_index += 1; // increments instruction index to next instruction line
+        instruction_index = cpu->ram[cpu->registers[7]]; // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
+        cpu->registers[7]++;
         break;
 
       case CALL:
-        call = cpu->registers[operandA];
-          if (call == LDI) {
-            load_immediate(operandA, operandB);
-          }
-          else if (call == PRN) {
-            print(operandA);
-          }
-          else if (call == MUL) {
-            multiply(operandA, operandB);
-          }
-          else if (call == PUSH) {
-            push(operandA);
-          }
-          else if (call == POP) {
-            pop(operandA);
-          }
-          else if (call == MULT2PRINT) {
-            add(0, 0);
-            print(0);
-            // pop(operandA);
-          }
-        // printf("This is running within call switch before instruction increment \n");
         instruction_index += 2; // increments instruction index to next instruction line
+        cpu->registers[7]--;
+        cpu->ram[cpu->registers[7]] = instruction_index; // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
+        instruction_index = cpu->registers[operandA];
+
         break;
+
+
+
+        // call = cpu->registers[operandA];
+        //   if (call == LDI) {
+        //     load_immediate(operandA, operandB);
+        //   }
+        //   else if (call == PRN) {
+        //     print(operandA);
+        //   }
+        //   else if (call == MUL) {
+        //     multiply(operandA, operandB);
+        //   }
+        //   else if (call == PUSH) {
+        //     push(operandA);
+        //   }
+        //   else if (call == POP) {
+        //     pop(operandA);
+        //   }
+        //   else if (call == MULT2PRINT) {
+        //     add(0, 0);
+        //     print(0);
+        //     // pop(operandA);
+        //   }
+        // // printf("This is running within call switch before instruction increment \n");
+        // instruction_index += 2; // increments instruction index to next instruction line
+        // break;
 
       default:
        printf("Nothing to run, this is default of switch, current instruction: %u \n", IR);
