@@ -32,7 +32,7 @@ void cpu_load(char *filename, struct cpu *cpu)
     char *end_of_byte; //initialize pointer to end of byte
     unsigned char data = strtol(line, &end_of_byte, 2); // method used to only pull in a byte of information, and assign it to data.
 
-    if (data == *line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
+    if (end_of_byte == line) { //if data and *line pointer equal one another continue; otherwise first iteration of fgets loads incorrect data.
       instruction_counter++; //increment instruction counter each time data equals *line (it will equal NULL at EOF)
       continue;
     }
@@ -48,20 +48,20 @@ void cpu_load(char *filename, struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 void cpu_run(struct cpu *cpu)
 {
-  unsigned char IR, operandA, operandB, call; // initializes IR, OpA, and OpB as "bytes"
+  unsigned char IR, operandA, operandB; // initializes IR, OpA, and OpB as "bytes"
   // int call;
   int instruction_index; // used to track location within RAM corresponding to sequential instructions.
   int running = 1; // True until we get a HLT instruction or if instruction fails to match switch case
@@ -146,7 +146,7 @@ void cpu_run(struct cpu *cpu)
 
       case RET:
         instruction_index = cpu->ram[cpu->registers[7]]; // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
-        cpu->registers[7]++;
+        cpu->registers[7]++; 
         break;
 
       case CALL:
@@ -154,7 +154,6 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[7]--;
         cpu->ram[cpu->registers[7]] = instruction_index; // pop value from top of stack (presumably storing the last instruction and storing it to PC to continue running the program)
         instruction_index = cpu->registers[operandA];
-
         break;
 
 
