@@ -8,6 +8,9 @@
 #define PRN 0b01000111
 #define POP 0b01000110
 #define PUSH 0b01000101
+#define ADD 0b10100000
+#define CALL 0b01010000
+#define RET 0b00010001
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
@@ -83,21 +86,17 @@ unsigned char cpu_pop(struct cpu *cpu) {
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  int start = 0;
   
   while (running) {
-    
     // TODO
     // 1. Get the value of the current instruction (in address PC). 
     unsigned char ir = cpu_ram_read(cpu, cpu->PC); 
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-
-    unsigned char opcode = ir;
-
-    // printf("%d\n", opcode);
     
     // 2. switch() over it to decide on a course of action.
-    switch(opcode) {
+    switch(ir) {
       case HLT:
         running = 0;
         break;
@@ -105,7 +104,6 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->registers[operandA] = operandB;
         cpu->PC += 3;
-        printf("LDI %d\n", cpu->registers[operandA]);
         break; 
 
       case PRN:
@@ -113,19 +111,30 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;        
         break;
       
-      // case ADD:
-      //   alu(cpu, ALU_ADD, operandA, operandB);
+      case ADD:
+        cpu->registers[operandA] += cpu->registers[operandB];
+        cpu->PC += 3;
+        break;
 
       case PUSH:
-        printf("PUSH %d\n", cpu->registers[operandA]);
         cpu_push(cpu, cpu->registers[operandA]);
         cpu->PC += 2;
         break;
 
       case POP:
         cpu->registers[operandA] = cpu_pop(cpu);
-        printf("POP %d\n", cpu->registers[operandA]);
         cpu->PC += 2;
+        break;
+
+      case CALL:        
+        printf("CALL\n");
+        cpu_push(cpu, cpu->PC+2);
+        cpu->PC = cpu->registers[operandA];
+        break;
+
+      case RET:
+        printf("RET to %d\n", cpu->PC);
+        cpu->PC = cpu_pop(cpu);
         break;
 
       default:
