@@ -11,6 +11,10 @@
 #define ADD 0b10100000
 #define CALL 0b01010000
 #define RET 0b00010001
+#define CMP 0b10100111
+#define JMP 0b01010100
+#define JNE 0b01010110
+#define JEQ 0b01010101
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, int mar) {
@@ -137,6 +141,57 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu_pop(cpu);
         break;
 
+      case CMP:
+        printf("CMP\n");
+        if (cpu->registers[operandA] == cpu->registers[operandB]) {
+          cpu->FL = cpu->FL | 1;
+          
+        } else {
+          cpu->FL = cpu->FL & 0;
+          
+        }
+
+        if (cpu->registers[operandA] < cpu->registers[operandB]) {
+          cpu->FL = cpu->FL | 4;
+          
+        } else {
+          cpu->FL = cpu->FL & 0;
+          
+        }
+
+        if (cpu->registers[operandA] > cpu->registers[operandB]) {
+          cpu->FL = cpu->FL | 2;
+          
+        } else {
+          cpu->FL = cpu->FL & 0;
+          
+        }
+        cpu->PC += 3;
+        break;
+      
+      case JMP:
+        printf("JUMP\n");
+        cpu->PC = cpu->registers[operandA];
+        break;
+
+      case JEQ:
+        printf("JEQ\n");
+        if (cpu->FL | 0 == 1) {
+          cpu->PC = cpu->registers[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+      
+      case JNE:
+        printf("JNE\n");
+        if (cpu->FL | 0 == 0) {
+          cpu->PC = cpu->registers[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+
       default:
         printf("PC %02x: unknown instruction %02x\n", cpu->PC, ir);
         exit(3);
@@ -156,6 +211,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
 
   cpu->PC = 0;
+  cpu->FL = 0;
   memset(cpu->registers, 0, 8*sizeof(char));
   memset(cpu->ram, 0, 256*sizeof(char));
 
