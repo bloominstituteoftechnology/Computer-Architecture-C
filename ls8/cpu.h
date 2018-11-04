@@ -5,8 +5,15 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char pc;
+  // unsigned char ir;
+  // unsigned char mar;
+  // unsigned char mdr;
+  unsigned char fl;
   // registers (array)
+  unsigned char *reg;
   // ram (array)
+  unsigned char *ram;
 };
 
 // ALU operations
@@ -28,5 +35,6 @@ enum alu_op {
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern void cpu_free(struct cpu *cpu);
 
 #endif
