@@ -15,7 +15,7 @@ void cpu_load(struct cpu *cpu)
   char line[1024];
   FILE *fp;
 
-  fp = fopen("./examples/mult.ls8", "rb");
+  fp = fopen("./examples/stack.ls8", "rb");
   while (fgets(line, sizeof line, fp) != NULL) {
     if ((line[0] == '\n') || (line[0] == '#')) continue;
     b = strtoul(line, NULL, 2);
@@ -44,7 +44,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char PC, IR, operandA, operandB;
+  unsigned char PC, IR, SP, operandA, operandB;
+  SP = cpu->REG[7];
 
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
@@ -53,7 +54,7 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu->RAM[(PC + 1) & 0xff];
     operandB = cpu->RAM[(PC + 2) & 0xff];
 
-    printf("TRACE: %02X: %02X, %02X, %02X\n", PC, IR, operandA, operandB);
+    printf("TRACE: %02X: %02X, %02X, %02X, %02X\n", PC, IR, operandA, operandB, SP);
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
@@ -67,6 +68,16 @@ void cpu_run(struct cpu *cpu)
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case PUSH:
+        SP -= 1;
+        cpu->RAM[SP] = cpu->REG[operandA];
+        cpu->REG[7] = SP;
+        break;
+      case POP:
+        cpu->REG[operandA] = cpu->RAM[SP];
+        SP += 1;
+        cpu->REG[7] = SP;
         break; 
       case HLT:
         running = 0;
@@ -91,7 +102,5 @@ void cpu_init(struct cpu *cpu)
 }
 
 void cpu_free(struct cpu *cpu) {
-  // free(cpu->REG);
-  // free(cpu->RAM);
   free(cpu);
 }
