@@ -3,7 +3,6 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
   // PC
   unsigned char PC;
   // unsigned char ir;
@@ -34,11 +33,9 @@ enum alu_op {
 #define PUSH 0b01000101
 #define POP 0b01000110
 
-// TODO: more instructions here. These can be used in cpu_run().
-
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *prog_name);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 extern void cpu_free(struct cpu *cpu);

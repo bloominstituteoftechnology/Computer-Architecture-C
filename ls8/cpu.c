@@ -5,17 +5,28 @@
 
 #define DATA_LEN 6
 
+void cpu_ram_read() {
+
+}
+
+void cpu_ram_write() {
+
+}
+
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *prog_name)
 {
   unsigned char address = 0x00;
   unsigned char b;
   char line[1024];
   FILE *fp;
+  char full_prog_name[256];
 
-  fp = fopen("./examples/stack.ls8", "rb");
+  sprintf(full_prog_name, "./examples/%s", prog_name);
+  fp = fopen(full_prog_name, "rb");
   while (fgets(line, sizeof line, fp) != NULL) {
     if ((line[0] == '\n') || (line[0] == '#')) continue;
     b = strtoul(line, NULL, 2);
