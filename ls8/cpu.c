@@ -15,7 +15,7 @@ void cpu_load(struct cpu *cpu)
   char line[1024];
   FILE *fp;
 
-  fp = fopen("./examples/print8.ls8", "rb");
+  fp = fopen("./examples/mult.ls8", "rb");
   while (fgets(line, sizeof line, fp) != NULL) {
     if ((line[0] == '\n') || (line[0] == '#')) continue;
     b = strtoul(line, NULL, 2);
@@ -31,7 +31,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->REG[regA] = (cpu->REG[regA] * cpu->REG[regB]) & 0xff;
       break;
 
     // TODO: implement more ALU ops
@@ -50,8 +50,8 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     PC = cpu->PC;
     IR = cpu->RAM[PC];
-    operandA = cpu->RAM[(cpu->PC + 1) & 0xff];
-    operandB = cpu->RAM[(cpu->PC + 2) & 0xff];
+    operandA = cpu->RAM[(PC + 1) & 0xff];
+    operandB = cpu->RAM[(PC + 2) & 0xff];
 
     printf("TRACE: %02X: %02X, %02X, %02X\n", PC, IR, operandA, operandB);
 
@@ -65,12 +65,15 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->REG[operandA]);
         break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break; 
       case HLT:
         running = 0;
-        break; 
+        break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC = cpu->PC + (IR >> 6) + 1;
+    cpu->PC = PC + (IR >> 6) + 1;
   }
 }
 
