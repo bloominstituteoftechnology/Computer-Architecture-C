@@ -5,15 +5,15 @@
 struct cpu {
   // TODO
   // PC
-  unsigned char pc;
+  unsigned char PC;
   // unsigned char ir;
   // unsigned char mar;
   // unsigned char mdr;
-  unsigned char fl;
+  unsigned char FL;
   // registers (array)
-  unsigned char *reg;
+  unsigned char REG[8];
   // ram (array)
-  unsigned char *ram;
+  unsigned char RAM[256];
 };
 
 // ALU operations
@@ -28,6 +28,8 @@ enum alu_op {
 // literals should be used.
 
 #define LDI  0b10000010
+#define PRN  0b01000111
+#define HLT  0b00000001
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

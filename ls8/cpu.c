@@ -19,7 +19,7 @@ void cpu_load(struct cpu *cpu)
   while (fgets(line, sizeof line, fp) != NULL) {
     if ((line[0] == '\n') || (line[0] == '#')) continue;
     b = strtoul(line, NULL, 2);
-    cpu->ram[address++] = b;
+    cpu->RAM[address++] = b;
   }
   fclose(fp);  
 }
@@ -44,29 +44,33 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char current_inst, alu_op, sets_pc, current_reg, value;
+  unsigned char PC, IR, operandA, operandB;
 
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
+    PC = cpu->PC;
+    IR = cpu->RAM[PC];
+    operandA = cpu->RAM[(cpu->PC + 1) & 0xff];
+    operandB = cpu->RAM[(cpu->PC + 2) & 0xff];
 
-    current_inst = cpu->ram[cpu->pc];
-    // alu_op = (current_inst & 0x20) >> 5;
-    // sets_pc = (current_inst & 0x10) >> 4;
+    printf("TRACE: %02X: %02X, %02X, %02X\n", PC, IR, operandA, operandB);
+
     // 2. switch() over it to decide on a course of action.
-    switch(current_inst & 0x0f) {
+    switch(IR) {
+    
     // 3. Do whatever the instruction should do according to the spec.
-      case 0x02:
-        cpu->reg[cpu->ram[cpu->pc + 1]] = cpu->ram[cpu->pc + 2];
+      case LDI:
+        cpu->REG[operandA] = operandB;
         break;
-      case 0x07:
-        printf("%d\n", cpu->reg[cpu->ram[cpu->pc + 1]]);
+      case PRN:
+        printf("%d\n", cpu->REG[operandA]);
         break;
-      case 0x01:
+      case HLT:
         running = 0;
         break; 
     }
     // 4. Move the PC to the next instruction.
-    cpu->pc = cpu->pc + (current_inst >> 6) + 1;
+    cpu->PC = cpu->PC + (IR >> 6) + 1;
   }
 }
 
@@ -75,23 +79,16 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  cpu->pc = 0x00;
-  cpu->fl = 0x00;
+  cpu->PC = 0x00;
+  cpu->FL = 0x00;
   
-  for (int i = 0; i < 7; i++) {
-    cpu->reg[i] = 0x00;
-  }
-  cpu->reg[7] = 0xf4;
-  cpu->reg[8] = '\0';
-
-  for (int i = 0; i < 256; i++) {
-    cpu->ram[i] = 0x00;
-  }
-  cpu->ram[256] = '\0';
+  memset(cpu->RAM, 0, sizeof cpu->RAM);
+  memset(cpu->REG, 0, sizeof cpu->REG);
+  cpu->REG[7] = 0xf4;
 }
 
 void cpu_free(struct cpu *cpu) {
-  free(cpu->reg);
-  free(cpu->ram);
+  // free(cpu->REG);
+  // free(cpu->RAM);
   free(cpu);
 }
