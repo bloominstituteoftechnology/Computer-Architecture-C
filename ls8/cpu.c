@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define DATA_LEN 6
 
@@ -44,7 +45,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->REG[regA] = (cpu->REG[regA] * cpu->REG[regB]) & 0xff;
       break;
-
+    case ALU_ADD:
+      cpu->REG[regA] = (cpu->REG[regA] + cpu->REG[regB]) & 0xff;
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -80,6 +83,9 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
       case PUSH:
         SP -= 1;
         cpu_ram_write(cpu, SP, cpu->REG[operandA]);
@@ -90,6 +96,17 @@ void cpu_run(struct cpu *cpu)
         SP += 1;
         cpu->REG[7] = SP;
         break; 
+      case CALL:
+        SP -=1;
+        cpu_ram_write(cpu, SP, PC + (IR >> 6) + 1);
+        cpu->REG[7] = SP;
+        cpu->PC = cpu->REG[operandA];
+        cpu_run(cpu);
+        break;
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, SP);
+        SP += 1;
+        cpu->REG[7] = SP;
       case HLT:
         running = 0;
         break;
