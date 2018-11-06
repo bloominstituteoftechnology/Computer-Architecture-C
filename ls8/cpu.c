@@ -5,12 +5,12 @@
 
 #define DATA_LEN 6
 
-void cpu_ram_read() {
-
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
+  return cpu->RAM[mar];
 }
 
-void cpu_ram_write() {
-
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
+  cpu->RAM[mar] = mdr;
 }
 
 
@@ -61,9 +61,9 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
     PC = cpu->PC;
-    IR = cpu->RAM[PC];
-    operandA = cpu->RAM[(PC + 1) & 0xff];
-    operandB = cpu->RAM[(PC + 2) & 0xff];
+    IR = cpu_ram_read(cpu, PC);
+    operandA = cpu_ram_read(cpu, PC + 1) & 0xff;
+    operandB = cpu_ram_read(cpu, PC + 2) & 0xff;
 
     printf("TRACE: %02X: %02X, %02X, %02X, %02X\n", PC, IR, operandA, operandB, SP);
 
@@ -82,11 +82,11 @@ void cpu_run(struct cpu *cpu)
         break;
       case PUSH:
         SP -= 1;
-        cpu->RAM[SP] = cpu->REG[operandA];
+        cpu_ram_write(cpu, SP, cpu->REG[operandA]);
         cpu->REG[7] = SP;
         break;
       case POP:
-        cpu->REG[operandA] = cpu->RAM[SP];
+        cpu->REG[operandA] = cpu_ram_read(cpu, SP);
         SP += 1;
         cpu->REG[7] = SP;
         break; 
