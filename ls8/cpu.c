@@ -98,7 +98,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char ir = cpu_ram_read(cpu, cpu->PC); 
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-    
     // 2. switch() over it to decide on a course of action.
     switch(ir) {
       case HLT:
@@ -131,52 +130,33 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CALL:        
-        printf("CALL\n");
         cpu_push(cpu, cpu->PC+2);
         cpu->PC = cpu->registers[operandA];
         break;
 
       case RET:
-        printf("RET to %d\n", cpu->PC);
         cpu->PC = cpu_pop(cpu);
         break;
 
       case CMP:
-        printf("CMP\n");
         if (cpu->registers[operandA] == cpu->registers[operandB]) {
           cpu->FL = cpu->FL | 1;
           
-        } else {
-          cpu->FL = cpu->FL & 0;
-          
-        }
-
-        if (cpu->registers[operandA] < cpu->registers[operandB]) {
+        } else if (cpu->registers[operandA] < cpu->registers[operandB]) {
           cpu->FL = cpu->FL | 4;
           
-        } else {
-          cpu->FL = cpu->FL & 0;
-          
-        }
-
-        if (cpu->registers[operandA] > cpu->registers[operandB]) {
-          cpu->FL = cpu->FL | 2;
-          
-        } else {
-          cpu->FL = cpu->FL & 0;
-          
+        } else  {
+          cpu->FL = cpu->FL | 2;          
         }
         cpu->PC += 3;
         break;
       
       case JMP:
-        printf("JUMP\n");
         cpu->PC = cpu->registers[operandA];
         break;
 
-      case JEQ:
-        printf("JEQ\n");
-        if (cpu->FL | 0 == 1) {
+      case JEQ:      
+        if ((cpu->FL & 1) == 1) {
           cpu->PC = cpu->registers[operandA];
         } else {
           cpu->PC += 2;
@@ -184,8 +164,7 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case JNE:
-        printf("JNE\n");
-        if (cpu->FL | 0 == 0) {
+        if ((cpu->FL & 1) == 0) {
           cpu->PC = cpu->registers[operandA];
         } else {
           cpu->PC += 2;
