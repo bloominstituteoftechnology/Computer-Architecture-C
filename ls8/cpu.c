@@ -58,17 +58,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char PC, IR, SP, operandA, operandB;
+  unsigned char PC, IR, SP, operandA, operandB, FL;
   SP = cpu->REG[7];
 
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
     PC = cpu->PC;
     IR = cpu_ram_read(cpu, PC);
+    FL = cpu->FL;
     operandA = cpu_ram_read(cpu, PC + 1) & 0xff;
     operandB = cpu_ram_read(cpu, PC + 2) & 0xff;
 
-    printf("TRACE: %02X: %02X, %02X, %02X, %02X\n", PC, IR, operandA, operandB, SP);
+    printf("TRACE: %02Xd: %02X, %02X, %02X, %02X, %02X\n", PC, IR, operandA, operandB, SP, FL);
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
@@ -95,7 +96,31 @@ void cpu_run(struct cpu *cpu)
         cpu->REG[operandA] = cpu_ram_read(cpu, SP);
         SP += 1;
         cpu->REG[7] = SP;
-        break; 
+        break;
+      case CMP:
+        if (cpu->REG[operandA] == cpu->REG[operandB]) {
+          cpu->FL = 0x01;
+        } else if (cpu->REG[operandA] > cpu->REG[operandB]) {
+          cpu->FL = 0x02;
+        } else {
+          cpu->FL = 0x04;
+        }
+        break;
+      case JEQ:
+        if (cpu->FL == 0x01) {
+          cpu->PC = cpu->REG[operandA];
+          continue;
+        }
+        break;
+      case JNE:
+        if (cpu->FL != 0x01) {
+          cpu->PC = cpu->REG[operandA];
+          continue;
+        }
+        break;
+      case JMP:
+        cpu->PC = cpu->REG[operandA];
+        continue;
       case CALL:
         SP -=1;
         cpu_ram_write(cpu, SP, PC + (IR >> 6) + 1);
