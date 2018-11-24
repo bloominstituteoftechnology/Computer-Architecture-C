@@ -69,7 +69,9 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  cpu-> PC = 0; 
 
-  // TODO: Zero registers and RAM
+  //  function memset copies the character c (an unsigned char) to the first n characters of the string pointed to, by the argument str.
+  memset(cpu-> ram, 0, sizeof cpu-> ram); 
+  memset(cpu-> registers, 0, sizeof cpu-> registers); 
 }
