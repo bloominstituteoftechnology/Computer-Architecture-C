@@ -55,11 +55,15 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+
   while (running) {
-    
+
       unsigned char IR = cpu_ram_read(cpu, cpu-> PC); 
       unsigned char operandA = cpu_ram_read(cpu, cpu-> PC + 1); 
       unsigned char operandB = cpu_ram_read(cpu, cpu-> PC + 2); 
+
+      int add_to_pc = (IR >> 6) + 1; 
+      printf('%d', add_to_pc); 
 
       switch(IR){
         case LDI: // opcode for setting value of register to integer
@@ -73,7 +77,7 @@ void cpu_run(struct cpu *cpu)
           break; 
       }
     
-    // 4. Move the PC to the next instruction.
+    cpu-> PC =+ add_to_pc; 
   }
 }
 
