@@ -1,67 +1,51 @@
-#include "cpu.h"
+#ifndef _CPU_H_
+#define _CPU_H_
 
-#define DATA_LEN 6
+// #define SP 7
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu)
+// Holds all information about the CPU
+struct cpu
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+    // TODO    // PC    // registers (array)    // ram (array)
+    unsigned char pc;
+    unsigned char reg[8];
+    unsigned char ram[256];
+    unsigned char fl;
+};
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
-
-  // TODO: Replace this with something less hard-coded
-}
-
-/**
- * ALU
- */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// ALU operations
+enum alu_op
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+    ALU_MUL,
+    // Add more here
+    ALU_ADD,
+    ALU_CMP
+};
 
-    // TODO: implement more ALU ops
-  }
-}
+// Instructions
 
-/**
- * Run the CPU
- */
-void cpu_run(struct cpu *cpu)
-{
-  int running = 1; // True until we get a HLT instruction
+// These use binary literals. If these aren't available with your compiler, hex
+// literals should be used.
 
-  while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
-  }
-}
+#define LDI 0b10000010
+#define MUL 0b10100010
+#define HLT 0b00000001
+#define PRN 0b01000111
+#define PUSH 0b01000101
+#define POP 0b01000110
+#define JMP 0b01010100
+#define CALL 0b01010000
+#define RET 0b00010001
+#define CMP 0b10100111
+#define JEQ 0B01010101
+#define JNE 0b01010110
+#define ADD 0b10100000
+// TODO: more instructions here. These can be used in cpu_run().
 
-/**
- * Initialize a CPU struct
- */
-void cpu_init(struct cpu *cpu)
-{
-  // TODO: Initialize the PC and other special registers
+// Function declarations
 
-  // TODO: Zero registers and RAM
-}
+extern void cpu_load(struct cpu *cpu, char *filename);
+extern void cpu_init(struct cpu *cpu);
+extern void cpu_run(struct cpu *cpu);
+
+#endif
