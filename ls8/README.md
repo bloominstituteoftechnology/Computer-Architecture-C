@@ -61,8 +61,32 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+
 * Write a short 3-10-word description of what each file does.
+
+ls8.c: 
+  - calls the methods of the CPU, including cpu_load, cpu_init, and       cpu_run
+
+cpu.c: 
+  - function declarations for the CPU and ALU functionality
+
+cpu.h: 
+  - Header file that defines the CPU and the ALU structure
+
+examples: 
+  - folder containing example files to be used with ls8 when running
+
 * Note what has been implemented, and what hasn't.
+
+  - ls8 is done. Does not need any other code. 
+  - cpu.c: 
+    - cpu_load needs to be replaced with a less hard-coded solution to work
+    - alu needs more operations implemented 
+    - cpu_run and cpu_init need to be implemented
+  - cpu.h: 
+    - initialize the cpu struct 
+    - add the ALU operations
+
 * Read this whole file.
 * Skim the spec.
 
