@@ -1,4 +1,8 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 
 #define DATA_LEN 6
 
@@ -37,16 +41,16 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -59,25 +63,26 @@ void cpu_run(struct cpu *cpu)
   while (running) {
 
       unsigned char IR = cpu_ram_read(cpu, cpu-> PC); 
-      unsigned char operandA = cpu_ram_read(cpu, cpu-> PC + 1); 
-      unsigned char operandB = cpu_ram_read(cpu, cpu-> PC + 2); 
+      unsigned char operandA = cpu_ram_read(cpu, (cpu-> PC + 1)); 
+      unsigned char operandB = cpu_ram_read(cpu, (cpu-> PC + 2)); 
 
       int add_to_pc = (IR >> 6) + 1; 
-      printf('%d', add_to_pc); 
+
 
       switch(IR){
         case LDI: // opcode for setting value of register to integer
           cpu-> registers[operandA] = operandB; //operands R0 = operandA and 8 = operandB
           break; 
         case PRN: // opcode for printing numeric value at the register
-          printf('%d \n', registers[operandA]); 
+          printf("%d \n", cpu-> registers[operandA]); 
           break; 
         case HLT: // opcode to exit the emulator
           running = 0; 
           break; 
+        
       }
     
-    cpu-> PC =+ add_to_pc; 
+    cpu-> PC += add_to_pc; 
   }
 }
 
