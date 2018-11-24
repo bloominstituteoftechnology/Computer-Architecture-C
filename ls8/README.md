@@ -66,6 +66,14 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+Inventory list of Files - ./ls8 (answers):
+cpu.c = Implements all cpu functions cpu_load / cpu_init / cpu_run and the alu function.
+cpu.h = Holds all information of the struct CPU and declares 3 cpu functions(cpu_load/cpu_init/cpu_run) and ALU operations
+ls8.c = Main Function that runs the cpu arguments(cpu_load/cpu_init/cpu_run)
+./Makefile = Runs gcc -Wall -Wextra -o -ls8 ./ls8.c
+
+
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
