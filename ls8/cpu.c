@@ -45,16 +45,15 @@ void cpu_load(struct cpu *cpu, char *filename)
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      cpu-> registers[regA] *= cpu-> registers[regB];  // multiply value at both registers
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+  }
+}
 
 /**
  * Run the CPU
@@ -82,6 +81,9 @@ void cpu_run(struct cpu *cpu)
           break; 
         case HLT: // opcode to exit the emulator
           running = 0; 
+          break; 
+        case MUL: // opcode to multiply values in registers
+          alu(cpu, ALU_MUL, operandA, operandB); 
           break; 
       }
     
