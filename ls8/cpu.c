@@ -17,25 +17,29 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+   FILE *fptr; 
+   char line[1024]; 
+   unsigned char address = 0; 
+   fptr = fopen(filename, "r"); 
 
-  int address = 0;
+   if(fptr == NULL){
+     fprintf(stderr, "Error opening file");
+     exit(1); 
+   }
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+   while(fgets(line, sizeof line, fptr)!= NULL){
+      // if(line[0] == "\n" || line[0] == "#"){
+      //   printf("Commented line ignored \n"); 
+      //   continue; 
+      // }
 
-  // TODO: Replace this with something less hard-coded
+      unsigned char b; 
+      b = strtoul(line, NULL, 2); 
+      cpu_ram_write(cpu, address++, b); 
+   }
+   fclose(fptr); 
 }
 
 /**
@@ -79,7 +83,6 @@ void cpu_run(struct cpu *cpu)
         case HLT: // opcode to exit the emulator
           running = 0; 
           break; 
-        
       }
     
     cpu-> PC += add_to_pc; 
