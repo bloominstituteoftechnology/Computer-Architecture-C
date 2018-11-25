@@ -86,6 +86,7 @@ void cpu_run(struct cpu *cpu)
           alu(cpu, ALU_MUL, operandA, operandB); 
           break; 
       }
+      
     
     cpu-> PC += add_to_pc; 
   }
