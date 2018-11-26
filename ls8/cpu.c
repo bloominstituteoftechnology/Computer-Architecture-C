@@ -12,25 +12,27 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
   cpu->ram[address] = value;
 }
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char data[1024];
+  unsigned char address = 0;
+  fp = fopen(argv[1], "r");
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if(!fp) {
+    printf("Error opening file \n");
+    exit(1);
+  }
+  
+  while(fgets(data, sizeof data, fp) != NULL) {
+    unsigned char byte = strtol(data, NULL, 2);
+    if (data == NULL) {
+      continue;
+    }
+    cpu->ram[address++] = byte;
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -41,6 +43,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -68,6 +71,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         printf("%d \n", cpu->registers[param1]);
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, param1, param2);
         break;
       case HLT:
         running = 0;
