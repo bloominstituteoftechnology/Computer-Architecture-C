@@ -5,11 +5,11 @@
 struct cpu {
   // TODO
   // PC
-  unsigned char* PC,IR,MAR,MDR,FL;
+  unsigned char PC,IR,MAR,MDR,FL;
   // registers (array)
-  unsigned char* registers;
+  unsigned char *registers;
   // ram (array)
-  unsigned char* ram;
+  unsigned char *ram;
 };
 
 // ALU operations
@@ -24,6 +24,7 @@ enum alu_op {
 // literals should be used.
 
 #define LDI  0b10000010
+#define HLT  0b00000001 
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

@@ -10,3 +10,4 @@ ls8/cpu.h - struct needs to be defined, operations added, binary literals (?defi
 
 ls8/cpu.c - contains cpu_load, alu,cpu_run, and cpu_init in various states of progress 
 
+

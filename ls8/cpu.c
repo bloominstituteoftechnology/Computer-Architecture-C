@@ -1,5 +1,6 @@
 #include "cpu.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 #define DATA_LEN 6
 
 /**
@@ -28,17 +29,17 @@ void cpu_load(struct cpu *cpu)
 
 /**
  * ALU
- */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+//  */
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -46,13 +47,31 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+  //   // TODO
+  //   // 1. Get the value of the current instruction (in address PC).
+     cpu->IR = cpu->ram[cpu->PC];
+    unsigned char operandA = cpu->ram[cpu->PC + 1];
+    unsigned char operandB = cpu->ram[cpu->PC + 2]; 
+
+    printf("%d\n",operandB);
+
+  //   // 2. switch() over it to decide on a course of action.
+    switch (cpu->IR){
+    case HLT:
+      printf("Test\n");
+      break;
+    case LDI:
+      printf("Test2\n");
+      break;
+    default:
+    printf("test3\n");
+
+    }
+  //   // 3. Do whatever the instruction should do according to the spec.
+  //   // 4. Move the PC to the next instruction.
+
   }
 }
 
@@ -63,21 +82,25 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
 
+  cpu->PC = 0;
+  cpu->FL = 0;
+  cpu->registers =calloc(8,sizeof(unsigned char));
+  cpu->ram = calloc(256,sizeof(unsigned char));
   // TODO: Zero registers and RAM
+  
+  cpu->registers[7] = 0xF4;
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu)
 {
-  return cpu->ram[address];
+  cpu->MDR =  cpu->ram[cpu->MAR];
+  return cpu->MDR;
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char towrite)
-{
-  if (address < 256){
-    cpu->ram[address] = towrite;
-  }
-  else{
-    return -1;
-  }
-  return 0;
+void cpu_ram_write(struct cpu *cpu)
+{ 
+    if(cpu->MAR < 0xF4){
+      cpu->ram[cpu->MAR] = cpu->MDR;
+    }   
 }
+
