@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -60,9 +62,29 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char curr = cpu_ram_read(cpu, cpu->PC);
+    unsigned char param1 = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char param2 = cpu_ram_read(cpu, cpu->PC + 2);
+
     // 2. switch() over it to decide on a course of action.
+    switch (curr)
+    {
+    case LDI:
+      cpu->registers[param1] = param2;
+      break;
+    case PRN:
+      printf("%d \n", cpu->registers[param1]);
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, param1, param2);
+      break;
+    case HLT:
+      running = 0;
+      break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    cpu->PR += (curr >> 6) + 1;
   }
 }
 
@@ -72,6 +94,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
 
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
 }
