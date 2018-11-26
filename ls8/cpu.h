@@ -2,6 +2,7 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
+// What is going on here?  What is "PC" supposed to be?  Is it an arbitrary name for the computer (i.e., "LS-8")?  And registers and ram? Are they int arrays?
 struct cpu {
   // TODO
   // PC
