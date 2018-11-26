@@ -1,10 +1,20 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "cpu.h"
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pos)
+{
+  return cpu->ram[pos];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char pos, unsigned char value)
+{
+  cpu->ram[pos] = value;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -49,7 +59,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  int pos = 0;
 
   while (running) {
     // TODO
@@ -57,20 +66,26 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    int c = cpu->ram[pos];
-    switch(c)
+    int IR = cpu->ram[cpu->PC];
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    switch(IR)
     {
       case HLT:
         running = 0;
         break;
       case LDI:
-        cpu->registers[cpu->ram[pos + 1]] = cpu->ram[pos + 2];
-        pos += 3;
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
         break;
       case PRN:
-        printf("%d\n", cpu->registers[cpu->ram[pos + 1]]);
-        pos += 2;
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
         break;
+      default:
+        printf("Unknown Command. Exiting...\n");
+        exit(3);
     }
   }
 }
@@ -85,14 +100,4 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pos)
-{
-  return cpu->ram[pos];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char pos, unsigned char value)
-{
-  cpu->ram[pos] = value;
 }
