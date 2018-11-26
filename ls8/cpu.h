@@ -36,4 +36,8 @@ extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
+// RAM functions
+extern unsigned char cpu_ram_read(struct CPU *cpu, unsigned char index);
+extern void cpu_ram_write(struct CPU *cpu, unsigned char index, unsigned char value);
+
 #endif
