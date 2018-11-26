@@ -75,9 +75,9 @@ void cpu_run(struct cpu *cpu)
     case PRN:
       printf("%d \n", cpu->registers[param1]);
       break;
-    case MUL:
-      alu(cpu, ALU_MUL, param1, param2);
-      break;
+    // case MUL:
+    //   alu(cpu, ALU_MUL, param1, param2);
+    //   break;
     case HLT:
       running = 0;
       break;
