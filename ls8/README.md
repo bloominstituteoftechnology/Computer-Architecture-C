@@ -73,8 +73,8 @@ cpu.h:defines the CPU and ALU structure
   -ls8 is done
   -cpu.h:
     - [ ] Implement `struct cpu` in `cpu.h`
-    - [ ] Add RAM functions
   -cpu.c:
+    - [ ] Add RAM functions
     - [ ] Implement `cpu_init()`
     - [ ] Implement the core of `cpu_run()`
     - [ ] Implement the `HLT` instruction handler

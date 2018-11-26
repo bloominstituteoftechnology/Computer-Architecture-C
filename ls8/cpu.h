@@ -15,7 +15,10 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	  ALU_ADD,
+  	ALU_SUB,
+	  ALU_MUL,
+  	ALU_DIV
 	// Add more here
 };
 
@@ -24,9 +27,9 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI  0b10000010 //<- this is 130
 // TODO: more instructions here. These can be used in cpu_run().
-
+#define ADD  0b10100000 //<- this is 160
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu);
