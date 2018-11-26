@@ -63,7 +63,11 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 2. switch() over it to decide on a course of action.
+    
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
