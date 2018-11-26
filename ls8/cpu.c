@@ -40,15 +40,30 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+/*Helper functions step 2*/
+
+void cpu_ram_read(struct cpu *cpu unsigned char  place){
+  printf("%d\n",cpu->register[place]);  
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char place, unsigned char saving){
+  cpu->register[place] = saving; 
+}
+
+
 /**
  * Run the CPU
  */
+
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char *HLT = "00000001";
-  unsigned char *LDI = "10000010 00000rrr iiiiiiii";
-  unsigned char *PRN = "01000111 00000rrr"; 
+  unsigned char HLT = "00000001";
+  unsigned char LDI = "10000010 00000rrr iiiiiiii";
+  unsigned char PRN = "01000111 00000rrr"; 
+
+  
 
   while (running) {
     // TODO
@@ -57,13 +72,17 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char  current = cpu->ram[cpu->PC]; 
+    unsigned char operandA = cpu->PC +1;
+    unsigned char operandB  = cpu->PC +2;
     switch (current){
 
       case LDI:
-        //
+        cpu_ram_write(cpu, operandA, operandB); 
+        cpu->PC += 2; 
         break; 
       case PRN:
-        //
+        cpu_ram_read(cpu, operandA);
+        cpu->PC += 1; 
         break; 
       case HLT:
         //
@@ -83,16 +102,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0; 
   // TODO: Zero registers and RAM
-  memset(cpu->ram, '0', 256); //RAM 
-  memset(cpu->registers, '0', 8); //registers
+  memset(cpu->ram, 0, 256); //RAM 
+  memset(cpu->registers, 0, 8); //registers
 }
 
-/*Helper functions step 2*/
 
-void cpu_ram_read(struct cpu *cpu){
-
-}
-
-void cpu_ram_write(struct cpu *cpu){
-
-}
