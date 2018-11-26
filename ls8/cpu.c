@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#define DATA_LEN 6
+#define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -44,6 +44,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
       }
       cpu->ram[address++] = byte;
     }
+    fclose(fp);
   }
 
 /**
