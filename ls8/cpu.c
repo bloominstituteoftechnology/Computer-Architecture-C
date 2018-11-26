@@ -2,6 +2,20 @@
 
 #define DATA_LEN 6
 
+
+/* cpu_ram_read/cpu_ram_write  */
+
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
+
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -34,9 +48,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB]; 
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+      break;
+
+    case ALU_SUB:
+      cpu->reg[regA] = cpu->reg[regA] - cpu->reg[regB];
+      break;   
+
   }
 }
 
