@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "string.h"
 #include "stdio.h"
+#include "stdlib.h"
 #define DATA_LEN 6
 
 /**
@@ -62,13 +63,13 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
     unsigned char instruction=cpu_ram_read(cpu,cpu->PC);
     switch(instruction) {
-      case 00000001:
+      case 0b10000010:
         running=0;
-      case 10000010:
+      case 0b01000111:
         cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
         cpu->PC+=3;
-      case 01000111:
-        printf("%c",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
+      case 0b00000001:
+        printf("%i",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
         cpu->PC+=2;
     }
   }
@@ -82,6 +83,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   // TODO: Zero registers and RAM
   cpu->PC=0;
-  memset(cpu->registers,0,7);
-  memset(cpu->ram,0,256);
+  memset(cpu->registers,0,sizeof(cpu->registers));
+  memset(cpu->ram,0,sizeof(cpu->ram));
 }
