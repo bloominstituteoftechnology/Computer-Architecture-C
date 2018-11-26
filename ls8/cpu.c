@@ -46,6 +46,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_SUB:
+      reg[regA] -= reg[regB];
+      break;
+
+    case ALU_ADD:
+      reg[regA] += reg[regB];
+      break;
+
+    case ALU_DIV:
+      reg[regA] /= reg[regB];
+      break;
+
+    case ALU_MOD:
+      reg[regA] = reg[regA]%reg[regB];
+      break;
+
   }
 }
 
@@ -80,6 +96,31 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
         printf("%d \n", reg[operandA]);
+        PC += shift;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        PC += shift;
+        break;
+      
+      case SUB:
+        alu(cpu, ALU_SUB, operandA, operandB);
+        PC += shift;
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        PC += shift;
+        break;
+      
+      case DIV:
+        alu(cpu, ALU_DIV, operandA, operandB);
+        PC += shift;
+        break;
+
+      case MOD:
+        alu(cpu, ALU_MOD, operandA, operandB);
         PC += shift;
         break;
 

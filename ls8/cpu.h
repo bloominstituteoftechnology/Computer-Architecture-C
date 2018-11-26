@@ -23,6 +23,10 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
 	// Add more here
+  ALU_ADD,
+  ALU_DIV,
+  ALU_SUB,
+  ALU_MOD
 };
 
 // Instructions
