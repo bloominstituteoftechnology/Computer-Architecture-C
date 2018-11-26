@@ -69,7 +69,7 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
         cpu->PC+=3;
       case 0b00000001:
-        printf("%i",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
+        printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
         cpu->PC+=2;
     }
   }

@@ -66,6 +66,12 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+cpu.c initialized, loads, runs cpu
+cpu.h holds information about cpu and alu operations
+ls8.c runs an instance of the cpu
+
+main function has been implemented in ls8.c, nothing has really been implemented in cpu.h except some definitions, cpu_load has been implemented in cpu.c and alu has been partially implemented need to implement init, read, write, and run functions.
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
