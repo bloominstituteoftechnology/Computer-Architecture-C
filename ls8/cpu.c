@@ -26,6 +26,14 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+char cpu_ram_read(struct cpu *cpu, int index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char val) {
+  cpu->ram[index] = val;
+}
+
 /**
  * ALU
  */
