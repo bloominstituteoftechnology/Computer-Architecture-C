@@ -61,7 +61,12 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+README.md  cpu.c  cpu.h ls8.c 
 * Write a short 3-10-word description of what each file does.
+README.md  breaks down the instructions for the day 1 assignmnet. 
+cpu.h has the struct file which isn't implemented and protypes for cpu_load cpu_init and cpu_run. 
+
+cpu.c  purpose is to imlement the functions cpu_load has been done already. 
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
