@@ -62,6 +62,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->ram = memset();
+  cpu->registers = memset();
+  cpu->PC = memset();
   // TODO: Zero registers and RAM
 }
