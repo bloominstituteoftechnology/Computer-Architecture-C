@@ -55,12 +55,13 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2]; 
 
-    printf("%d\n",operandB);
+    printf("%d\n",cpu->IR);
 
   //   // 2. switch() over it to decide on a course of action.
     switch (cpu->IR){
     case HLT:
       printf("Test\n");
+      running = 0;
       break;
     case LDI:
       printf("Test2\n");
@@ -69,9 +70,11 @@ void cpu_run(struct cpu *cpu)
     printf("test3\n");
 
     }
+
+
   //   // 3. Do whatever the instruction should do according to the spec.
   //   // 4. Move the PC to the next instruction.
-
+    cpu->PC +=1;
   }
 }
 
