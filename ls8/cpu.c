@@ -39,6 +39,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
+unsigned char cpu_ram_read(struct cpu *cpu, int index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char thing) {
+  cpu->ram[index] = thing;
+}
 
 /**
  * Run the CPU
@@ -50,14 +57,14 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char instruction = cpu_ram_read(cpu, cpu->PC]);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1]);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2]);
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 2. switch() over it to decide on a course of action.
     switch (instruction) {
       case LDI:
       // 3. Do whatever the instruction should do according to the spec.
-        cpu->register[operandA] = operandB;
+        cpu->registers[operandA] = operandB;
         // 4. Move the PC to the next instruction.
         cpu->PC += 3;
         break;
@@ -81,13 +88,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, 8*sizeof(char));
-  memset(cpu->ram, 0, 256*sizeof(char))
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, int index) {
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char thing) {
-  cpu->ram[index] = thing;
+  memset(cpu->ram, 0, 256*sizeof(char));
 }
