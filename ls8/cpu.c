@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -50,7 +52,25 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu->ram[cpu->PC];
     // 2. switch() over it to decide on a course of action.
+    switch (IR) {
+            case HLT:
+                int running = 0;
+                exit();
+
+            case LDI:
+                unsigned char index = cpu->ram[cpu->PC + 1];
+                cpu->registers[index] = cpu->ram[cpu->PC + 2];
+                cpu->PC += 3;
+                break;
+
+            case PRN:
+                unsigned char index = cpu->ram[cpu->PC + 1];
+                printf("Saved value: %d\n", cpu->registers[index]);
+                cpu->PC += 2;
+                break;
+        }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -62,6 +82,19 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
+
+// void cpu_ram_read(struct cpu *cpu)
+// {
+//   // access RAM inside struct cpu
+//   // cpu->ram
+// }
+
+// void cpu_ram_write(struct cpu *cpu)
+// {
+//   // access RAM inside struct cpu
+// }
