@@ -61,6 +61,17 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+cpu.c
+- appears to process the data from the example files. Print8.ls is currently hardcoded in. 
+cpu.h
+- the cpu struct and operations functions
+ls8.c
+- initializes cpu? 
+asm files 
+- appear to be compiler for ls8 code
+example programs
+- executable ls8 programs to peform tasks
+
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
