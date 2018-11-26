@@ -65,3 +65,11 @@ void cpu_init(struct cpu *cpu)
 
   // TODO: Zero registers and RAM
 }
+
+void cpu_ram_read(struct cpu *cpu, unsigned char ADD){
+  return cpu->ram[ADD];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char OLD, unsigned char NEW){
+  cpu->ram[OLD] = NEW;
+}
