@@ -3,7 +3,7 @@
 #define DATA_LEN 6
 
 /**
- * Load the binary bytes from a .ls8 source file into a RAM array
+ * Load the binary bytes from a .ls8 source file into a RAM array.
  */
 void cpu_load(struct cpu *cpu)
 {
