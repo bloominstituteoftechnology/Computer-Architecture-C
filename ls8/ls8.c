@@ -4,13 +4,17 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char **argv)
 {
-  struct cpu cpu;
-
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+  if(argc > 1)
+  {
+    struct cpu cpu;
+    cpu_init(&cpu);
+    cpu_load(&cpu, argv[1]);
+    cpu_run(&cpu);
+  }else{
+    printf("Please enter a valid filename\n");
+  }
 
   return 0;
 }

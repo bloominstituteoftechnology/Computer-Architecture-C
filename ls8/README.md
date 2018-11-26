@@ -66,6 +66,16 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+
+cpu.c - **cpu_load** currently cycles through the passed in CPU objects   ram array and loads in a value from  a pre-defined array. This will     change later to accept an input array (aka, set of instructions) from   an ls8 file. This basically loads up our program instructions to feed   into cpu_run
+  **alu** Our Arithmatic Logic Unit. This function takes in a CPU struct, an enum for the command, and two unsigned characters for the operands. It then goes through a switch statement which will perform whatever math function dictated by the enum. 
+  **cup_run** this function goes through the input cpu structs Program counter (PC) for the instruction it should perform. This instruction is then executed, and the Program counter incremented to the next instruction. 
+  **cup_init** Initializes a CPU struct with necessary values for the PC and registers. 
+
+
+cpu.h - **struct cpu** creates a CPU struct with a program counter,       registers (array) and ram (array). **alu_op** enumerated values which   allow us to write commands like ALU_MUL and ADD instead of just 0 or    1. This whole file just sets up necessary definitions and constants     for cpu.c to use.  
+
+ls8.c - Simply initializes a CPU struct, has that struct load the         instructions in and runs those instructions
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
