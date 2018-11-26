@@ -8,8 +8,8 @@ struct cpu {
   // registers (array)
   // ram (array)
   unsigned char PC;
-  unsigned char registers;
-  unsigned char ram;
+  unsigned char registers[8];
+  unsigned char ram[256];
 };
 
 // ALU operations
