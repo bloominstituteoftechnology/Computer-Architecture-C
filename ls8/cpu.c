@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -69,10 +71,12 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:
         cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
         break;
 
       case HLT:
@@ -91,9 +95,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;  
-  cpu->registers[7] = 0xF4;
+  // cpu->registers[7] = 0xF4;
 
   // TODO: Zero registers and RAM
-  memset(cpu->registers, 0, 7);
-  memset(cpu->ram, 0, 256);
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
