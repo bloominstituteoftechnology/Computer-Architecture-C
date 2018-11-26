@@ -1,6 +1,6 @@
 # Computer Architecture
 
-## Project
+## Project 
 
 * [Implement the LS-8 Emulator](ls8/)
 
