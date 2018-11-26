@@ -63,5 +63,19 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
 
-  // TODO: Zero registers and RAM
+  // TODO: Zero registers and RAM <-- O_O :eyes:
+ for (int i = 0; i <= 7; i++) {
+   if (i <= 6) {
+     cpu->R[i] = 0;
+     } else {
+     cpu->R[i] = 0xF4;
+  }
+  //  }
+}
+cpu->PC = 0;
+cpu->FL = 0;
+
+for (int i = 0; i <= 255; i++) {
+  cpu->ram[i] = 0;
+}
 }
