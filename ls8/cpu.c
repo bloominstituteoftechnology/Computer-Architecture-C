@@ -59,10 +59,27 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, (PC + 1));
     unsigned char operandB = cpu_ram_read(cpu, (PC + 2));
+    int shift = ((IR >> 6)) + 1;
 
     // 2. switch() over it to decide on a course of action.
     switch (IR) {
-      
+      case HLT:
+        running = 0;
+        break;
+
+      case LDI:
+        reg[operandA] = operandB;
+        PC += shift;
+        break;
+
+      case PRN:
+        printf("%c", reg[operandA]);
+        PC += shift;
+        break;
+
+      default:
+        printf("Unrecognized instruction %02x: %02x\n", PC, IR);
+        exit(2);
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
