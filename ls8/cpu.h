@@ -1,12 +1,19 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define MAX_ADDRESS 0xff
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
   // PC
+  unsigned char PC;
+
   // registers (array)
+  unsigned char reg[8];
+
   // ram (array)
+  unsigned char ram[MAX_ADDRESS + 1];
 };
 
 // ALU operations
