@@ -1,10 +1,17 @@
 #include "cpu.h"
-
+#include "string.h"
+#include "stdio.h"
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+unsigned char cpu_ram_read(struct cpu *cpu,int index) {
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, int index,unsigned char value) {
+  cpu->ram[index]=value;
+}
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -53,6 +60,17 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    unsigned char instruction=cpu_ram_read(cpu,cpu->PC);
+    switch(instruction) {
+      case 00000001:
+        running=0;
+      case 10000010:
+        cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
+        cpu->PC+=3;
+      case 01000111:
+        printf("%c",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
+        cpu->PC+=2;
+    }
   }
 }
 
@@ -65,12 +83,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   cpu->PC=0;
   memset(cpu->registers,0,7);
-  cpu->registers[7]=0xF4;
   memset(cpu->ram,0,256);
-}
-unsigned char cpu_ram_read(struct cpu *cpu,int index) {
-  return cpu->ram[index];
-}
-void cpu_ram_write(struct cpu *cpu,int index,unsigned char value) {
-  cpu->ram[index]=value;
 }
