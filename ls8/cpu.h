@@ -6,9 +6,9 @@ struct cpu {
   // TODO
   // PC
   // registers (array)
-  unsigned char PC;
+  unsigned char* PC;
   unsigned char* registers;
-  unsigned char* array;
+  unsigned char* ram;
   // ram (array)
 };
 
