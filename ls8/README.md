@@ -61,9 +61,9 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
-cpu.c - 
-cpu.h -
-ls8.c -
+cpu.c - initializes cpu and holds information
+cpu.h - runs the cpu
+ls8.c - create a new cpu and inits, loads, and runs it
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
