@@ -5,14 +5,19 @@
 struct cpu {
   // TODO
   // PC
-  // registers (array)
+  unsigned char PC = 0;
+  // registers (array) the number of wires
+  unsigned char registers[8];
   // ram (array)
+  unsigned char ram[256];
 };
 
-// ALU operations
+// ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+  ALU_ADD,
+  ALU_SUB,
+	ALU_MUL,
+  ALU_DIV
 };
 
 // Instructions
@@ -20,8 +25,10 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI  0b10000010 //<-this is 130
 // TODO: more instructions here. These can be used in cpu_run().
+
+
 
 // Function declarations
 
