@@ -62,7 +62,26 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+
+  examples (folder containing all files used to help run ls8)
+    cpu.c (holds all cpu and alu functions)
+    cpu.h (header file used to define cpu and alu operations)
+    ls8.c (calls cpu functions cpu_init(), cpu_load(), and cpu_run())
+    Makefile (used to guide the 'make' utility when compiling ls8)
+
 * Note what has been implemented, and what hasn't.
+
+  - cpu.c:
+    1. A less hard-coded solution must be implemented
+    2. implement more ALU operations
+    3. implement a solution to get the cpu to run
+    4. implement a solution to initialize a cpu struct
+
+  - cpu.h:
+    1. add all cpu information
+    2. add more alu operations
+    3. add more instructions for cpu_run()
+
 * Read this whole file.
 * Skim the spec.
 
