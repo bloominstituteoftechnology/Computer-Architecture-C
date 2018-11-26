@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -20,7 +22,7 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+    cpu->ram[address++] = &data[i];
   }
 
   // TODO: Replace this with something less hard-coded
@@ -29,15 +31,25 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
+//     // TODO: implement more ALU ops
+//   }
+// }
+
+char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return *cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, char item)
+{
+  cpu->ram[index] = &item;
 }
 
 /**
@@ -53,6 +65,20 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    int c = cpu->PC;
+    switch(c) {
+      case PRN:
+        printf("hey\n");
+        cpu->PC++;
+        break;
+      case HLT:
+        running = 0;
+        printf("i done quit, %d\n", cpu->PC);
+        break;
+      default:
+        printf("default yo, %d\n", cpu->PC);
+        cpu->PC++;
+    }
   }
 }
 
@@ -62,6 +88,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->registers[0], 8, 0);
+  memset(cpu->ram[0], 256, 0);
 }
