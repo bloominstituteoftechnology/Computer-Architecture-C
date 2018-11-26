@@ -1,5 +1,6 @@
 # Computer Architecture
 
+setting up the pull request:
 ## Project
 
 * [Implement the LS-8 Emulator](ls8/)
