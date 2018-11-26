@@ -23,7 +23,7 @@ void cpu_load(struct cpu *cpu)
     cpu->ram[address++] = data[i];
   }
 
-  // TODO: Replace this with something less hard-coded PR
+  // TODO: Replace this with something less hard-coded PRR
 }
 
 /**
