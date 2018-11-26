@@ -62,7 +62,25 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+ls8.c: calls cpu_load, cpu_init, and cpu_run
+
+cpu.c: functions for the CPU and ALU.
+
+cpu.h:defines the CPU and ALU structure
+
 * Note what has been implemented, and what hasn't.
+
+  -ls8 is done
+  -cpu.h:
+    - [ ] Implement `struct cpu` in `cpu.h`
+    - [ ] Add RAM functions
+  -cpu.c:
+    - [ ] Implement `cpu_init()`
+    - [ ] Implement the core of `cpu_run()`
+    - [ ] Implement the `HLT` instruction handler
+    - [ ] Add the `LDI` instruction
+    - [ ] Add the `PRN` instruction
+
 * Read this whole file.
 * Skim the spec.
 
