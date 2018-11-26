@@ -3,6 +3,20 @@
 #include <stdio.h>
 #define DATA_LEN 6
 
+
+unsigned char cpu_ram_read(struct cpu *cpu)
+{
+  cpu->MDR =  cpu->ram[cpu->MAR];
+  return cpu->MDR;
+}
+
+void cpu_ram_write(struct cpu *cpu)
+{ 
+    if(cpu->MAR < 0xF4){
+      cpu->ram[cpu->MAR] = cpu->MDR;
+    }   
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -29,7 +43,7 @@ void cpu_load(struct cpu *cpu)
 
 /**
  * ALU
-//  */
+ */
 // void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 // {
 //   switch (op) {
@@ -51,30 +65,40 @@ void cpu_run(struct cpu *cpu)
   while (running) {
   //   // TODO
   //   // 1. Get the value of the current instruction (in address PC).
-     cpu->IR = cpu->ram[cpu->PC];
+      cpu->MAR = cpu->PC;
+     cpu->IR = cpu_ram_read(cpu);
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2]; 
-
-    printf("%d\n",cpu->IR);
-
+    // printf("%d \n",cpu->PC);
   //   // 2. switch() over it to decide on a course of action.
     switch (cpu->IR){
     case HLT:
-      printf("Test\n");
       running = 0;
       break;
     case LDI:
-      printf("Test2\n");
+      cpu->registers[operandA] = operandB;
+      break;
+    case PRN:
+      printf("%d\n",cpu->registers[operandA]);
       break;
     default:
-    printf("test3\n");
+    printf("Something went wrong\n");
 
     }
 
 
   //   // 3. Do whatever the instruction should do according to the spec.
   //   // 4. Move the PC to the next instruction.
+  if(cpu->IR >= 128){
+      cpu->PC +=3;
+  }
+  else if(cpu->IR >= 64){
+    cpu->PC +=2;
+  }
+  else{
     cpu->PC +=1;
+  }
+    
   }
 }
 
@@ -94,16 +118,5 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[7] = 0xF4;
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu)
-{
-  cpu->MDR =  cpu->ram[cpu->MAR];
-  return cpu->MDR;
-}
 
-void cpu_ram_write(struct cpu *cpu)
-{ 
-    if(cpu->MAR < 0xF4){
-      cpu->ram[cpu->MAR] = cpu->MDR;
-    }   
-}
 
