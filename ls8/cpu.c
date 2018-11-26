@@ -50,9 +50,25 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC]);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1]);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2]);
     // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    switch (instruction) {
+      case LDI:
+      // 3. Do whatever the instruction should do according to the spec.
+        cpu->register[operandA] = operandB;
+        // 4. Move the PC to the next instruction.
+        cpu->PC += 3;
+        break;
+      case PRN:
+        printf("%u\n", operandA);
+        cpu->PC += 2;
+        break;
+      case HLT:
+        cpu->PC += 1;
+        return 0;
+    }
   }
 }
 
@@ -62,10 +78,16 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->registers, 0, 8*sizeof(char));
+  memset(cpu->ram, 0, 256*sizeof(char))
 }
 
-int cpu_ram_read(struct cpu *cpu, int index) {
+unsigned char cpu_ram_read(struct cpu *cpu, int index) {
   return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char thing) {
+  cpu->ram[index] = thing;
 }
