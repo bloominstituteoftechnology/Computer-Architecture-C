@@ -50,7 +50,21 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    int c = cpu->ram[cpu->PC]; 
     // 2. switch() over it to decide on a course of action.
+    switch (c) {
+      case 0b10000010: 
+        cpu->R[0] = cpu->ram[cpu->PC + 1];
+        cpu->PC += 3;
+      case 0b01000111:
+        printf("R[0] Hex: %x\n", cpu->ram[cpu->PC + 1]);
+        printf("R[0] Decimal: %d\n", cpu->ram[cpu->PC + 1]);
+        cpu->PC += 2; 
+      case 0b00000001: 
+        cpu->PC++; 
+        return 0; 
+    }
+    
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -65,14 +79,15 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0; 
   
   // TODO: Zero registers and RAM
-  cpu->regA = 0;  
-  cpu->regB = 0;
+  for (int i = 0; i < 7; i++) {
+    cpu->R[i] = 0;
+    }
   
-  if(cpu->ram[0] != 0) {
+  cpu->R[7] = 0xF4; 
 
+  if(cpu->ram[0] != 0) {
     int address = 0;
-    
-    for (int i = 0; i < DATA_LEN; i++) {
+    for (int i = 0; i < 256; i++) {
       cpu->ram[address++] = 0;   
     }
   }
