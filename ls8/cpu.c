@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "stdio.h"
 
 #define DATA_LEN 6
 
@@ -26,19 +27,19 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
-/**
- * ALU
- */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// /**
+//  * ALU
+//  */
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -62,7 +63,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2; 
       case 0b00000001: 
         cpu->PC++; 
-        return 0; 
+        return; 
     }
     
     // 3. Do whatever the instruction should do according to the spec.
