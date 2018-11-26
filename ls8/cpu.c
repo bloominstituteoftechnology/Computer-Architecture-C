@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -62,6 +64,25 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu = malloc(sizeof(struct cpu));
+  cpu->PC = 0;
+  cpu->ram = calloc(256, sizeof(unsigned char));
 
-  // TODO: Zero registers and RAM
+  for(int i = 0;i<7;i++){
+    cpu->registers[i] = 0;
+  }
+
+  printf("Registers %d\n", cpu->registers[3]);
+  cpu->registers[7] = 0xF4;
+}
+
+unsigned int cpu_ram_read(struct cpu *cpu)
+{
+  return cpu->ram[cpu->PC++];
+}
+
+void cpu_ram_write(struct cpu *cpu, int item)
+{
+  cpu->ram[cpu->PC] = item;
+  cpu->PC++;
 }
