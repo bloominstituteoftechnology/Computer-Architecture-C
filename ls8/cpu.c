@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -48,13 +49,29 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    int ir = cpu->ram[cpu->PC];
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
+    switch (ir) {
+      case -126:
+        cpu->registers[cpu->ram[cpu->PC+1]] = cpu->ram[cpu->PC+2];
+        cpu->PC += 2;
+        break;
+      case PRN:
+        printf("%d\n", cpu->registers[cpu->ram[cpu->PC+1]]);
+        cpu->PC++;
+        break;
+      case HLT:
+        running = 0;
+        break;
+      default:
+        break;
+    }
     // 4. Move the PC to the next instruction.
+    cpu->PC++;
   }
 }
 
@@ -66,13 +83,12 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu = malloc(sizeof(struct cpu));
   cpu->PC = 0;
-  cpu->ram = calloc(256, sizeof(unsigned char));
+  memset(cpu->ram,0,256);
 
   for(int i = 0;i<7;i++){
     cpu->registers[i] = 0;
   }
 
-  printf("Registers %d\n", cpu->registers[3]);
   cpu->registers[7] = 0xF4;
 }
 

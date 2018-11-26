@@ -5,7 +5,7 @@
 struct cpu {
   int PC;
   int registers[8];
-  unsigned char *ram;
+  int ram[256];
 };
 
 // ALU operations
