@@ -15,9 +15,7 @@ struct cpu {
 // ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {
   ALU_ADD,
-  ALU_SUB,
-	ALU_MUL,
-  ALU_DIV
+	ALU_MUL
 };
 
 // Instructions
@@ -27,7 +25,23 @@ enum alu_op {
 
 #define LDI  0b10000010 //<-this is 130
 // TODO: more instructions here. These can be used in cpu_run().
-
+#define ADD 0b10100000 // 160
+#define CALL 0b01010000 // 80
+#define HLT 0b00000001 // 1
+#define PRN 0b01000111 // 71
+#define RET 0b00010001 // 17
+#define LD 0b10000011 // 131
+#define ST 0b10000100 //132
+#define PRA 0b01001000 // 72 
+#define IRET 0b00010011 // 19
+#define MUL 0b10100010 // 162
+#define CMP 0b10100111 // 167
+#define JEQ 0b01010101 // 85
+#define INC 0b01100101 // 101
+#define DEC 0b01100110 //102
+#define JNE 0b01010110 // 86
+#define POP 0b01000110 // 70
+#define PUSH 0b01000101 // 69
 
 
 // Function declarations
