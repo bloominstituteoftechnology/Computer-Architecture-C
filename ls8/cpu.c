@@ -62,8 +62,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
   // TODO: Zero registers and RAM
+  cpu->PC=0;
+  memset(cpu->registers,0,7);
+  cpu->registers[7]=0xF4;
+  memset(cpu->ram,0,256);
 }
 unsigned char cpu_ram_read(struct cpu *cpu,int index) {
   return cpu->ram[index];
