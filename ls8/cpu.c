@@ -59,9 +59,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char place, unsigned char saving){
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char HLT = "00000001";
-  unsigned char LDI = "10000010 00000rrr iiiiiiii";
-  unsigned char PRN = "01000111 00000rrr"; 
+  
 
   
 

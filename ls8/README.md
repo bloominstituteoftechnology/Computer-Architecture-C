@@ -67,6 +67,8 @@ README.md  breaks down the instructions for the day 1 assignmnet.
 cpu.h has the struct file which isn't implemented and protypes for cpu_load cpu_init and cpu_run. 
 
 cpu.c  purpose is to imlement the functions cpu_load has been done already. 
+
+ls8.c  is responsible for running everything holds the main function. 
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
