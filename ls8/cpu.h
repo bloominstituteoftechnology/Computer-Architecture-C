@@ -7,16 +7,15 @@ struct cpu {
   // PC
   unsigned char PC;
   // registers (array)
-  char *registers;
+  unsigned char registers[8];
   // ram (array)
-  char *ram;
+  unsigned char ram[8];
   char cpu_ram_read();
   void cpu_ram_write();
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL,
   ALU_ADD,
   ALU_AND,
   ALU_CALL,
@@ -36,6 +35,7 @@ enum alu_op {
   ALU_LD,
   ALU_LDI,
   ALU_MOD,
+	ALU_MUL,
   ALU_NOP,
   ALU_NOT,
   ALU_OR,
