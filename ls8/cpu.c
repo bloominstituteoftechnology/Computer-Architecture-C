@@ -3,6 +3,19 @@
 #define DATA_LEN 6
 
 /**
+ * Add RAM functions read and write
+ */
+ unsigned char cpu_ram_read(struct cpu *cpu, int index) 
+ {
+   return cpu->ram[index];
+ }
+
+ void cpu_ram_write(struct cpu *cpu, int index, unsigned char val)
+ {
+   cpu->ram[index] = val;
+ }
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
