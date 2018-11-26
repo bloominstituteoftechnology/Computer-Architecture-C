@@ -55,7 +55,7 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     switch (c) {
       case 0b10000010: 
-        cpu->R[cpu->PC + 1] = cpu->ram[cpu->PC + 2];
+        cpu->R[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
         cpu->PC += 3;
 
       case 0b01000111:
@@ -89,10 +89,9 @@ void cpu_init(struct cpu *cpu)
   
   cpu->R[7] = 0xF4; 
 
-  if(cpu->ram[0] != 0) {
-    int address = 0;
-    for (int i = 0; i < 256; i++) {
-      cpu->ram[address++] = 0;   
-    }
+  int address = 0;
+  for (int i = 0; i < 256; i++) {
+    cpu->ram[address++] = 0;   
   }
+
 }
