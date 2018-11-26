@@ -1,3 +1,5 @@
+# Anything related to interrupt is a stretch goal
+
 # LS-8 Microcomputer Spec v4.0
 
 ## Registers
