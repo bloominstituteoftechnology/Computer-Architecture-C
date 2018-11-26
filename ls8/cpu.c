@@ -40,6 +40,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, int PC)
+{
+  unsigned char ram = cpu->ram[PC];
+}
+
+unsigned char cpu_ram_write(struct cpu *cpu, int PC, unsigned char payload)
+{
+  unsigned char to_write = cpu_ram_read(cpu, PC);
+  payload = to_write;
+}
+
 /**
  * Run the CPU
  */
