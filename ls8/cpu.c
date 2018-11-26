@@ -7,7 +7,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(char *arg, struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
   /* char data[DATA_LEN] = {
     // From print8.ls8
@@ -28,19 +28,21 @@ void cpu_load(char *arg, struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 
   FILE *fp;
-  char line[256];
-  int line_number = 0;
-  char *pointer;
-  fp = fopen(arg, "r");
+  char data[1024];
+  unsigned char address = 0;
+  fp = fopen(argv[1], "r");
   
   if (fp == NULL) {
-    fprintf(stderr, "Can not open the file %s\n", arg);
+    perror("Can not open the file\n");
     exit(1);
-  } else {
-     while(line) {
-      fgets(line, sizeof(line), fp);
-      cpu->ram[line_number++] = strtoul(line, &pointer, 2);
+  }
+  
+  while(fgets(data, sizeof(data), fp) != NULL) {
+      unsigned char byte = strtoul(data, NULL, 2);
+      if(data == NULL){
+        continue;
       }
+      cpu->ram[address++] = byte;
     }
   }
 
