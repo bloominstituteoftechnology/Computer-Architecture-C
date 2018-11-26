@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -69,7 +71,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case PRN:
-        printf("%u\n", operandA);
+        printf("%u\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
       case HLT:
