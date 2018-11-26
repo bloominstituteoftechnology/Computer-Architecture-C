@@ -2,14 +2,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define DATA_LEN 6
+//#define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *arg, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
+  /* char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -23,20 +23,38 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
-  }
+  } */
 
   // TODO: Replace this with something less hard-coded
 
-}
+  FILE *fp;
+  char line[256];
+  int line_number = 0;
+  char *pointer;
+  fp = fopen(arg, "r");
+  
+  if (fp == NULL) {
+    fprintf(stderr, "Can not open the file %s\n", arg);
+    exit(1);
+  } else {
+     while(line) {
+      fgets(line, sizeof(line), fp);
+      cpu->ram[line_number++] = strtoul(line, &pointer, 2);
+      }
+    }
+  }
 
 /**
  * ALU
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
+
   switch (op) {
     case ALU_MUL:
       // TODO
+      reg[regA] *= reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -98,6 +116,14 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
   cpu->PC = 0x00;
-  cpu->reg[SP] = 0xf4;
 
 }
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
