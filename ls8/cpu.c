@@ -3,15 +3,15 @@
 #define DATA_LEN 6
 
 
-// Read from memory (mar - memory address register)
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
+// Read from memory
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  return cpu->ram[mar];
+  return cpu->ram[index];
 }
 // Write to memory
-void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 {
-  cpu->ram[mar] = mdr;
+  cpu->ram[index] = value;
 }
 
 
@@ -80,6 +80,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
-  
+
   //Later on, you might do further initialization here, e.g. setting the initial value of the stack pointer.
 }
