@@ -65,6 +65,12 @@ but you'll have to implement those three above instructions first!
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
+  cpu.c
+    - 
+  cpu.h
+    - contains the cpu struct and ALU operations
+  ls8.c
+    - initializes, loads and runs cpu
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
