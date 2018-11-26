@@ -40,6 +40,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu,unsigned char index, unsigned char item) {
+  cpu->ram[index] = item;
+}
+
 /**
  * Run the CPU
  */
@@ -59,7 +67,7 @@ void cpu_run(struct cpu *cpu)
         running = 0;
       case 10000010: // LDI
         cpu->registers[(int)operandA] = (int)operandB;
-      case 01000111; // PRN
+      case 01000111: // PRN
      printf("%d", cpu->registers[(int)operandA]);
      }
      cpu->PC += (int)(PC >> 6);
@@ -85,10 +93,10 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
 }
 
-void cpu_ram_read(struct cpu *cpu, unsigned char index) {
-  return cpu->ram[index];
-}
+// unsigned char *cpu_ram_read(struct cpu *cpu, unsigned char index) {
+//   return cpu->ram[index];
+// }
 
-void cpu_ram_write(struct cpu *cpu,unsigned char index, unsigned char item) {
-  cpu->ram[index] = item;
-}
+// void cpu_ram_write(struct cpu *cpu,unsigned char index, unsigned char item) {
+//   cpu->ram[index] = item;
+// }
