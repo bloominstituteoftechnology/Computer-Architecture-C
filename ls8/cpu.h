@@ -4,9 +4,15 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
+	const int SAVE8 = 1;
+	const int PRINT8 = 2;
+	const int HALT = 3;
   // PC
+	int PC = 0;
   // registers (array)
+	unsigned char registers[8];
   // ram (array)
+	unsigned char ram[256];
 };
 
 // ALU operations
