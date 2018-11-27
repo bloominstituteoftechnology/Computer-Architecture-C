@@ -40,11 +40,20 @@ void cpu_load(struct cpu *cpu, char *file)
   unsigned char address = 0; 
   fp = fopen(file, "r"); 
 
-    if (fp == NULL){
-    printf("Cannot Open File.\n", fp);
-    exit(2);
+  if (fp == NULL){
+  printf("Cannot Open File.\n", fp);
+  exit(2);
+  }
+  while(fgets(line, sizeof(line), fp) != NULL){
+    if (line[0] == "#" || line[0] == "\n"){
+      continue;
     }
-
+  }
+  while(fgets(line, sizeof(line), fp) != NULL) {
+  cpu->ram[address] = strtoul(line, NULL, 2); 
+  address++; 
+  }
+    fclose(fp);
 }
 
 /**
@@ -77,6 +86,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+    unsigned char move_pc = (IR >> 6);
       switch(IR) {
 
       case HLT:
@@ -85,12 +95,12 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->PC += 3;
+        move_pc;
         break;
 
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
-        cpu->PC += 2;
+        move_pc;
         break;
     }
   }
