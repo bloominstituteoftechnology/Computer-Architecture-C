@@ -26,7 +26,7 @@ void cpu_load(struct cpu *cpu)
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
-  
+
   // TODO: Replace this with something less hard-coded
 }
 
@@ -73,8 +73,8 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char  current = cpu->ram[cpu->PC]; 
-    unsigned char operandA = cpu->PC +1;
-    unsigned char operandB  = cpu->PC +2;
+    unsigned char operandA = cpu->ram[cpu->PC +1];
+    unsigned char operandB  = cpu->ram[cpu->PC +2];
     switch (current){
 
       case LDI:
@@ -88,10 +88,10 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         //
         running = 0; //should end loop
-        break; 
-         
+        break;    
 
     }
+    cpu->PC += 1; 
   }
 }
 
