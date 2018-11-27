@@ -4,9 +4,13 @@
 
 #define DATA_LEN 6
 
+
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -26,6 +30,16 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char PC) 
+{
+  return cpu->ram[PC]; 
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char PC, unsigned char input) 
+{
+  cpu->ram[PC] = input; 
 }
 
 // /**
