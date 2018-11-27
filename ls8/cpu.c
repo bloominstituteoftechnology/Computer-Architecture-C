@@ -62,22 +62,22 @@ unsigned char binaryencoded = strtol(s, &split, 2);;
    
   fclose(fp);
 
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
+      break;
+    default:
+      printf("Something broke in the alu function");
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -104,6 +104,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case PRN:
       printf("%d\n",cpu->registers[operandA]);
+      break;
+    case MUL:
+      alu(cpu,ALU_MUL,operandA,operandB);
       break;
     default:
     printf("Something went wrong\n");
