@@ -17,32 +17,18 @@ unsigned char read_ram(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-int memory[256]; 
+
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
   FILE *fp = fopen(filename,"r");
-  char line[8192];
-  unsigned address = 0; 
+  char line[1024];
+  unsigned char address = 0; 
 
   if(fp == NULL){
     printf("Error opening file\n");
     exit(1);
   }
+
   // int mem_index = 0;
   while(fgets(line, sizeof line, fp) != NULL){
     // memory[mem_index] = strtoul(line, NULL, 10);
@@ -55,19 +41,17 @@ void cpu_load(struct cpu *cpu, char *filename)
   // TODO: Replace this with something less hard-coded
 }
 
-/**
+/*
  * ALU
 //  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch(op){
+    case ALU_MUL:
+      cpu-> registers[regA] *= cpu-> registers[regB];
+      break;
+  }
+}
 
 /**
  * Run the CPU
@@ -96,7 +80,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
       case MUL:
-        printf("%d\n", cpu->PC);
+        alu(cpu, ALU_MUL, operandA, operandB);
       case HLT: 
         running = 0;
         cpu->PC++;
@@ -113,7 +97,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
-  memset(cpu->ram, 0, 8);
-  memset(cpu->registers, 0, 256);
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->registers, 0, sizeof(cpu->registers));
 }
 
