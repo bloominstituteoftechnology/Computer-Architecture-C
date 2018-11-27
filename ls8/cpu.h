@@ -4,21 +4,22 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  unsigned char x;
   // PC
-
   // registers (array)
   // ram (array)
-
+  unsigned char PC;
+  unsigned char registers[8];
+  unsigned char ram[256];
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL 
 	// Add more here
+
 };
 
-// Instructions
+// Instruction6
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.

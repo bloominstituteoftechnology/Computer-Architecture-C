@@ -4,15 +4,14 @@
 
 
 // CPU Ram read
-void cpu_ram_read() 
+unsigned char cpu_ram_read(unsigned char index, struct cpu *cpu) 
 {
-
+  return cpu->ram[index];
 }
-
 // CPU Ram write
 void cpu_ram_write() 
 {
-
+  
 }
 
 

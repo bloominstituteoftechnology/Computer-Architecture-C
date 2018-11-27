@@ -415,6 +415,7 @@ Set the value of a register to an integer.
 Machine code:
 ```
 10000010 00000rrr iiiiiiii
+10000010 00000011 00000101
 82 0r ii
 ```
 
