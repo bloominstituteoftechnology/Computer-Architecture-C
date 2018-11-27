@@ -62,6 +62,26 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+
+cpu.c
+our functions for the cpu and alu get declared here
+cpu_load - needs to be replaced with something less hard coded
+alu - needs operations
+cpu_run - needs to get its value from instruction, switch() over it to decide on a course of action, do whatever the instructions should do according to spec, move pc to next instruction
+cpi_init - needs to have its pc initialized with other registers, needs its zero registers and ram initialized
+
+cpu.h
+holds information regarding the cpu, our operations, and instructions
+needs to have instructions added
+cpu - needs to be initialized
+alu_op - needs operations added
+
+
+ls8.c
+calls the cpu functions
+
+examples - 
+
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
