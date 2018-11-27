@@ -1,6 +1,8 @@
 #include "cpu.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
 #define DATA_LEN 6
 
 
@@ -20,23 +22,45 @@ void cpu_ram_write(struct cpu *cpu)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *fileName)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  fp = fopen(fileName, "r"); // read mode
+ 
+   if (fp == NULL)
+   {
+      perror("Error while opening the file.\n");
+      exit(EXIT_FAILURE);
+   }
+  // char data = calloc(8, sizeof(char));
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
   int address = 0;
+  
+  char s[1024];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  while(!feof(fp))
+{
+  fgets(s, sizeof(s), fp); 
+      char *split=" ";
+
+unsigned char binaryencoded = strtol(s, &split, 2);;
+    if (split == s) {
+      continue;
+    }
+
+    cpu->ram[address++] = binaryencoded;
+}
+   
+   
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
