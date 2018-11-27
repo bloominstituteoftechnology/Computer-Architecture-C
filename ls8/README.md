@@ -102,7 +102,7 @@ part to write.
 
 It needs to read the memory address that's stored in register `PC`, and store
 that result in `IR`, the _Instruction Register_. This can just be a local
-variable in `cpu_run()`.
+variab wle in `cpu_run()`.
 
 Some instructions requires up to the next two bytes of data _after_ the `PC` in
 memory to perform operations on. Sometimes the byte value is a register number,

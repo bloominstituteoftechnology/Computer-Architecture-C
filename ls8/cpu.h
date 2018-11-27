@@ -4,9 +4,12 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
+  unsigned char x;
   // PC
+
   // registers (array)
   // ram (array)
+
 };
 
 // ALU operations

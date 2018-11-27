@@ -2,9 +2,26 @@
 
 #define DATA_LEN 6
 
+
+// CPU Ram read
+void cpu_ram_read() 
+{
+
+}
+
+// CPU Ram write
+void cpu_ram_write() 
+{
+
+}
+
+
+
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
