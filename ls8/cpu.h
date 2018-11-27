@@ -1,6 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
@@ -18,6 +19,7 @@ enum alu_op {
 	// Add more here
 	ALU_ADD,
 	ALU_SUB,
+	ALU_DIV,
 };
 
 // Instructions

@@ -7,14 +7,16 @@
 
 /* cpu_ram_read/cpu_ram_write  */
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  return cpu->ram[index];
+  	printf("reading value: %d from RAM at index: %d \n", cpu->ram[index], index);
+	return cpu->ram[index];
 }
 
 void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
-  cpu->ram[index] = value;
+	printf("writing to RAM %d \n", value);
+  	cpu->ram[index] = value;
 }
 
 
@@ -34,20 +36,22 @@ void cpu_load(struct cpu *cpu, char *argv[])
 		fprintf(stderr, "Cannot open the file %s \n", argv[1]);
 		exit(1);
 	}
-	else{
-		while(fgets(line, sizeof line, fp)!= NULL){
-			char *endptr;
-   			unsigned char byte = strtol(line, &endptr, 2);
-
-    		if (endptr==line){
-      			continue;
-    		}
-
-   		 	cpu->ram[address++] = byte;
-  		}
-	}
+	
+	while(fgets(line, sizeof(line), fp)!= NULL){
+		        
+			//char *endptr;
+   			unsigned char byte = strtoul(line, NULL, 2);
+			
+			if(line == NULL){
+        			continue;
+      			}
+      			
+			printf("CPU Load-writing to RAM %d at %d \n", byte, address);
+			cpu->ram[address++] = byte;
+    	}
+	
 	fclose(fp);
-}	
+}
 
 /**
  * ALU
@@ -61,13 +65,27 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    
+    case ALU_DIV:
+      if(regB == 0){
+      		fprintf(stderr, "You are trying to divide a number by 0, not permitted");
+      } 
+      else{
+	      cpu->reg[regA] = cpu->reg[regA]/cpu->reg[regB];
+      }	      
+      break;
+    
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       break;
 
     case ALU_SUB:
       cpu->reg[regA] = cpu->reg[regA] - cpu->reg[regB];
-      break;   
+      break;
+    
+    default:
+        printf("Unrecognized instruction");
+        exit(1);  
 
   }
 }
@@ -78,18 +96,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  unsigned char PC = cpu->PC;
+  
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-        unsigned char PC = cpu->PC;
 
 	unsigned char IR = cpu_ram_read(cpu, PC);
-	unsigned operandA = cpu_ram_read(cpu, PC + 1);
-	unsigned operandB = cpu_ram_read(cpu, PC + 2);
+	unsigned operandA = cpu_ram_read(cpu, (PC + 1));
+	unsigned operandB = cpu_ram_read(cpu, (PC + 2));
         int shift = ((IR >> 6)) + 1;
 
 	switch(IR){
@@ -111,6 +129,11 @@ void cpu_run(struct cpu *cpu)
 		case MUL:
       		alu(cpu, ALU_MUL, operandA, operandB);
       		PC += shift;
+		break;
+
+		case DIV:
+		alu(cpu, ALU_DIV, operandA, operandB);
+		PC+= shift;
 		break;
 
     		case ADD:
@@ -139,9 +162,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+   printf("CPU Init \n");
    cpu->PC = 0x00;
-   memset(cpu->reg, 0, sizeof cpu->reg);
-   memset(cpu->ram, 0, sizeof cpu->ram);
+   memset(cpu->reg, 0, sizeof(cpu->reg));
+   memset(cpu->ram, 0, sizeof(cpu->ram));
 
   // TODO: Zero registers and RAM
 }
