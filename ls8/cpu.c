@@ -48,7 +48,7 @@ void cpu_load(struct cpu *cpu)
 // 
 /*Helper functions step 2*/
 
-void cpu_ram_read(struct cpu *cpu, unsigned char  place){
+void cpu_reg_read(struct cpu *cpu, unsigned char  place){
   printf("%d\n", cpu->registers[place] );  
 }
 
@@ -82,7 +82,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2; 
         break; 
       case PRN:
-        cpu_ram_read(cpu, operandA);
+        cpu_reg_read(cpu, operandA);
         cpu->PC += 1; 
         break; 
       case HLT:
