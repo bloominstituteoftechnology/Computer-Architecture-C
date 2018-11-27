@@ -68,3 +68,51 @@ int main(void)
 
     return 0;
 }
+
+
+
+NOT
+AND
+OR
+XOR
+Logical (boolean)
+-------
+! not
+&& and
+|| or
+Bitwise (numbers)
+-------
+~ not
+& and
+| or
+^ xor
+>> shift right
+<< shift left
+ 11001111
+ 11001111 >> 1
+ 01100111
+ 01100111 >> 1
+ 00110011
+ 
+LS-8 ADD: 10101000
+ vv
+ 10101000 >> 6
+ 01010100
+ 00101010
+ 00010101
+ 00001010
+ 00000101
+ 00000010
+       ^^
+ move_pc = (IR >> 6) + 1;
+   vv
+ 10110000 >> 4
+ 00001011
+       ^^
+  00001011
+& 00000011  <-- mask
+----------
+  00000011
+1. extract bits
+2. set individual bits
+3. clear individual bits
