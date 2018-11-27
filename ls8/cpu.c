@@ -54,18 +54,18 @@ void cpu_run(struct cpu *cpu)
     int c = cpu->ram[cpu->PC]; 
     // 2. switch() over it to decide on a course of action.
     switch (c) {
-      case 0b10000010: 
+      case LDI: 
         cpu->R[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
         cpu->PC += 2;
         break;
 
-      case 0b01000111:
+      case PRN:
         printf("R[0] Hex: %x\n", cpu->R[cpu->ram[cpu->PC + 1]]);
         printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + 1]]);
         cpu->PC += 1; 
         break;
 
-      case 0b00000001:
+      case HLT:
         running = 0;
         break; 
     }
