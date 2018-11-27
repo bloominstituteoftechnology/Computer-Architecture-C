@@ -1,10 +1,13 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -55,25 +58,29 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR;
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+  unsigned char registers_index;
+  int num;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    IR = cpu_ram_read(cpu, cpu->PC);
+    IR = cpu_ram_read(cpu->PC, cpu);
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
       case HLT:
-
+        running = 0;
         break;
-
       case LDI:
+        num = cpu_ram_read(cpu->PC + 2, cpu);
+        cpu->registers[cpu_ram_read(cpu->PC + 1, cpu)] = num;
+        cpu->PC += 3;
         break;
-
       case PRN:
+        registers_index = cpu_ram_read(cpu->PC + 1, cpu);
+        printf("register index value %d\n", cpu->registers[registers_index]);
+        cpu->PC += 2;
         break;
     }
   }
