@@ -42,7 +42,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 unsigned char cpu_ram_read(struct cpu *cpu, int PC)
 {
-  unsigned char ram = cpu->ram[PC];
+  for(int y = 0; y < sizeof(cpu->ram)/sizeof(cpu->ram[0]); y++){
+    unsigned char target = cpu->ram[y];
+/*     for(int i = 0; i < strlen(cpu->registers); i++) {
+
+    } */
+}
 }
 
 unsigned char cpu_ram_write(struct cpu *cpu, int PC, unsigned char payload)
@@ -73,6 +78,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  memset(cpu->ram, 0, sizeof cpu->ram);
 }
