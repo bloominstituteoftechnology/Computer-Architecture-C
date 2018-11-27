@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -7,7 +9,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index) {
 }
 
 void cpu_ram_write(struct cpu *cpu, int index, unsigned char value) {
-  return cpu->ram[index] = value;
+  cpu->ram[index] = value;
 }
 
 /**
@@ -55,12 +57,32 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+
   while (running) {
+      unsigned char IR = cpu_ram_read(cpu, cpu->PC); 
+      unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2); 
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    switch(IR) {
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        printf("Halting...\n");
+        running = 0;
+        break;
+    }
   }
 }
 
@@ -71,7 +93,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   // TODO: Zero registers and RAM
-  cpu->PC = 0
+  cpu->PC = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
