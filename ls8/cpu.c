@@ -79,7 +79,6 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN:
-        printf("R[0] Hex: %x\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
         printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC; 
         break;
