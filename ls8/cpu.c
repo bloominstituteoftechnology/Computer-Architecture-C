@@ -1,4 +1,8 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "cpu.h"
+
 
 #define DATA_LEN 6
 
@@ -29,25 +33,27 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       cpu->register[regA] = regB; // just to use the values so that i don't get warnings
+//       //will make changes to this later. 
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
-
+//     // TODO: implement more ALU ops
+//   }
+// }
+// 
 /*Helper functions step 2*/
 
-void cpu_ram_read(struct cpu *cpu unsigned char  place){
-  printf("%d\n",cpu->register[place]);  
+void cpu_ram_read(struct cpu *cpu, unsigned char  place){
+  printf("%d\n", cpu->registers[place] );  
 }
 
 void cpu_ram_write(struct cpu *cpu, unsigned char place, unsigned char saving){
-  cpu->register[place] = saving; 
+  cpu->registers[place] = saving; 
 }
 
 
@@ -59,9 +65,6 @@ void cpu_ram_write(struct cpu *cpu, unsigned char place, unsigned char saving){
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  
-
-  
 
   while (running) {
     // TODO
