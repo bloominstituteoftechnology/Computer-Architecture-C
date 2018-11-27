@@ -106,6 +106,10 @@ void cpu_run(struct cpu *cpu)
         cpu_reg_read(cpu, operandA);
         cpu->PC += 1; 
         break; 
+      case MUL:
+        unsigned char multipled = operandA * operandB; 
+        cpu_ram_write(cpu, operandA, multipled); 
+        break; 
       case HLT:
         //
         running = 0; //should end loop
