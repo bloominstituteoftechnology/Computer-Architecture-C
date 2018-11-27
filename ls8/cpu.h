@@ -18,10 +18,12 @@ struct cpu {
 };
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
-
+ return cpu->ram[index];
 }
 
-cpu_ram_write()
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char *data) {
+  cpu->ram[index] = data;
+}
 
 // ALU operations
 enum alu_op {
