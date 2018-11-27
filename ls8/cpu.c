@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -17,23 +18,33 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
   cpu->ram[index] = item;
 }
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(char* filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  FILE *fp = fopen(filename, "r" );
+  char line[1024];
+  if(fp == NULL) {
+    printf("Error: Could not open file.\n");
+    exit(1);
+  }
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while(fgets(line, sizeof line, fp) != NULL) {
+    cpu->ram[address] = strtoul(line, NULL, 2);
+    address++;
   }
+  fclose(fp);
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  
 
   // TODO: Replace this with something less hard-coded
 }
@@ -45,7 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -81,6 +92,11 @@ void cpu_run(struct cpu *cpu)
 
       case HLT:
         running = 0;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC +=3;
         break;
     }
     // 3. Do whatever the instruction should do according to the spec.
