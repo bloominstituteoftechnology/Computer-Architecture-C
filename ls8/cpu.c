@@ -1,6 +1,17 @@
 #include "cpu.h"
-
+#include "stdio.h"
+#include "string.h"
 #define DATA_LEN 6
+
+unsigned char read_ram(struct cpu *cpu, unsigned char address)
+  {
+    return cpu->ram[address]; 
+  }
+
+  unsigned char write_ram(struct cpu *cpu, unsigned char address, unsigned char val)
+  {
+    return cpu->ram[address] = val;
+  }
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -28,17 +39,17 @@ void cpu_load(struct cpu *cpu)
 
 /**
  * ALU
- */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+//  */
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -53,6 +64,23 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    int c = cpu->ram[cpu->PC];
+    unsigned char A = read_ram(cpu, cpu->PC + 1);
+    unsigned char B = read_ram(cpu, cpu->PC + 2);
+    switch(c)
+    {
+      case LDI:
+        cpu->registers[cpu->ram[A]] = B;
+        cpu->PC += 3;
+        break;
+      case PRN:
+        printf("%d\n", cpu->registers[A]);
+        cpu->PC += 2;
+        break;
+      case HLT: 
+        running = 0;
+        break; 
+    }
   }
 }
 
@@ -64,15 +92,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
-  memset(cpu->ram, 0, sizeof(char));
-  memset(cpu->registers, 0, sizeof(char));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->registers, 0, sizeof(cpu->registers));
 }
-unsigned char read_ram(struct cpu *cpu, unsigned char address)
-  {
-    return cpu->ram[address]; 
-  }
 
-  unsigned char write_ram(struct cpu *cpu, unsigned char address, unsigned char val)
-  {
-    return cpu->ram[address] = val;
-  }
