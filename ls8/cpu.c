@@ -1,7 +1,20 @@
 #include "cpu.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 
-#define DATA_LEN 6
+#define DATA_LEN 12
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)//MAR  memory address register,holds the memory address we're reading or writing
+{
+  return cpu->RAM[MAR];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)//MDR Memory Data Register, holds the value to write or the value just read
+{
+  cpu->RAM[MAR] = MDR;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */

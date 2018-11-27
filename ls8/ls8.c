@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "cpu.h"
-
+#include <stdlib.h>
 /**
  * Main
  */
@@ -13,7 +13,7 @@ if (argc != 2)
     exit(1);
   }
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu,argv);
   cpu_run(&cpu);
 
   return 0;
