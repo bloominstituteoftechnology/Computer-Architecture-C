@@ -63,12 +63,12 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     int PC = cpu->PC;
-    unsigned char instruction = cpu_ram_read(cpu, PC);
+    unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
-    switch(instruction) {
+    switch(IR) {
       case HLT:
         printf("HLT\n");
         running = 0;
@@ -76,21 +76,19 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         printf("LDI\n");
         cpu->registers[(int)operandA] = operandB;
-        cpu->PC += 3;
-        // printf("%d", cpu->registers[0]);
         break;
       case PRN:
         printf("PRN\n");
         printf("%d\n", cpu->registers[(int)operandA]);
-        cpu->PC += 2;
         break;
       default:
-        printf("%d", instruction);
+        printf("%d", IR);
         printf("Default case reached.\n");
         break;
     }
     // 4. Move the PC to the next instruction.
-    // cpu->PC += (int)(instruction >> 6);
+    // printf("%d\n", (instruction >> 6));
+    cpu->PC += 1 + (int)(IR >> 6);
     
   }
 }
