@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "stdio.h"
 
 #define DATA_LEN 6
 
@@ -9,6 +10,7 @@ void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
     // From print8.ls8
+    // need to parse an external file
     0b10000010, // LDI R0,8
     0b00000000,
     0b00001000,
@@ -33,10 +35,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
   }
 }
 
