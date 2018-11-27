@@ -95,6 +95,11 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
 
+      case MUL:
+        cpu->reg[operandA] = cpu->reg[operandB] * cpu->reg[operandA];
+        cpu->PC += 3;
+        break;
+
       default:
         printf("Default case triggered\n");
         break;
