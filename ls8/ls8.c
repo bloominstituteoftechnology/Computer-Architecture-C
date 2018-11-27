@@ -2,7 +2,7 @@
 #include "cpu.h"
 
 /**
- * Main
+ * Main *
  */
 int main(void)
 {

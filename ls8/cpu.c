@@ -1,6 +1,17 @@
 #include "cpu.h"
-
 #define DATA_LEN 6
+
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
+
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -26,6 +37,9 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+
+
+
 /**
  * ALU
  */
@@ -40,6 +54,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+
+
 /**
  * Run the CPU
  */
@@ -50,11 +66,24 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char value = cpu_ram_read(cpu, cpu->PC);
     // 2. switch() over it to decide on a course of action.
+    switch (value) {
+      case LDI:
+      break;
+      case PRN:
+      break;
+      case HLT:
+        running = 0;
+      break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
 }
+
+
+
 
 /**
  * Initialize a CPU struct
@@ -62,6 +91,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, 256*sizeof(char));
+  memset(cpu->registers, 0, 8*sizeof(char));
 }
