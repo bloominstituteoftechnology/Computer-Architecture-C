@@ -27,7 +27,7 @@ void cpu_load(char* filename, struct cpu *cpu)
     exit(1);
   }
   int address = 0;
-
+  
   while(fgets(line, sizeof line, fp) != NULL) {
     cpu->ram[address] = strtoul(line, NULL, 2);
     address++;
@@ -69,11 +69,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR;
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
   while (running) {
+    unsigned char IR;
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
