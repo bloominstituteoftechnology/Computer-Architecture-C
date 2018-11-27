@@ -25,7 +25,6 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
-  // Initial Commit
 }
 
 /**
@@ -66,6 +65,17 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  int PC = memset(0);
 
   // TODO: Zero registers and RAM
+  unsigned char registers[8] = 0;
+  int ram[256] = 0;
+}
+
+void cpu_ram_read()
+{
+}
+
+void cpu_ram_write()
+{
 }
