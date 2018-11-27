@@ -169,6 +169,24 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[operandA]= cpu->MDR;
       incr(cpu,7);
       break;
+    case AND:
+      cpu->registers[operandA] = cpu->registers[operandA] & cpu->registers[operandB];
+      break;
+    case OR:
+      cpu->registers[operandA] = cpu->registers[operandA] | cpu->registers[operandB];
+      break;
+    case XOR:
+      cpu->registers[operandA] = cpu->registers[operandA] ^ cpu->registers[operandB];
+      break;
+    case NOT:
+      cpu->registers[operandA] = ~cpu->registers[operandA];
+      break;
+    case SHL:
+      cpu->registers[operandA] = cpu->registers[operandA] << cpu->registers[operandB];
+      break;
+    case SHR:
+      cpu->registers[operandA] = cpu->registers[operandA] >> cpu->registers[operandB];
+      break;
     default:
     printf("Something went wrong\n");
 
