@@ -86,7 +86,7 @@ void cpu_reg_write(struct cpu *cpu, unsigned char place, unsigned char saving)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  unsigned char multipled; //saving for MUL case. 
   while (running)
   {
     // TODO
@@ -109,7 +109,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       break;
     case MUL:
-      unsigned char multipled = operandA * operandB;
+      multipled = operandA * operandB;
       cpu_ram_write(cpu, operandA, multipled);
       cpu->PC += 2;
       break;
