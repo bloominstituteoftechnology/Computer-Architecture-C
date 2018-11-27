@@ -11,23 +11,44 @@
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+  FILE *fp = fopen(filename, "r"); 
+  char line[32];
+
+  if(fp ==NULL){
+    printf("Error opening file\n");
+    exit(1);
+  }
+
+  int mem_index = 0; 
+
+  while(fgets(line, sizeof line, fp) != NULL){
+    //This code will only adjust for the entire line comments will be entered in. 
+    
+    printf("this is line %d | %lu\n", mem_index, strtoul(line, NULL, 2));//ignores the comments. 
+    cpu->ram[mem_index] = strtoul(line, NULL, 2); 
+    // printf("%c\n", cpu->ram[mem_index]);
+    mem_index++; 
+  }
+
+  fclose(fp); 
+
 }
 
 /**
