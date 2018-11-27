@@ -48,7 +48,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     unsigned char command;
     command = strtoul(line, NULL, 2);
     cpu_ram_write(cpu, address, command);
-    printf("%d\n", cpu->ram[address]);
+    // printf("%d\n", cpu->ram[address]);
     address++;
   }
   fclose(fp);
@@ -61,7 +61,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA]*=cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -91,16 +91,18 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        move_pc;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        move_pc;
         break;
       case HLT:
         running = 0;
         break;
     }
+    cpu->PC += move_pc;
   }
 }
 
