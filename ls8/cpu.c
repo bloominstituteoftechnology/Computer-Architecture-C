@@ -2,7 +2,6 @@
 #include "string.h"
 #include "stdio.h"
 #include "stdlib.h"
-#define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -13,25 +12,19 @@ unsigned char cpu_ram_read(struct cpu *cpu,int index) {
 void cpu_ram_write(struct cpu *cpu, int index,unsigned char value) {
   cpu->ram[index]=value;
 }
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu,char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp=fopen(filename,"r");
+  if (fp==NULL) {
+    printf("Error opening file.");
   }
-
-  // TODO: Replace this with something less hard-coded
+  int address=0;
+  char string[256];
+  while (fgets(string,sizeof(string),fp)!=NULL) {
+    unsigned char data=strtol(string,NULL,2);
+    cpu->ram[address++]=data;
+   } 
+  fclose(fp);
 }
 
 /**
@@ -63,14 +56,15 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
     unsigned char instruction=cpu_ram_read(cpu,cpu->PC);
     switch(instruction) {
-      case 0b10000010:
-        running=0;
-      case 0b01000111:
+      case LDI:
         cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
         cpu->PC+=3;
-      case 0b00000001:
+      case PRN:
         printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
         cpu->PC+=2;
+      case HLT:
+        running=0;
+        cpu->PC+=1;
     }
   }
 }
