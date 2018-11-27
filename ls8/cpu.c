@@ -80,7 +80,9 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
       case MUL:
-        alu(cpu, ALU_MUL, operandA, operandB);
+        alu(cpu, ALU_MUL, operandA, operandB); 
+        cpu->PC += 3;
+        break; 
       case HLT: 
         running = 0;
         cpu->PC++;
