@@ -30,6 +30,8 @@ enum alu_op
 
 #define LDI 0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
+#define PRN 0b01000111
+#define HLT 0b00000001
 
 // Function declarations
 
