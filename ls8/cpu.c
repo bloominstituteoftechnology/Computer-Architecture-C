@@ -61,14 +61,13 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
-
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -79,12 +78,13 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
     case 0b01000111:
-      printf("%d", cpu->registers[operandA]);
-      cpu->PC+= 2;
+      printf("%d\n", cpu->registers[operandA]);
+      cpu->PC += 2;
       break;
     case 0b00000001:
       running = 0;
       cpu->PC++;
+      //do we need this? check on it
       break;
     }
   }

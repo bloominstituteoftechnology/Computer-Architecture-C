@@ -25,6 +25,7 @@ enum alu_op {
 
 #define LDI  0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
+//ADD MORE 
 
 // Function declarations
 
