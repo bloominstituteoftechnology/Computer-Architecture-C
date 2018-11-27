@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -42,12 +44,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  return *cpu->ram[index];
+  return cpu->ram[index];
 }
 
 void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
 {
-  cpu->ram[index] = &item;
+  cpu->ram[index] = item;
 }
 
 /**
@@ -60,21 +62,36 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char PC = cpu->PC;
+    int PC = cpu->PC;
+    unsigned char instruction = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
-    switch(PC) {
-      case 0b00000001: // HLT
+    switch(instruction) {
+      case HLT:
+        printf("HLT\n");
         running = 0;
-      case 0b10000010: // LDI
-        cpu->registers[(int)operandA] = &operandB;
-      case 0b01000111: // PRN
-        printf("%s", cpu->registers[(int)operandA]);
+        break;
+      case LDI:
+        printf("LDI\n");
+        cpu->registers[(int)operandA] = operandB;
+        cpu->PC += 3;
+        // printf("%d", cpu->registers[0]);
+        break;
+      case PRN:
+        printf("PRN\n");
+        printf("%d\n", cpu->registers[(int)operandA]);
+        cpu->PC += 2;
+        break;
+      default:
+        printf("%d", instruction);
+        printf("Default case reached.\n");
+        break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC += (int)(PC >> 6);
+    // cpu->PC += (int)(instruction >> 6);
+    
   }
 }
 
