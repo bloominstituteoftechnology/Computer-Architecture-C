@@ -44,19 +44,19 @@ void cpu_ram_write(struct cpu *cpu, unsigned char PC, unsigned char input)
   cpu->ram[PC] = input; 
 }
 
-// /**
-//  * ALU
-//  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+/**
+ * ALU
+ */
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      cpu->R[0] = regA * regB;
+      break;
  
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -74,14 +74,20 @@ void cpu_run(struct cpu *cpu)
 
     switch (c) {
       case LDI: 
-        cpu->R[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
+        cpu->R[cpu->ram[cpu->PC + movePC - 1]] = cpu->ram[cpu->PC + movePC];
         cpu->PC += movePC;
         break;
 
       case PRN:
-        printf("R[0] Hex: %x\n", cpu->R[cpu->ram[cpu->PC + 1]]);
-        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + 1]]);
+        printf("R[0] Hex: %x\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
+        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC; 
+        break;
+
+      case MUL:
+        alu(cpu, 0, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        printf("R[0] after ALU runs: %d\n", cpu->R[0]);
+        cpu->PC += movePC;
         break;
 
       case HLT:
