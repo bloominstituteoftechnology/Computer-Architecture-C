@@ -72,13 +72,14 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xFF];
     unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xFF];
 
-    // for (int i = 0; i < 8; i++) {
-    //   printf("%d\n", cpu->registers[i]);
-    // }
+    // comment this out for print 8 - this will print all registers
+    for (int i = 0; i < 8; i++) {
+      printf("%d\n", cpu->registers[i]);
+    }
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
-          // 3. Do whatever the instruction should do according to the spec.
+      // 3. Do whatever the instruction should do according to the spec.
       case LDI:
       // printf(" ....... LDI ...... \n");
       cpu->registers[operandA] = operandB;
