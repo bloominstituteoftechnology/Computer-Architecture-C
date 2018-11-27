@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -14,25 +16,30 @@ void cpu_ram_write(){
   //assign that index above to value
 };
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  printf("argv -> %s\n", argv);
 
+  FILE * fp;
+  fp = fopen(argv, "r");
+  char str[30];
+  // fp = fopen("./somefile.txt", "r");
+  if (fp == NULL)
+      exit(EXIT_FAILURE);
   int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while( fgets(str, sizeof(str), fp) != NULL )
+  {
+      unsigned char binary;
+      char *endptr;
+      binary = strtoul(str, &endptr, 2);
+      if (str != endptr) {
+        cpu->ram[address++] = binary;
+      }
   }
+  // printf("cpu at address 1: %d\n\n", cpu_ram_read(cpu, 0));
 
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
+  exit(EXIT_SUCCESS);
 }
 
 /**
@@ -80,6 +87,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
       case HLT:
+        printf("\nHalting Program.");
         exit(0); //terminates the whole program insetead of exiting switch... exit is kinda opposite ish 
         break;
       default: 
