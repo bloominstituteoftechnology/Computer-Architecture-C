@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -75,12 +76,12 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
-        PC += 3;
+        cpu->PC += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        PC += 2;
+        cpu->PC += 2;
         break;
     }
     // 3. Do whatever the instruction should do according to the spec.
