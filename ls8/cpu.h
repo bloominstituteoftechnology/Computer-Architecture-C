@@ -29,6 +29,7 @@ enum alu_op {
 // const unsigned char PRN = 0b01000111; // 00000rrr
 #define PRN 0b01000111
 
+#define MUL 10100010
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *filename);
