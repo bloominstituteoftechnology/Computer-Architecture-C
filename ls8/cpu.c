@@ -29,7 +29,7 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
-char cpu_ram_read(struct cpu *cpu, int index) {
+unsigned char cpu_ram_read(int index, struct cpu *cpu) {
   return cpu->ram[index];
 }
 
@@ -79,7 +79,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         registers_index = cpu_ram_read(cpu->PC + 1, cpu);
-        printf("register index value %d\n", cpu->registers[registers_index]);
+        printf(">> register value: %d\n", cpu->registers[registers_index]);
         cpu->PC += 2;
         break;
     }
