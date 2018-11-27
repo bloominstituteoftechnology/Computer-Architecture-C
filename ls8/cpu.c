@@ -26,7 +26,7 @@ void cpu_load(struct cpu *cpu)
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
-
+  
   // TODO: Replace this with something less hard-coded
 }
 
