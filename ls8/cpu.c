@@ -66,6 +66,25 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    unsigned char curr = cpu_ram_read(cpu, cpu->PC);
+    unsigned char value1 = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char value2 = cpu_ram_read(cpu, cpu->PC + 2);
+
+    switch (curr)
+    {
+    case LDI:
+      cpu->registers[value1] = value2;
+      break;
+    case PRN:
+      printf("%d \n", cpu->registers[value1]);
+      break;
+    case HLT:
+      running = 0;
+      break;
+    }
+
+    cpu->PC += (curr >> 6) + 1;
   }
 }
 
