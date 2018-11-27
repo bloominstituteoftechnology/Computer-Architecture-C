@@ -13,8 +13,21 @@ struct cpu
 // ALU operations
 enum alu_op
 {
-  ALU_MUL
+  ALU_MUL,
   // Add more here
+  ALU_ADD,
+  ALU_SUB,
+  ALU_DIV,
+  ALU_MOD,
+  ALU_INC,
+  ALU_DEC,
+  ALU_CMP,
+  ALU_AND,
+  ALU_NOT,
+  ALU_OR,
+  ALU_XOR,
+  ALU_SHL,
+  ALU_SHR
 };
 
 // Instructions
@@ -24,6 +37,8 @@ enum alu_op
 
 #define LDI 0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
+#define HLT 0b00000001
+#define PRN 0b01000111
 
 // Function declarations
 

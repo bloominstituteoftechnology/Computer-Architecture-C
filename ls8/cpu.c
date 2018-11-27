@@ -37,8 +37,45 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_MUL:
     // TODO
     break;
-
     // TODO: implement more ALU ops
+  case ALU_ADD:
+    break;
+
+  case ALU_SUB:
+    break;
+
+  case ALU_DIV:
+    break;
+
+  case ALU_MOD:
+    break;
+
+  case ALU_INC:
+    break;
+
+  case ALU_DEC:
+    break;
+
+  case ALU_CMP:
+    break;
+
+  case ALU_AND:
+    break;
+
+  case ALU_NOT:
+    break;
+
+  case ALU_OR:
+    break;
+
+  case ALU_XOR:
+    break;
+
+  case ALU_SHL:
+    break;
+
+  case ALU_SHR:
+    break;
   }
 }
 
@@ -70,18 +107,18 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[8] = 0xF4;
   // TODO: Zero registers and RAM
   //memset(starting address of memory to be filled, value to be filled, Number of bytes to be filled starting at address[0])
-  memset(cpu->registers, 0, 8);
-  memset(cpu->ram, 0, 256);
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  memset(cpu->ram, 0, sizeof cpu->ram);
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
   //read from memory address
-  return cpu->ram[address];
+  return cpu->ram[mar];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
   //write value to memory
-  cpu->ram[address] = value;
+  cpu->ram[mar] = mdr;
 }
