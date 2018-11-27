@@ -52,7 +52,7 @@ void cpu_reg_read(struct cpu *cpu, unsigned char  place){
   printf("%d\n", cpu->registers[place] );  
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char place, unsigned char saving){
+void cpu_reg_write(struct cpu *cpu, unsigned char place, unsigned char saving){
   cpu->registers[place] = saving; 
 }
 
