@@ -1,4 +1,6 @@
-#include "cpu.h"
+```#include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -40,11 +42,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu,unsigned char index, unsigned char item) {
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
+{
   cpu->ram[index] = item;
 }
 
@@ -58,22 +62,36 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char PC = cpu->PC;
+    int PC = cpu->PC;
+    unsigned char instruction = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
     // 2. switch() over it to decide on a course of action.
-    switch(PC) {
-      case 00000001: // HLT
-        running = 0;
-      case 10000010: // LDI
-        cpu->registers[(int)operandA] = (int)operandB;
-      case 01000111: // PRN
-     printf("%d", cpu->registers[(int)operandA]);
-     }
-     cpu->PC += (int)(PC >> 6);
-
     // 3. Do whatever the instruction should do according to the spec.
+    switch(instruction) {
+      case HLT:
+        printf("HLT\n");
+        running = 0;
+        break;
+      case LDI:
+        printf("LDI\n");
+        cpu->registers[(int)operandA] = operandB;
+        cpu->PC += 3;
+        // printf("%d", cpu->registers[0]);
+        break;
+      case PRN:
+        printf("PRN\n");
+        printf("%d\n", cpu->registers[(int)operandA]);
+        cpu->PC += 2;
+        break;
+      default:
+        printf("%d", instruction);
+        printf("Default case reached.\n");
+        break;
+    }
     // 4. Move the PC to the next instruction.
+    // cpu->PC += (int)(instruction >> 6);
+    
   }
 }
 
@@ -83,20 +101,15 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  memset(cpu->registers, 0 ,7);
-   cpu->registers[7] = 0xF4;
-   cpu->PC = 0;
-   cpu->FL = 0;
-   memset(cpu->ram, 0, 256);
-
-
   // TODO: Zero registers and RAM
-}
+  memset(cpu->registers, 0, 7);
+  cpu->registers[7] = 0xF4;
+  cpu->PC = 0;
+  cpu->FL = 0;
+  memset(cpu->ram, 0, 256);
+}```
 
-// unsigned char *cpu_ram_read(struct cpu *cpu, unsigned char index) {
-//   return cpu->ram[index];
-// }
+Message Input
 
-// void cpu_ram_write(struct cpu *cpu,unsigned char index, unsigned char item) {
-//   cpu->ram[index] = item;
-// }
+
+Message Grant Reighard 
