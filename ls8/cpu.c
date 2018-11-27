@@ -49,7 +49,6 @@ char cpu_ram_read(struct cpu *cpu, int index)
 void cpu_ram_write(struct cpu *cpu, int index, int item)
 {
   cpu->ram[index] = item;
-  printf("index: %d, item: %d\n");
 }
 
 /**
@@ -69,12 +68,12 @@ void cpu_run(struct cpu *cpu)
     unsigned char instruction = cpu->ram[c];
     switch(instruction) {
       case LDI:
-        cpu_ram_write(cpu, cpu->ram[c+1], cpu->ram[c+2]);
-        printf("ram write\n");
+        cpu->registers[(cpu->ram[c+1])] = cpu->ram[c+2];
+        printf("ram write: %d\n", cpu->registers[0]);
         cpu->PC += 3;
         break;
       case PRN:
-        printf("print: %d\n", cpu_ram_read(cpu, cpu->ram[c+1]));
+        printf("print: %d\n", cpu->registers[(cpu->ram[c+1])]);
         cpu->PC += 2;
         break;
       case HLT:
