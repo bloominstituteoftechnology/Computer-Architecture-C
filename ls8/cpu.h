@@ -15,7 +15,9 @@ struct cpu {
 // ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {
   ALU_ADD,
-	ALU_MUL
+	ALU_MUL,
+  ALU_SUB,
+  ALU_DIV
 };
 
 // Instructions
@@ -31,14 +33,16 @@ enum alu_op {
 #define PRN 0b01000111 // 71
 #define RET 0b00010001 // 17
 #define LD 0b10000011 // 131
-#define ST 0b10000100 //132
+#define ST 0b10000100 // 132
 #define PRA 0b01001000 // 72 
 #define IRET 0b00010011 // 19
 #define MUL 0b10100010 // 162
 #define CMP 0b10100111 // 167
 #define JEQ 0b01010101 // 85
 #define INC 0b01100101 // 101
-#define DEC 0b01100110 //102
+#define DEC 0b01100110 // 102
+#define DIV 0b10100011 // 163
+#define SUB 0b10100001 // 161
 #define JNE 0b01010110 // 86
 #define POP 0b01000110 // 70
 #define PUSH 0b01000101 // 69
