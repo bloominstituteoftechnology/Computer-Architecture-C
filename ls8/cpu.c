@@ -12,6 +12,17 @@ unsigned char cpu_ram_read(struct cpu *cpu,int index) {
 void cpu_ram_write(struct cpu *cpu, int index,unsigned char value) {
   cpu->ram[index]=value;
 }
+unsigned char multiply(unsigned char m, unsigned char n) {
+  unsigned char ans=0;
+  while (n>0) {
+    if (n&1) {
+      ans+=m;
+    }
+    m=m<<1;
+    n=n>>1;
+  }
+  return ans;
+}
 void cpu_load(struct cpu *cpu,char *filename)
 {
   FILE *fp=fopen(filename,"r");
@@ -19,7 +30,7 @@ void cpu_load(struct cpu *cpu,char *filename)
     printf("Error opening file.");
   }
   int address=0;
-  char string[256];
+  char string[2048];
   while (fgets(string,sizeof(string),fp)!=NULL) {
     unsigned char data=strtol(string,NULL,2);
     cpu->ram[address++]=data;
@@ -59,12 +70,19 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
         cpu->PC+=3;
+        break;
       case PRN:
         printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
         cpu->PC+=2;
+        break;
+      case MUL:
+        cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=multiply(cpu->registers[cpu_ram_read(cpu,cpu->PC+1)],cpu->registers[cpu_ram_read(cpu,cpu->PC+2)]);
+        cpu->PC+=3;
+        break;
       case HLT:
         running=0;
         cpu->PC+=1;
+        break;
     }
   }
 }
