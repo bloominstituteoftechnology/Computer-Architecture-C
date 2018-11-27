@@ -101,7 +101,7 @@ void cpu_run(struct cpu *cpu)
     {
 
     case LDI:
-      cpu_ram_write(cpu, operandA, operandB);
+      cpu_reg_write(cpu, operandA, operandB);
       cpu->PC += 2;
       break;
     case PRN:
@@ -110,7 +110,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       multipled = operandA * operandB;
-      cpu_ram_write(cpu, operandA, multipled);
+      cpu_reg_write(cpu, operandA, multipled);
       cpu->PC += 2;
       break;
     case HLT:
