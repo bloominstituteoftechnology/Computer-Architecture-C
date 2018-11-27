@@ -23,7 +23,9 @@ void cpu_load(struct cpu *cpu, char *argv[])
   }
   
   while(fgets(data, sizeof(data), fp) != NULL) {
+      
       unsigned char byte = strtoul(data, NULL, 2);
+      
       if(data == NULL){
         continue;
       }
@@ -61,7 +63,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MOD:
       reg[regA] = reg[regA]%reg[regB];
       break;
-
   }
 }
 
@@ -124,6 +125,16 @@ void cpu_run(struct cpu *cpu)
         PC += shift;
         break;
 
+      case POP:
+        reg[operandA] = cpu_ram_read(cpu, reg[SP]++);
+        PC += shift;
+        break;
+
+      case PUSH:
+        cpu_ram_write(cpu, --reg[SP], reg[operandA]);
+        PC += shift;
+        break;
+
       default:
         printf("Unrecognized instruction %02x: %02x\n", PC, IR);
         exit(2);
@@ -146,6 +157,7 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
   cpu->PC = 0x00;
+  cpu->reg[SP] = 0xF4;
 
 }
 

@@ -1,10 +1,10 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-#define MAX_ADDRESS 0xff
-#define SP 7
-#define IS 6
-#define IM 5
+#define MAX_ADDRESS 0xff // Max address 0xff = 255
+#define SP 7 // Stack pointer
+#define IS 6 // Interrupt status
+#define IM 5 // Interrupt mask
 
 // Holds all information about the CPU
 struct cpu {
