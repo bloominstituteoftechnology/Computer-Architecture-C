@@ -38,44 +38,44 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO
     break;
     // TODO: implement more ALU ops
-  case ALU_ADD:
-    break;
+    // case ALU_ADD:
+    //   break;
 
-  case ALU_SUB:
-    break;
+    // case ALU_SUB:
+    //   break;
 
-  case ALU_DIV:
-    break;
+    // case ALU_DIV:
+    //   break;
 
-  case ALU_MOD:
-    break;
+    // case ALU_MOD:
+    //   break;
 
-  case ALU_INC:
-    break;
+    // case ALU_INC:
+    //   break;
 
-  case ALU_DEC:
-    break;
+    // case ALU_DEC:
+    //   break;
 
-  case ALU_CMP:
-    break;
+    // case ALU_CMP:
+    //   break;
 
-  case ALU_AND:
-    break;
+    // case ALU_AND:
+    //   break;
 
-  case ALU_NOT:
-    break;
+    // case ALU_NOT:
+    //   break;
 
-  case ALU_OR:
-    break;
+    // case ALU_OR:
+    //   break;
 
-  case ALU_XOR:
-    break;
+    // case ALU_XOR:
+    //   break;
 
-  case ALU_SHL:
-    break;
+    // case ALU_SHL:
+    //   break;
 
-  case ALU_SHR:
-    break;
+    // case ALU_SHR:
+    //   break;
   }
 }
 
@@ -90,7 +90,22 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char ir = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // 2. switch() over it to decide on a course of action.
+    switch (ir)
+    {
+    case LDI:
+
+      break;
+    case PRN:
+      // printf()
+      break;
+    case HLT:
+      running = 0;
+      break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
