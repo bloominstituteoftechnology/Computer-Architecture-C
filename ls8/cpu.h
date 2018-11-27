@@ -33,6 +33,10 @@ enum alu_op {
 #define ADD  0b10100000
 #define SUB  0b10100001
 #define DIV  0b10100011
+#define POP  0b01000110
+#define PUSH 0b01000101
+#define INC  0b01100101
+#define DEC  0b01100110
 
 // TODO: more instructions here. These can be used in cpu_run().
 

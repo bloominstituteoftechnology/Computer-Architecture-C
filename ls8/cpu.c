@@ -19,6 +19,14 @@ void cpu_ram_write(struct cpu *cpu)
     }   
 }
 
+void dec(struct cpu *cpu, unsigned char regA){
+  cpu->registers[regA] -= 1; 
+}
+void incr(struct cpu *cpu, unsigned char regA){
+  cpu->registers[regA] += 1; 
+}
+
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -92,17 +100,40 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
-{
+{      
+
   int running = 1; // True until we get a HLT instruction
   
   while (running) {
+    int inc; 
+    unsigned char operandA;
+    unsigned char operandB;
+
+ 
   //   // TODO
   //   // 1. Get the value of the current instruction (in address PC).
+
+
       cpu->MAR = cpu->PC;
-     cpu->IR = cpu_ram_read(cpu);
-    unsigned char operandA = cpu->ram[cpu->PC + 1];
-    unsigned char operandB = cpu->ram[cpu->PC + 2]; 
-    // printf("%d \n",cpu->PC);
+      cpu->IR = cpu_ram_read(cpu);
+      if(cpu->IR >= 128){
+        inc =3;
+
+        cpu->MAR = cpu->PC + 1;
+        operandA = cpu_ram_read(cpu);
+
+        cpu->MAR = cpu->PC + 2;
+        operandB = cpu_ram_read(cpu); 
+      }
+      else if(cpu->IR >= 64){
+        inc=2;
+
+        cpu->MAR = cpu->PC + 1;
+        operandA = cpu_ram_read(cpu);
+      }
+      else{
+        inc = 1;
+      }
   //   // 2. switch() over it to decide on a course of action.
     switch (cpu->IR){
     case HLT:
@@ -126,24 +157,24 @@ void cpu_run(struct cpu *cpu)
     case SUB:
       alu(cpu,ALU_SUB,operandA,operandB);
       break;
+    case PUSH:
+      dec(cpu,7);
+      cpu->MAR = cpu->registers[7];
+      cpu->MDR = cpu->registers[operandA];
+      cpu_ram_write(cpu);
+      break;
+    case POP:
+      cpu->MAR = cpu->registers[7];
+      cpu_ram_read(cpu);
+      cpu->registers[operandA]= cpu->MDR;
+      incr(cpu,7);
+      break;
     default:
     printf("Something went wrong\n");
 
     }
+        cpu->PC +=inc;
 
-
-  //   // 3. Do whatever the instruction should do according to the spec.
-  //   // 4. Move the PC to the next instruction.
-  if(cpu->IR >= 128){
-      cpu->PC +=3;
-  }
-  else if(cpu->IR >= 64){
-    cpu->PC +=2;
-  }
-  else{
-    cpu->PC +=1;
-  }
-    
   }
 }
 
