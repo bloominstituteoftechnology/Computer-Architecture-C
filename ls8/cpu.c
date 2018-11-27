@@ -1,3 +1,4 @@
+// header file to make access to CPU/ALU functions:
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -5,6 +6,15 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+unsigned char cpu_ram_read(struct cpu *cpu, int index){
+  // unsigned because we need a return for the read
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char *value){
+  // assign value to array element at given index.
+  cpu->ram[index]=*value;
+}
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -62,6 +72,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->PC = 0;
+  cpu->ram = calloc(256, sizeof(unsigned char))
   // TODO: Zero registers and RAM
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }

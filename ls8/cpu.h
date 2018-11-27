@@ -4,9 +4,12 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
-  // registers (array)
+  // PC: program counter obv int
+	unsigned char *PC;
+  // registers (array) for now set to 8
+	unsigned char *registers[8];
   // ram (array)
+	unsigned char *ram;
 };
 
 // ALU operations
