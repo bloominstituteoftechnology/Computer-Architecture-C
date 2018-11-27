@@ -109,6 +109,7 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         unsigned char multipled = operandA * operandB; 
         cpu_ram_write(cpu, operandA, multipled); 
+        cpu->PC += 2; 
         break; 
       case HLT:
         //
