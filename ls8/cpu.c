@@ -1,7 +1,17 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
+
+unsigned char cpu_ram_read(struct cpu *cpu, int storage) {
+  return cpu->ram[storage];
+}
+
+void cpu_ram_write(struct cpu *cpu, int storage, unsigned char value) {
+  cpu->ram[storage] = value;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array.
  */
@@ -53,6 +63,25 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+      switch(IR) {
+
+      case HLT:
+        running = 0;
+        break;
+
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+    }
   }
 }
 
@@ -68,10 +97,3 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0, sizeof(cpu->registers));
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char storage) {
-  return cpu->ram[storage];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char storage, unsigned char value) {
-  cpu->ram[storage] = value;
-}
