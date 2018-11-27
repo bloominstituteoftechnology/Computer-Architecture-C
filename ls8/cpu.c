@@ -21,11 +21,11 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(1); 
   }
 
-  int address = 0;
+  int address = 0xF3;
 
   while(fgets(line, sizeof(line), fp) != NULL) {
     cpu->ram[address] = strtoul(line, NULL, 2); 
-    address++; 
+    address--; 
   }
   
   fclose(fp);
@@ -74,26 +74,28 @@ void cpu_run(struct cpu *cpu)
 
     switch (c) {
       case LDI: 
-        cpu->R[cpu->ram[cpu->PC + movePC - 1]] = cpu->ram[cpu->PC + movePC];
-        cpu->PC += movePC;
+        cpu->R[cpu->ram[cpu->PC - movePC + 1]] = cpu->ram[cpu->PC - movePC];
+        printf("Load is %d\n", cpu->ram[cpu->PC - movePC]);
+        printf("R[0] is %d\n", cpu->R[0]);
+        printf("R[1] is %d\n", cpu->R[1]);
+        cpu->PC -= movePC;
         break;
 
       case PRN:
-        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
-        cpu->PC += movePC; 
+        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC - movePC]]);
+        cpu->PC -= movePC; 
         break;
 
       case MUL:
-        alu(cpu, 0, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
-        printf("R[0] after ALU runs: %d\n", cpu->R[0]);
-        cpu->PC += movePC;
+        alu(cpu, 0, cpu->R[cpu->ram[cpu->PC - movePC + 1]], cpu->R[cpu->ram[cpu->PC - movePC]]);
+        cpu->PC -= movePC;
         break;
 
       case HLT:
         running = 0;
         break; 
     }
-    cpu->PC += 1; 
+    cpu->PC -= 1; 
     
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -106,7 +108,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0; 
+  cpu->PC = 0xF3; 
   
   // TODO: Zero registers and RAM
   memset(cpu->R, 0, 7 * sizeof(cpu->R[0]));
