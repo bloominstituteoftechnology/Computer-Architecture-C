@@ -42,6 +42,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  // access RAM inside struct cpu
+  cpu->ram[index] = value;
+}
+
 /**
  * Run the CPU
  */
@@ -49,30 +60,31 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu->ram[cpu->PC];
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
     switch (IR) {
             case HLT:
-                int running = 0;
-                exit();
+                running = 0;
+                break;
 
             case LDI:
-                unsigned char index = cpu->ram[cpu->PC + 1];
-                cpu->registers[index] = cpu->ram[cpu->PC + 2];
+                cpu->registers[operandA] = operandB;
                 cpu->PC += 3;
                 break;
 
             case PRN:
-                unsigned char index = cpu->ram[cpu->PC + 1];
-                printf("Saved value: %d\n", cpu->registers[index]);
+                printf("Saved value: %d\n", cpu->registers[operandA]);
                 cpu->PC += 2;
                 break;
         }
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
@@ -87,14 +99,3 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
-
-// void cpu_ram_read(struct cpu *cpu)
-// {
-//   // access RAM inside struct cpu
-//   // cpu->ram
-// }
-
-// void cpu_ram_write(struct cpu *cpu)
-// {
-//   // access RAM inside struct cpu
-// }
