@@ -87,7 +87,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     unsigned char move_pc = (IR >> 6) + 1;
 
-
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -95,8 +94,18 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        break;
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        break;
+      case PUSH:
+      // 1. Decrement the `SP`.
+      // 2. Copy the value in the given register to the address pointed to by `SP`.
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
         break;
       case HLT:
         running = 0;
