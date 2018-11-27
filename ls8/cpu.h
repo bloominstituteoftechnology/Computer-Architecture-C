@@ -8,8 +8,8 @@ struct cpu {
   int MAR;
   int MDL;
   int FL;
-  int *registers[8];
-  char *ram[256];
+  int registers[8];
+  char ram[256];
 };
 
 // ALU operations

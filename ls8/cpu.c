@@ -22,9 +22,8 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = &data[i];
+    cpu->ram[address++] = data[i];
   }
-
   // TODO: Replace this with something less hard-coded
 }
 
@@ -44,12 +43,13 @@ void cpu_load(struct cpu *cpu)
 
 char cpu_ram_read(struct cpu *cpu, int index)
 {
-  return *cpu->ram[index];
+  return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, char item)
+void cpu_ram_write(struct cpu *cpu, int index, int item)
 {
-  cpu->ram[index] = &item;
+  cpu->ram[index] = item;
+  printf("index: %d, item: %d\n");
 }
 
 /**
@@ -66,18 +66,25 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     int c = cpu->PC;
-    switch(c) {
+    unsigned char instruction = cpu->ram[c];
+    switch(instruction) {
+      case LDI:
+        cpu_ram_write(cpu, cpu->ram[c+1], cpu->ram[c+2]);
+        printf("ram write\n");
+        cpu->PC += 3;
+        break;
       case PRN:
-        printf("hey\n");
-        cpu->PC++;
+        printf("print: %d\n", cpu_ram_read(cpu, cpu->ram[c+1]));
+        cpu->PC += 2;
         break;
       case HLT:
         running = 0;
-        printf("i done quit, %d\n", cpu->PC);
+        printf("i done quit\n");
         break;
       default:
-        printf("default yo, %d\n", cpu->PC);
-        cpu->PC++;
+        printf("hi, i missed something\n");
+        running = 0;
+        break;
     }
   }
 }
