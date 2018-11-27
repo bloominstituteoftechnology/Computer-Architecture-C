@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "stdio.h"
 #include "string.h"
+#include "stdlib.h"
 #define DATA_LEN 6
 
 unsigned char read_ram(struct cpu *cpu, unsigned char address)
@@ -34,17 +35,21 @@ void cpu_load(struct cpu *cpu, char *filename)
   // for (int i = 0; i < DATA_LEN; i++) {
   //   cpu->ram[address++] = data[i];
   // }
-  FILE *fp = fopen(filename, "ls8.c");
+  FILE *fp = fopen(filename,"r");
   char line[8192];
+  unsigned address = 0; 
 
   if(fp == NULL){
     printf("Error opening file\n");
     exit(1);
   }
-  int mem_index = 0;
-  while(fgets(line, sizeof line, fp) !=NULL){
-    memory[mem_index] = strtoul(line, NULL, 10);
-    mem_index++;
+  // int mem_index = 0;
+  while(fgets(line, sizeof line, fp) != NULL){
+    // memory[mem_index] = strtoul(line, NULL, 10);
+    // mem_index++;
+    unsigned char b;
+    b = strtoul(line, NULL, 2);
+    write_ram(cpu, address++, b);
   }
   fclose(fp);
   // TODO: Replace this with something less hard-coded
@@ -90,6 +95,8 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
+      case MUL:
+        printf("%d\n", cpu->PC);
       case HLT: 
         running = 0;
         cpu->PC++;
