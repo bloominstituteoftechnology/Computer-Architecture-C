@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "stdio.h"
+#include "string.h"
 
 #define DATA_LEN 6
 
@@ -41,8 +42,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
     case ALU_ADD:
       cpu->registers[regA] += cpu->registers[regB];
+      break;
   }
 }
+
+// Helper functions cpu_ram_read() and cpu_ram_write()
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar){
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr){
+  cpu->ram[mar] = mdr;
+}
+
 
 /**
  * Run the CPU
@@ -60,63 +72,65 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xFF];
     unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xFF];
 
-    for (int i = 0; i<8; i++) {
-      printf("%d\n", cpu->registers[i]);
-    }
+    // for (int i = 0; i < 8; i++) {
+    //   printf("%d\n", cpu->registers[i]);
+    // }
 
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
           // 3. Do whatever the instruction should do according to the spec.
       case LDI:
-      printf(" ....... LDI ...... \n");
+      // printf(" ....... LDI ...... \n");
       cpu->registers[operandA] = operandB;
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      cpu->PC += 3;
       break;
 
       case PRN:
-      printf(" ....... PRN ...... \n");
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // printf(" ....... PRN ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       printf("%d\n", cpu->registers[operandA]);
+      cpu->PC += 2;
       break;
 
-      case ADD:
-      printf(" ....... ADD ...... \n");
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
-      alu(cpu, ALU_ADD, operandA, operandB);
-      break;
+      // case ADD:
+      // printf(" ....... ADD ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // alu(cpu, ALU_ADD, operandA, operandB);
+      // break;
 
-      case MUL:
-      printf(" ....... MUL ...... \n");
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
-      alu(cpu, ALU_MUL, operandA, operandB);
-      break;
+      // case MUL:
+      // printf(" ....... MUL ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // alu(cpu, ALU_MUL, operandA, operandB);
+      // break;
 
-      case PRA:
-      printf(" ....... PRA ...... \n");
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
-      printf("%d\n, registers[operandA]");
-      break;
+      // case PRA:
+      // printf(" ....... PRA ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // printf("%d\n, registers[operandA]");
+      // break;
 
       case HLT:
-      printf(" ....... HLT ...... \n");
-      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      // printf(" ....... HLT ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       running = 0;
       break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
+    // cpu->PC += (IR >> 6) + 1;
   }
 }
 
