@@ -40,11 +40,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   while (fgets(line, sizeof line, fp) != NULL)
   {
-    //This code will only adjust for the entire line comments will be entered in.
-
-    printf("this is line %d | %lu\n", mem_index, strtoul(line, NULL, 2)); //ignores the comments.
     cpu->ram[mem_index] = strtoul(line, NULL, 2);
-    // printf("%c\n", cpu->ram[mem_index]);
     mem_index++;
   }
 
