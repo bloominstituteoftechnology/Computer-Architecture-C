@@ -57,6 +57,8 @@ void cpu_load(struct cpu *cpu)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char operandA = read_ram(cpu, cpu->PC + 1);
+  unsigned char operandB = read_ram(cpu, cpu->PC + 2);
 
   while (running) {
     // TODO
@@ -64,21 +66,20 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    int c = cpu->ram[cpu->PC];
-    unsigned char A = read_ram(cpu, cpu->PC + 1);
-    unsigned char B = read_ram(cpu, cpu->PC + 2);
-    switch(c)
+    unsigned char instruction =  read_ram(cpu, cpu->PC);
+    switch(instruction)
     {
       case LDI:
-        cpu->registers[cpu->ram[A]] = B;
+        cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
       case PRN:
-        printf("%d\n", cpu->registers[A]);
+        printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
       case HLT: 
         running = 0;
+        cpu->PC++;
         break; 
     }
   }
@@ -92,7 +93,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   // TODO: Zero registers and RAM
-  memset(cpu->ram, 0, sizeof(cpu->ram));
-  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, 8);
+  memset(cpu->registers, 0, 256);
 }
 
