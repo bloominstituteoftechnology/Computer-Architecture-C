@@ -1,31 +1,53 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define DATA_LEN 6
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  // access RAM inside struct cpu
+  cpu->ram[index] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
-{
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+void cpu_load(struct cpu *cpu, char *file)
+{ 
+    //open a file
+    //read its contents line by line
+    //save data into ram
+    // ignore blank lines and everything after #
+    // need to convert str to int using strtoul()
 
-  int address = 0;
+    FILE * fp;
+    fp = fopen(file, "r");
+    char str[30];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+    if (fp == NULL) {
+      printf("Error: Could not open file\n");
+      exit(1);
+    }
 
-  // TODO: Replace this with something less hard-coded
+    int address = 0;
+
+    while( fgets(str, sizeof(str), fp) != NULL )
+    {
+        unsigned char binary;
+        char *endptr;
+        binary = strtoul(str, &endptr, 2);
+        if (str != endptr) {
+            cpu->ram[address++] = binary;
+        }
+    }
+     //printf("cpu at address 1: %d\n\n", cpu_ram_read(cpu, 0));
+
+    fclose(fp);
 }
 
 /**
@@ -42,17 +64,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
-{
-  // access RAM inside struct cpu
-  cpu->ram[index] = value;
-}
-
 /**
  * Run the CPU
  */
@@ -67,6 +78,7 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    //int move_pc = (IR >> 6) + 1;
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -84,6 +96,9 @@ void cpu_run(struct cpu *cpu)
                 printf("Saved value: %d\n", cpu->registers[operandA]);
                 cpu->PC += 2;
                 break;
+
+            default:
+              exit(1);
         }
   }
 }
