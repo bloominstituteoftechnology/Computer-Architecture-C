@@ -6,7 +6,7 @@
 struct cpu {
   // TODO
   // PC
-  unsigned char PC, IR, MAR, MDR;
+  unsigned char PC;
   // registers (array)
   unsigned char reg[8];
   // ram (array)
@@ -32,7 +32,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
