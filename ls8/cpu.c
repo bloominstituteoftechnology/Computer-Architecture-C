@@ -75,18 +75,19 @@ void cpu_run(struct cpu *cpu)
     {
     case 0b10000010:
       cpu->registers[operandA] = operandB;
-      cpu->PC += 3;
+      // cpu->PC += 3;
       break;
     case 0b01000111:
       printf("%d\n", cpu->registers[operandA]);
-      cpu->PC += 2;
+      // cpu->PC += 2;
       break;
     case 0b00000001:
       running = 0;
-      cpu->PC++;
+      // cpu->PC++;
       //do we need this? check on it
       break;
     }
+    cpu->PC += (instruction >> 6) + 1;
   }
 }
 
