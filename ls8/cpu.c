@@ -1,8 +1,8 @@
 #include "cpu.h"
 #include <stdio.h> 
 #include <string.h> 
+#include <stdlib.h>
 
-#define DATA_LEN 6
 
 
 
@@ -11,26 +11,28 @@
  */
 
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r");
+  char line[9999];
+
+  if(fp == NULL) {
+    printf("Error opening file\n");
+    exit(1); 
+  }
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while(fgets(line, sizeof(line), fp) != NULL) {
+    cpu->ram[address] = strtoul(line, NULL, 2); 
+    address++; 
   }
+  
+  fclose(fp);
+}
 
   // TODO: Replace this with something less hard-coded
-}
+
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char PC) 
 {
@@ -51,7 +53,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char PC, unsigned char input)
 //     case ALU_MUL:
 //       // TODO
 //       break;
-
+ 
 //     // TODO: implement more ALU ops
 //   }
 // }
@@ -68,16 +70,18 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     int c = cpu->ram[cpu->PC]; 
     // 2. switch() over it to decide on a course of action.
+    unsigned char movePC = (cpu->ram[cpu->PC] >> 6);
+
     switch (c) {
       case LDI: 
         cpu->R[cpu->ram[cpu->PC + 1]] = cpu->ram[cpu->PC + 2];
-        cpu->PC += 2;
+        cpu->PC += movePC;
         break;
 
       case PRN:
         printf("R[0] Hex: %x\n", cpu->R[cpu->ram[cpu->PC + 1]]);
         printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + 1]]);
-        cpu->PC += 1; 
+        cpu->PC += movePC; 
         break;
 
       case HLT:
@@ -104,3 +108,5 @@ void cpu_init(struct cpu *cpu)
   cpu->R[7] = 0xF4; 
   memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
+
+

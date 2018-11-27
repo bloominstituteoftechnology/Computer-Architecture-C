@@ -24,11 +24,12 @@ enum alu_op {
 #define LDI  0b10000010
 #define PRN  0b01000111
 #define HLT  0b00000001
+#define MUL  0b10100010
 
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
