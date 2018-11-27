@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+#define SP 5
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
   return cpu->ram[address];
@@ -53,6 +54,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
+
+unsigned char cpu_pop(struct cpu *cpu) {
+  unsigned char ret = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return ret;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val) {
+  cpu->registers[SP]--; //b/c it grows downward
+  cpu->ram[cpu->registers[SP]] = val;
+}
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -74,6 +87,12 @@ void cpu_run(struct cpu *cpu)
         break;
       case MUL:
         alu(cpu, ALU_MUL, param1, param2);
+        break;
+      case PUSH:
+        cpu_push(cpu, cpu->registers[param1]);
+        break;
+      case POP:
+        cpu->registers[param1] = cpu_pop(cpu);
         break;
       case HLT:
         running = 0;
