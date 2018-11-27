@@ -80,9 +80,8 @@ void cpu_run(struct cpu *cpu)
         printf("register value %d\n", cpu->registers[register_index]);
         cpu->pc += 2;
         break;
-      case LDI:
-        
-        num = cpu_ram_read(cpu->pc + 2, cpu);
+      case LDI:   
+        num = cpu_ram_read(cpu->pc + 2, cpu); 
         cpu->registers[cpu_ram_read(cpu->pc + 1, cpu)] = num;
         cpu->pc += 3;
         break; 
