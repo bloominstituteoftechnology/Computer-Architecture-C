@@ -16,24 +16,37 @@ unsigned char read_ram(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+int memory[256]; 
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
+  FILE *fp = fopen(filename, "ls8.c");
+  char line[8192];
+
+  if(fp == NULL){
+    printf("Error opening file\n");
+    exit(1);
   }
-
+  int mem_index = 0;
+  while(fgets(line, sizeof line, fp) !=NULL){
+    memory[mem_index] = strtoul(line, NULL, 10);
+    mem_index++;
+  }
+  fclose(fp);
   // TODO: Replace this with something less hard-coded
 }
 
@@ -66,8 +79,8 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    unsigned char instruction =  read_ram(cpu, cpu->PC);
-    switch(instruction)
+    unsigned char i =  read_ram(cpu, cpu->PC);
+    switch(i)
     {
       case LDI:
         cpu->registers[operandA] = operandB;
