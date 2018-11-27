@@ -85,7 +85,7 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
       // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
       // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
-      cpu->PC += 3;
+      // cpu->PC += 3;
       break;
 
       case PRN:
@@ -94,7 +94,7 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
       // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       printf("%d\n", cpu->registers[operandA]);
-      cpu->PC += 2;
+      // cpu->PC += 2;
       break;
 
       // case ADD:
@@ -130,7 +130,7 @@ void cpu_run(struct cpu *cpu)
       break;
     }
     // 4. Move the PC to the next instruction.
-    // cpu->PC += (IR >> 6) + 1;
+    cpu->PC += (IR >> 6) + 1;
   }
 }
 
