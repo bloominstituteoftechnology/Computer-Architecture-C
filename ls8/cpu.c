@@ -51,12 +51,40 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  printf("\nCPU running\n");
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu->ram[cpu->PC];
+    unsigned char operandA = cpu->ram[(cpu->PC + 1) & 0xFF];
+    unsigned char operandB = cpu->ram[(cpu->PC + 2) & 0xFF];
+
+    for (int i = 0; i<8; i++) {
+      printf("%d\n", cpu->registers[i]);
+    }
+
     // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
+    switch(IR) {
+          // 3. Do whatever the instruction should do according to the spec.
+      case LDI:
+      printf(" ....... LDI ...... \n");
+      cpu->registers[operandA] = operandB;
+      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      break;
+
+      case HLT:
+      printf(" ....... HLT ...... \n");
+      printf("RAM at F2: %d\n" , cpu->ram[(cpu->PC + 2) & 0xF2]);
+      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      running = 0;
+      break;
+    }
     // 4. Move the PC to the next instruction.
+    cpu->PC += (IR >> 6) + 1;
   }
 }
 
