@@ -2,6 +2,14 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, int index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
