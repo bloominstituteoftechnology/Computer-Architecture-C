@@ -22,12 +22,12 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0x82
+#define LDI  0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
-#define HLT 0x01
+#define HLT 0b00000001
 
 // const unsigned char PRN = 0b01000111; // 00000rrr
-#define PRN 0x47
+#define PRN 0b01000111
 
 // Function declarations
 
