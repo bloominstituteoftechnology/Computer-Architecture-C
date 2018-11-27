@@ -98,6 +98,10 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
+      case MUL:
+        cpu->registers[operandA] *= cpu->registers[operandB];
+        cpu->PC += 3;
+        break;
       default:
         printf("Unknown Command. Exiting...\n");
         exit(3);
