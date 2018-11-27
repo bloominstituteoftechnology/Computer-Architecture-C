@@ -65,11 +65,11 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (at the address PC).
-    unsigned char curr_instruct = cpu_ram_read(cpu, cpu->PC);
+    unsigned char curr_instruct = cpu_ram_read(cpu, cpu->PC); //LDI
     // 2. switch() over it to decide on a course of action.
 
-    unsigned char value1 = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char value2 = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char value1 = cpu_ram_read(cpu, cpu->PC + 1); // value at R0
+    unsigned char value2 = cpu_ram_read(cpu, cpu->PC + 2); // 8
 
     switch (curr_instruct)
     {
@@ -78,16 +78,17 @@ void cpu_run(struct cpu *cpu)
 
       cpu->reg[value1] = value2;
 
-      cpu->PC += 3;
+      cpu->PC += 3; //PRN
 
       break;
 
     case PRN:
-      printf("%u\n", cpu->reg[value1]);
+      printf("Printing %u\n", cpu->reg[value1]);
       cpu->PC += 2;
       break;
 
     case HLT:
+      printf("Halting program\n");
       exit(0);
       break;
 
