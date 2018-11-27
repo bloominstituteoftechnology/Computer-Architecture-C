@@ -20,25 +20,22 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char data[1024];
+  unsigned char address = 0;
+  
+  fp = fopen(filename, "r");
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while (fgets(data, sizeof data, fp) != NULL) {
+    unsigned char code = strtoul(data, NULL, 2);
+    if(data[0] == '\n' || data[0] == '#') {
+      continue;
+    }
+    cpu->ram[address++] = code;
   }
-
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -48,10 +45,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
-      break;
-
-    // TODO: implement more ALU ops
+    cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
+    break;
   }
 }
 
@@ -84,6 +79,9 @@ void cpu_run(struct cpu *cpu)
       printf("\nHLT: Program halted\n\n");
       running = 0;
       exit(0);
+    case MUL:
+      alu(cpu, ALU_MUL, operand_a, operand_b);
+      break;
     default:
       printf("\nThe instruction doesn't exist\n\n");
       exit(1);
