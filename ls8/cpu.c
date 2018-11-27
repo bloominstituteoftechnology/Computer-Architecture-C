@@ -86,39 +86,7 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break; 
     }
-      /*
-      RAM = {
-        // From print8.ls8
-        0b10000010, // LDI R0,8   Index/Address 0
-        0b00000000,               Index/Address 1
-        0b00001000,               Index/Address 2
-        0b01000111, // PRN R0     Index/Address 3
-        0b00000000,               Index/Address 4
-        0b00000001  // HLT        Index/Address 5
-      };
-      cpu->pc = 3; // keeps track of which index _in RAM_ we are in
-      When we start the program, we're going to read the instruction _in RAM+ that's at index PC
-      Since cpu->pc == 3, we read the PRN at index/address 3
-    // 3. Do whatever the instruction should do according to the spec.
-    */
-    // 4. Move the PC to the next instruction.
-    // cpu->pc + 1
-    // int number = 1;
-    // switch (number) {
-    //   case 1:
-    //     printf("lonely");
-    //     break;
-    //   case 7:
-    //     printf("lucky");
-    //     break;
-    //   case 69; 
-    //     printf("--cking"); 
-    //     break;
-    //   default:
-    //     printf("wtf");
-    //     break;
-    // }
-  }
+   }
 }
 
 /**
@@ -136,6 +104,33 @@ void cpu_init(struct cpu *cpu)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Example Code for reference
 // switch(expression) {
 
 //    case constant-expression  :
