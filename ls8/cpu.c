@@ -1,4 +1,4 @@
-```#include "cpu.h"
+#include "cpu.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -107,9 +107,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   cpu->FL = 0;
   memset(cpu->ram, 0, 256);
-}```
+}
 
-Message Input
-
-
-Message Grant Reighard 
