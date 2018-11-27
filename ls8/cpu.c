@@ -1,5 +1,6 @@
 #include "cpu.h"
-#include "stdio.h"
+#include <stdio.h> 
+#include <string.h> 
 
 #define DATA_LEN 6
 
@@ -85,14 +86,7 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0; 
   
   // TODO: Zero registers and RAM
-  for (int i = 0; i < 7; i++) {
-    cpu->R[i] = 0;
-    }
-
+  memset(cpu->R, 0, 7 * sizeof(cpu->R[0]));
   cpu->R[7] = 0xF4; 
-
-  int address = 0;
-  for (int i = 0; i < 256; i++) {
-    cpu->ram[address++] = 0;   
-  }
+  memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
