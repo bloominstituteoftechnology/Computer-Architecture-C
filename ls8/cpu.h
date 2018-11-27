@@ -6,7 +6,7 @@
 struct cpu {
   // TODO
   // PC
-  unsigned char PC;
+  unsigned char PC, IR, MAR, MDR;
   // registers (array)
   unsigned char reg[8];
   // ram (array)

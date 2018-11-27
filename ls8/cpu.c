@@ -6,14 +6,14 @@
 /**
  * Add RAM functions read and write
  */
- unsigned char cpu_ram_read(struct cpu *cpu, int index) 
+ unsigned char cpu_ram_read(struct cpu *cpu, MAR) 
  {
-   return cpu->ram[index];
+   return cpu->ram[MAR];
  }
 
- void cpu_ram_write(struct cpu *cpu, int index, unsigned char val)
+ void cpu_ram_write(struct cpu *cpu, MAR, MDR)
  {
-   cpu->ram[index] = val;
+   cpu->ram[MAR] = MDR;
  }
 
 /**
@@ -64,7 +64,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 2. switch() over it to decide on a course of action.
@@ -83,6 +83,11 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         cpu->PC += 2;
         break;
+
+      default:
+        printf("Default case triggered\n");
+        break;
+        
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
