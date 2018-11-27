@@ -1,6 +1,21 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define DATA_LEN 6
+
+/**
+ * RAM
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, int index){
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, int item){
+  cpu->ram[++cpu->PC] = item;
+  return;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -22,7 +37,6 @@ void cpu_load(struct cpu *cpu)
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
-
   // TODO: Replace this with something less hard-coded
 }
 
@@ -48,11 +62,25 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    unsigned char current_instruction = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operand1 = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operand2 = cpu_ram_read(cpu, cpu->PC+2);
+
+    switch(current_instruction){
+      case LDI:
+        cpu->registers[operand1] = operand2;
+        cpu->PC = cpu->PC+3;
+        break;
+      case PRN:
+        printf("Printing %d\n", cpu->registers[0]);
+        cpu->PC = cpu->PC+2;
+        break;
+      case HLT:
+        printf("LS-8 stopping.  Goodbye!\n");
+        break;
+      default:
+        exit(1);
+    }
   }
 }
 
@@ -61,19 +89,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-
-  // TODO: Zero registers and RAM
-}
-
-/**
- * RAM
- */
-char cpu_ram_read(struct cpu *cpu, int index){
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int item){
-  cpu->ram[++cpu->PC] = item;
-  return;
+  cpu->PC = 0;
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
