@@ -66,6 +66,15 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+cpu.c
+declares cpu and functions
+
+cpu.h
+contains information about cpu
+
+ls8.c
+initializes and runs cpu
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
@@ -123,7 +132,7 @@ the instruction opcode. See the LS-8 spec for details.
 Add the `HLT` instruction to `cpu.h`.
 
 In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
-encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
+encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded.
 
 We can consider `HLT` to be similar to a `return` or `exit()` in that we stop whatever we are doing, wherever we are.
 
@@ -178,7 +187,7 @@ so you can look in `argv[1]` for the name of the file to load.
 > Bonus: check to make sure the user has put a command line argument where you
 > expect, and print an error and exit if they didn't.
 
-In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
+In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM.
 
 As you process lines from the file, you should be on the lookout for blank lines
 (ignore them), and you should ignore everything after a `#`, since that's a
@@ -219,7 +228,7 @@ Check the LS-8 spec for what the `MUL` instruction does.
 > Note: `MUL` is the responsiblity of the ALU, so it would be
 nice if your code eventually called the `alu()` function with appropriate
 arguments to get the work done.
-> 
+>
 
 
 ## Step 10: Beautify your `cpu_run()` loop, if needed
@@ -312,10 +321,10 @@ a high address) and grows _downward_ as things are pushed on. The LS-8 is no
 exception to this.
 
 Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
-  the beginning of the spec to see which register is the stack pointer. 
-  
-* Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_. 
-  -  Use the stack pointer to modify the correct block of memory. 
+  the beginning of the spec to see which register is the stack pointer.
+
+* Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_.
+  -  Use the stack pointer to modify the correct block of memory.
   - Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
 
 If you run `./ls8 examples/stack.ls8` you should see the output:
@@ -333,7 +342,7 @@ enable you to jump to any address with the `CALL` instruction, and then return
 back to where you called from with the `RET` instruction. This enables you to
 create reusable functions.
 
-Subroutines have many similarities to functions in higher-level languages. Just as a function in C, JavaScript or Python will jump from the function call, to its definition, and then return back to the line of code following the call, subroutines will also allow us to execute instructions non-sequentially. 
+Subroutines have many similarities to functions in higher-level languages. Just as a function in C, JavaScript or Python will jump from the function call, to its definition, and then return back to the line of code following the call, subroutines will also allow us to execute instructions non-sequentially.
 
 The stack is used to hold the return address used by `RET`, so you **must** implement the
 stack in step 11, first. Then, add subroutine instructions `CALL` and `RET`.
@@ -343,8 +352,8 @@ problem is that some instructions want to execute and move to the next
 instruction like normal, but others, like `CALL` and `JMP` want to go to a
 specific address.
 
-  > Note: `CALL` is very similar to the `JMP` instruction. However, there is one key difference between them. Can you find it in the specs? 
-  > 
+  > Note: `CALL` is very similar to the `JMP` instruction. However, there is one key difference between them. Can you find it in the specs?
+  >
 
   * In **any** case where the instruction handler sets the `PC` directly, you
 _don't_ want to advance the PC to the next instruction. So you'll have to set up
