@@ -2,19 +2,21 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-struct cpu {
+struct cpu
+{
   // TODO
   unsigned char PC;
-  unsigned char registers[8]; 
+  unsigned char registers[8];
   // registers (array)
   unsigned char ram[256];
   // ram (array)
 };
 
 // ALU operations
-enum alu_op {
-	ALU_MUL
-	// Add more here
+enum alu_op
+{
+  ALU_MUL
+  // Add more here
 };
 
 // Instructions
@@ -22,7 +24,7 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI 0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
 #define HLT 0b00000001
 
