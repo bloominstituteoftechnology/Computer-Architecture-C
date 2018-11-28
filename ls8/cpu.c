@@ -45,7 +45,7 @@ void cpu_load(struct cpu *cpu, char *filename)
   unsigned char address = 0x00;
 
   if(fp == NULL) {
-    fprint(stderr, "error opening file %s\n", filename);
+    fprintf(stderr, "error opening file %s\n", filename);
     exit(2); //comes from stdlib
   }
 
