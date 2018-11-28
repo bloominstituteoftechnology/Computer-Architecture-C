@@ -114,7 +114,7 @@ void cpu_run(struct cpu *cpu)
     case POP:
       popped = cpu_pop(cpu,SP);
       SP++; 
-      printf("%d\n", popped); 
+      cpu_reg_write(cpu, operandA, popped); 
     
     case HLT:
       running = 0; //should end loop
