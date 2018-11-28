@@ -23,14 +23,22 @@ void cpu_load(struct cpu *cpu, char *argv[])
   unsigned char address = 0;
   fp = fopen(argv[1], "r");
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  if (!fp)
   {
-    cpu->ram[address++] = data[i];
+    printf("Error: Cant open file \n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(data, sizeof data, fp) != NULL)
+  {
+    unsigned char byte = strtol(data, NULL, 2);
+    if (data == NULL)
+    {
+      continue;
+    }
+    cpu->ram[address++] = byte;
+  }
+  fclose(fp);
 }
 
 /**
@@ -42,6 +50,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     // TODO
+    cpu->registers[regA] *= cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -72,9 +81,9 @@ void cpu_run(struct cpu *cpu)
     case PRN:
       printf("%d \n", cpu->registers[param1]);
       break;
-    // case MUL:
-    //   alu(cpu, ALU_MUL, param1, param2);
-    //   break;
+    case MUL:
+      alu(cpu, ALU_MUL, param1, param2);
+      break;
     case HLT:
       running = 0;
       break;
