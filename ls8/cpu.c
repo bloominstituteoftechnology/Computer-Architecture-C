@@ -4,8 +4,6 @@
 
 #include "cpu.h"
 
-#define DATA_LEN 6
-
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pos)
 {
   return cpu->ram[pos];
@@ -14,6 +12,19 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pos)
 void cpu_ram_write(struct cpu *cpu, unsigned char pos, unsigned char value)
 {
   cpu->ram[pos] = value;
+}
+
+void stack_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = value;
+}
+
+unsigned char stack_pop(struct cpu *cpu)
+{
+  unsigned char retVal = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return retVal;
 }
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -45,6 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
+      cpu->registers[regA] = cpu->registers[regA] & 0xFF;
       break;
 
     // TODO: implement more ALU ops
@@ -85,6 +97,12 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         // cpu->PC += 3;
         break;
+      case PUSH:
+        stack_push(cpu, cpu->registers[operandA]);
+        break;
+      case POP:
+        cpu->registers[operandA] = stack_pop(cpu);
+        break;
       default:
         printf("Unknown Command. Exiting...\n");
         exit(3);
@@ -104,4 +122,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->registers[SP] = SS;
 }
