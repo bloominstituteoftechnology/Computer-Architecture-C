@@ -6,6 +6,12 @@
  */
 int main(int argc, char *argv[])
 {
+
+  if (argc != 2)
+  {
+    printf("using: ./ls8 filename\n");
+    return 1;
+  }
   struct cpu cpu;
 
   cpu_init(&cpu);

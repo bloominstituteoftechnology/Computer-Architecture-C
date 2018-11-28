@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "cpu.h"
 
-#define SP 5
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -17,7 +17,6 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 
 void cpu_load(struct cpu *cpu, char *argv[])
 {
-
   FILE *fp;
   char data[1024];
   unsigned char address = 0;
@@ -57,6 +56,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+/**
+ * Run the CPU
+ */
 unsigned char cpu_pop(struct cpu *cpu)
 {
   unsigned char ret = cpu->ram[cpu->registers[SP]];
@@ -67,12 +69,9 @@ unsigned char cpu_pop(struct cpu *cpu)
 void cpu_push(struct cpu *cpu, unsigned char val)
 {
   cpu->registers[SP]--;
-  cpu->[cpu->registers[SP]] = val;
+  cpu->ram[cpu->registers[SP]] = val;
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -86,6 +85,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char param2 = cpu_ram_read(cpu, cpu->PC + 2);
 
     // 2. switch() over it to decide on a course of action.
+    int pc_change = (curr >> 6) + 1;
+
     switch (curr)
     {
     case LDI:
@@ -109,7 +110,7 @@ void cpu_run(struct cpu *cpu)
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    cpu->PC += (curr >> 6) + 1;
+    cpu->PC += pc_change;
   }
 }
 
@@ -120,6 +121,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[SP] = 0xF4;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
