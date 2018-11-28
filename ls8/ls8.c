@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
@@ -7,8 +8,8 @@
 int main(int argc, char *argv[])
 {
 
-  FILE *fp;
   struct cpu cpu;
+  char *filename;
 
   if(argc < 2){
     printf("You need run the ./ls8 with another argument");
@@ -17,10 +18,11 @@ int main(int argc, char *argv[])
     printf("You need run the ./ls8 with another argument");
     exit(1);
   } else {
-    fp = fopen(argv[1], "r");
+    filename = argv[1];
+    printf("file name >>> %s", filename);
     cpu_init(&cpu);
-    cpu_load(&cpu, &fp);
-    cpu_run(&cpu);
+    cpu_load(&cpu, filename);
+    // cpu_run(&cpu);
   }
 
   return 0;

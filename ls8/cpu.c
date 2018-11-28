@@ -20,15 +20,25 @@ void cpu_ram_write(struct cpu *cpu, int item){
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, FILE *fp)
+void cpu_load(struct cpu *cpu, char *filename)
 {
   
-  char line[255];
+  FILE *fp;
+  char line[8192];
   int address = 0;
-
-  while(fgets(line, sizeof(line), fp) != NULL){
-    cpu->ram[address] = strtoul(line, NULL, 10);
+  printf("file name >>> %s", filename);
+  // fp = fopen(filename, "r");
+  if(fp == NULL){
+    printf("Wrong!!!");
+  } else {
+    printf("Right!!!");
   }
+  // while(fgets(line, sizeof(line), fp) != NULL){
+    // printf(">>>>>>> %d\n", strtoul(line, NULL, 2));
+    // cpu->ram[address] = strtoul(line, NULL, 10);
+    // printf("RAM ITEM >>> %d\n", cpu->ram[address]);
+    // address++;
+  // }
 
   // char data[DATA_LEN] = {
   //   // From print8.ls8
