@@ -59,6 +59,7 @@ enum alu_op {
 #define NOP 0b00000000
 #define NOT 0b01101001
 #define OR 0b10101010
+#define XOR 0b10101011
 #define POP 0b01000110
 #define PRA 0b01001000
 #define PRN 0b01000111
@@ -68,7 +69,7 @@ enum alu_op {
 #define SHR 0b10101101
 #define ST 0b10000100
 #define SUB 0b10100001
-#define XOR 0b10101011
+
 
 // Function declarations
 
