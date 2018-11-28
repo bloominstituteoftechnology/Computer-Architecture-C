@@ -10,23 +10,7 @@
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
 
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
   FILE *fp = fopen(filename, "r");
   char line[32];
 
@@ -79,6 +63,16 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
   cpu->registers[place] = cpu->registers[place] * cpu->registers[place2]; 
 }
 
+void cpu_push(struct cpu *cpu, unsigned char place, int SP)
+{
+  cpu->ram[SP] = cpu->registers[place];
+}
+
+unsigned char cpu_pop(struct cpu *cpu, int SP)
+{
+  return cpu->ram[SP];
+}
+
 /**
  * Run the CPU
  */
@@ -86,7 +80,8 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  int SP = 243; //starting point of the stack; 
+  unsigned char popped; 
   while (running)
   {
     // TODO
@@ -112,6 +107,15 @@ void cpu_run(struct cpu *cpu)
       cpu_reg_multiply(cpu, operandA, operandB);
       cpu->PC += 2;
       break;
+    case PUSH:
+      cpu_push(cpu, operandA, SP); 
+      SP--; 
+      break; 
+    case POP:
+      popped = cpu_pop(cpu,SP);
+      SP++; 
+      printf("%d\n", popped); 
+    
     case HLT:
       running = 0; //should end loop
       break;
