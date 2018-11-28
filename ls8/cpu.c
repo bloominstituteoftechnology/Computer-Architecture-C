@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+#define SP 5
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -14,17 +15,13 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+
+  FILE *fp;
+  char data[1024];
+  unsigned char address = 0;
+  fp = fopen(argv[1], "r");
 
   int address = 0;
 
@@ -84,7 +81,7 @@ void cpu_run(struct cpu *cpu)
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    cpu->PR += (curr >> 6) + 1;
+    cpu->PC += (curr >> 6) + 1;
   }
 }
 
