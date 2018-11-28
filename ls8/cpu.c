@@ -18,6 +18,13 @@ void cpu_ram_write(struct cpu *cpu, int item){
 }
 
 /**
+ * MUL 
+ */
+int multiply(unsigned char regA, unsigned char regB){
+  return regA * regB;
+}
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *filename)
@@ -26,16 +33,10 @@ void cpu_load(struct cpu *cpu, char *filename)
   FILE *fp;
   char line[8192];
   int address = 0;
-  printf("file name >>> %s", filename);
   fp = fopen(filename, "r");
-  if(fp == NULL){
-    printf("Wrong!!!");
-  } else {
-    printf("Right!!!");
-  }
   while(fgets(line, sizeof(line), fp) != NULL){
-    printf(">>>>>>> %d\n", strtoul(line, NULL, 10));
-    cpu->ram[address] = strtoul(line, NULL, 10);
+    // printf(">>>>>>> %d\n", strtoul(line, NULL, 10));
+    cpu->ram[address++] = strtoul(line, NULL, 2);
   }
 }
 
@@ -68,6 +69,12 @@ void cpu_run(struct cpu *cpu)
     switch(current_instruction){
       case LDI:
         cpu->registers[operand1] = operand2;
+        printf("Printing %d\n", cpu->registers[operand1]);
+        cpu->PC = cpu->PC+3;
+        break;
+      case MUL:
+        cpu->registers[operand1] = multiply(cpu->registers[0], cpu->registers[1]);
+        printf("MUL >>> %d\n", cpu->registers[operand1]);
         cpu->PC = cpu->PC+3;
         break;
       case PRN:
@@ -76,11 +83,13 @@ void cpu_run(struct cpu *cpu)
         break;
       case HLT:
         printf("LS-8 stopping.  Goodbye!\n");
+        running = 0;
         break;
       default:
         exit(1);
     }
   }
+  return;
 }
 
 /**
