@@ -2,14 +2,17 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define DEBUG 0
 #define DATA_LEN 6
 #define SR 5
 
-void stack_push(struct cpu *cpu, unsigned char val){
+void stack_push(struct cpu *cpu, unsigned char val)
+{
   cpu->reg[SR]--;
   cpu->ram[cpu->reg[SR]] = val;
 }
- unsigned char stack_pop(struct cpu *cpu){
+unsigned char stack_pop(struct cpu *cpu)
+{
   unsigned char value = cpu->ram[cpu->reg[SR]];
   cpu->reg[SR]++;
   return value;
@@ -85,21 +88,40 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case HLT:
-      printf("HLT\n");
-      running = 0;
+      if (DEBUG) {
+          printf("HLT\n");
+        }
+        running = 0;
       break;
     case LDI:
-      printf("LDI\n");
-      cpu->reg[(int)operandA] = operandB;
+     if (DEBUG) {
+          printf("LDI\n");
+        }
+        cpu->reg[operandA] = operandB;
       break;
     case PRN:
-      printf("PRN\n");
-      printf("%d\n", cpu->reg[(int)operandA]);
+      if (DEBUG) {
+          printf("PRN\n");
+        }
+        printf("%d\n", cpu->reg[operandA]);
       break;
     case MUL:
-      printf("MUL\n");
-      // cpu->registers[(int)operandA] =  cpu->registers[(int)operandA] *  cpu->registers[(int)operandB];
-      alu(cpu, ALU_MUL, operandA, operandB);
+      if (DEBUG) {
+          printf("MUL\n");
+        }
+        alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    case PUSH:
+      if (DEBUG) {
+          printf("PUSH\n");
+        }
+        cpu->ram[--cpu->reg[7]] = cpu->reg[operandA];
+      break;
+    case POP:
+      if (DEBUG) {
+          printf("POP\n");
+        }
+        cpu->reg[operandA] = cpu->ram[cpu->reg[7]++];
       break;
     default:
       printf("%d", IR);
@@ -107,7 +129,7 @@ void cpu_run(struct cpu *cpu)
       break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC += 1 + (int)(IR >> 6);
+    cpu->PC += 1 + (IR >> 6);
   }
 }
 
