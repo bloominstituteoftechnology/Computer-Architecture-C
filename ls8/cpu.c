@@ -3,6 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define DATA_LEN 6
+#define SR 5
+
+void stack_push(struct cpu *cpu, unsigned char val){
+  cpu->reg[SR]--;
+  cpu->ram[cpu->reg[SR]] = val;
+}
+ unsigned char stack_pop(struct cpu *cpu){
+  unsigned char value = cpu->ram[cpu->reg[SR]];
+  cpu->reg[SR]++;
+  return value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
