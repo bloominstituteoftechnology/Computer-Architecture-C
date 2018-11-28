@@ -4,11 +4,13 @@
 
 #define DATA_LEN 6
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
- return cpu->ram[index];
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+  return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char index, int data) {
+void cpu_ram_write(struct cpu *cpu, unsigned char index, int data)
+{
   cpu->ram[index] = data;
 }
 
@@ -28,16 +30,19 @@ void cpu_load(struct cpu *cpu, char *path)
   //     // strtoul()
   // };
 
-  if (path == NULL) {
+  if (path == NULL)
+  {
     path = "./examples/print8.ls8";
   }
-  FILE *fileToRead = fopen(path, "r" );
-  if (fileToRead == NULL) {
+  FILE *fileToRead = fopen(path, "r");
+  if (fileToRead == NULL)
+  {
     printf("error reading file");
   }
   char idk[256];
   int address = 0;
-  while(fgets(idk,256,fileToRead)){
+  while (fgets(idk, 256, fileToRead))
+  {
     printf("idk is: %s\n", idk);
     cpu->ram[address] = strtoul(idk, NULL, 2);
     printf("inserted into ram: %d\n", cpu->ram[address++]);
@@ -84,36 +89,49 @@ void cpu_run(struct cpu *cpu)
     unsigned char PRN;
     int a;
     //<-- try putting int a over here
-    // 2. switch() over it to decide on a course of action. 
+    // 2. switch() over it to decide on a course of action.
     switch (IR)
     {
     case 0b00000001: // HLT
       printf("halted");
       // what does running do? what should you do to running when you
-      running = 0; // it shouldn't matter, but put a break under here. the compiler was complaining about it 
+      running = 0; // it shouldn't matter, but put a break under here. the compiler was complaining about it
       break;
       // lemme see what else
     case 0b10000010: // LDI? (Put comments on what the OPCODES are)
-    
-         a = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] = cpu_ram_read(cpu, cpu->PC + 2);
 
-    
+      a = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] = cpu_ram_read(cpu, cpu->PC + 2);
+
       // printf("%d\n", a);
       cpu->PC += 3;
       break;
     case 0b01000111: // PRN Starts
-      PRN = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)]; 
-      // the value you want to read from is in the register. However, `cpu_ram_read` is reading from the ram 
+      PRN = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)];
+      // the value you want to read from is in the register. However, `cpu_ram_read` is reading from the ram
       // the only thing you'll be reading from `cpu_ram_read` is the register to read from
       // but
       printf("%d\n", PRN);
       cpu->PC += 2;
       break;
 
+    case 0b10100010: // MUL
+    {
+      int mult = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] *= cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
+      printf("%d\n", mult);
+      cpu->PC += 3;
+      break;
+    }
+
+    case 0b01000101: // PUSH
+      break;
+
+    case 0b01000110: // POP
+      break;
+
     default:
       printf("whatmeantho? %d\n", IR);
       break;
-  
+
       //error: a label can only be part of a statement and a declaration is not a statement
       //running should be set to 0 to stop the loop once halted <-- :+1:
       //then I don't need the break but so that's the gist of it look for if the ram read is a certain code
