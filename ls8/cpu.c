@@ -101,13 +101,17 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB); 
         break;
 
-      case PUSH:
-        cpu_push(cpu, cpu->registers[operandA]);
+      case POP:
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[SP]);
+        cpu->registers[SP]++;
         break;
 
-      case POP:
-        cpu->registers[operandA] = cpu_pop(cpu);
+      case PUSH:
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
         break;
+
+
     }
      cpu->PC += move_pc;
   }
@@ -119,9 +123,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = 0;  
+  cpu->registers[SP] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
+
 }
 
