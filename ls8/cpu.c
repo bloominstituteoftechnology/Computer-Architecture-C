@@ -108,16 +108,16 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
     case PUSH:
-      printf("Pushing in here\n");
       SP--; 
       cpu_push(cpu, operandA, SP); 
+      cpu->PC += 1; 
       
       break; 
     case POP:
-      printf("Popping in here\n");
       // popped = cpu_pop(cpu,SP);
       cpu_reg_write(cpu, operandA, cpu->ram[SP]);
       SP++; 
+      cpu->PC += 1; 
       break; 
     case HLT:
       running = 0; //should end loop
