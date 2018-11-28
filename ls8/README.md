@@ -142,7 +142,7 @@ the LS-8 spec.
 *At this point, you should be able to run the program and have it print `8` to
 the console!*
 
-## Step 8: Un-hardcode the machine code
+## Step 8: Un-hardcode the machine code day 2 
 
 In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded
 into the source. This isn't particularly user-friendly.
@@ -187,7 +187,7 @@ comment.
 You'll have to convert the binary strings to integer values to store in RAM. The
 built-in `strtoul()` library function might help you here.
 
-## Step 9: Implement a Multiply and Print the Result
+## Step 9: Implement a Multiply and Print the Result day 2 
 
 Extend your LS8 emulator to support the following program:
 
@@ -222,7 +222,7 @@ arguments to get the work done.
 > 
 
 
-## Step 10: Beautify your `cpu_run()` loop, if needed
+## Step 10: Beautify your `cpu_run()` loop, if needed day 2
 
 Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`
 function? Is there a way to better modularize your code?

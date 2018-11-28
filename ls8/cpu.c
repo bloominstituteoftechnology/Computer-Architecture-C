@@ -37,14 +37,7 @@ void cpu_load(struct cpu *cpu)
         0b01000111, // PRN R0
         0b00000000,
         0b00000001, // HLT
-        
-    
-    // 0b10000010, // LDI R0,8
-    // 0b00000000,
-    // 0b00001000,
-    // 0b01000111, // PRN R0
-    // 0b00000000,
-    // 0b00000001  // HLT
+      
   };
 
   int address = 0;
@@ -63,7 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      
       break;
 
     // TODO: implement more ALU ops
@@ -118,10 +111,21 @@ void cpu_init(struct cpu *cpu)
 }
 
 
+// fgets
+// char *fgets(char *str, int n, FILE *stream)
+// str − This is the pointer to an array of chars where the string read is stored.
 
+// n − This is the maximum number of characters to be read (including the final null-character). Usually, the length of the array passed as str is used.
 
+// stream − This is the pointer to a FILE object that identifies the stream where characters are read from.
 
+// strtoul
+// unsigned long int strtoul(const char *str, char **endptr, int base)
+// str − This is the string containing the representation of an unsigned integral number.
 
+// endptr − This is the reference to an object of type char*, whose value is set by the function to the next character in str after the numerical value.
+
+// base − This is the base, which must be between 2 and 36 inclusive, or be the special value 0.
 
 
 

@@ -7,6 +7,7 @@
  */
 int main(int argc, char *argv[])
 {
+  // argv[0] = 
   struct cpu cpu;
 
   cpu_init(&cpu);
