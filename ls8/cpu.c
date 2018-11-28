@@ -23,49 +23,21 @@ void cpu_ram_write(unsigned char index, struct cpu *cpu, unsigned char value)
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 
-void cpu_load(struct cpu *cpu, char *path)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-        // 0b10000010, // LDI R0,8
-        // 0b00000000,
-        // 0b00001000,
-        // 0b10000010, // LDI R1,9
-        // 0b00000001,
-        // 0b00001001,
-        // 0b10100010,// MUL R0,R1
-        // 0b00000000,
-        // 0b00000001,
-        // 0b01000111, // PRN R0
-        // 0b00000000,
-        // 0b00000001, // HLT
-      
-  };
+  FILE *fp = fopen(argv, "r"); // where is path defined? at function call
+  char *str[256];
+  int address = 0;
+  char *ptr;
 
-//   int address = 0;
-
-//   for (int i = 0; i < DATA_LEN; i++) {
-//     cpu->ram[address++] = data[i];
-//   }
-
-//   // TODO: Replace this with something less hard-coded
-// }
-
-FILE *fp = fopen(path, "r"); // where is path defined? at function call
-
-char *line[256];
-int address = 0;
-char *ptr;
-while(fgets(line, sizeof(line), fp) != NULL) {
-  // line[8] = '\0';
-  // cpu->ram[address] = strtoul(line, NULL, 2);
-  // printf("what is being written: %d\n", cpu->ram[address]);
-  unsigned char ret = stroul(line, &ptr, 2);
-  if(ptr == line){ // what is this checkin? they are doing this in AH soo.... giving a shot lol 
-
+  while(fgets(str, sizeof(str), fp) != NULL) {
+    unsigned char ret = stroul(str, &ptr, 2);
+    if(ptr == str){  
+      continue;
+    }
+    cpu->ram[address++] = data;
   }
-  
-
+  fclose(fp);
 }
 
 
@@ -77,18 +49,17 @@ while(fgets(line, sizeof(line), fp) != NULL) {
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->registers;
   switch (op) {
     case ALU_MUL:
-      reg[regA]
+      reg[regA] *= reg[regB];
       break;
-
     // TODO: implement more ALU ops
   }
 }
 
 /**
- * Run the CPU
- */
+ * Run the CPU */
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -186,3 +157,33 @@ void cpu_init(struct cpu *cpu)
 // // n   ==> Number of bytes to be filled starting 
 // //         from ptr to be filled
 // void *memset(void *ptr, int x, size_t n);
+
+
+
+
+// hard coded cpu load code
+  // char data[DATA_LEN] = {
+    // From print8.ls8
+        // 0b10000010, // LDI R0,8
+        // 0b00000000,
+        // 0b00001000,
+        // 0b10000010, // LDI R1,9
+        // 0b00000001,
+        // 0b00001001,
+        // 0b10100010,// MUL R0,R1
+        // 0b00000000,
+        // 0b00000001,
+        // 0b01000111, // PRN R0
+        // 0b00000000,
+        // 0b00000001, // HLT
+      
+  };
+
+//   int address = 0;
+
+//   for (int i = 0; i < DATA_LEN; i++) {
+//     cpu->ram[address++] = data[i];
+//   }
+
+//   // TODO: Replace this with something less hard-coded
+// }
