@@ -65,9 +65,10 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    float PRN;
-
-    // 2. switch() over it to decide on a course of action.
+    unsigned char PRN;
+    int a;
+    //<-- try putting int a over here
+    // 2. switch() over it to decide on a course of action. 
     switch (IR)
     {
     case 0b00000001: // HLT
@@ -76,14 +77,27 @@ void cpu_run(struct cpu *cpu)
       running = 0; // it shouldn't matter, but put a break under here. the compiler was complaining about it 
       break;
       // lemme see what else
-    case 0b10000010:
-      cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] = cpu_ram_read(cpu, cpu->PC + 2);
+    case 0b10000010: // LDI? (Put comments on what the OPCODES are)
+    
+         a = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] = cpu_ram_read(cpu, cpu->PC + 2);
+
+    
+      // printf("%d\n", a);
+      cpu->PC += 3;
       break;
     case 0b01000111: // PRN Starts
-      PRN = cpu_ram_read(cpu, cpu->R[cpu_ram_read(cpu, cpu->PC + 1)]);
-      printf("%f\n", PRN);
-    
+      PRN = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)]; 
+      // the value you want to read from is in the register. However, `cpu_ram_read` is reading from the ram 
+      // the only thing you'll be reading from `cpu_ram_read` is the register to read from
+      // but
+      printf("%d\n", PRN);
+      cpu->PC += 2;
       break;
+
+    default:
+      printf("whatmeantho?\n");
+      break;
+  
       //error: a label can only be part of a statement and a declaration is not a statement
       //running should be set to 0 to stop the loop once halted <-- :+1:
       //then I don't need the break but so that's the gist of it look for if the ram read is a certain code
@@ -102,17 +116,14 @@ void cpu_run(struct cpu *cpu)
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    if (cpu->PC != 7)
-    {
-      cpu->PC += 1;
-    }
+    // if (cpu->PC != 7)
+    // {
+    //   cpu->PC += 1;
+    // }
 
     // <-  are you always going to move the PC by one all the time?
     // not if PC = 7 then we just wanna kill the switch case loop
-    else
-    {
-      break;
-    }
+   
   }
 }
 /**
