@@ -44,7 +44,17 @@ enum alu_op {
 #define XOR  0b10101011 
 #define SHL  0b10101100 
 #define SHR  0b10101101 
-
+#define CALL 0b01010000
+#define RET  0b00010001 
+#define INT  0b01010010
+#define IRET 0b00010011
+#define JMP  0b01010100
+#define JEQ  0b01010101
+#define JNE  0b01010110
+#define JGT  0b01010111
+#define JLT  0b01011000
+#define JLE  0b01011001
+#define JGE  0b01011010
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

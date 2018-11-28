@@ -59,17 +59,14 @@ void cpu_load(struct cpu *cpu, char *fileName)
   fgets(s, sizeof(s), fp); 
       char *split=" ";
 
-unsigned char binaryencoded = strtol(s, &split, 2);;
+    unsigned char binaryencoded = strtol(s, &split, 2);;
     if (split == s) {
       continue;
     }
 
     cpu->ram[address++] = binaryencoded;
 }
-   
-   
   fclose(fp);
-
 }
 
 /**
@@ -124,6 +121,12 @@ void cpu_run(struct cpu *cpu)
 
         cpu->MAR = cpu->PC + 2;
         operandB = cpu_ram_read(cpu); 
+      }
+      else if ((cpu->IR >> 4) & 1){
+          cpu->MAR = cpu->PC + 1;
+          operandA = cpu_ram_read(cpu);
+          inc = 0;
+
       }
       else if(cpu->IR >= 64){
         inc=2;
@@ -186,6 +189,19 @@ void cpu_run(struct cpu *cpu)
       break;
     case SHR:
       cpu->registers[operandA] = cpu->registers[operandA] >> cpu->registers[operandB];
+      break;
+    case RET:
+      cpu->MAR = cpu->registers[7];
+      cpu_ram_read(cpu);
+      cpu->PC = cpu->MDR;
+      incr(cpu,7);
+      break;
+    case CALL:
+      dec(cpu,7);
+      cpu->MAR = cpu->registers[7];
+      cpu->MDR = cpu->PC+2;
+      cpu_ram_write(cpu);
+      cpu->PC = cpu->registers[operandA];
       break;
     default:
     printf("Something went wrong\n");
