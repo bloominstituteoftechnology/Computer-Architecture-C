@@ -17,24 +17,40 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
+
+  FILE *fp = fopen(argv[1], "r");
+  char str[60];
 
   int address = 0;
+  char *ptr;
 
-  for (int i = 0; i < DATA_LEN; i++)
+  while (fgets(str, sizeof(str), fp) != NULL)
   {
-    cpu->ram[address++] = data[i];
+    unsigned char ret = strtoul(str, &ptr, 2);
+
+    if (ptr == str)
+    {
+      continue;
+    }
+    cpu->ram[address++] = ret;
   }
+
+  fclose(fp);
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -44,12 +60,25 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
   switch (op)
   {
+
   case ALU_MUL:
     // TODO
+    reg[regA] *= reg[regB];
     break;
 
+  case ALU_ADD:
+    reg[regA] += reg[regB];
+    break;
+
+  case ALU_DIV:
+    reg[regA] /= reg[regB];
+    break;
+
+  case ALU_SUB:
+    reg[regA] -= reg[regB];
     // TODO: implement more ALU ops
   }
 }
@@ -75,16 +104,18 @@ void cpu_run(struct cpu *cpu)
     {
 
     case LDI:
-
       cpu->reg[value1] = value2;
-
       cpu->PC += 3; //PRN
-
       break;
 
     case PRN:
       printf("Printing %u\n", cpu->reg[value1]);
       cpu->PC += 2;
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL, value1, value2);
+      cpu->PC += 3;
       break;
 
     case HLT:
@@ -93,6 +124,8 @@ void cpu_run(struct cpu *cpu)
       break;
 
     default:
+      // exit(1);
+      fprintf(stderr, "error\n");
       exit(1);
     }
     // 3. Do whatever the instruction should do according to the spec.
