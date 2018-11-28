@@ -63,15 +63,6 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
   cpu->registers[place] = cpu->registers[place] * cpu->registers[place2]; 
 }
 
-void cpu_push(struct cpu *cpu, unsigned char place, int SP)
-{
-  cpu->ram[SP] = cpu->registers[place];
-}
-
-unsigned char cpu_pop(struct cpu *cpu, int SP)
-{
-  return cpu->ram[SP];
-}
 
 /**
  * Run the CPU
@@ -109,12 +100,11 @@ void cpu_run(struct cpu *cpu)
       break;
     case PUSH:
       SP--; 
-      cpu_push(cpu, operandA, SP); 
+      cpu->ram[SP] = cpu->registers[operandA];
       cpu->PC += 1; 
       
       break; 
     case POP:
-      // popped = cpu_pop(cpu,SP);
       cpu_reg_write(cpu, operandA, cpu->ram[SP]);
       SP++; 
       cpu->PC += 1; 
