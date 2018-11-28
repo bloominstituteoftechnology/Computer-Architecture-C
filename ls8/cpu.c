@@ -37,18 +37,14 @@ void cpu_load(struct cpu *cpu, char *file)
   // TODO: Replace this with something less hard-coded
   FILE *fp;
   char line[500];
-  unsigned char address = 0; 
+  int address = 0; 
   fp = fopen(file, "r"); 
 
   if (fp == NULL){
   printf("Cannot Open File.\n", fp);
   exit(2);
   }
-  while(fgets(line, sizeof(line), fp) != NULL){
-    if (line[0] == "#" || line[0] == "\n"){
-      continue;
-    }
-  }
+
   while(fgets(line, sizeof(line), fp) != NULL) {
   cpu->ram[address] = strtoul(line, NULL, 2); 
   address++; 
@@ -63,7 +59,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu-> registers[regA] *= cpu-> registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -86,7 +82,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-    unsigned char move_pc = (IR >> 6);
+    unsigned char move_pc = (IR >> 6) + 1;
       switch(IR) {
 
       case HLT:
@@ -94,13 +90,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case LDI:
-        cpu->registers[operandA] = operandB;
-        move_pc;
+      cpu-> registers[operandA] = operandB;
         break;
 
       case PRN:
-        printf("%d\n", cpu->registers[operandA]);
-        move_pc;
+      printf("%d \n", cpu-> registers[operandA]); 
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB); 
         break;
     }
   }
