@@ -82,7 +82,9 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
+    int FL = 0;
     // TODO
+    int PC = cpu->PC;
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
@@ -96,6 +98,15 @@ void cpu_run(struct cpu *cpu)
 
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
+      break;
+
+    case PUSH:
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
+      break;
+    case POP:
+       cpu->registers[operandA] = cpu->RAM[cpu->registers[SP]];
+       cpu->registers[SP]++;
       break;
 
     case HLT:
@@ -117,9 +128,14 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+
+  cpu->PC = 0;
   // TODO: Initialize the PC and other special registers
   memset(cpu->registers, 0, sizeof(cpu->registers));
 
   // TODO: Zero registers and RAM
   memset(cpu->RAM, 0, sizeof(cpu->RAM));
+
+  // Initialize SP
+  cpu->registers[SP] = EMPTY_STACK;
 }

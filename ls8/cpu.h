@@ -12,12 +12,15 @@ struct cpu {
   unsigned char RAM[256];
 };
 
+#define SP 7
+
 // ALU operations
 enum alu_op {
 	ALU_MUL
 	// Add more here
 };
 
+#define EMPTY_STACK 0xF4 
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -27,6 +30,8 @@ enum alu_op {
 #define PRN 0b01000111
 #define HLT 0b00000001
 #define MUL 0b10100010
+#define POP 0b01000110
+#define PUSH 0b01000101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
