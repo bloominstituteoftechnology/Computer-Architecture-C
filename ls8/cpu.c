@@ -60,9 +60,8 @@ void cpu_reg_write(struct cpu *cpu, unsigned char place, unsigned char saving)
 }
 void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2)
 {
-  cpu->registers[place] = cpu->registers[place] * cpu->registers[place2]; 
+  cpu->registers[place] = cpu->registers[place] * cpu->registers[place2];
 }
-
 
 /**
  * Run the CPU
@@ -71,8 +70,7 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  int SP = 244; //starting point of the stack; 
-  // unsigned char popped; 
+  int SP = 244;    //starting point of the stack;
   while (running)
   {
     // TODO
@@ -99,16 +97,16 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
     case PUSH:
-      SP--; 
+      SP--;
       cpu->ram[SP] = cpu->registers[operandA];
-      cpu->PC += 1; 
-      
-      break; 
+      cpu->PC += 1;
+
+      break;
     case POP:
       cpu_reg_write(cpu, operandA, cpu->ram[SP]);
-      SP++; 
-      cpu->PC += 1; 
-      break; 
+      SP++;
+      cpu->PC += 1;
+      break;
     case HLT:
       running = 0; //should end loop
       break;
