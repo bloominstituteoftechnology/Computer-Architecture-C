@@ -92,6 +92,24 @@ void cpu_run(struct cpu *cpu)
                 cpu->PC += move_pc; // 3
                 break;
 
+            case PUSH:
+              // Push the value in the given register on the stack.
+              // 1. Decrement the `SP`.
+                cpu->registers[7] --;
+              // 2. Copy the value in the given register to the address pointed to by `SP`.
+                cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+                cpu->PC += move_pc; // 2
+                break;
+
+            case POP:
+              // Pop the value at the top of the stack into the given register.
+              // 1. Copy the value from the address pointed to by `SP` to the given register.
+                cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+              // 2. Increment `SP`.
+                cpu->registers[7] ++;
+                cpu->PC += move_pc; // 2
+                break;
+
             default:
               exit(1);
         }
@@ -108,4 +126,6 @@ void cpu_init(struct cpu *cpu)
   // Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+
+  cpu->registers[7] = 0xF4;
 }
