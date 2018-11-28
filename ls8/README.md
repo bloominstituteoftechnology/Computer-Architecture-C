@@ -217,11 +217,11 @@ One you run it with `./ls8 examples/mult.ls8`, you should see:
 Check the LS-8 spec for what the `MUL` instruction does.
 
 > Note: `MUL` is the responsiblity of the ALU, so it would be
-nice if your code eventually called the `alu()` function with appropriate
+nice if your code eventually called the `alu()` function with apprtopriate
 arguments to get the work done.
 > 
 
-
+a
 ## Step 10: Beautify your `cpu_run()` loop, if needed day 2
 
 Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`

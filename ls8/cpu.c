@@ -1,5 +1,7 @@
 #include "cpu.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #define DATA_LEN 6
 
 
@@ -21,33 +23,54 @@ void cpu_ram_write(unsigned char index, struct cpu *cpu, unsigned char value)
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *path)
 {
   char data[DATA_LEN] = {
     // From print8.ls8
-        0b10000010, // LDI R0,8
-        0b00000000,
-        0b00001000,
-        0b10000010, // LDI R1,9
-        0b00000001,
-        0b00001001,
-        0b10100010,// MUL R0,R1
-        0b00000000,
-        0b00000001,
-        0b01000111, // PRN R0
-        0b00000000,
-        0b00000001, // HLT
+        // 0b10000010, // LDI R0,8
+        // 0b00000000,
+        // 0b00001000,
+        // 0b10000010, // LDI R1,9
+        // 0b00000001,
+        // 0b00001001,
+        // 0b10100010,// MUL R0,R1
+        // 0b00000000,
+        // 0b00000001,
+        // 0b01000111, // PRN R0
+        // 0b00000000,
+        // 0b00000001, // HLT
       
   };
 
-  int address = 0;
+//   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+//   for (int i = 0; i < DATA_LEN; i++) {
+//     cpu->ram[address++] = data[i];
+//   }
+
+//   // TODO: Replace this with something less hard-coded
+// }
+
+FILE *fp = fopen(path, "r"); // where is path defined? at function call
+
+char *line[256];
+int address = 0;
+char *ptr;
+while(fgets(line, sizeof(line), fp) != NULL) {
+  // line[8] = '\0';
+  // cpu->ram[address] = strtoul(line, NULL, 2);
+  // printf("what is being written: %d\n", cpu->ram[address]);
+  unsigned char ret = stroul(line, &ptr, 2);
+  if(ptr == line){ // what is this checkin? they are doing this in AH soo.... giving a shot lol 
+
   }
+  
 
-  // TODO: Replace this with something less hard-coded
 }
+
+
+
+
 
 /**
  * ALU
@@ -56,7 +79,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      
+      reg[regA]
       break;
 
     // TODO: implement more ALU ops
@@ -92,6 +115,13 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[cpu_ram_read(cpu->pc + 1, cpu)] = num;
         cpu->pc += 3;
         break; 
+      case ALU_MUL:
+        alu(cpu, ALU_MUL, operA, operB);
+        cpu->pc += 3;
+        break;
+      // look at line 68. Any arithmetic will be handled there.
+      // https://lambdaschoolstudents.slack.com/archives/CD1TWFL0Y/p1543271408505200?thread_ts=1543269930.500700&cid=CD1TWFL0Y
+
     }
    }
 }

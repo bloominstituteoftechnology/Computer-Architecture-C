@@ -17,7 +17,7 @@ struct cpu {
 enum alu_op {
 	ALU_MUL 
 	// Add more here
-
+  
 };
 
 // Instruction6
@@ -42,7 +42,7 @@ printf("some debug prints");
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *path);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
