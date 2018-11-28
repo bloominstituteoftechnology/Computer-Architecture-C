@@ -2,7 +2,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
-#define DATA_LEN 6
+#define SP 7
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -13,19 +13,16 @@ unsigned char cpu_ram_read(struct cpu *cpu,int index){
 void cpu_ram_write(struct cpu* cpu,unsigned char index,unsigned char value){
   cpu->ram[index]=value;
 }
-void setregister(struct cpu *cpu,unsigned char instruction){
+void setregister(struct cpu *cpu){
   cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
-  cpu->PC+=((instruction>>6)+1);
 }
-void print(struct cpu *cpu,unsigned char instruction){
+void print(struct cpu *cpu){
   printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
-  cpu->PC+=((instruction>>6)+1);
 }
-void halt(struct cpu *cpu,unsigned char instruction,int *running){
+void halt(struct cpu *cpu,int *running){
   *running=0;
-  cpu->PC+=((instruction>>6)+1);
 }
-void multiply(struct cpu *cpu,unsigned char instruction) {
+void multiply(struct cpu *cpu) {
   unsigned char a=cpu->registers[cpu_ram_read(cpu,cpu->PC+1)];
   unsigned char b=cpu->registers[cpu_ram_read(cpu,cpu->PC+2)];
   unsigned char ans=0;
@@ -34,7 +31,6 @@ void multiply(struct cpu *cpu,unsigned char instruction) {
       ans+=a;
       if (b==1) {
         cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=ans;
-        cpu->PC+=((instruction>>6)+1);
         break;
       }
     }
@@ -42,15 +38,13 @@ void multiply(struct cpu *cpu,unsigned char instruction) {
     b>>=1;
   }
 }
-void push(struct cpu *cpu, unsigned char instruction) {
-  cpu_ram_write(cpu,cpu->SP,cpu_ram_read(cpu,cpu->PC+1));
-  cpu->PC+=((instruction>>6)+1);
-  cpu->SP-=1;
+void push(struct cpu *cpu) {
+  cpu->ram[cpu->registers[SP]]=cpu->registers[cpu->PC+1];
+  cpu->registers[SP]-=1;
 }
-void pop(struct cpu *cpu, unsigned char instruction) {
-  cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->SP);
-  cpu->PC+=((instruction>>6)+1);
-  cpu->SP+=1;
+void pop(struct cpu *cpu) {
+  cpu->registers[cpu->PC+1]=cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]+=1;
 }
 void cpu_load(struct cpu *cpu,char *filename)
 {
@@ -96,24 +90,25 @@ void cpu_run(struct cpu *cpu)
     unsigned char instruction=cpu_ram_read(cpu,cpu->PC);
     switch(instruction){
       case LDI:
-        setregister(cpu,instruction);
+        setregister(cpu);
         break;
       case PRN:
-        print(cpu,instruction);
+        print(cpu);
         break;
       case MUL:
-        multiply(cpu,instruction);
+        multiply(cpu);
         break;
       case HLT:
-        halt(cpu,instruction,&running);
+        halt(cpu,&running);
         break;
       case PUSH:
-        push(cpu,instruction);
+        push(cpu);
         break;
       case POP:
-        pop(cpu,instruction);
+        pop(cpu);
         break;
     }
+    cpu->PC+=((instruction>>6)+1);
   }
 }
 
@@ -128,5 +123,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC=0;
   memset(cpu->ram,0,sizeof(cpu->ram));
   memset(cpu->registers,0,sizeof(cpu->registers));
-  cpu->SP=255;
+  cpu->registers[SP]=0xF4;
 }
