@@ -5,6 +5,19 @@
 
 #define DATA_LEN 6
 
+
+
+// *** push function for cpu stack
+// parameters cpu struct and input value
+// decrement the SP
+// set the value in the given register to the address indicated by SP
+
+// *** pop function for cpu stack
+// parameter is the cpu struct
+// copy the value from the address pointed to by SP to the given register
+// increment the SP
+
+
 // Helper functions cpu_ram_read() and cpu_ram_write()
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar){
   return cpu->ram[mar];
@@ -13,7 +26,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar){
 void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr){
   cpu->ram[mar] = mdr;
 }
-
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -50,11 +62,9 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
 
   while(fgets(line, sizeof line, fp) != NULL){
-    unsigned char b = strtol(line,NULL,2);
-
+    unsigned char b = strtol(line, NULL, 2);
     cpu_ram_write(cpu,address++, b);
   }
-
 }
 
 /**
