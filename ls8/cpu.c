@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -15,26 +18,40 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
   cpu->ram[address] = value;
 }
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
-  {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+
+  FILE *fp = fopen(argv[1], "r");
+  char str[256];
+  int address = 0;
+  char *ptr;
+
+  while (fgets(str, sizeof(str), fp) != NULL)
+  {
+    unsigned char data = strtoul(str, &ptr, 2);
+    if (ptr == str)
+    {
+      continue;
+    }
+    cpu->ram[address++] = data;
+  }
+  fclose(fp);
 }
 
 /**
@@ -42,10 +59,13 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->registers;
+
   switch (op)
   {
   case ALU_MUL:
     // TODO
+    reg[regA] *= reg[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -72,14 +92,24 @@ void cpu_run(struct cpu *cpu)
 
     switch (IR)
     {
-    case LDI: // set value of register to integer
-      cpu->registers[operA] = operB; //operands R0 = operandA
-      break;                         //R8 = operandsB
+    case LDI:                        // set value of register to integer
+      cpu->registers[operA] = operB; //operands R0 = operandA, R8 = operandsB
+      cpu->PC += 3;
+      break;
     case PRN: //print numeric value at the register
-      printf('%d \n', registers[operA]);
+      printf("%d \n", cpu->registers[operA]);
+      cpu->PC += 2;
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operA, operB);
+      cpu->PC += 3;
       break;
     case HLT: //exit the emulator
       running = 0;
+      break;
+    default:
+      fprintf(stderr, "error\n");
+      exit(2);
       break;
     }
   }
