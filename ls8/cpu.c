@@ -68,6 +68,16 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char thing) {
   cpu->ram[index] = thing;
 }
 
+void cpu_push(struct cpu *cpu, unsigned char thing) {
+  cpu->registers[7] -= 1;
+  cpu->ram[cpu->registers[7]] = thing;
+}
+
+void cpu_pop(struct cpu *cpu, unsigned char target) {
+  cpu->registers[target] = cpu->ram[cpu->registers[7]];
+  cpu->registers[7] += 1;
+}
+
 /**
  * Run the CPU
  */
@@ -101,6 +111,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         cpu->PC+=3;
         break;
+      case PUSH:
+        cpu_push(cpu, operandA);
+        cpu->PC += 2;
+        break;
+      case POP:
+        cpu_pop(cpu, operandA);
+        cpu->PC += 2;
+        break;
     }
   }
 }
@@ -115,4 +133,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, 8*sizeof(char));
   memset(cpu->ram, 0, 256*sizeof(char));
+  cpu->registers[7] = cpu->ram[0xf4];
 }
