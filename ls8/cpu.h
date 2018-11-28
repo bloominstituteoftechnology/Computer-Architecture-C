@@ -11,9 +11,10 @@ struct cpu
 };
 
 //struct to represent a stack
+//The SP points at the value at the top of the stack
 typedef struct Stack
 {
-  int top;
+  int SP;
   unsigned char capacity;
   int *array;
 } Stack;
@@ -43,6 +44,5 @@ enum alu_op
 extern void cpu_load(struct cpu *cpu, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
-extern void cpu_stack(struct cpu *cpu, struct stack)
 
 #endif

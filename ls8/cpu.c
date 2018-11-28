@@ -56,6 +56,40 @@ void cpu_load(struct cpu *cpu, char *argv[])
   }
   fclose(fp);
 }
+// function to create a new stack, initialized size to 0
+Stack *newStack(unsigned char capacity)
+{
+  Stack *stack = malloc(sizeof(Stack));
+  stack->capacity = capacity;
+  stack->SP = -1;
+  stack->array = malloc(stack->capacity * sizeof(int));
+
+  return stack;
+}
+
+//function to add an item to the stack.
+//returns item pushed onto the stack if successful, -1 if full
+int push(Stack *stack)
+{
+  if (stack->SP == stack->capacity - 1)
+  {
+    return -1;
+  }
+  stack->array[++stack->SP] = item;
+
+  return item;
+}
+
+//function to remove item from the stack
+//returns item popped from the stack if successful, -1 if stack is empty
+int pop(Stack *stack, int item)
+{
+  if (stack->SP == -1)
+  {
+    return -1;
+  }
+  return stack->array[stack->SP--];
+}
 
 /**
  * ALU
@@ -94,6 +128,14 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       cpu->registers[operandA] = operandB;
       cpu->PC += 3;
+      break;
+    case PUSH:
+      push(cpu, Stack * stack, int item);
+      cpu->PC += 2;
+      break;
+    case POP:
+      pop(cpu, Stack * stack, int item);
+      cpu->PC += 2;
       break;
     case PRN:
       printf("%u\n", cpu->registers[operandA]);
