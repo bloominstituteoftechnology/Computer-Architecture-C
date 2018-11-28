@@ -1,41 +1,55 @@
 #include "cpu.h"
-#include "string.h"
 #include "stdio.h"
+#include "string.h"
 #include "stdlib.h"
+#define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-unsigned char cpu_ram_read(struct cpu *cpu,int index) {
+unsigned char cpu_ram_read(struct cpu *cpu,int index){
   return cpu->ram[index];
 }
-void cpu_ram_write(struct cpu *cpu, int index,unsigned char value) {
+void cpu_ram_write(struct cpu *cpu,int index,unsigned char value){
   cpu->ram[index]=value;
 }
-unsigned char multiply(unsigned char m, unsigned char n) {
+void setregister(struct cpu *cpu,unsigned char instruction){
+  cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
+  cpu->PC+=((instruction>>6)+1);
+}
+void print(struct cpu *cpu,unsigned char instruction){
+  printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
+  cpu->PC+=((instruction>>6)+1);
+}
+void halt(struct cpu *cpu,unsigned char instruction,int *running){
+  *running=0;
+  cpu->PC+=((instruction>>6)+1);
+}
+void multiply(struct cpu *cpu,unsigned char instruction) {
+  unsigned char a=cpu->registers[cpu_ram_read(cpu,cpu->PC+1)];
+  unsigned char b=cpu->registers[cpu_ram_read(cpu,cpu->PC+2)];
   unsigned char ans=0;
-  while (n>0) {
-    if (n&1) {
-      ans+=m;
+  while (b>0) {
+    if (b&1) {
+      ans+=a;
     }
-    m=m<<1;
-    n=n>>1;
+    a=a<<1;
+    b=b>>1;
   }
-  return ans;
+  cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=ans;
+  cpu->PC+=((instruction>>6)+1);
 }
 void cpu_load(struct cpu *cpu,char *filename)
 {
   FILE *fp=fopen(filename,"r");
-  if (fp==NULL) {
-    printf("Error opening file.");
+  char string[128];
+  int address = 0;
+
+  while (fgets(string,128,fp)!=NULL) {
+    unsigned char data=strtoul(string,NULL,2);
+    cpu->ram[address++] = data;
   }
-  int address=0;
-  char string[2048];
-  while (fgets(string,sizeof(string),fp)!=NULL) {
-    unsigned char data=strtol(string,NULL,2);
-    cpu->ram[address++]=data;
-   } 
-  fclose(fp);
+  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -58,7 +72,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -66,22 +79,18 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
     unsigned char instruction=cpu_ram_read(cpu,cpu->PC);
-    switch(instruction) {
+    switch(instruction){
       case LDI:
-        cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
-        cpu->PC+=3;
+        setregister(cpu,instruction);
         break;
       case PRN:
-        printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
-        cpu->PC+=2;
+        print(cpu,instruction);
         break;
       case MUL:
-        cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=multiply(cpu->registers[cpu_ram_read(cpu,cpu->PC+1)],cpu->registers[cpu_ram_read(cpu,cpu->PC+2)]);
-        cpu->PC+=3;
+        multiply(cpu,instruction);
         break;
       case HLT:
-        running=0;
-        cpu->PC+=1;
+        halt(cpu,instruction,&running);
         break;
     }
   }
@@ -93,8 +102,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+
   // TODO: Zero registers and RAM
   cpu->PC=0;
-  memset(cpu->registers,0,sizeof(cpu->registers));
   memset(cpu->ram,0,sizeof(cpu->ram));
+  memset(cpu->registers,0,sizeof(cpu->registers));
 }
