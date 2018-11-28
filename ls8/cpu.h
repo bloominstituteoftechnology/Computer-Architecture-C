@@ -16,9 +16,9 @@ struct cpu {
   r7 reserved for stack pointer
   F3 start of stack
   initiate value for string pointer
-  initiate location for string pointer */
+*/
 
-  #define SP 7 // this will be the register number for stack pointer
+  #define SP 7 // SP is 7 # tells the compiler directly to change instances of SP to the number 7
 
 // ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {

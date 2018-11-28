@@ -12,7 +12,7 @@ as point to a memory location
 
 // *** push function for cpu stack
 // parameters: cpu struct and input value
-void cpu_push(struct cpu *cpu, char value)
+void cpu_push(struct cpu *cpu, unsigned char value)
 {
   // decrement the SP
   cpu->registers[SP]--;
@@ -22,14 +22,14 @@ void cpu_push(struct cpu *cpu, char value)
 
 // *** pop function for cpu stack
 // parameter: is the cpu struct
-void cpu_pop(struct cpu *cpu)
+unsigned char cpu_pop(struct cpu *cpu)
 {
 // copy the value from the address pointed to by SP to the given register
-  char value = cpu->ram[cpu->registers[SP]];
+  unsigned char value = cpu->ram[cpu->registers[SP]];
   // increment the SP
   cpu->registers[SP]++;
   // return the value popped
-
+  return value;
 }
 
 // Helper functions cpu_ram_read() and cpu_ram_write()
@@ -124,7 +124,7 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
       // 3. Do whatever the instruction should do according to the spec.
       case LDI:
-      // printf(" ....... LDI ...... \n");
+      printf(" ....... LDI ...... \n");
       cpu->registers[operandA] = operandB;
       printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
       printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
@@ -163,8 +163,20 @@ void cpu_run(struct cpu *cpu)
       running = 0;
       break;
 
-      // POP
-      // PUSH
+      case PUSH:
+      printf(" ...... PUSH ...... \n");
+      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      cpu_push(cpu, cpu->registers[operandA]);
+
+      case POP:
+      printf(" ...... POP ...... \n");
+      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      cpu->registers[operandA] = cpu_pop(cpu);
+    
       // RET
       // CALL
 
@@ -185,6 +197,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
+
+  // Initialize stack pointer
+  cpu->registers[SP] = 0xF4;
 }
 
-// create stack pointer
