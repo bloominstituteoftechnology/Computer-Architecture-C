@@ -21,11 +21,11 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(1); 
   }
 
-  int address = 0xF3;
+  cpu->SP = 0xF3;
 
   while(fgets(line, sizeof(line), fp) != NULL) {
-    cpu->ram[address] = strtoul(line, NULL, 2); 
-    address--; 
+    cpu->ram[cpu->SP] = strtoul(line, NULL, 2); 
+    cpu->SP--; 
   }
   
   fclose(fp);
@@ -75,9 +75,8 @@ void cpu_run(struct cpu *cpu)
     switch (c) {
       case LDI: 
         cpu->R[cpu->ram[cpu->PC - movePC + 1]] = cpu->ram[cpu->PC - movePC];
-        printf("Load is %d\n", cpu->ram[cpu->PC - movePC]);
-        printf("R[0] is %d\n", cpu->R[0]);
-        printf("R[1] is %d\n", cpu->R[1]);
+        // printf("Loaded R[0] with: %d\n", cpu->R[0]);
+        // printf("Loaded R[1] with: %d\n", cpu->R[1]);
         cpu->PC -= movePC;
         break;
 
@@ -91,11 +90,24 @@ void cpu_run(struct cpu *cpu)
         cpu->PC -= movePC;
         break;
 
+      case PUSH:
+        cpu->SP--; 
+        cpu->ram[cpu->SP] = cpu->R[cpu->ram[cpu->PC - movePC]];
+        // printf("Stack added: %d\n", cpu->ram[cpu->SP]);
+        cpu->PC -= movePC;
+        break;
+
+      case POP:
+        cpu->R[cpu->ram[cpu->PC - movePC]] = cpu->ram[cpu->SP]; 
+        cpu->SP++;
+        cpu->PC -= movePC;
+        break;
+
       case HLT:
         running = 0;
         break; 
     }
-    cpu->PC -= 1; 
+    cpu->PC--; 
     
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.

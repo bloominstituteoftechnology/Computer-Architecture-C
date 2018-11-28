@@ -4,6 +4,7 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
+  unsigned char SP;
   unsigned char PC;
   unsigned char R[8]; 
   unsigned char ram[256]; 
@@ -25,6 +26,8 @@ enum alu_op {
 #define PRN  0b01000111
 #define HLT  0b00000001
 #define MUL  0b10100010
+#define PUSH 0b01000101
+#define POP  0b01000110
 
 
 // Function declarations
