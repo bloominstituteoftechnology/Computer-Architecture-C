@@ -53,6 +53,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->R[0] = regA * regB;
       break;
+    
+    case ALU_ADD:
+      cpu->R[0] = regA + regB;
+      break;
  
     // TODO: implement more ALU ops
   }
@@ -90,6 +94,12 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += movePC;
         break;
 
+      case ADD: 
+        printf("running");
+        alu(cpu, 1, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
       case PUSH:
         cpu->R[7]--; 
         cpu->ram[cpu->R[7]] = cpu->R[cpu->ram[cpu->PC + movePC]];
@@ -103,14 +113,24 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += movePC;
         break;
 
+      case CALL:
+        cpu->R[7]--; 
+        cpu->ram[cpu->R[7]] = cpu->PC + movePC; 
+        cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]]; 
+        // printf("PC Location after CALL before move %d\n", cpu->PC);
+        break;
+
+      case RET:
+        cpu->PC = cpu->ram[cpu->R[7]];
+        cpu->R[7]++;
+        break;  
+        
       case HLT:
         running = 0;
         break; 
     }
     cpu->PC++; 
     
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
