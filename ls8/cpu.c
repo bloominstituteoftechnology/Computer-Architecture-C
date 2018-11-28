@@ -10,7 +10,7 @@
 unsigned char cpu_ram_read(struct cpu *cpu,int index){
   return cpu->ram[index];
 }
-void cpu_ram_write(struct cpu *cpu,int index,unsigned char value){
+void cpu_ram_write(struct cpu* cpu,unsigned char index,unsigned char value){
   cpu->ram[index]=value;
 }
 void setregister(struct cpu *cpu,unsigned char instruction){
@@ -41,6 +41,16 @@ void multiply(struct cpu *cpu,unsigned char instruction) {
     a<<=1;
     b>>=1;
   }
+}
+void push(struct cpu *cpu, unsigned char instruction) {
+  cpu_ram_write(cpu,cpu->SP,cpu_ram_read(cpu,cpu->PC+1));
+  cpu->PC+=((instruction>>6)+1);
+  cpu->SP-=1;
+}
+void pop(struct cpu *cpu, unsigned char instruction) {
+  cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->SP);
+  cpu->PC+=((instruction>>6)+1);
+  cpu->SP+=1;
 }
 void cpu_load(struct cpu *cpu,char *filename)
 {
@@ -97,6 +107,12 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         halt(cpu,instruction,&running);
         break;
+      case PUSH:
+        push(cpu,instruction);
+        break;
+      case POP:
+        pop(cpu,instruction);
+        break;
     }
   }
 }
@@ -112,4 +128,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC=0;
   memset(cpu->ram,0,sizeof(cpu->ram));
   memset(cpu->registers,0,sizeof(cpu->registers));
+  cpu->SP=255;
 }
