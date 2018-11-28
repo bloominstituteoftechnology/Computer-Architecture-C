@@ -15,7 +15,7 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char, argv[])
 {
   char data[DATA_LEN] = {
     // From print8.ls8
@@ -28,6 +28,12 @@ void cpu_load(struct cpu *cpu)
   };
   FILE *fp = fopen(argv[1], "r")
   int address = 0;
+  char new[8192];
+
+  while (fgets(new, sizeofn new, fp) != NULL) {
+    cpu->ram[address++] = strtoul(new, NULL, 2);
+  }
+  fclose(fp);
 
   //for (int i = 0; i < DATA_LEN; i++) {
    // cpu->ram[address++] = data[i];
@@ -77,6 +83,8 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       running = 0;
       cpu->PC++;
+      break;
+      case MUL:
       break;
     }
   }
