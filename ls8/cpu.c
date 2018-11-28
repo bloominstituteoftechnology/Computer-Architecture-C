@@ -91,10 +91,16 @@ void cpu_run(struct cpu *cpu)
           // decrement the stack pointer ram index by one 
           // OperandA is the register which holds the value to push 
           // set the value at the stack pointer index in ram to the value in operandA register
+          cpu->registers[7] -= 1; 
+          cpu-> ram[cpu->registers[7]] = cpu->registers[operandA]; 
+          break; 
         case POP: //opcode to pop values of the CPU stack
           // at the stack pointer take the value and store it in register 0
           // increment the stack pointer 
           // return the popped value 
+          cpu->registers[operandA] = cpu-> ram[cpu->registers[7]]; 
+          cpu->registers[7]++; 
+          break; 
       }
       
     
