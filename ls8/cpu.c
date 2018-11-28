@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define DATA_LEN 6
@@ -15,14 +16,14 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   if (fp == NULL) {
     perror("Error opening file. \n");
-    return 0;
+    exit(1);
   }
 
   int address = 0;
 
   while (fgets(line, sizeof line, fp) != NULL) {
     cpu->ram[address] = strtoul(line, NULL, 2);
-    cpu->ram[address++];
+    address++;
   }
 
   /*
@@ -45,11 +46,11 @@ void cpu_load(struct cpu *cpu, char *filename)
   // TODO: Replace this with something less hard-coded
 }
 
-unsigned char cpu_ram_read(int index, struct cpu *cpu) {
+unsigned char cpu_ram_read(struct cpu *cpu, char index) {
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char val) {
+void cpu_ram_write(struct cpu *cpu, char index, unsigned char val) {
   cpu->ram[index] = val;
 }
 
@@ -74,8 +75,11 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR;
-  unsigned char registers_index;
-  int num;
+  // unsigned char registers_index;
+  // int num;
+  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
 
   while (running) {
     // TODO
@@ -89,14 +93,16 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       case LDI:
-        num = cpu_ram_read(cpu, cpu->PC + 2);
-        cpu->registers[cpu_ram_read(cpu, cpu->PC + 1)] = num;
+        cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
       case PRN:
-        registers_index = cpu_ram_read(cpu, cpu->PC + 1);
-        printf(">> register value: %d\n", cpu->registers[registers_index]);
+        printf(">> register value: %d\n", cpu->registers[operandA]);
         cpu->PC += 2;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += 3;
         break;
     }
   }
