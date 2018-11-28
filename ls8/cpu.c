@@ -100,6 +100,14 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB); 
         break;
+
+      case PUSH:
+        cpu_push(cpu, cpu->registers[operandA]);
+        break;
+
+      case POP:
+        cpu->registers[operandA] = cpu_pop(cpu);
+        break;
     }
      cpu->PC += move_pc;
   }
