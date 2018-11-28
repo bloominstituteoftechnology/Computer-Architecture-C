@@ -1,5 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -49,6 +51,7 @@ void cpu_load(struct cpu *cpu, char *filename)
   while (fgets(line, sizeof line, fp) != NULL) {
     cpu->ram[address++] = strtoul(line, NULL, 2);
   }
+  fclose(fp);
 }
 
 /**
