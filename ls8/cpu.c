@@ -5,18 +5,32 @@
 
 #define DATA_LEN 6
 
-
+/* stack pointer (SP) needs to be 
+initialized with some value and set 
+as point to a memory location
+*/
 
 // *** push function for cpu stack
-// parameters cpu struct and input value
-// decrement the SP
-// set the value in the given register to the address indicated by SP
+// parameters: cpu struct and input value
+void cpu_push(struct cpu *cpu, char value)
+{
+  // decrement the SP
+  cpu->registers[SP]--;
+  // set the value in the given register to the address indicated by SP
+  cpu->ram[cpu->registers[SP]] = value;
+}
 
 // *** pop function for cpu stack
-// parameter is the cpu struct
+// parameter: is the cpu struct
+void cpu_pop(struct cpu *cpu)
+{
 // copy the value from the address pointed to by SP to the given register
-// increment the SP
+  char value = cpu->ram[cpu->registers[SP]];
+  // increment the SP
+  cpu->registers[SP]++;
+  // return the value popped
 
+}
 
 // Helper functions cpu_ram_read() and cpu_ram_write()
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar){
@@ -148,6 +162,12 @@ void cpu_run(struct cpu *cpu)
       printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       running = 0;
       break;
+
+      // POP
+      // PUSH
+      // RET
+      // CALL
+
     }
     // 4. Move the PC to the next instruction.
     cpu->PC += (IR >> 6) + 1;
@@ -166,3 +186,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
 }
+
+// create stack pointer

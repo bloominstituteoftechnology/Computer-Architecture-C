@@ -12,6 +12,14 @@ struct cpu {
   unsigned char ram[256];
 };
 
+/* 
+  r7 reserved for stack pointer
+  F3 start of stack
+  initiate value for string pointer
+  initiate location for string pointer */
+
+  #define SP 7 // this will be the register number for stack pointer
+
 // ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {
   ALU_ADD,
