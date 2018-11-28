@@ -9,13 +9,13 @@
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  	printf("reading value: %d from RAM at index: %d \n", cpu->ram[index], index);
+  	//printf("reading value: %d from RAM at index: %d \n", cpu->ram[index], index);
 	return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 {
-	printf("writing to RAM %d \n", value);
+	//printf("writing to RAM %d \n", value);
   	cpu->ram[index] = value;
 }
 
@@ -46,7 +46,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
         			continue;
       			}
       			
-			printf("CPU Load-writing to RAM %d at %d \n", byte, address);
+			//printf("CPU Load-writing to RAM %d at %d \n", byte, address);
 			cpu->ram[address++] = byte;
     	}
 	
@@ -97,7 +97,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char PC = cpu->PC;
-  
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -126,6 +126,20 @@ void cpu_run(struct cpu *cpu)
         	PC += shift;
         	break;
 		
+		case PUSH:
+		printf("Pushing value %d to Stack \n", cpu->reg[operandA]);
+		cpu_ram_write(cpu, --cpu->reg[SP], cpu->reg[operandA]);
+	        PC += shift;	
+		break;
+
+		case POP:
+		cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]++);
+		PC += shift;
+		printf("Popping value %d from Stack \n", cpu->reg[operandA]);
+
+		break;
+
+
 		case MUL:
       		alu(cpu, ALU_MUL, operandA, operandB);
       		PC += shift;
@@ -163,7 +177,11 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
    printf("CPU Init \n");
+   
    cpu->PC = 0x00;
+   
+   cpu->reg[SP] = 0xF4;   //setting SP to higer address
+
    memset(cpu->reg, 0, sizeof(cpu->reg));
    memset(cpu->ram, 0, sizeof(cpu->ram));
 
