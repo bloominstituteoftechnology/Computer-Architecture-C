@@ -5,11 +5,11 @@
 
 #define DATA_LEN 6
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index) {
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value) {
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
   cpu->ram[index] = value;
 }
 
@@ -57,13 +57,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR, operandA, operandB;
-  IR = cpu_ram_read(cpu, cpu->pc);
-  operandA = cpu_ram_read(cpu, cpu->pc+1);
-  operandB = cpu_ram_read(cpu, cpu->pc+2);
-  int add_to_pc = (IR >> 6) + 1;
 
   while (running) {
+    unsigned char IR, operandA, operandB;
+    IR = cpu_ram_read(cpu, cpu->pc);
+    operandA = cpu_ram_read(cpu, cpu->pc+1);
+    operandB = cpu_ram_read(cpu, cpu->pc+2);
+    int add_to_pc = (IR >> 6) + 1;
+
     switch (IR) {
       case LDI:
         cpu->registers[operandA] = operandB;
@@ -76,7 +77,6 @@ void cpu_run(struct cpu *cpu)
         break;
     }
     cpu->pc += add_to_pc;
-    // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
@@ -95,4 +95,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
+  cpu->registers[7] = 0xF4;
 }
