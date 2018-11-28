@@ -103,6 +103,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], operandA);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
+        break;
+
       default:
         printf("Default case triggered\n");
         break;
@@ -125,4 +135,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
   memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->reg[SP] = 0xf4;
 }
