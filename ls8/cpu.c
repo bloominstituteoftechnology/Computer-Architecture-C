@@ -80,8 +80,8 @@ unsigned char cpu_pop(struct cpu *cpu, int SP)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  int SP = 243; //starting point of the stack; 
-  unsigned char popped; 
+  int SP = 244; //starting point of the stack; 
+  // unsigned char popped; 
   while (running)
   {
     // TODO
@@ -108,13 +108,16 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
     case PUSH:
-      cpu_push(cpu, operandA, SP); 
+      printf("Pushing in here\n");
       SP--; 
+      cpu_push(cpu, operandA, SP); 
+      
       break; 
     case POP:
-      popped = cpu_pop(cpu,SP);
+      printf("Popping in here\n");
+      // popped = cpu_pop(cpu,SP);
+      cpu_reg_write(cpu, operandA, cpu->ram[SP]);
       SP++; 
-      cpu_reg_write(cpu, operandA, popped);
       break; 
     case HLT:
       running = 0; //should end loop
