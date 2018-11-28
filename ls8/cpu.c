@@ -68,9 +68,9 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char thing) {
   cpu->ram[index] = thing;
 }
 
-void cpu_push(struct cpu *cpu, unsigned char thing) {
+void cpu_push(struct cpu *cpu, unsigned char target) {
   cpu->registers[7] -= 1;
-  cpu->ram[cpu->registers[7]] = thing;
+  cpu->ram[cpu->registers[7]] = cpu->registers[target];
 }
 
 void cpu_pop(struct cpu *cpu, unsigned char target) {
