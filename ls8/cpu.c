@@ -57,15 +57,30 @@ void cpu_load(struct cpu *cpu, char *filename)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op, unsigned char operandA, unsigned char operandB)
 {
   switch (op) {
     case ALU_MUL:
-      cpu->reg[regA]*=cpu->reg[regB];
+      cpu->reg[operandA]*=cpu->reg[operandB];
       break;
 
     // TODO: implement more ALU ops
   }
+}
+
+void call_handler(struct cpu *cpu, unsigned char operandA){
+    cpu_ram_write(cpu, --cpu->reg[7], cpu->PC+2);
+    cpu->PC = cpu->reg[operandA];
+}
+
+void pop_handler(struct cpu *cpu, unsigned char operandA){
+  cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
+  cpu->reg[7]++;
+}
+
+void push_handler(struct cpu *cpu, unsigned char operandA){
+  cpu->reg[7]--;
+  cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
 }
 
 /**
@@ -87,7 +102,15 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     unsigned char move_pc = (IR >> 6) + 1;
 
+    // printf("cpu->PC %d      IR %d\n", cpu->PC, IR);
+    // printf("operandA %d     reg[operandA] %d\n", operandA, cpu->reg[operandA]);
+    // printf("operandB %d     reg[operandB] %d\n", operandB, cpu->reg[operandB]);
+    // printf("move_pc %d\n", move_pc);
+
     switch(IR) {
+      case CALL:
+        call_handler(cpu, operandA);
+        break;
       case LDI:
         cpu->reg[operandA] = operandB;
         break;
@@ -95,17 +118,17 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case POP:
-        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
-        cpu->reg[7]++;
+        pop_handler(cpu, operandA);
+        printf("%d\n", cpu->reg[7]);
         break;
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
         break;
       case PUSH:
-      // 1. Decrement the `SP`.
-      // 2. Copy the value in the given register to the address pointed to by `SP`.
-        cpu->reg[7]--;
-        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+        push_handler(cpu, operandA);
+        break;
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[7]++);
         break;
       case HLT:
         running = 0;
