@@ -16,6 +16,7 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
 	// Add more here
+  ALU_ADD
 };
 
 // Instructions
@@ -24,13 +25,15 @@ enum alu_op {
 // literals should be used.
 // ALU 
 #define MUL 0b10100010
-// #define ADD 0b10100000 - add functionality to alu switch and cpu switch and above in ALU operations ALU_ADD
+#define ADD 0b10100000 
 
 // Other
 // TODO: more instructions here. These can be used in cpu_run().
 #define LDI  0b10000010
 #define PRN 0b01000111
 #define HLT 0b00000001
+#define PUSH 0b01000101
+#define POP 0b01000110
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *filename);

@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -47,6 +48,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
     cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
     break;
+    case ALU_ADD:
+    cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+    break;
   }
 }
 
@@ -61,6 +65,10 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char CI = cpu_ram_read(cpu, cpu->PC);
+
+    unsigned char stack_p = 0xF4;
+    cpu->reg[7] = stack_p;
+    unsigned char prev_loc = 0;
 
     unsigned char operand_a = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     unsigned char operand_b = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
@@ -82,6 +90,17 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operand_a, operand_b);
       break;
+      case ADD:
+      alu(cpu, ALU_ADD, operand_a, operand_b);
+      break;
+    case PUSH:
+      cpu->reg[7] -= 1;
+      cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operand_a]);
+      break;
+    case POP:
+      cpu->reg[operand_a] = cpu_ram_read(cpu, cpu->reg[7]);
+      cpu->reg[7] += 1;
+      break;
     default:
       printf("\nThe instruction doesn't exist\n\n");
       exit(1);
@@ -102,4 +121,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
 
   //Later on, you might do further initialization here, e.g. setting the initial value of the stack pointer.
+   cpu->reg[7] = 0b11110100;
 }
