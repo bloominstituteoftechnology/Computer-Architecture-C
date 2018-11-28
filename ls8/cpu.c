@@ -85,6 +85,13 @@ void cpu_run(struct cpu *cpu)
         case MUL: // opcode to multiply values in registers
           alu(cpu, ALU_MUL, operandA, operandB); 
           break; 
+        case PUSH: //opcode to push values onto the CPU stack
+          // start by initializing the stack pointer at register 7
+          // according to the spec it will point to address F4 if current address is empty
+          // decrement the stack pointer ram index by one 
+          // OperandA is the register which holds the value to push 
+          // set the value at the stack pointer index in ram to the value in operandA register
+        case POP: //opcode to pop values of the CPU stack
       }
       
     
