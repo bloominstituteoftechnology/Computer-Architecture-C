@@ -92,12 +92,17 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case PUSH:
-        cpu->reg[8]--;
-        cpu->ram[cpu->reg[8]] = value1;
+      //reg[8or7]is sp r7
+        printf("PUSH\n");
+        cpu->reg[7]--;
+        cpu->ram[cpu->reg[7]] = cpu->reg[value1];
+        cpu->PC += 2;
         break;
       case POP:
-        cpu->reg[8] = value1;
-        cpu->reg[8]++;
+        printf("POP\n");
+        cpu->reg[value1] = cpu->ram[cpu->reg[7]];
+        cpu->reg[7]++;
+        cpu->PC += 2;
         break;
       default:
         exit(1);
