@@ -38,7 +38,6 @@ void cpu_load(struct cpu *cpu, char *file)
             cpu->ram[address++] = binary;
         }
     }
-     //printf("cpu at address 1: %d\n\n", cpu_ram_read(cpu, 0));
 
     fclose(fp);
 }
@@ -53,7 +52,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] *= cpu->registers[regB];
       break;
 
-    // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
   }
 }
 
@@ -65,54 +66,63 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    int move_pc = (IR >> 6) + 1;
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);  // Get the value of the current instruction (in address PC)
+    int move_pc = (IR >> 6) + 1;  // move counter
 
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
     switch (IR) {
-            case HLT:
-                running = 0;
-                break;
+      case HLT:
+        running = 0;
+        break;
 
-            case LDI:
-                cpu->registers[operandA] = operandB;
-                cpu->PC += move_pc; // 3
-                break;
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        cpu->PC += move_pc;
+        break;
 
-            case PRN:
-                printf("Saved value: %d\n", cpu->registers[operandA]);
-                cpu->PC += move_pc; // 2
-                break;
+      case PRN:
+        printf("Saved value: %d\n", cpu->registers[operandA]);
+        cpu->PC += move_pc;
+        break;
 
-            case MUL:
-                alu(cpu, ALU_MUL, operandA, operandB);
-                cpu->PC += move_pc; // 3
-                break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += move_pc;
+        break;
 
-            case PUSH:
-              // Push the value in the given register on the stack.
-              // 1. Decrement the `SP`.
-                cpu->registers[7] --;
-              // 2. Copy the value in the given register to the address pointed to by `SP`.
-                cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
-                cpu->PC += move_pc; // 2
-                break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += move_pc;
+        break;
 
-            case POP:
-              // Pop the value at the top of the stack into the given register.
-              // 1. Copy the value from the address pointed to by `SP` to the given register.
-                cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
-              // 2. Increment `SP`.
-                cpu->registers[7] ++;
-                cpu->PC += move_pc; // 2
-                break;
+      case PUSH:
+        cpu->registers[7] --;
+        cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+        cpu->PC += move_pc;
+        break;
 
-            default:
-              exit(1);
-        }
+      case POP:
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7] ++;
+        cpu->PC += move_pc;
+        break;
+
+      case CALL:
+        cpu->registers[7] --;
+        cpu_ram_write(cpu, cpu->registers[7], cpu->PC + 2);
+        cpu->PC = cpu->registers[operandA];
+        break;
+
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7] ++;
+        break;
+
+      default:
+        exit(1);
+    }
   }
 }
 
