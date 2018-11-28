@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "cpu.h"
 
-#define SP 5
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
   return cpu->ram[address];
@@ -111,6 +111,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[SP] = 0xF4;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
