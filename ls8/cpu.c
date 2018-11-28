@@ -13,7 +13,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index)
 void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
   cpu->ram[index] = value;
-  
 }
 
 /**
@@ -67,11 +66,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     // TODO
-    cpu->registers[regA] *= cpu->registers[regB]; 
+    cpu->registers[regA] *= cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
-    
   }
 }
 
@@ -105,6 +103,14 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
+    case PUSH:
+      cpu->registers[7]--;
+      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      break;
+    case POP:
+      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+      cpu->registers[7]++;
+      break;
     case HLT:
       running = 0;
       // cpu->PC++;
@@ -122,7 +128,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[7] = cpu->ram[0xF4];
   // TODO: Zero registers and RAM
-  memset(cpu->registers, 0, 8);
+  memset(cpu->registers, 0, 7);
   memset(cpu->ram, 0, 256);
 }
