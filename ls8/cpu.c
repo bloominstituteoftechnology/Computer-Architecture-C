@@ -82,6 +82,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+
+    unsigned char advance_pc = (IR >> 6) + 1;
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
 
@@ -91,17 +93,14 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
         break;
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->PC += 3;
         break;
 
       default:
@@ -109,6 +108,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
     }
+    cpu->PC += advance_pc;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
