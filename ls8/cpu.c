@@ -9,14 +9,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index){
-  // unsigned because we need a return for the read
-  return cpu->ram[index];
-}
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value){
-  // assign value to array element at given index.
-  cpu->ram[index] = value;
-}
+
 
 // add args to cpuload to use FILE I/O:
 void cpu_load(struct cpu *cpu, char *argv[])
@@ -51,6 +44,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *regist = cpu->regist;
   switch (op) {
     case ALU_MUL:
       // notice this overwrites whatevr registeer regA is as the product:
@@ -61,15 +55,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       regist[regA] += regist[regB];
       break;
-    // TODO: implement more ALU ops
+
     case ALU_SUB:
       regist[regA] -= regist[regB];
       break;
-      // TODO: implement more ALU ops
+
     case ALU_DIV:
       regist[regA] /= regist[regB];
       break;
-    // TODO: implement more ALU ops
+
     case ALU_MOD:
       regist[regA] = regist[regA]%regist[regB];
       break;
@@ -81,20 +75,91 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  //declare struct components:
+  //unsigned char *ram = cpu->ram;
+  unsigned char *regist = cpu->regist;
+  unsigned char PC = cpu->PC;
 
+  int running = 1; // True until we get a HLT instruction
   while (running) {
-    int c = ram[PC];
-    switch (c) {
-      case HLT:
-      running = 0;
-      break;
-    }
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    // Instruction register set to RAM address at program counter
+    unsigned char IR = cpu_ram_read(cpu, PC);
+    // first operand is the next intsuction in mem
+    unsigned char operandA = cpu_ram_read(cpu, (PC + 1));
+    unsigned char operandB = cpu_ram_read(cpu, (PC + 2));
+    // shift for moving PC along must be past the reserved registers bitwise right shift by 6 bits from the current PC. initialize past 7.
+    int shift = ((IR >> 6)) + 1;
+
+
+      // 2. switch() over it to decide on a course of action. use case based on instruction inpuit through args
+      // 3. Do whatever the instruction should do according to the spec. in the middle of each case
+
+
+      switch (IR) {
+
+        case HLT:
+        //stop da loop
+          running = 0;
+          break;
+
+      //set register to coorrect value, we overwrite registetrA just like in the ALU OP:
+        case LDI:
+          regist[operandA] = operandB;
+          //next program
+          PC += shift;
+          break;
+
+        case PRN:
+          printf("%d \n", regist[operandA]);
+          PC += shift;
+          break;
+
+        case MUL:
+          //call alu function to perform the multiplication logic from earlier
+          alu(cpu, ALU_MUL, operandA, operandB);
+          PC += shift;
+          break;
+
+        case ADD:
+          alu(cpu, ALU_ADD, operandA, operandB);
+          PC += shift;
+          break;
+
+        case SUB:
+          alu(cpu, ALU_SUB, operandA, operandB);
+          PC += shift;
+          break;
+
+        case DIV:
+          alu(cpu, ALU_DIV, operandA, operandB);
+          PC += shift;
+          break;
+
+        case MOD:
+          alu(cpu, ALU_MOD, operandA, operandB);
+          PC += shift;
+          break;
+
+        //stack methods:
+        case PUSH:
+          cpu_ram_write(cpu, --regist[SP], regist[operandA]);
+          break;
+
+        case POP:
+          cpu_ram_read(cpu, regist[SP]++);
+          break;
+
+      //error handling in case no instructions were correctly input
+        default:
+          printf("incorret instuction %02x at %02x\n", PC, IR );
+          //terminat calling process:
+          exit(2);
+
+      }
+      // 4. Move the PC to the next instruction. done with incemeneting shift var
+      PC += shift;
   }
 }
 
@@ -110,4 +175,13 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->regist, 0, sizeof(cpu->regist));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index){
+  // unsigned because we need a return for the read
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value){
+  // assign value to array element at given index.
+  cpu->ram[index] = value;
 }

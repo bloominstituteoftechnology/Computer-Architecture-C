@@ -253,7 +253,7 @@ Halt the CPU (and exit the emulator).
 
 Machine code:
 ```
-00000001 
+00000001
 01
 ```
 
