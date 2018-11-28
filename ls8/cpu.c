@@ -35,24 +35,8 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
   while(fgets(line, sizeof(line), fp) != NULL){
     printf(">>>>>>> %d\n", strtoul(line, NULL, 10));
-    // cpu->ram[address] = strtoul(line, NULL, 10);
-    // printf("RAM ITEM >>> %d\n", cpu->ram[address]);
-    // address++;
+    cpu->ram[address] = strtoul(line, NULL, 10);
   }
-
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-  // TODO: Replace this with something less hard-coded
 }
 
 /**

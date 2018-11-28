@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     printf("file name >>> %s", filename);
     cpu_init(&cpu);
     cpu_load(&cpu, filename);
-    // cpu_run(&cpu);
   }
 
   return 0;
