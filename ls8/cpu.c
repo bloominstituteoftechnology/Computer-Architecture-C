@@ -25,23 +25,17 @@ void cpu_ram_write(unsigned char index, struct cpu *cpu, unsigned char value)
 
 void cpu_load(struct cpu *cpu, char *argv[])
 {
-  FILE *fp = fopen(argv, "r"); // where is path defined? at function call
-  char *str[256];
+  FILE *fp = fopen(argv[1], "r"); // where is path defined? at function call
+  char str[256];
   int address = 0;
   char *ptr;
-  char data = fgets(str, sizeof(str), fp);
-
-  while(data != NULL) {
-    
-    unsigned char ret = stroul(str, &ptr, 2);
-    if(ptr == str){  
-      continue;
-    }
-    cpu->ram[address++] = data; // we need a little more here. also, where is fgets storing its results into? will that work?
-    // not sure. i don't think fgets will be called again, so you'll be in an infinite loop
-    // if you look at doku for fgets, the first argument is where it will save its results into, the second argument is how many characters to read
-    // and the third argument is where to read from
-
+  char file = NULL;
+  if(fp == NULL) {
+    printf("error reading the file");
+  }
+  while(file = fgets(str, sizeof(str), fp) != NULL) {
+    unsigned char ret = strtoul(str, NULL, 2);
+    cpu->ram[address++] = ret;
   }
   fclose(fp);
 }
@@ -55,7 +49,13 @@ void cpu_load(struct cpu *cpu, char *argv[])
 // stream − This is the pointer to a FILE object that identifies the stream where characters are read from.
 
 
+// strtoul
+// unsigned long int strtoul(const char *str, char **endptr, int base)
+// str − This is the string containing the representation of an unsigned integral number.
 
+// endptr − This is the reference to an object of type char*, whose value is set by the function to the next character in str after the numerical value.
+
+// base − This is the base, which must be between 2 and 36 inclusive, or be the special value 0.
 
 /**
  * ALU
@@ -79,11 +79,14 @@ void cpu_run(struct cpu *cpu)
   unsigned char ir;
   unsigned char register_index;
   int num;
+
   
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     ir = cpu_ram_read(cpu->pc, cpu);
+    char operA = cpu_ram_read(cpu->pc + 1, cpu);
+    char operB = cpu_ram_read(cpu->pc + 2, cpu);
     // 2. switch() over it to decide on a course of action.
     switch(ir) {
       case HLT: // HLT
@@ -126,13 +129,6 @@ void cpu_init(struct cpu *cpu)
 
 
 
-// strtoul
-// unsigned long int strtoul(const char *str, char **endptr, int base)
-// str − This is the string containing the representation of an unsigned integral number.
-
-// endptr − This is the reference to an object of type char*, whose value is set by the function to the next character in str after the numerical value.
-
-// base − This is the base, which must be between 2 and 36 inclusive, or be the special value 0.
 
 
 
@@ -183,7 +179,7 @@ void cpu_init(struct cpu *cpu)
         // 0b00000000,
         // 0b00000001, // HLT
       
-  };
+  // };
 
 //   int address = 0;
 

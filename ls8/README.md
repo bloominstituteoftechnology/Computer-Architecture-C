@@ -247,7 +247,6 @@ function handle_HLT() { ... }
 
 branchTable[LDI] = handle_LDI;
 branchTable[HLT] = handle_HLT;
-
 let IR = ram_read(this.reg.PC); // Fetch instruction
 let handler = branchTable[IR]; // Look up handler in branch table
 
