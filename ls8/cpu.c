@@ -21,11 +21,11 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(1); 
   }
 
-  cpu->SP = 0xF3;
+  int address = 0;
 
   while(fgets(line, sizeof(line), fp) != NULL) {
-    cpu->ram[cpu->SP] = strtoul(line, NULL, 2); 
-    cpu->SP--; 
+    cpu->ram[address] = strtoul(line, NULL, 2); 
+    address++; 
   }
   
   fclose(fp);
@@ -74,40 +74,40 @@ void cpu_run(struct cpu *cpu)
 
     switch (c) {
       case LDI: 
-        cpu->R[cpu->ram[cpu->PC - movePC + 1]] = cpu->ram[cpu->PC - movePC];
+        cpu->R[cpu->ram[cpu->PC + movePC - 1]] = cpu->ram[cpu->PC + movePC];
         // printf("Loaded R[0] with: %d\n", cpu->R[0]);
         // printf("Loaded R[1] with: %d\n", cpu->R[1]);
-        cpu->PC -= movePC;
+        cpu->PC += movePC;
         break;
 
       case PRN:
-        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC - movePC]]);
-        cpu->PC -= movePC; 
+        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC; 
         break;
 
       case MUL:
-        alu(cpu, 0, cpu->R[cpu->ram[cpu->PC - movePC + 1]], cpu->R[cpu->ram[cpu->PC - movePC]]);
-        cpu->PC -= movePC;
+        alu(cpu, 0, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
         break;
 
       case PUSH:
-        cpu->SP--; 
-        cpu->ram[cpu->SP] = cpu->R[cpu->ram[cpu->PC - movePC]];
+        cpu->R[7]--; 
+        cpu->ram[cpu->R[7]] = cpu->R[cpu->ram[cpu->PC + movePC]];
         // printf("Stack added: %d\n", cpu->ram[cpu->SP]);
-        cpu->PC -= movePC;
+        cpu->PC += movePC;
         break;
 
       case POP:
-        cpu->R[cpu->ram[cpu->PC - movePC]] = cpu->ram[cpu->SP]; 
-        cpu->SP++;
-        cpu->PC -= movePC;
+        cpu->R[cpu->ram[cpu->PC + movePC]] = cpu->ram[cpu->R[7]]; 
+        cpu->R[7]++;
+        cpu->PC += movePC;
         break;
 
       case HLT:
         running = 0;
         break; 
     }
-    cpu->PC--; 
+    cpu->PC++; 
     
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -120,7 +120,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0xF3; 
+  cpu->PC = 0; 
   
   // TODO: Zero registers and RAM
   memset(cpu->R, 0, 7 * sizeof(cpu->R[0]));
