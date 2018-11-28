@@ -29,17 +29,30 @@ void cpu_load(struct cpu *cpu, char *argv[])
   char *str[256];
   int address = 0;
   char *ptr;
+  char data = fgets(str, sizeof(str), fp);
 
-  while(fgets(str, sizeof(str), fp) != NULL) {
+  while(data != NULL) {
+    
     unsigned char ret = stroul(str, &ptr, 2);
     if(ptr == str){  
       continue;
     }
-    cpu->ram[address++] = data;
+    cpu->ram[address++] = data; // we need a little more here. also, where is fgets storing its results into? will that work?
+    // not sure. i don't think fgets will be called again, so you'll be in an infinite loop
+    // if you look at doku for fgets, the first argument is where it will save its results into, the second argument is how many characters to read
+    // and the third argument is where to read from
+
   }
   fclose(fp);
 }
 
+// fgets
+// char *fgets(char *str, int n, FILE *stream)
+// str − This is the pointer to an array of chars where the string read is stored.
+
+// n − This is the maximum number of characters to be read (including the final null-character). Usually, the length of the array passed as str is used.
+
+// stream − This is the pointer to a FILE object that identifies the stream where characters are read from.
 
 
 
@@ -112,13 +125,6 @@ void cpu_init(struct cpu *cpu)
 }
 
 
-// fgets
-// char *fgets(char *str, int n, FILE *stream)
-// str − This is the pointer to an array of chars where the string read is stored.
-
-// n − This is the maximum number of characters to be read (including the final null-character). Usually, the length of the array passed as str is used.
-
-// stream − This is the pointer to a FILE object that identifies the stream where characters are read from.
 
 // strtoul
 // unsigned long int strtoul(const char *str, char **endptr, int base)

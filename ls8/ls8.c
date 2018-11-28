@@ -8,8 +8,12 @@
  */
 int main(int argc, char *argv[])
 {
-  // argv[0] = 
   struct cpu cpu;
+  if(argc != 2) {
+    printf("enter at least 2 arguments\n");
+    exit(1);
+  }
+  
 
   cpu_init(&cpu);
   cpu_load(&cpu, argv);

@@ -7,8 +7,8 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned char pc;
   // creating a IR in struct is better way to do it
+  unsigned char pc;
   unsigned char registers[8];
   unsigned char ram[256];
 };
@@ -42,7 +42,7 @@ printf("some debug prints");
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu, char *path);
+extern void cpu_load(struct cpu *cpu, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
