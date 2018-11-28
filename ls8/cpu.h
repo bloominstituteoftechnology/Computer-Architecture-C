@@ -17,14 +17,6 @@ struct cpu {
   // R: yep you need something with 256 slots. right now, you just have a variable with the number 256 on it
 };
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
- return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char *data) {
-  cpu->ram[index] = data;
-}
-
 // ALU operations
 enum alu_op {
 	ALU_MUL
@@ -41,7 +33,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *path);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
