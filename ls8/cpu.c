@@ -52,6 +52,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
   }
 }
@@ -60,6 +62,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
+//, int * regNum
 {
   int running = 1; // True until we get a HLT instruction
 
@@ -91,6 +94,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, value1, value2);
         cpu->PC += 3;
         break;
+      case ADD:
+        alu(cpu, ALU_ADD, value1, value2);
+        cpu->PC += 3;
+        break;
       case PUSH:
       //reg[8or7]is sp r7
         printf("PUSH\n");
@@ -104,6 +111,33 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[7]++;
         cpu->PC += 2;
         break;
+      case CALL:
+        printf("CALL\n");
+        //value 1 pushed onto stack
+        cpu->ram[cpu->reg[7]] = value2;
+        //pc is set to value 1 
+        printf("CALL 2\n");
+        cpu->PC = cpu->reg[1];
+        printf("CALL 3\n");
+        break;
+      case RET:
+        printf("RET\n");
+        cpu->PC = cpu->ram[cpu->reg[7]];
+        break;
+        
+// ### JMP
+
+// `JMP register`
+
+// Jump to the address stored in the given register.
+
+// Set the `PC` to the address stored in the given register.
+
+// Machine code:
+// ```
+// 01010100 00000rrr
+// 54 0r
+// ```
       default:
         exit(1);
     }
