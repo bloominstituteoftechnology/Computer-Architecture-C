@@ -12,7 +12,7 @@
 void cpu_load(struct cpu *cpu, char *filename)
 {
   FILE *fp = fopen(filename, "r");
-  char line[8888];
+  char line[2222];
 
   if (fp == NULL) {
     perror("Error opening file. \n");
@@ -44,14 +44,15 @@ void cpu_load(struct cpu *cpu, char *filename)
   }*/
 
   // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, char index) {
-  return cpu->ram[index];
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
+  return cpu->ram[address];
 }
 
-void cpu_ram_write(struct cpu *cpu, char index, unsigned char val) {
-  cpu->ram[index] = val;
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val) {
+  cpu->ram[address] = val;
 }
 
 /**
@@ -67,7 +68,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->registers[regA] += cpu->registers[regB];
       break;
-
   }
 }
 
@@ -100,6 +100,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case PRN:
+        printf("operandA, operandB: %d   %d\n", operandA, operandB);
         printf(">> register value: %d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
@@ -108,7 +109,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case ADD:
-        alu(cpu, ALU_MUL, operandA, operandB);
+        alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC += 3;
         break;
     }
