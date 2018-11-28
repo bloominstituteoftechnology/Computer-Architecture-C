@@ -15,6 +15,7 @@
 	}
 	else {
                 printf("Please provide a file name \n");
+		return 0;
 	}
   	return 0;
 }	 
