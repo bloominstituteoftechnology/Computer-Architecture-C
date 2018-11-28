@@ -57,6 +57,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char ret = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return ret;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->registers[SP]--;
+  cpu->[cpu->registers[SP]] = val;
+}
+
 /**
  * Run the CPU
  */
@@ -83,6 +96,12 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       alu(cpu, ALU_MUL, param1, param2);
+      break;
+    case PUSH:
+      cpu_push(cpu, cpu->registers[param1]);
+      break;
+    case POP:
+      cpu->registers[param1] = cpu_pop(cpu);
       break;
     case HLT:
       running = 0;
