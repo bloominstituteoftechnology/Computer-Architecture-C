@@ -21,9 +21,11 @@ void cpu_load(struct cpu *cpu, char *filename)
   // };
   FILE *fp = fopen(filename, "r");
   int address = 0;
-  char c[8192];
-  while (fgets(c, sizeof c, fp) != NULL) {
-   cpu->ram[address++] = strtoul(c, NULL, 2);
+  char line[32];
+  char *ptr;
+  while (fgets(line, sizeof line, fp) != NULL) {
+   cpu->ram[address++] = strtoul(line, &ptr, 2);
+  //  printf("Unused portion of line: %s\n", ptr);
   }
   fclose(fp);
 
