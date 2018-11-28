@@ -13,6 +13,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index)
 void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
   cpu->ram[index] = value;
+  
 }
 
 /**
