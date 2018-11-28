@@ -1,8 +1,8 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-// #define MAX_ADRESS Oxff
-// max adress here oxff=255 as final memory destination
+// #define MAX_ADRESS 0xff
+// max adress here 0xff=255 as final memory destination
 
 // define reserved registers here:
 #define IM 5 // Interrupt mask R6
