@@ -9,9 +9,9 @@ unsigned char read_ram(struct cpu *cpu, unsigned char address)
     return cpu->ram[address]; 
   }
 
-  unsigned char write_ram(struct cpu *cpu, unsigned char address, unsigned char val)
+  void write_ram(struct cpu *cpu, unsigned char address, unsigned char val)
   {
-    return cpu->ram[address] = val;
+    cpu->ram[address] = val;
   }
 
 /**
@@ -73,18 +73,40 @@ void cpu_run(struct cpu *cpu)
     switch(i)
     {
       case LDI:
+      // printf("working-LDI");
         cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
+
+      case POP:
+      // printf("working-POP");
+        cpu->registers[operandA] = read_ram(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
+        cpu->PC += 2;  
+        break;
+
+      case PUSH:
+      // printf("working-PUSH");
+        cpu->registers[7]--;
+        write_ram(cpu, cpu->registers[7], cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+
       case PRN:
+      // printf("working-PRN");
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
+
       case MUL:
+      // printf("working-MUL");
         alu(cpu, ALU_MUL, operandA, operandB); 
         cpu->PC += 3;
-        break; 
+        break;
+         
       case HLT: 
+      printf("working-HLT");
         running = 0;
         cpu->PC++;
         break; 
@@ -102,5 +124,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
+  cpu->registers[7] = 0xF4;
 }
 
