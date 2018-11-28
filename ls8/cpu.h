@@ -1,6 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define SP 7
 
 // Holds all information about the CPU
 struct cpu {
@@ -11,6 +12,7 @@ struct cpu {
   unsigned char reg[8]; 
   // ram (array)
   unsigned char ram[256];
+
 };
 
 // ALU operations
