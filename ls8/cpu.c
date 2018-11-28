@@ -27,18 +27,18 @@ void cpu_load(struct cpu *cpu, char *filename)
   char line[8192];
   int address = 0;
   printf("file name >>> %s", filename);
-  // fp = fopen(filename, "r");
+  fp = fopen(filename, "r");
   if(fp == NULL){
     printf("Wrong!!!");
   } else {
     printf("Right!!!");
   }
-  // while(fgets(line, sizeof(line), fp) != NULL){
-    // printf(">>>>>>> %d\n", strtoul(line, NULL, 2));
+  while(fgets(line, sizeof(line), fp) != NULL){
+    printf(">>>>>>> %d\n", strtoul(line, NULL, 10));
     // cpu->ram[address] = strtoul(line, NULL, 10);
     // printf("RAM ITEM >>> %d\n", cpu->ram[address]);
     // address++;
-  // }
+  }
 
   // char data[DATA_LEN] = {
   //   // From print8.ls8
