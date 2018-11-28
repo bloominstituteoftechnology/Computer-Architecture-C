@@ -12,8 +12,9 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index){
   return cpu->ram[index];
 };
   
-void cpu_ram_write(){
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char new){
   //assign that index above to value
+  return cpu->ram[index] = new;
 };
 
 void cpu_load(struct cpu *cpu, char *argv)
@@ -33,13 +34,14 @@ void cpu_load(struct cpu *cpu, char *argv)
       char *endptr;
       binary = strtoul(str, &endptr, 2);
       if (str != endptr) {
+        // printf("%d", binary);
         cpu->ram[address++] = binary;
       }
   }
-  // printf("cpu at address 1: %d\n\n", cpu_ram_read(cpu, 0));
+  printf("cpu at address 1: %d\n\n", cpu_ram_read(cpu, 0));
 
   fclose(fp);
-  exit(EXIT_SUCCESS);
+  // exit(EXIT_SUCCESS);
 }
 
 /**
@@ -47,17 +49,11 @@ void cpu_load(struct cpu *cpu, char *argv)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  // switch (op) {
-  //   case ALU_HLT:
-  //     break;
-  //   case ALU_LDI:
-  //     regB = regA;
-  //     break;
-  //   case ALU_PRN:
-  //     printf("this is number is in the next register %i", regA);
-  //     break;
-  //   // TODO: implement more ALU ops
-  // }
+  switch (op) {
+    case ALU_MUL:
+      cpu->reg[regA] *= cpu->reg[regB];
+      break;
+  }
 }
 
 /**
@@ -89,6 +85,11 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         printf("\nHalting Program.");
         exit(0); //terminates the whole program insetead of exiting switch... exit is kinda opposite ish 
+        break;
+      case MUL:
+        // printf("product: %d\n", value1);
+        alu(cpu, ALU_MUL, value1, value2);
+        cpu->PC += 3;
         break;
       default: 
         exit(1);
