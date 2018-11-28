@@ -8,8 +8,8 @@ struct cpu {
   int MAR;
   int MDL;
   int FL;
-  int registers[8];
-  char ram[256];
+  unsigned char registers[8];
+  unsigned char ram[256];
 };
 
 // ALU operations
@@ -32,12 +32,17 @@ enum alu_op {
 #define PUSH 0b01000101 
 #define POP  0b01000110 
 #define PRN  0b01000111 
+//ALU
+#define ALU_ADD  0b10100000
+#define ALU_SUB  0b10100001
+#define ALU_MUL  0b10100010
+#define ALU_DIV  0b10100011
 
 
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, int argc, char *arg);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
