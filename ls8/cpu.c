@@ -29,22 +29,27 @@ void multiply(struct cpu *cpu,unsigned char instruction) {
   unsigned char a=cpu->registers[cpu_ram_read(cpu,cpu->PC+1)];
   unsigned char b=cpu->registers[cpu_ram_read(cpu,cpu->PC+2)];
   unsigned char ans=0;
-  while (b>0) {
+  while (1) {
     if (b&1) {
       ans+=a;
+      if (b==1) {
+        cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=ans;
+        cpu->PC+=((instruction>>6)+1);
+        break;
+      }
     }
-    a=a<<1;
-    b=b>>1;
+    a<<=1;
+    b>>=1;
   }
-  cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=ans;
-  cpu->PC+=((instruction>>6)+1);
 }
 void cpu_load(struct cpu *cpu,char *filename)
 {
   FILE *fp=fopen(filename,"r");
   char string[128];
   int address = 0;
-
+  if (fp==NULL) {
+    exit(1);
+  }
   while (fgets(string,128,fp)!=NULL) {
     unsigned char data=strtoul(string,NULL,2);
     cpu->ram[address++] = data;
