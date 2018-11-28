@@ -18,6 +18,17 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
   cpu->ram[index] = item;
 }
 
+void push(struct cpu *cpu, unsigned char targetReg) {
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = cpu->registers[targetReg];
+
+}
+
+void pop(struct cpu *cpu, unsigned char targetReg) {
+  cpu->registers[targetReg] = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
+}
+
 void cpu_load(char* filename, struct cpu *cpu)
 {
   FILE *fp = fopen(filename, "r" );
@@ -27,7 +38,7 @@ void cpu_load(char* filename, struct cpu *cpu)
     exit(1);
   }
   int address = 0;
-  
+
   while(fgets(line, sizeof line, fp) != NULL) {
     cpu->ram[address] = strtoul(line, NULL, 2);
     address++;
@@ -78,6 +89,8 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
     switch(IR)
     {
       case LDI:
@@ -96,11 +109,19 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        cpu->PC +=3;
+        cpu->PC += 3;
+        break;
+
+      case PUSH:
+        push(cpu, operandA);
+        cpu->PC += 2;
+        break;
+
+      case POP:
+        pop(cpu, operandA);
+        cpu->PC += 2;
         break;
     }
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
   }
 }
 
@@ -110,10 +131,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;  
-  // cpu->registers[7] = 0xF4;
+  cpu->PC = 0;
+  
 
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->registers[7] = cpu->ram[0xF4];
 }
