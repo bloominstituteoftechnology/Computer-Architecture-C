@@ -14,8 +14,8 @@ void cpu_load(struct cpu *cpu, char *filename)
   char line[8888];
 
   if (fp == NULL) {
-    printf("Error opening file. \n");
-    exit(1);
+    perror("Error opening file. \n");
+    return 0;
   }
 
   int address = 0;
@@ -60,7 +60,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -80,7 +80,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    IR = cpu_ram_read(cpu->PC, cpu);
+    IR = cpu_ram_read(cpu, cpu->PC);
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
     // 3. Do whatever the instruction should do according to the spec.
@@ -89,12 +89,12 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       case LDI:
-        num = cpu_ram_read(cpu->PC + 2, cpu);
-        cpu->registers[cpu_ram_read(cpu->PC + 1, cpu)] = num;
+        num = cpu_ram_read(cpu, cpu->PC + 2);
+        cpu->registers[cpu_ram_read(cpu, cpu->PC + 1)] = num;
         cpu->PC += 3;
         break;
       case PRN:
-        registers_index = cpu_ram_read(cpu->PC + 1, cpu);
+        registers_index = cpu_ram_read(cpu, cpu->PC + 1);
         printf(">> register value: %d\n", cpu->registers[registers_index]);
         cpu->PC += 2;
         break;
