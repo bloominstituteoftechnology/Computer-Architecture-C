@@ -14,10 +14,20 @@ void cpu_load(struct cpu *cpu, char *filename)
   FILE *fp = fopen(filename, "r");
   int address = 0;
   char line[32];
+  char *ptr;
   while (fgets(line, sizeof line, fp) != NULL) {
-    cpu->ram[address++] = strtoul(line, NULL, 2);
+    cpu->ram[address++] = strtoul(line, &ptr, 2);
+    #if DEBUG
+      printf("Line that is not used: %s\n", ptr);
+      #endif
   }
   fclose(fp);
+  #if DEBUG
+    for (int i = 0; i < 64; i++) {
+      printf("RAM at index %d: %d\n", i, cpu->ram[i]);
+    }
+    #endif
+  
 
 }
 
@@ -30,6 +40,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
+    case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
+    default:
+      printf("Default case reached. No ALU function triggered.\n");
 
     // TODO: implement more ALU ops
   }
@@ -59,44 +74,76 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
+    int INC_PC = 0;
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
       case HLT:
-        if (DEBUG) {
+        #if DEBUG
           printf("HLT\n");
-        }
+          #endif
         running = 0;
+        INC_PC = 1;
         break;
       case LDI:
-        if (DEBUG) {
+        #if DEBUG
           printf("LDI\n");
-        }
+          #endif
         cpu->registers[operandA] = operandB;
+        INC_PC = 1;
         break;
       case PRN:
-        if (DEBUG) {
-          printf("PRN\n");
-        }
+        #if DEBUG
+          printf("RET\n");
+          #endif
         printf("%d\n", cpu->registers[operandA]);
+        INC_PC = 1;
         break;
       case MUL:
-        if (DEBUG) {
+        #if DEBUG
           printf("MUL\n");
-        }
+          #endif
         alu(cpu, ALU_MUL, operandA, operandB);
+        INC_PC = 1;
         break;
       case PUSH:
-        if (DEBUG) {
+        #if DEBUG
           printf("PUSH\n");
-        }
+          #endif
         cpu->ram[--cpu->registers[7]] = cpu->registers[operandA];
+        INC_PC = 1;
         break;
       case POP:
-        if (DEBUG) {
+        #if DEBUG
           printf("POP\n");
-        }
+          #endif
         cpu->registers[operandA] = cpu->ram[cpu->registers[7]++];
+        INC_PC = 1;
+        break;
+      case CALL:
+        #if DEBUG
+          printf("CALL\n");
+          #endif
+        cpu->ram[--cpu->registers[7]] = PC+2;
+        cpu->PC = cpu->registers[operandA] + 1;
+        #if DEBUG
+          printf("What we're setting PC to in CALL: %d\n", cpu->registers[operandA]);
+          #endif
+        INC_PC = 0;
+        break;
+      case RET:
+        #if DEBUG
+          printf("RET\n");
+          #endif
+        cpu->PC = cpu->ram[cpu->registers[7]++];
+        INC_PC = 0;
+        break;
+      case ADD:
+        #if DEBUG 
+          printf("ADD\n");
+          #endif
+        alu(cpu, ALU_ADD, operandA, operandB);
+        INC_PC = 1;
         break;
       default:
         printf("Instruction number: %d\n", IR);
@@ -104,8 +151,12 @@ void cpu_run(struct cpu *cpu)
         break;
     }
     // 4. Move the PC to the next instruction.
-    // printf("%d\n", (instruction >> 6));
-    cpu->PC += 1 + (IR >> 6);
+    if (INC_PC) {
+      cpu->PC += 1 + (IR >> 6);
+    }
+    #if DEBUG
+      sleep(1);
+      #endif
     
   }
 }
