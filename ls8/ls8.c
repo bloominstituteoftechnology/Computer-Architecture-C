@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
   if (argc != 2) {
-    fprint("usage: ./ls8 filename\n");
+    printf("usage: ./ls8 filename\n");
     return 1;
   }
   struct cpu cpu;
