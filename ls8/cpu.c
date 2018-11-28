@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define DEBUG 0
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -92,10 +93,27 @@ void cpu_run(struct cpu *cpu)
         // cpu->registers[(int)operandA] =  cpu->registers[(int)operandA] *  cpu->registers[(int)operandB];
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
-      default:
-        printf("%d", IR);
-        printf("Default case reached.\n");
+        // default:
+        // printf("%d", IR);
+        // printf("Default case reached.\n");
+        // break;
+        case PUSH:
+        if(DEBUG) {
+          printf("PUSH\n");
+        }
+        cpu->ram[--cpu->registers[7]] = cpu->registers[operandA];
         break;
+        case POP:
+        if (DEBUG) {
+          printf("POP\n");
+        }
+        cpu->registers[operandA] = cpu->ram[cpu->registers[7]++];
+        break;
+        default:
+        printf("Instruction number: %d\n", IR);
+        printf("Default case reached. Command invalid.\n");
+        break;
+
     }
     // 4. Move the PC to the next instruction.
     // printf("%d\n", (instruction >> 6));
