@@ -5,13 +5,12 @@
 
 unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
-  return cpu->ram[index];
+  return cpu->ram[index];  // access RAM inside struct cpu
 }
 
 void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
-  // access RAM inside struct cpu
-  cpu->ram[index] = value;
+  cpu->ram[index] = value;  // access RAM inside struct cpu
 }
 
 /**
@@ -19,12 +18,6 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
  */
 void cpu_load(struct cpu *cpu, char *file)
 { 
-    //open a file
-    //read its contents line by line
-    //save data into ram
-    // ignore blank lines and everything after #
-    // need to convert str to int using strtoul()
-
     FILE * fp;
     fp = fopen(file, "r");
     char str[30];
@@ -57,7 +50,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -71,17 +64,14 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
-
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
+    // Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    //int move_pc = (IR >> 6) + 1;
-    // 2. switch() over it to decide on a course of action.
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+    int move_pc = (IR >> 6) + 1;
+
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
     switch (IR) {
             case HLT:
                 running = 0;
@@ -89,12 +79,17 @@ void cpu_run(struct cpu *cpu)
 
             case LDI:
                 cpu->registers[operandA] = operandB;
-                cpu->PC += 3;
+                cpu->PC += move_pc; // 3
                 break;
 
             case PRN:
                 printf("Saved value: %d\n", cpu->registers[operandA]);
-                cpu->PC += 2;
+                cpu->PC += move_pc; // 2
+                break;
+
+            case MUL:
+                alu(cpu, ALU_MUL, operandA, operandB);
+                cpu->PC += move_pc; // 3
                 break;
 
             default:
@@ -108,9 +103,9 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // Initialize the PC and other special registers
   cpu->PC = 0;
-  // TODO: Zero registers and RAM
+  // Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }

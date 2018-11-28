@@ -13,9 +13,9 @@ int main(int argc, char *argv[])
       printf("Usage: ./ls8 examples/print8.ls8\n");
       exit(1);
     } else {
-      cpu_init(&cpu); //turn on
-      cpu_load(&cpu, argv[1]); //load data
-      cpu_run(&cpu);  // execute
+      cpu_init(&cpu); // clear registers/RAM to zero
+      cpu_load(&cpu, argv[1]); // load instructions into RAM
+      cpu_run(&cpu);  // execute instructions
     }
 
   return 0;
