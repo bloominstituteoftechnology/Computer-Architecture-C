@@ -41,7 +41,7 @@ void cpu_load(struct cpu *cpu, char *file)
   fp = fopen(file, "r"); 
 
   if (fp == NULL){
-  printf("Cannot Open File.\n", fp);
+  printf("Cannot Open File.\n");
   exit(2);
   }
 
@@ -101,6 +101,7 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB); 
         break;
     }
+     cpu->PC += move_pc;
   }
 }
 
