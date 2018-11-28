@@ -92,6 +92,9 @@ void cpu_run(struct cpu *cpu)
           // OperandA is the register which holds the value to push 
           // set the value at the stack pointer index in ram to the value in operandA register
         case POP: //opcode to pop values of the CPU stack
+          // at the stack pointer take the value and store it in register 0
+          // increment the stack pointer 
+          // return the popped value 
       }
       
     
