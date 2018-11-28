@@ -4,36 +4,21 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define DEBUG 0
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
   FILE *fp = fopen(filename, "r");
   int address = 0;
   char line[32];
-  char *ptr;
   while (fgets(line, sizeof line, fp) != NULL) {
-   cpu->ram[address++] = strtoul(line, &ptr, 2);
-  //  printf("Unused portion of line: %s\n", ptr);
+    cpu->ram[address++] = strtoul(line, NULL, 2);
   }
   fclose(fp);
 
- 
-
- 
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -78,30 +63,49 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
       case HLT:
-        printf("HLT\n");
+        if (DEBUG) {
+          printf("HLT\n");
+        }
         running = 0;
         break;
       case LDI:
-        printf("LDI\n");
-        cpu->registers[(int)operandA] = operandB;
+        if (DEBUG) {
+          printf("LDI\n");
+        }
+        cpu->registers[operandA] = operandB;
         break;
       case PRN:
-        printf("PRN\n");
-        printf("%d\n", cpu->registers[(int)operandA]);
+        if (DEBUG) {
+          printf("PRN\n");
+        }
+        printf("%d\n", cpu->registers[operandA]);
         break;
       case MUL:
-        printf("MUL\n");
-        // cpu->registers[(int)operandA] =  cpu->registers[(int)operandA] *  cpu->registers[(int)operandB];
+        if (DEBUG) {
+          printf("MUL\n");
+        }
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      case PUSH:
+        if (DEBUG) {
+          printf("PUSH\n");
+        }
+        cpu->ram[--cpu->registers[7]] = cpu->registers[operandA];
+        break;
+      case POP:
+        if (DEBUG) {
+          printf("POP\n");
+        }
+        cpu->registers[operandA] = cpu->ram[cpu->registers[7]++];
+        break;
       default:
-        printf("%d", IR);
-        printf("Default case reached.\n");
+        printf("Instruction number: %d\n", IR);
+        printf("Default case reached. Command invalid.\n");
         break;
     }
     // 4. Move the PC to the next instruction.
     // printf("%d\n", (instruction >> 6));
-    cpu->PC += 1 + (int)(IR >> 6);
+    cpu->PC += 1 + (IR >> 6);
     
   }
 }
