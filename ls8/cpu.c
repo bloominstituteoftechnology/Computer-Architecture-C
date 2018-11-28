@@ -1,6 +1,20 @@
 #include "cpu.h"
-
+#include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
 #define DATA_LEN 6
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
+{
+  //read from memory address
+  return cpu->ram[mar];
+}
+
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+{
+  //write value to memory
+  cpu->ram[mar] = mdr;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -38,44 +52,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO
     break;
     // TODO: implement more ALU ops
-    // case ALU_ADD:
-    //   break;
-
-    // case ALU_SUB:
-    //   break;
-
-    // case ALU_DIV:
-    //   break;
-
-    // case ALU_MOD:
-    //   break;
-
-    // case ALU_INC:
-    //   break;
-
-    // case ALU_DEC:
-    //   break;
-
-    // case ALU_CMP:
-    //   break;
-
-    // case ALU_AND:
-    //   break;
-
-    // case ALU_NOT:
-    //   break;
-
-    // case ALU_OR:
-    //   break;
-
-    // case ALU_XOR:
-    //   break;
-
-    // case ALU_SHL:
-    //   break;
-
-    // case ALU_SHR:
-    //   break;
   }
 }
 
@@ -97,14 +73,18 @@ void cpu_run(struct cpu *cpu)
     switch (ir)
     {
     case LDI:
-
+      cpu->registers[operandA] = operandB;
+      cpu->PC += 3;
       break;
     case PRN:
-      // printf()
+      printf("%u\n", cpu->registers[operandA]);
+      cpu->PC += 2;
       break;
     case HLT:
       running = 0;
       break;
+    default:
+      exit(1);
     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -119,21 +99,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   //key value stored at address 0xF4 if stack is empty
-  cpu->registers[8] = 0xF4;
   // TODO: Zero registers and RAM
   //memset(starting address of memory to be filled, value to be filled, Number of bytes to be filled starting at address[0])
-  memset(cpu->registers, 0, sizeof cpu->registers);
-  memset(cpu->ram, 0, sizeof cpu->ram);
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
-{
-  //read from memory address
-  return cpu->ram[mar];
-}
-
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
-{
-  //write value to memory
-  cpu->ram[mar] = mdr;
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }

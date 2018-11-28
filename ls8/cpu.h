@@ -15,19 +15,6 @@ enum alu_op
 {
   ALU_MUL,
   // Add more here
-  // ALU_ADD,
-  // ALU_SUB,
-  // ALU_DIV,
-  // ALU_MOD,
-  // ALU_INC,
-  // ALU_DEC,
-  // ALU_CMP,
-  // ALU_AND,
-  // ALU_NOT,
-  // ALU_OR,
-  // ALU_XOR,
-  // ALU_SHL,
-  // ALU_SHR
 };
 
 // Instructions
