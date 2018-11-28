@@ -25,7 +25,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     cpu->ram[address] = strtoul(line, NULL, 2);
     address++;
   }
-
+  fclose(fp);
   /*
   char data[DATA_LEN] = {
     // From print8.ls8
@@ -44,7 +44,6 @@ void cpu_load(struct cpu *cpu, char *filename)
   }*/
 
   // TODO: Replace this with something less hard-coded
-  fclose(fp);
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
@@ -62,6 +61,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
+      printf("operandA, operandB: %d   %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[regA] *= cpu->registers[regB];
       break;
 
@@ -80,14 +80,14 @@ void cpu_run(struct cpu *cpu)
   unsigned char IR;
   // unsigned char registers_index;
   // int num;
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
-
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
     // 2. switch() over it to decide on a course of action.
     switch(IR) {
     // 3. Do whatever the instruction should do according to the spec.
@@ -100,7 +100,6 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case PRN:
-        printf("operandA, operandB: %d   %d\n", operandA, operandB);
         printf(">> register value: %d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
@@ -112,6 +111,12 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC += 3;
         break;
+        
+      case PUSH:
+          break;
+      
+      case POP:
+          break;
     }
   }
 }
