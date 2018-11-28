@@ -17,22 +17,38 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, int data) {
  */
 void cpu_load(struct cpu *cpu, char *path)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8 <- this means Line 12: LDI, 13: R0, 14: 8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0 <- 15: PRN
-      0b00000000, // <- 16: R0
-      0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     // 0b10000010, // LDI R0,8 <- this means Line 12: LDI, 13: R0, 14: 8
+  //     // 0b00000000,
+  //     // 0b00001000,
+  //     // 0b01000111, // PRN R0 <- 15: PRN
+  //     // 0b00000000, // <- 16: R0
+  //     // 0b00000001  // HLT
+  //     // strtoul()
+  // };
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
-  {
-    cpu->ram[address++] = data[i];
+  if (path == NULL) {
+    path = "./examples/print8.ls8";
   }
+  FILE *fileToRead = fopen(path, "r" );
+  if (fileToRead == NULL) {
+    printf("error reading file");
+  }
+  char idk[256];
+  int address = 0;
+  while(fgets(idk,256,fileToRead)){
+    printf("idk is: %s\n", idk);
+    cpu->ram[address] = strtoul(idk, NULL, 2);
+    printf("inserted into ram: %d\n", cpu->ram[address++]);
+  }
+  // `fgets` & `strtoul`
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded PRR
 }
@@ -95,7 +111,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     default:
-      printf("whatmeantho?\n");
+      printf("whatmeantho? %d\n", IR);
       break;
   
       //error: a label can only be part of a statement and a declaration is not a statement
@@ -123,7 +139,7 @@ void cpu_run(struct cpu *cpu)
 
     // <-  are you always going to move the PC by one all the time?
     // not if PC = 7 then we just wanna kill the switch case loop
-   
+    sleep(1);
   }
 }
 /**
