@@ -105,7 +105,7 @@ void cpu_run(struct cpu *cpu)
 
       case PUSH:
         cpu->reg[SP]--;
-        cpu_ram_write(cpu, cpu->reg[SP], operandA);
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
         break;
 
       case POP:
