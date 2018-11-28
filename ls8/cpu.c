@@ -97,7 +97,7 @@ void cpu_run(struct cpu *cpu)
               // 1. Decrement the `SP`.
                 cpu->registers[7] --;
               // 2. Copy the value in the given register to the address pointed to by `SP`.
-                cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+                cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
                 cpu->PC += move_pc; // 2
                 break;
 
