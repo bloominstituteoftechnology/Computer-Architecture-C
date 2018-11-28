@@ -10,6 +10,14 @@ struct cpu
   unsigned char ram[256];     // ram (array)
 };
 
+//struct to represent a stack
+typedef struct Stack
+{
+  int top;
+  unsigned char capacity;
+  int *array;
+} Stack;
+
 // ALU operations
 enum alu_op
 {
@@ -27,11 +35,14 @@ enum alu_op
 #define HLT 0b00000001
 #define PRN 0b01000111
 #define MUL 0b10100010
+#define PUSH 0b01000101
+#define POP 0b01000110
 
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern void cpu_stack(struct cpu *cpu, struct stack)
 
 #endif

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 #define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
@@ -54,8 +55,6 @@ void cpu_load(struct cpu *cpu, char *argv[])
     cpu->ram[address++] = data;
   }
   fclose(fp);
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -122,7 +121,6 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  //key value stored at address 0xF4 if stack is empty
   // TODO: Zero registers and RAM
   //memset(starting address of memory to be filled, value to be filled, Number of bytes to be filled starting at address[0])
   memset(cpu->registers, 0, sizeof(cpu->registers));
