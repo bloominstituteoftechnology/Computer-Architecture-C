@@ -66,7 +66,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     int IR = cpu->ram[cpu->PC];//this is the slot in ram
 
-    unsigned int value1 = cpu_ram_read(cpu, cpu->PC+1); //the register index  where the second should be stored 
+    unsigned int value1 = cpu_ram_read(cpu, cpu->PC+1); //the register index where the second should be stored 
     unsigned int value2 = cpu_ram_read(cpu, cpu->PC+2);//the second number
 
     //value at register zero   
@@ -91,7 +91,15 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, value1, value2);
         cpu->PC += 3;
         break;
-      default: 
+      case PUSH:
+        cpu->reg[8]--;
+        cpu->ram[cpu->reg[8]] = value1;
+        break;
+      case POP:
+        cpu->reg[8] = value1;
+        cpu->reg[8]++;
+        break;
+      default:
         exit(1);
     }
     // 2. switch() over it to decide on a course of action.
