@@ -86,6 +86,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2];
     cpu->registers[7] = cpu->ram[SP];//meeting spec requirements register 7  has the pointer to the top of ram. 
+    printf("%c\n", current);
     switch (current)
     {
 
@@ -116,11 +117,17 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       break;
     case CALL:
+      //if 7 is the call instruction and 8 is HLT or any other instruction we take 8 with pc +1 push to stack. we want to get to 9.
+      //The way I have it set up incrementing by 1 should be done here since pc is incremented after the switch. 
+      // I push the current PC to the stack because when i get it in the return PC will be increased by 1 after the switch function.
+      //This should place it where I want it to be. 
       SP--; 
-      cpu->ram[SP] = cpu->PC +1;
-      cpu->PC += 2; 
+      cpu->ram[SP] = cpu->PC;
+      cpu->PC += 1; 
+      printf("This should be next %c\n", cpu->ram[cpu->PC]);
       break;
     case RET:
+      printf("The RET hits but before it hits things should have printed out though it does halt the program");
       cpu->PC = cpu->ram[SP];
       SP++; 
       break; 
