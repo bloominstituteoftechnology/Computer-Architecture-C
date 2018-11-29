@@ -18,7 +18,7 @@ struct cpu {
   initiate value for string pointer
 */
 
-  #define SP 5 // SP is 7 # tells the compiler directly to change instances of SP to the number 7
+  #define SP 7 // SP is 7 # tells the compiler directly to change instances of SP to the number 7
 
 // ALU operations - arithmetic logic unit, a digital circuit used to perform arithmetic and logic operations
 enum alu_op {

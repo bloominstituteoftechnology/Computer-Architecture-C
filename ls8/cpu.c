@@ -186,10 +186,27 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
         
-      // RET
-      // CALL
+      /* RET - takes us to the instruction after the function call
+      pops the value off the top of the stack and stores directly in PC
+      then we halt
+      */
+      case RET:
+      printf(" ...... RET ...... \n");
 
+      break;  
+
+      /* CALL - is two bytes long, so the next instruction must be 
+      two bytes down, so PC+2 will give the correct address
+      */
+      case CALL:
+      printf(" ...... CALL ...... \n");
+
+      break;
     }
+
+
+      /* JMP - moves the PC to a specific place in memory?
+      */
     // 4. Move the PC to the next instruction.
 
   }
