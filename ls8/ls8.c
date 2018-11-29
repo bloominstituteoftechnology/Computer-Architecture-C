@@ -1,5 +1,12 @@
 #include <stdio.h>
 #include "cpu.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <ctype.h>
+
+
 
 /**
  * Main
@@ -17,4 +24,7 @@ int main(int argc, char *argv[])
 }
   
   return 0;
+
+
+  
 }

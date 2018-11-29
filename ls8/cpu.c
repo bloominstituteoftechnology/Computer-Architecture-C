@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #define DATA_LEN 6
-#define DEBUG 0
+#define DEBUG 1
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -70,6 +71,25 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    // timer implementation
+    struct timeval tv;
+    // gettimeodday() get's the time of day for the computer's clock
+    gettimeofday(&tv, NULL);
+    // for double time_in_mill and time_diff , initialization
+    double time_in_mill;
+    double time_diff;
+    // in the if statement below you are converting the time in seconds to  milliseconds.
+    if (time_in_mill) {
+     time_diff = ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000) - time_in_mill;
+    }
+    time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ; // convert tv_sec & tv_usec to millisecond
+    // these print statements are printing the time in milliseconds and the difference in time from the last loop
+    #if DEBUG
+    printf("time: %f\n", time_in_mill);
+    printf("difference in time: %f\n", time_diff);
+    #endif
+    
+    
     int PC = cpu->PC;
     unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
@@ -145,6 +165,13 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         INC_PC = 1;
         break;
+      case ST:
+          #if DEBUG 
+          printf("ST\n");
+          #endif
+        cpu->registers[operandA] = cpu->registers[operandB];
+        break;
+
       default:
         printf("Instruction number: %d\n", IR);
         printf("Default case reached. Command invalid.\n");
