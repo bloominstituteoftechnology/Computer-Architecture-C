@@ -16,7 +16,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *argv)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
   // char data[DATA_LEN] = {
   //   // From print8.ls8
@@ -55,7 +55,6 @@ void cpu_load(struct cpu *cpu, char *argv)
         cpu_ram_write(cpu, address++, v);
     }
     fclose(fp);
-    return(0);
 }
 
 /**
@@ -104,6 +103,7 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += 3;
         break;
 
       default:
