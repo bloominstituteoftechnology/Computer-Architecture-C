@@ -8,23 +8,24 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp;
+  unsigned char address = 0;
+  char new[1024];
+  fp = fopen(filename, "r");
+  if(fp == NULL) {
+    printf("error \n");
+    exit(1);
   }
+  while (fgets(new, sizeof(new), fp) != NULL) {
+    unsigned char value = strtoul(new, NULL, 2);
+    if(new == NULL) {
+      continue;
+    }
+    cpu -> ram[address++] = value;
+  }
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
@@ -37,6 +38,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -65,6 +67,10 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
       printf("%d \n", cpu->reg[operandA]);
+      break;
+
+      case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
       case HLT: 
