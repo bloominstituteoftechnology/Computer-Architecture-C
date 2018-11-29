@@ -122,12 +122,18 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[SP]--;
         cpu_ram_write(cpu, cpu->registers[SP], cpu->PC + move_pc);
         cpu->PC = cpu->registers[operandA];
+        cpu->add_pc = 1;
         break;
+
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->registers[SP]);
         cpu->registers[SP]++;
+        cpu->add_pc = 1;
         break;
 
+     default:
+        printf("Default\n");
+        break;
 
     }
      cpu->PC += move_pc;
@@ -142,6 +148,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;  
   cpu->registers[SP] = 0xF4;
+  cpu->add_pc = 0;
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
