@@ -22,7 +22,6 @@ enum alu_op {
 // literals should be used.
 
 // TODO: more instructions here. These can be used in cpu_run().
-#define SP 7;
 
 #define LDI  0b10000010
 #define PRN  0b01000111

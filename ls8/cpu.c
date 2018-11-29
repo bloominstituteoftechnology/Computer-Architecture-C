@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define DATA_LEN 6
+#define SP 7
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -52,6 +53,22 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
 
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val) {
   cpu->ram[address] = val;
+}
+
+void push(struct cpu *cpu, unsigned char stackPointer) {
+  printf("cpu->register[SP] push %d\n", cpu->registers[SP]);
+  cpu->registers[SP]--;
+  printf("cpu->register[SP] push %d\n", cpu->registers[SP]);
+  cpu->ram[SP] = cpu->registers[stackPointer];
+  printf("stackPointer %d\n", stackPointer);
+}
+
+void pop(struct cpu *cpu, unsigned char stackPointer) {
+  printf("cpu->register[SP] pop %d\n", cpu->registers[SP]);
+  cpu->ram[SP] = cpu->registers[stackPointer];
+  printf("cpu->register[SP] pop %d\n", cpu->registers[SP]);
+  printf("stackPointer %d\n", stackPointer);
+  cpu->registers[SP]++;
 }
 
 /**
@@ -111,12 +128,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC += 3;
         break;
-        
       case PUSH:
-          break;
-      
+        push(cpu, operandA);
+        cpu->PC += 2;
+        break;
       case POP:
-          break;
+        pop(cpu, operandA);
+        cpu->PC += 2;
+        break;
     }
   }
 }
