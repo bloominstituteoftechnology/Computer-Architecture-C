@@ -37,6 +37,10 @@ enum alu_op {
 #define JLT  0b01011000
 #define JMP  0b01010100
 #define JNE  0b01010110
+#define LD   0b10000011
+#define PRA  0b01001000
+#define INC  0b01100101
+#define DEC  0b01100110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

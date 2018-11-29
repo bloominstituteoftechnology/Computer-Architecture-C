@@ -64,9 +64,18 @@ void cpu_run(struct cpu *cpu)
         opB = cpu_ram_read(cpu, cpu->PC+2);
         cpu->registers[opA] = opB;
         break;
+      case LD:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        opB = cpu_ram_read(cpu, cpu->PC+2);
+        cpu->registers[opA] = cpu->ram[cpu->registers[opB]];
+        break;
       case PRN:
         opA = cpu_ram_read(cpu, cpu->PC+1);
         printf("%d\n", cpu->registers[opA]);
+        break;
+      case PRA:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        printf("%c",cpu->registers[opA]);
         break;
       case MUL:
         opA = cpu_ram_read(cpu, cpu->PC+1);
@@ -144,6 +153,14 @@ void cpu_run(struct cpu *cpu)
       case JMP:
         opA = cpu_ram_read(cpu, cpu->PC+1);
         cpu->PC = cpu->registers[opA];
+        break;
+      case INC:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->registers[opA]++;
+        break;
+      case DEC:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->registers[opA]--;
         break;
       case HLT:
         running = 0;
