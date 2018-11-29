@@ -64,7 +64,9 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 }
 void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
 {
+  printf("Are we adding\n");
   cpu->registers[place] = cpu->registers[place] + cpu->registers[place2];
+  printf("yes we are adding here is the add data >> %d\n", cpu->registers[place]);
 }
 
 /**
@@ -122,7 +124,8 @@ void cpu_run(struct cpu *cpu)
       // I push the current PC to the stack because when i get it in the return PC will be increased by 1 after the switch function.
       //This should place it where I want it to be. 
       SP--; 
-      cpu->ram[SP] = cpu->PC +1;
+      // cpu->ram[SP] = cpu->PC +1;
+      cpu->ram[SP] = cpu->PC; 
       cpu->PC += 2; 
       printf("This should be next %d\n", cpu->ram[cpu->PC]);
       break;
