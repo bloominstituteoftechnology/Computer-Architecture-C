@@ -50,10 +50,9 @@ unsigned char cpu_ram_read(struct cpu *cpu, int PC)
   return target;
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, int PC, unsigned char payload)
+unsigned char cpu_ram_write(struct cpu *cpu)
 {
-  unsigned char to_write = cpu_ram_read(cpu, PC);
-  payload = to_write;
+  cpu_load(cpu);
 }
 
 /**
@@ -73,10 +72,10 @@ void cpu_run(struct cpu *cpu)
     // 4. Move the PC to the next instruction.
     unsigned char IR = cpu->PC;
     switch(IR) {
-      case 'LDI' :
+      case LDI :
         reg[0] = 8;
         IR++;
-      case 'PRN' :
+      case PRN :
       printf('%d', reg[0]);
     }
   }
