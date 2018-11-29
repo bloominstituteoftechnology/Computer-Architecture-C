@@ -68,12 +68,15 @@ void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
   int value = cpu->registers[place] + cpu->registers[place2];
   cpu->registers[place] = value;
 }
-int convert (int dec) 
+int convert(int dec)
 {
-  if (dec == 0){
-    return 0; 
-  } else {
-    return (dec % 2 + 10 * convert(dec/2)); 
+  if (dec == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return (dec % 2 + 10 * convert(dec / 2));
   }
 }
 
@@ -95,10 +98,9 @@ void cpu_run(struct cpu *cpu)
     unsigned char current = cpu->ram[cpu->PC];
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2];
-    cpu->registers[7] = cpu->ram[SP];//meeting spec requirements register 7  has the pointer to the top of ram. 
+    cpu->registers[7] = cpu->ram[SP]; //meeting spec requirements register 7  has the pointer to the top of ram.
     switch (current)
     {
-
     case LDI:
       cpu_reg_write(cpu, operandA, operandB);
       cpu->PC += 2;
@@ -113,8 +115,8 @@ void cpu_run(struct cpu *cpu)
       break;
     case ADD:
       cpu_reg_add(cpu, operandA, operandB);
-      cpu->PC += 2; 
-      break; 
+      cpu->PC += 2;
+      break;
     case PUSH:
       SP--;
       cpu->ram[SP] = cpu->registers[operandA];
@@ -126,15 +128,15 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       break;
     case CALL:
-      SP--; 
-      cpu->ram[SP] = cpu->PC + 2; 
-      cpu->PC = cpu->registers[operandA]; 
+      SP--;
+      cpu->ram[SP] = cpu->PC + 2;
+      cpu->PC = cpu->registers[operandA];
       break;
     case RET:
       cpu->PC = cpu->ram[SP];
-      cpu->PC--;
-      SP++; 
-      break; 
+      // cpu->PC--;
+      SP++;
+      continue; 
     case HLT:
       running = 0; //should end loop
       break;
