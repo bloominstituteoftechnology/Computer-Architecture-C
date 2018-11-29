@@ -57,8 +57,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->R[0] = regA + regB;
       break;
- 
-    // TODO: implement more ALU ops
+    
+    case ALU_CMP:
+      if(regA == regB) {
+        cpu->FL = 00000001;
+      } else if(regA < regB) {
+        cpu->FL = 00000100;
+      } else if(regA > regB) {
+        cpu->FL = 00000010;
+      }
+      break;
   }
 }
 
@@ -67,13 +75,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1; 
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
     int c = cpu->ram[cpu->PC]; 
-    // 2. switch() over it to decide on a course of action.
     unsigned char movePC = (cpu->ram[cpu->PC] >> 6);
 
     switch (c) {
@@ -82,11 +87,13 @@ void cpu_run(struct cpu *cpu)
         // printf("Loaded R[0] with: %d\n", cpu->R[0]);
         // printf("Loaded R[1] with: %d\n", cpu->R[1]);
         cpu->PC += movePC;
+        printf("LDI %d\n", cpu->PC);
         break;
 
       case PRN:
         printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
-        cpu->PC += movePC; 
+        cpu->PC += movePC;
+        printf("PRN %d\n", cpu->PC); 
         break;
 
       case MUL:
@@ -95,15 +102,20 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case ADD: 
-        printf("running");
         alu(cpu, 1, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC;
+        break;
+      
+      case CMP: 
+        alu(cpu, 2, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        printf("CMP %d\n", cpu->PC);
+        printf("Result %d\n", cpu->FL);
         break;
 
       case PUSH:
         cpu->R[7]--; 
         cpu->ram[cpu->R[7]] = cpu->R[cpu->ram[cpu->PC + movePC]];
-        // printf("Stack added: %d\n", cpu->ram[cpu->SP]);
         cpu->PC += movePC;
         break;
 
@@ -117,16 +129,39 @@ void cpu_run(struct cpu *cpu)
         cpu->R[7]--; 
         cpu->ram[cpu->R[7]] = cpu->PC + movePC; 
         cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]]; 
-        // printf("PC Location after CALL before move %d\n", cpu->PC);
         break;
 
       case RET:
         cpu->PC = cpu->ram[cpu->R[7]];
         cpu->R[7]++;
         break;  
-        
+
+      case JMP:
+        cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
+        printf("JMP %d\n", cpu->PC);
+        break;
+      
+      case JEQ:
+        if(cpu->FL == 00000001) {
+          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
+        } else {
+            cpu->PC += movePC;
+        }
+        printf("JEQ %d\n", cpu->PC);
+        break;
+      
+      case JNE:
+        if(cpu->FL == 00000010 || cpu->FL == 00000100 || cpu->FL == 0 ) {
+          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
+        } else {
+            cpu->PC += movePC;
+        } 
+        printf("JNE %d\n", cpu->PC);
+        break;
+
       case HLT:
         running = 0;
+        printf("HLT %d\n", cpu->PC);
         break; 
     }
     cpu->PC++; 
@@ -141,6 +176,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0; 
+  cpu->FL = 0; 
   
   // TODO: Zero registers and RAM
   memset(cpu->R, 0, 7 * sizeof(cpu->R[0]));
