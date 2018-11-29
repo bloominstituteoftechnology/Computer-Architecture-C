@@ -19,7 +19,7 @@ void setregister(struct cpu *cpu){
 void print(struct cpu *cpu){
   printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
 }
-void halt(struct cpu *cpu,int *running){
+void halt(int *running){
   *running=0;
 }
 void multiply(struct cpu *cpu) {
@@ -40,10 +40,10 @@ void multiply(struct cpu *cpu) {
 }
 void push(struct cpu *cpu) {
   cpu->registers[SP]-=1;
-  cpu->ram[cpu->registers[SP]]=cpu->registers[cpu->ram[cpu->PC+1]];
+  cpu_ram_write(cpu,cpu->registers[SP],cpu->registers[cpu->ram[cpu->PC+1]]);
 }
 void pop(struct cpu *cpu) {
-  cpu->registers[cpu->ram[cpu->PC+1]]=cpu->ram[cpu->registers[SP]];
+  cpu->registers[cpu->ram[cpu->PC+1]]=cpu_ram_read(cpu,cpu->registers[SP]);
   cpu->registers[SP]+=1;
 }
 void cpu_load(struct cpu *cpu,char *filename)
@@ -105,7 +105,7 @@ void cpu_run(struct cpu *cpu)
         pop(cpu);
         break;
       case HLT:
-        halt(cpu,&running);
+        halt(&running);
         break;
     }
     cpu->PC+=((instruction>>6)+1);
