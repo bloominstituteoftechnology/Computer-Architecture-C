@@ -100,51 +100,65 @@ void cpu_run(struct cpu *cpu)
                 switch (IR) {
                 case HLT:
                         running = 0;
+                        shift = 0;
                         break;
 
                 case LDI:
                         regist[operandA] = operandB;
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case PRN:
                         printf("%d \n", regist[operandA]);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case MUL:
                         alu(cpu, ALU_MUL, operandA, operandB);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case ADD:
                         alu(cpu, ALU_ADD, operandA, operandB);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case SUB:
                         alu(cpu, ALU_SUB, operandA, operandB);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case DIV:
                         alu(cpu, ALU_DIV, operandA, operandB);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case MOD:
                         alu(cpu, ALU_MOD, operandA, operandB);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case POP:
                         regist[operandA] = cpu_ram_read(cpu, regist[SP]++);
-                        PC += shift;
+                        // PC += shift;
                         break;
 
                 case PUSH:
                         cpu_ram_write(cpu, --regist[SP], regist[operandA]);
-                        PC += shift;
+                        // PC += shift;
+                        break;
+
+                case CALL:
+                        regist[SP] = regist[SP-1];
+                        // store the next instruction into the ram index of the current stack.
+                        cpu_ram_write(cpu, regist[SP], PC + 2);
+                        PC = regist[operandA];
+                        shift = 0;
+                        break;
+
+                case RET:
+                        PC = cpu_ram_read(cpu, regist[SP]++);
+                        shift = 0;
                         break;
 
                 default:
@@ -152,7 +166,8 @@ void cpu_run(struct cpu *cpu)
                         exit(2);
                 }
                 // 4. Move the PC to the next instruction. done with incemeneting shift var
-                //PC += shift;
+                // set PC
+                PC += shift;
         }
 }
 

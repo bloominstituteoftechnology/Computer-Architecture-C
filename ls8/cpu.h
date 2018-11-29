@@ -7,7 +7,7 @@
 // define reserved registers here:
 #define IM 5 // Interrupt mask R6
 #define IS 6 // Interrupt status R6
-#define SP 7 //stack pointer R7
+#define SP 7 //stack pointer R7 used for the stack. 
 
 
 // Holds all information about the CPU
