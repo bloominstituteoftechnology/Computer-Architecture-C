@@ -103,6 +103,8 @@ void cpu_run(struct cpu *cpu)
           cpu->registers[operandA] = cpu-> ram[cpu->registers[7]]; 
           cpu->registers[7]++; 
           break; 
+        case ADD: // opcode to add two values in registers
+          alu(cpu, ALU_ADD, operandA, operandB); 
         case CALL:
           cpu->registers[7] -= 1; //decrement the stack pointer by one
           cpu-> ram[cpu->registers[7]] = cpu-> PC + 2;  // address of next instruction saved in stack, program counter increased 2 bytes
