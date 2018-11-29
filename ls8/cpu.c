@@ -3,7 +3,24 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
+// #define DATA_LEN 6
+#define SP 5
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char value = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return value;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = value;
+}
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
@@ -32,7 +49,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
   FILE *fp = fopen(argv[1], "r");
   char str[60];
 
-  int address = 0;
+  int address = PROGRAM_ENTRY;
   char *ptr;
 
   while (fgets(str, sizeof(str), fp) != NULL)
@@ -118,6 +135,14 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
 
+    case PUSH:
+      cpu_push(cpu, cpu->reg[value1]);
+      break;
+
+    case POP:
+      cpu->reg[value1] = cpu_pop(cpu);
+      break;
+
     case HLT:
       printf("Halting program\n");
       exit(0);
@@ -139,6 +164,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->reg[SP] = EMPTY_STACK;
   cpu->PC = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));

@@ -11,6 +11,8 @@ struct cpu
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
+  // SP
+  unsigned char SP;
 };
 
 // ALU operations
@@ -27,6 +29,9 @@ enum alu_op
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
+
+#define EMPTY_STACK 0xF4
+#define PROGRAM_ENTRY 0x00
 
 #define LDI 0b10000010
 // TODO: more instructions here. These can be used in cpu_run().
