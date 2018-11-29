@@ -50,6 +50,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu-> registers[regA] *= cpu-> registers[regB];
       break;
+
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break; 
   }
 }
 
@@ -92,6 +96,25 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
 
+      case CALL:
+      printf("working-CALL");
+    // 1. The address of the ***instruction*** _directly after_ `CALL` is
+    //    pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+    // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the 
+          // first instruction in the subroutine. The PC can move forward or backwards from its current location.
+        cpu->registers[7]--;
+        write_ram(cpu,  cpu->registers[operandA], cpu->PC + 2);
+        cpu->PC += 2; 
+        break; 
+        
+      case RET:
+      printf("working-RET");
+      // Return from subroutine.
+      // Pop the value from the top of the stack and store it in the `PC`.
+        cpu->PC = read_ram(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
+        cpu->PC += 2;  
+        break;
 
       case PRN:
       // printf("working-PRN");
@@ -104,6 +127,12 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB); 
         cpu->PC += 3;
         break;
+
+      case ADD:
+      // printf("working-ADD");
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += 3;
+        break; 
          
       case HLT: 
       printf("working-HLT");
