@@ -295,7 +295,13 @@ void cpu_run(struct cpu *cpu)
       case NOP:
         break;
       case PRA:
-        printf("%c\n",cpu->registers[operandA]);
+        printf("%c",cpu->registers[operandA]);
+        break;
+      case INC:
+        incr(cpu,operandA);
+        break;
+      case DEC:
+        dec(cpu,operandA);
         break;
     default:
       printf("Something went wrong\n");
