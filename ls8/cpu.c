@@ -12,8 +12,8 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index){
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, int item){
-  cpu->ram[++cpu->PC] = item;
+void cpu_ram_write(struct cpu *cpu, unsigned char SP, int item){
+  cpu->ram[SP] = item;
   return;
 }
 
@@ -22,6 +22,20 @@ void cpu_ram_write(struct cpu *cpu, int item){
  */
 int multiply(unsigned char regA, unsigned char regB){
   return regA * regB;
+}
+
+// Define SP
+unsigned char find_SP(unsigned char cpu){
+  unsigned char SP = cpu->registers[7];
+  while(cpu->ram[SP] != 0){
+    SP--;
+  }
+  return SP;
+}
+
+
+unsigned char push_stack(){
+
 }
 
 /**
@@ -54,6 +68,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+
+
 /**
  * Run the CPU
  */
@@ -65,6 +81,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char current_instruction = cpu_ram_read(cpu, cpu->PC);
     unsigned char operand1 = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operand2 = cpu_ram_read(cpu, cpu->PC+2);
+    unsigned char SP;
 
     switch(current_instruction){
       case LDI:
@@ -77,6 +94,13 @@ void cpu_run(struct cpu *cpu)
         printf("MUL >>> %d\n", cpu->registers[operand1]);
         cpu->PC = cpu->PC+3;
         break;
+      case PUSH:
+        SP = find_SP(cpu);
+        cpu_ram_write(cpu, SP, cpu->registers[operand1]);
+        break;
+      case POP:
+        SP = find_SP(cpu) + 1;
+        cpu_ram_write(cpu, SP, cpu->registers[operand1]);
       case PRN:
         printf("Printing %d\n", cpu->registers[0]);
         cpu->PC = cpu->PC+2;
@@ -100,4 +124,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->registers[7] = 0xF4;
 }
