@@ -49,7 +49,11 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    cpu->ram[address++] = strtoul(line, NULL, 2);
+    char *endchar;
+    cpu->ram[address++] = strtoul(line, &endchar, 2);
+    if (endchar == line) {
+      continue;
+    }
   }
   fclose(fp);
 }
@@ -134,7 +138,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       default:
-        printf("Default case triggered\n");
+        // printf("Default case triggered\n");
         break;
 
     }
