@@ -105,14 +105,17 @@ void cpu_run(struct cpu *cpu)
           break; 
         case ADD: // opcode to add two values in registers
           alu(cpu, ALU_ADD, operandA, operandB); 
+          break; 
         case CALL:
           cpu->registers[7] -= 1; //decrement the stack pointer by one
           cpu-> ram[cpu->registers[7]] = cpu-> PC + 2;  // address of next instruction saved in stack, program counter increased 2 bytes
-          cpu-> PC = cpu->registers[operandA]; // set Program Counter to the subroutine
+          cpu-> PC = cpu->registers[operandA]; // set Program Counter to the subroutine 
+          add_to_pc = 0; 
           break; 
         case RET: 
           cpu-> PC = cpu-> ram[cpu-> registers[7]]; //retrieve the address of the next instruction before the call which should be at the top of the stack and set the program counter to it
           cpu-> registers[7] += 1;  // increment the stack pointer
+          add_to_pc = 0; 
           break; 
       }
       
