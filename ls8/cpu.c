@@ -69,7 +69,6 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char PRN;
-    int SP = cpu->R[7];
     int mult;
     int a;
 
@@ -106,17 +105,17 @@ void cpu_run(struct cpu *cpu)
     
 
     case 0b01000101: // PUSH
-      cpu->R[SP] = cpu->R[cpu_ram_read(cpu, cpu-> PC +1)]; 
-      SP--;
+      cpu->SP--;
+      cpu->ram[cpu->SP] = cpu->R[cpu_ram_read(cpu, cpu->PC +1)]; 
       cpu->PC += 2;
-      printf("SP in PUSH %d\n", cpu->R[SP]);
+      printf("SP in PUSH %d\n", cpu->ram[cpu->SP]);
       break;
 
     case 0b01000110: // POP
-      cpu->R[SP] = cpu->R[cpu_ram_read(cpu, cpu-> PC +1)]; 
-      SP++;
+      cpu->R[cpu_ram_read(cpu, cpu->PC +1)] = cpu->ram[cpu->SP]; 
+      printf("SP in POP %d\n", cpu->ram[cpu->SP]);
+      cpu->SP++;
       cpu->PC += 2;
-      printf("SP in POP %d\n", cpu->R[SP]);
       break;
 
     default:
@@ -148,7 +147,7 @@ void cpu_run(struct cpu *cpu)
 
     // <-  are you always going to move the PC by one all the time?
     // not if PC = 7 then we just wanna kill the switch case loop
-    sleep(1);
+    // sleep(1);
   }
 }
 /**
@@ -168,7 +167,7 @@ void cpu_init(struct cpu *cpu)
     else
     {
       cpu->R[i] = 0xF4;
-      cpu->SP = i;
+      cpu->SP = cpu->R[i];
       printf("this thing worked stack pointer %d\n", cpu->SP);
     }
     //  }
