@@ -103,8 +103,8 @@ void cpu_run(struct cpu *cpu)
     // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the 
           // first instruction in the subroutine. The PC can move forward or backwards from its current location.
         cpu->registers[7]--;
-        write_ram(cpu, cpu->registers[operandA], cpu->PC + 2);
-        cpu->PC += 2; 
+        write_ram(cpu, cpu->registers[7], cpu->PC + 3);
+        cpu->PC = cpu->registers[operandA]; 
         break; 
         
       case RET:
@@ -112,8 +112,7 @@ void cpu_run(struct cpu *cpu)
       // Return from subroutine.
       // Pop the value from the top of the stack and store it in the `PC`.
         cpu->PC = read_ram(cpu, cpu->registers[7]);
-        cpu->registers[7] ++;
-        cpu->PC += 2;  
+        cpu->registers[7]++; 
         break;
 
       case PRN:
