@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  printf("\nargv -> %s\n", argv[1]);
+  // printf("\nargv -> %s\n", argv[1]);
   struct cpu cpu;
 
   cpu_init(&cpu);

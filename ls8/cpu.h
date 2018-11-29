@@ -2,16 +2,18 @@
 #define _CPU_H_
 
 struct cpu {
-  unsigned char PC;
-  unsigned char reg[8];
-  unsigned char ram[8];
+  unsigned char reg[8];//Registers 0-7
+  unsigned char ram[256];//RAM
+  
+  unsigned char PC;//Program Counter
+  unsigned char FL;//Flags `00000LGE`
+  unsigned char IR;//Instruction Register - the currently executing instruction
+  unsigned char MAR;//Memory Address Register - the memory address We're reading or writing 
+  unsigned char MDR; //Memory Data Register - holds the value to write or the value just read
 };
 
 // ALU operations
 enum alu_op {
-  ALU_HLT,
-  ALU_LDI,
-  ALU_PRN,
   ALU_MUL,
   ALU_ADD
 };
@@ -29,6 +31,9 @@ enum alu_op {
 #define CALL  0b01010000
 #define RET   0b00010001
 #define ADD   0b10100000
+#define JEQ   0b01010101
+#define CMP   0b10100111
+#define JMP   0b01010100
 
 // TODO: more instructions here. These can be used in cpu_run().
 
