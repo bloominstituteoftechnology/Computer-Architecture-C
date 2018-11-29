@@ -4,9 +4,9 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
+  // PC program counter
   unsigned char PC;
-  // registers (array)
+  // reg (array)
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
@@ -15,8 +15,9 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+    ALU_MUL,
+    ALU_ADD
+    // Add more here
 };
 
 // Instructions
@@ -25,8 +26,6 @@ enum alu_op {
 // literals should be used.
 
 #define LDI 0b10000010
-#define HLT 0b00000001
-#define PRN 0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
 #define HLT 0b00000001
 #define PRN 0b01000111
@@ -61,6 +60,7 @@ enum alu_op {
 #define ST 0b10000100
 #define SUB 0b10100001
 #define XOR 0b10101011
+
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *filename);
