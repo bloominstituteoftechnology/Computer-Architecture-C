@@ -59,6 +59,26 @@ void add(struct cpu *cpu) {
   unsigned char ans=cpu->registers[cpu->ram[cpu->PC+1]]+cpu->registers[cpu->ram[cpu->PC+2]];
   cpu->registers[cpu->ram[cpu->PC+1]]=ans;
 }
+void compare(struct cpu *cpu) {
+  if (cpu->registers[cpu->ram[cpu->PC+1]]==cpu->registers[cpu->ram[cpu->PC+2]]) {
+    cpu->equal=1;
+  } else {
+    cpu->equal=0;
+  }
+}
+void jump(struct cpu *cpu) {
+  cpu->PC=cpu->registers[cpu->ram[cpu->PC+1]];
+}
+void jump_equality(struct cpu *cpu) {
+  if (cpu->equal==1) {
+    jump(cpu);
+  }
+}
+void jump_inequality(struct cpu *cpu) {
+  if (cpu->equal==0) {
+    jump(cpu);
+  }
+}
 void cpu_load(struct cpu *cpu,char *filename)
 {
   FILE *fp=fopen(filename,"r");
@@ -129,6 +149,18 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         add(cpu);
         break;
+      case CMP:
+        compare(cpu);
+        break;
+      case JMP:
+        jump(cpu);
+        break;
+      case JEQ:
+        jump_equality(cpu);
+        break;
+      case JNE:
+        jump_inequality(cpu);
+        break;
     }
     if (instruction==cpu_ram_read(cpu,cpu->PC)) {
       cpu->PC+=((instruction>>6)+1);
@@ -148,4 +180,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram,0,sizeof(cpu->ram));
   memset(cpu->registers,0,sizeof(cpu->registers));
   cpu->registers[SP]=0xF4;
+  cpu->equal=0;
 }
