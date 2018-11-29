@@ -53,11 +53,10 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    unsigned char IR, operandA, operandB, sp;
+    unsigned char IR, operandA, operandB;
     IR = cpu_ram_read(cpu, cpu->pc);
     operandA = cpu_ram_read(cpu, cpu->pc+1);
     operandB = cpu_ram_read(cpu, cpu->pc+2);
-    sp = cpu->registers[7];
     int add_to_pc = (IR >> 6) + 1;
 
     switch (IR) {
@@ -71,12 +70,13 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case PUSH:
-        sp--;
-        cpu->ram[sp] = cpu->registers[operandA & 7];
+        cpu->registers[7] -= 1;
+        cpu-> ram[cpu->registers[7]] = cpu->registers[operandA];
         break;
       case POP:
-        cpu->registers[operandA & 7] = cpu->ram[sp];
-        sp++;
+        cpu->registers[operandA] = cpu-> ram[cpu->registers[7]];
+        cpu->registers[7]++;
+        break;
       case HLT:
         running = 0;
         break;
