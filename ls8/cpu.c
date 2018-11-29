@@ -109,7 +109,6 @@ void cpu_run(struct cpu *cpu)
       SP--;
       cpu->ram[SP] = cpu->registers[operandA];
       cpu->PC += 1;
-
       break;
     case POP:
       cpu_reg_write(cpu, operandA, cpu->ram[SP]);
@@ -118,7 +117,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case CALL:
       SP--; 
-      cpu->ram[SP] = cpu->PC;
+      cpu->ram[SP] = cpu->PC +1;
       cpu->PC += 2; 
       break;
     case RET:
