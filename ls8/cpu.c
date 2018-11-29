@@ -61,16 +61,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char operandA, unsigned char 
 {
   switch (op) {
     case ALU_MUL:
-      cpu->reg[operandA]*=cpu->reg[operandB];
+      cpu->reg[operandA] *= cpu->reg[operandB];
       break;
-
+    case ALU_ADD:
+      cpu->reg[operandA] += cpu->reg[operandB];
     // TODO: implement more ALU ops
   }
-}
-
-void call_handler(struct cpu *cpu, unsigned char operandA){
-    cpu_ram_write(cpu, --cpu->reg[7], cpu->PC+2);
-    cpu->PC = cpu->reg[operandA];
 }
 
 void pop_handler(struct cpu *cpu, unsigned char operandA){
@@ -82,6 +78,14 @@ void push_handler(struct cpu *cpu, unsigned char operandA){
   cpu->reg[7]--;
   cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
 }
+
+void call_handler(struct cpu *cpu, unsigned char operandA){
+    push_handler(cpu, cpu->PC+2);
+    printf("cpu->PC in call %d\n", cpu->PC);
+    cpu->PC = cpu->reg[operandA];
+    printf("cpu->reg %d\n", cpu->reg[7]);
+}
+
 
 /**
  * Run the CPU
@@ -107,34 +111,44 @@ void cpu_run(struct cpu *cpu)
     // printf("operandB %d     reg[operandB] %d\n", operandB, cpu->reg[operandB]);
     // printf("move_pc %d\n", move_pc);
 
+
     switch(IR) {
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += move_pc;
+        break;
       case CALL:
         call_handler(cpu, operandA);
+        printf("PC     =    %d\n", cpu->PC);
         break;
       case LDI:
+        printf("LDI\n");
         cpu->reg[operandA] = operandB;
+        cpu->PC += move_pc;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += move_pc;
         break;
       case POP:
         pop_handler(cpu, operandA);
-        printf("%d\n", cpu->reg[7]);
+        cpu->PC += move_pc;
         break;
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += move_pc;
         break;
       case PUSH:
         push_handler(cpu, operandA);
+        cpu->PC += move_pc;
         break;
       case RET:
-        cpu->PC = cpu_ram_read(cpu, cpu->reg[7]++);
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[7]--);
         break;
       case HLT:
         running = 0;
         break;
     }
-    cpu->PC += move_pc;
   }
 }
 
