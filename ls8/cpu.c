@@ -16,8 +16,10 @@ void cpu_load(struct cpu *cpu, char *file_name)
   FILE *fp = fopen(file_name,"r");
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    cpu_ram_write(cpu, address, strtoul(line, NULL, 2));
-    address++;
+    if(line[0] != '#'){
+      cpu_ram_write(cpu, address, strtoul(line, NULL, 2));
+      address++;
+    }
   }
   fclose(fp);
 }
@@ -31,6 +33,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       printf("Multiply %d by %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
+      break;
+    case ALU_ADD:
+      printf("Add %d and %d\n", cpu->registers[regA], cpu->registers[regB]);
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -77,15 +83,34 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[opA] = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->registers[7]++;
         break;
+      case CALL:
+        cpu->registers[7]--;
+        opA = cpu_ram_read(cpu, cpu->PC+1); //subroutine to call
+        opB = cpu->PC+2; //address of the next instruction
+        cpu_ram_write(cpu, cpu->registers[7], opB); //push next instruction onto stack
+        cpu->PC = cpu->registers[opA]; //set PC to subroutine address
+        break;
+      case RET:
+        opA = cpu_ram_read(cpu, cpu->registers[7]); //address of next instruction after CALL
+        cpu->registers[7]++;
+        cpu->PC = opA;
+        break;
+      case ADD:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        opB = cpu_ram_read(cpu, cpu->PC+2);
+        alu(cpu, ALU_ADD, opA, opB);
+        break;
       case HLT:
         running = 0;
         break;
       default:
         break;
     }
-    // 4. Move the PC to the next instruction.
-    int movePC = (ir >> 6) + 1;
-    cpu->PC += movePC;
+
+    if((ir&0b00010000) == 0) { //if set PC bit is not set increment PC
+      int movePC = (ir >> 6) + 1;
+      cpu->PC += movePC;
+    }
   }
 }
 
