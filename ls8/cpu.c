@@ -66,6 +66,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regB] + cpu->reg[regA];
+      break;
   }
 }
 
@@ -103,6 +106,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
       case PUSH:
         cpu->reg[SP]--;
         cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
@@ -113,12 +120,32 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[SP]++;
         break;
 
+      case CALL:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + advance_pc);
+        cpu->PC = cpu->reg[operandA];
+        cpu->FL = 1;
+        break;
+
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
+        cpu->FL = 1;
+        break;
+
       default:
         printf("Default case triggered\n");
         break;
 
     }
-    cpu->PC += advance_pc;
+    if (cpu->FL == 0) {
+      cpu->PC += advance_pc;
+    }
+    else {
+      cpu->FL = 0;
+      continue;
+    }
+    
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -131,6 +158,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
 
   // TODO: Zero registers and RAM
   memset(cpu->reg, 0, sizeof cpu->reg);
