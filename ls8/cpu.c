@@ -39,6 +39,9 @@ int alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
     case ALU_MUL:
       return regA * regB;
       break;
+    case ALU_ADD:
+      return regA + regB;
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -74,6 +77,20 @@ void cpu_run(struct cpu *cpu)
         printf("register: %d\n", cpu->registers[(cpu->ram[c+1])]);
         cpu->PC += 3;
         break;
+      case CALL:
+        //push next instruction onto stack
+        --cpu->registers[7];
+        cpu->ram[cpu->registers[7]] = c+2;
+        //change PC to value at R[1]
+        cpu->PC = cpu->registers[1];
+        printf("call\n");
+        break;
+      case RET:
+        //pop insruction pointer from stack and update PC
+        cpu->PC = cpu->ram[cpu->registers[7]];
+        ++cpu->registers[7];
+        printf("return to instruction: %d\n", cpu->PC);
+        break;
       case PUSH:
       printf("push\n");
         --cpu->registers[7];
@@ -89,6 +106,11 @@ void cpu_run(struct cpu *cpu)
       case ALU_MUL:
         printf("mul: %d * %d\n", regA, regB);
         cpu->registers[(cpu->ram[c+1])] = alu(cpu, ALU_MUL, regA, regB);
+        cpu->PC += 3;
+        break;
+      case ALU_ADD:
+        printf("add: %d + %d\n", regA, regB);
+        cpu->registers[(cpu->ram[c+1])] = alu(cpu, ALU_ADD, regA, regB);
         cpu->PC += 3;
         break;
       case PRN:
@@ -114,8 +136,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers[7] = 0xF3;
+  cpu->registers[7] = 0xF4;
   // TODO: Zero registers and RAM
-  memset(cpu->registers[0], 8, 0);
-  memset(cpu->ram[0], 256, 0);
+  memset(&cpu->registers[0], 0, 8);
+  memset(&cpu->ram[0], 0, 256);
 }

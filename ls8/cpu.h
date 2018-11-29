@@ -37,6 +37,9 @@ enum alu_op {
 #define ALU_SUB  0b10100001
 #define ALU_MUL  0b10100010
 #define ALU_DIV  0b10100011
+//PC mutators
+#define CALL 0b01010000
+#define RET  0b00010001
 
 
 
