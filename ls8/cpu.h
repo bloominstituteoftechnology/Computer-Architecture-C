@@ -6,6 +6,7 @@ struct cpu {
   int PC;
   int registers[8];
   int ram[256];
+	unsigned char FL;
 };
 
 // ALU operations
@@ -28,6 +29,14 @@ enum alu_op {
 #define CALL 0b01010000
 #define RET  0b00010001
 #define ADD  0b10100000
+#define CMP  0b10100111
+#define JEQ  0b01010101
+#define JGE  0b01011010
+#define JGT  0b01010111
+#define JLE  0b01011001
+#define JLT  0b01011000
+#define JMP  0b01010100
+#define JNE  0b01010110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

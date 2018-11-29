@@ -100,6 +100,51 @@ void cpu_run(struct cpu *cpu)
         opB = cpu_ram_read(cpu, cpu->PC+2);
         alu(cpu, ALU_ADD, opA, opB);
         break;
+      case CMP:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        opB = cpu_ram_read(cpu, cpu->PC+2);
+        if(cpu->registers[opA] == cpu->registers[opB]) {
+          cpu->FL = 0b00000001;
+        } else if(cpu->registers[opA] < cpu->registers[opB]) {
+          cpu->FL = 0b00000100;
+        } else {
+          cpu->FL = 0b00000010;
+        }
+        break;
+      case JEQ:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000001) != 0) cpu->PC = cpu->registers[opA];
+        break;
+      case JNE:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000001) != 1) cpu->PC = cpu->registers[opA];
+        break;
+      case JGE:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000011) != 0) cpu->PC = cpu->registers[opA];
+        break;
+      case JGT:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000010) != 0) cpu->PC = cpu->registers[opA];
+        break;
+      case JLE:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000101) != 0) cpu->PC = cpu->registers[opA];
+        break;
+      case JLT:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC += 2;
+        if((cpu->FL & 0b00000100) != 0) cpu->PC = cpu->registers[opA];
+        break;
+      case JMP:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->PC = cpu->registers[opA];
+        break;
       case HLT:
         running = 0;
         break;
@@ -122,6 +167,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu = malloc(sizeof(struct cpu));
   cpu->PC = 0;
+  cpu->FL = 0;
   memset(cpu->ram,0,256);
 
   for(int i = 0;i<7;i++){
