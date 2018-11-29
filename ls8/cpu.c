@@ -29,6 +29,17 @@ void pop(struct cpu *cpu, unsigned char targetReg) {
   cpu->registers[7]++;
 }
 
+void call(struct cpu *cpu, unsigned char targetReg) {
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = cpu->PC + 2;
+  cpu->PC = cpu->registers[targetReg];
+}
+
+void ret(struct cpu *cpu) {
+  cpu->PC = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
+}
+
 void cpu_load(char* filename, struct cpu *cpu)
 {
   FILE *fp = fopen(filename, "r" );
@@ -70,6 +81,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] *= cpu->registers[regB];
       break;
 
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -81,6 +96,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  // for(int i = 0; i < 14; i++) {
   while (running) {
     unsigned char IR;
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
@@ -121,6 +137,19 @@ void cpu_run(struct cpu *cpu)
         pop(cpu, operandA);
         cpu->PC += 2;
         break;
+
+      case CALL:
+        call(cpu, operandA);
+        break;
+
+      case RET:
+        ret(cpu);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += 3;
+        break;
     }
   }
 }
@@ -137,5 +166,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
-  cpu->registers[7] = cpu->ram[0xF4];
+  cpu->registers[7] = 0xF4;
 }
