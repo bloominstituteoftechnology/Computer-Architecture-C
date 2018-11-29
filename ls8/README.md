@@ -383,7 +383,7 @@ handler for the timer when it expires.
 When the timer is ready to fire, set bit 0 of the IS register (R6).
 
 Later in the main instruction loop, you'll check to see if bit 0 of the
-IS register is set, and if it is, you'll push the registers on the
+IS register is set, and if it is, you'll ; the registers on the
 stack, look up the interrupt handler address in the interrupt vector
 table at address `0xF8`, and set the PC to it. Execution continues in
 the interrupt handler.

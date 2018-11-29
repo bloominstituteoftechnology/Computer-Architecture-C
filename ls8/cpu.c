@@ -29,14 +29,21 @@ void cpu_load(struct cpu *cpu, char *path)
   {
     printf("error reading file");
   }
-  char idk[256];
+  char line[256];
   int address = 0;
-  while (fgets(idk, 256, fileToRead))
+  while (fgets(line, 256, fileToRead))
   {
-    printf("idk is: %s\n", idk);
-    cpu->ram[address] = strtoul(idk, NULL, 2);
+    printf("first character of line: %c\n", line[0]);
+    if (line[0] == '0' || line[0] == '1') {
+    printf("line is: %s\n", line);
+    cpu->ram[address] = strtoul(line, NULL, 2);
     printf("inserted into ram: %d\n", cpu->ram[address++]);
-  }
+    } 
+    //  else {
+    // cpu->PC++;
+    //  }
+    }
+  
  
 }
 
@@ -69,11 +76,12 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char PRN;
-    int mult;
+    int result;
     int a;
 
     //<-- try putting int a over here
     // 2. switch() over it to decide on a course of action.
+    printf("Performing instruction IR: %d\n", IR);
     switch (IR)
     {
     case 0b00000001: // HLT
@@ -86,7 +94,7 @@ void cpu_run(struct cpu *cpu)
 
       a = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] = cpu_ram_read(cpu, cpu->PC + 2);
 
-      // printf("%d\n", a);
+      printf("LDI: %d\n", a);
       cpu->PC += 3;
       break;
     case 0b01000111: // PRN Starts
@@ -99,7 +107,8 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case 0b10100010: // MUL
-      mult = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] *= cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
+      printf("MUL\n");            
+      result = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] *= cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
       cpu->PC += 3;
       break;
     
@@ -117,11 +126,31 @@ void cpu_run(struct cpu *cpu)
       cpu->SP++;
       cpu->PC += 2;
       break;
-
+    
+    case 0b01010000: // CALL 
+    //i'm still trying to think how i'm going to push the previous pc + 1 to the top of the stack so it can later pop it off and make pc that value 
+    // the main thing i'm having trouble with is sec reading ls8-spec to compare what push needed to what push needs now if it's any different for the implementation
+      cpu->ram[--cpu->SP] = cpu->PC + 2; // so the 
+      // also, > The address of the ***instruction*** _directly after_ `CALL` is pushed onto the stack.
+      // so basically if call was just a normal operation like LDI or ADD or something, where will the PC be. that's what gets pushed to the stack
+      cpu->PC = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)];
+//there is a missing piece I need
+//just cpu->PCi think so
+        //might have went to far I think I push correctly line above on this line i'm trying to
+      // this line i'm trying to eventually change the pointer to the right place but I think I need two lines to do it.
+      //I don't really see why though. I want to just set the cpu->PC to the index that cpu->PC +2 should prove but I don't know if that messes stuff up
+      break;
+    case 0b00010001: //RET
+      printf("PC IS POINTING AT\n");
+      cpu->PC = cpu->ram[cpu->SP++];
+      break;
+    case 0b10100000: //ADD
+      result = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] += cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
+      cpu->PC = cpu->PC +3;
+      break;
     default:
       printf("whatmeantho? %d\n", IR);
       break;
-
       //error: a label can only be part of a statement and a declaration is not a statement
       //running should be set to 0 to stop the loop once halted <-- :+1:
       //then I don't need the break but so that's the gist of it look for if the ram read is a certain code
