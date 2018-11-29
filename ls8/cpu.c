@@ -64,10 +64,9 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 }
 void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
 {
-  printf("Are we adding\n");
+
   int value = cpu->registers[place] + cpu->registers[place2];
   cpu->registers[place] = value;
-  printf("%d  + %d yes we are adding here is the add data >> %d\n", cpu->registers[place], cpu->registers[place2], cpu->registers[place]);
 }
 int convert (int dec) 
 {
@@ -97,7 +96,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2];
     cpu->registers[7] = cpu->ram[SP];//meeting spec requirements register 7  has the pointer to the top of ram. 
-    printf("%d\n", current);
     switch (current)
     {
 
@@ -128,19 +126,13 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       break;
     case CALL:
-     
       SP--; 
-      cpu->ram[SP] = cpu->ram[cpu->PC + 2];
-      // cpu->PC = cpu->registers[operandA];
-      // cpu->PC += 2;
+      cpu->ram[SP] = cpu->PC + 2; 
       cpu->PC = cpu->registers[operandA]; 
-      cpu_reg_read(cpu, operandA);
-      cpu->PC--; 
-      // cpu->PC = operandA;
       break;
     case RET:
-      printf("The RET hits but before it hits things should have printed out though it does halt the program");
       cpu->PC = cpu->ram[SP];
+      cpu->PC--;
       SP++; 
       break; 
     case HLT:
