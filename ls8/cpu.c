@@ -2,9 +2,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #define DATA_LEN 6
-#define DEBUG 0
+#define DEBUG 1
+#define IM 5 
+#define IS 6
+#define SP 7
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -59,7 +63,26 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
 {
   cpu->ram[index] = item;
 }
-
+void handleInterrupt(struct cpu *cpu) {
+  // TODO:
+  // disable interrupts
+  cpu->registers[IS] = 0;
+  // pushing onto the stack
+  cpu->ram[--cpu->registers[SP]] = cpu->PC;
+  cpu->ram[--cpu->registers[SP]] = cpu->FL;
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[0];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[1];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[2];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[3];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[4];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[5];
+  cpu->ram[--cpu->registers[SP]] = cpu->registers[6];
+  if (cpu->registers[IS] == 1) {
+    cpu->PC = cpu->ram[0xF8];
+  } else if (cpu->registers[IS] = 2) {
+   cpu->PC = cpu->ram[0xF9];
+  }
+}
 /**
  * Run the CPU
  */
@@ -70,10 +93,44 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    // timer implementation
+    struct timeval tv;
+    // gettimeodday() get's the time of day for the computer's clock
+    gettimeofday(&tv, NULL);
+    // for double time_in_mill and time_diff , initialization
+    double time_in_mill;
+    double time_diff;
+    // in the if statement below you are converting the time in seconds to  milliseconds.
+    if (time_in_mill) {
+     time_diff = ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000) - time_in_mill;
+    }
+    time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ; // convert tv_sec & tv_usec to millisecond
+    // these print statements are printing the time in milliseconds and the difference in time from the last loop
+    #if DEBUG
+    printf("time: %f\n", time_in_mill);
+    printf("difference in time: %f\n", time_diff);
+    #endif
+    int interrupt_happened;
+    if (!interrupt_happened) {
+    unsigned char maskedInterrupts = cpu->registers[IM] & cpu->registers[IS];
+      for (int i = 0; i < 8; i++) {
+      if (((maskedInterrupts >> i )&1 )== 1) {
+      interrupt_happened = 1;
+        handleInterrupt(cpu);
+        break;
+        }
+      }
+    }
     int PC = cpu->PC;
     unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
+    int INC_PC = 0;
+    if (time_diff >= 1000) {
+      IR = 0b01010010;
+      cpu->registers[0] = 1;
+      operandA = 0;
+    }
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
@@ -82,71 +139,118 @@ void cpu_run(struct cpu *cpu)
           printf("HLT\n");
           #endif
         running = 0;
+        INC_PC = 1;
         break;
       case LDI:
         #if DEBUG
           printf("LDI\n");
           #endif
         cpu->registers[operandA] = operandB;
+        INC_PC = 1;
         break;
       case PRN:
         #if DEBUG
-          printf("PRN\n");
+          printf("RET\n");
           #endif
         printf("%d\n", cpu->registers[operandA]);
+        INC_PC = 1;
         break;
       case MUL:
         #if DEBUG
           printf("MUL\n");
           #endif
         alu(cpu, ALU_MUL, operandA, operandB);
+        INC_PC = 1;
         break;
       case PUSH:
         #if DEBUG
           printf("PUSH\n");
           #endif
-        cpu->ram[--cpu->registers[7]] = cpu->registers[operandA];
+        cpu->ram[--cpu->registers[SP]] = cpu->registers[operandA];
+        INC_PC = 1;
         break;
       case POP:
         #if DEBUG
           printf("POP\n");
           #endif
-        cpu->registers[operandA] = cpu->ram[cpu->registers[7]++];
+        cpu->registers[operandA] = cpu->ram[cpu->registers[SP]++];
+        INC_PC = 1;
         break;
       case CALL:
         #if DEBUG
           printf("CALL\n");
           #endif
-        cpu->ram[--cpu->registers[7]] = PC+2;
+        cpu->ram[--cpu->registers[SP]] = PC+2;
         cpu->PC = cpu->registers[operandA] + 1;
         #if DEBUG
           printf("What we're setting PC to in CALL: %d\n", cpu->registers[operandA]);
           #endif
+        INC_PC = 0;
         break;
       case RET:
         #if DEBUG
           printf("RET\n");
           #endif
-        cpu->PC = cpu->ram[cpu->registers[7]++];
+        cpu->PC = cpu->ram[cpu->registers[SP]++];
+        INC_PC = 0;
         break;
       case ADD:
         #if DEBUG 
           printf("ADD\n");
           #endif
         alu(cpu, ALU_ADD, operandA, operandB);
+        INC_PC = 1;
         break;
+      case ST:
+        #if DEBUG 
+        printf("ST\n");
+        #endif
+        cpu->ram[cpu->registers[operandA]] = cpu->registers[operandB];
+        break;
+      case INT:
+      #if DEBUG
+      printf("INT\n");
+      #endif
+      cpu->registers[IS] = cpu->registers[operandA];
+      break;
+      case IRET:
+      #if DEBUG
+      printf("IRET\n");
+      #endif
+      cpu->registers[6] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[5] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[4] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[3] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[2] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[1] = cpu->ram[cpu->registers[SP]++];
+      cpu->registers[0] = cpu->ram[cpu->registers[SP]++];
+      cpu->FL = cpu->ram[cpu->registers[SP]++];
+      cpu->PC = cpu->ram[cpu->registers[SP]++];
+      interrupt_happened = 0;
+      break;
+      case JMP:
+      #if DEBUG
+      printf("JMP\n");
+      #endif
+      cpu->PC = cpu->ram[cpu->registers[operandA]];
+      break;
+      case PRA:
+      #if DEBUG
+      printf("PRA\n");
+      #endif
+      printf("%c\n", cpu->registers[operandA]);
+      break;
       default:
         printf("Instruction number: %d\n", IR);
         printf("Default case reached. Command invalid.\n");
         break;
     }
     // 4. Move the PC to the next instruction.
-    if (!((IR >> 4) & 00000001)) {
+    if (!((IR >> 4) & 1)) {
       cpu->PC += 1 + (IR >> 6);
     }
-
     #if DEBUG
-      sleep(1);
+      // sleep(1);
       #endif
     
   }
@@ -160,7 +264,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, 7);
-  cpu->registers[7] = 0xF4;
+  cpu->registers[SP] = 0xF4;
   cpu->PC = 0;
   cpu->FL = 0;
   memset(cpu->ram, 0, 256);
