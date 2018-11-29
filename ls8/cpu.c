@@ -19,16 +19,6 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, int data)
  */
 void cpu_load(struct cpu *cpu, char *path)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     // 0b10000010, // LDI R0,8 <- this means Line 12: LDI, 13: R0, 14: 8
-  //     // 0b00000000,
-  //     // 0b00001000,
-  //     // 0b01000111, // PRN R0 <- 15: PRN
-  //     // 0b00000000, // <- 16: R0
-  //     // 0b00000001  // HLT
-  //     // strtoul()
-  // };
 
   if (path == NULL)
   {
@@ -47,15 +37,7 @@ void cpu_load(struct cpu *cpu, char *path)
     cpu->ram[address] = strtoul(idk, NULL, 2);
     printf("inserted into ram: %d\n", cpu->ram[address++]);
   }
-  // `fgets` & `strtoul`
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded PRR
+ 
 }
 
 /**
@@ -87,6 +69,7 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char PRN;
+    int mult;
     int a;
     //<-- try putting int a over here
     // 2. switch() over it to decide on a course of action.
@@ -115,12 +98,10 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case 0b10100010: // MUL
-    {
-      int mult = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] *= cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
-      printf("%d\n", mult);
+      mult = cpu->R[cpu_ram_read(cpu, cpu->PC + 1)] *= cpu->R[cpu_ram_read(cpu, cpu->PC + 2)];
       cpu->PC += 3;
       break;
-    }
+    
 
     case 0b01000101: // PUSH
       break;
