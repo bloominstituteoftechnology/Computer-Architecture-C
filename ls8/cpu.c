@@ -87,7 +87,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case HLT:
         printf("\nHalting Program.");
-        exit(0); //terminates the whole program insetead of exiting switch... exit is kinda opposite ish 
+        exit(0); //terminates the whole program insetead of exiting switch... exit is kinda oppositeish
         break;
       case MUL:
         // printf("product: %d\n", value1);
@@ -114,15 +114,17 @@ void cpu_run(struct cpu *cpu)
       case CALL:
         printf("CALL\n");
         //value 1 pushed onto stack
-        cpu->ram[cpu->reg[7]] = value2;
+        // cpu->reg[7]--;
+        cpu->ram[cpu->reg[7]] = cpu->PC+2;
         //pc is set to value 1 
         printf("CALL 2\n");
         cpu->PC = cpu->reg[1];
         printf("CALL 3\n");
         break;
       case RET:
-        printf("RET\n");
+        printf("RET %d\n", cpu->ram[cpu->reg[7]]);
         cpu->PC = cpu->ram[cpu->reg[7]];
+        cpu->reg[7]++;
         break;
         
 // ### JMP
