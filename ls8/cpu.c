@@ -42,14 +42,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char i)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
-  return cpu->ram[i];
+  return cpu->ram[address];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu)
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value )
 {
-  cpu_load(cpu);
+  cpu->ram[address] = value;
 }
 
 /**
@@ -58,16 +58,16 @@ unsigned char cpu_ram_write(struct cpu *cpu)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char *PC = cpu->PC;
+/*   unsigned char *PC = cpu->PC;
   unsigned char *reg = cpu->registers;
-  unsigned char *ram = cpu->ram;
+  unsigned char *ram = cpu->ram; */
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, *PC);
-    unsigned char operandA = cpu_ram_read(cpu, *PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, *PC+2);
-    unsigned int inc = 0;
+    int IR = cpu->ram[cpu->PC];
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+    printf("test");
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
@@ -76,19 +76,14 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case LDI :
-        reg[operandA] = operandB;
-        inc = 1;
+        cpu->registers[operandA] = operandB;
         break;
 
       case PRN :
-        printf("%d", reg[operandA]);
-        inc = 1;
+        printf("%d", cpu->registers[operandA]);
         break;
     }
     // 4. Move the PC to the next instruction.
-      if(inc) {
-        PC++;
-      }
   }
 }
 
