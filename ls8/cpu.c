@@ -62,8 +62,24 @@ unsigned char ir;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     ir=cpu_ram_read(cpu, cpu->pc);
+    unsigned char operandA=cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB=cpu_ram_read(cpu, cpu->pc + 2);
     // 2. switch() over it to decide on a course of action.
+    switch(ir){
+      case LDI:
+        cpu->registers[operandA]= operandB;
+        cpu->pc+=3;
+        break;
+      case HLT:
+        running=0;
+        break;
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->pc+=2;
+        break;
+    }
     // 3. Do whatever the instruction should do according to the spec.
+
     // 4. Move the PC to the next instruction.
   }
 }
