@@ -81,6 +81,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char current = cpu->ram[cpu->PC];
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2];
+    cpu->registers[7] = cpu->ram[SP];//meeting spec requirements register 7  has the pointer to the top of ram. 
     switch (current)
     {
 
