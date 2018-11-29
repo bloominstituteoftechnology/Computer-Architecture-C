@@ -39,11 +39,11 @@ void multiply(struct cpu *cpu) {
   }
 }
 void push(struct cpu *cpu) {
-  cpu->ram[cpu->registers[SP]]=cpu->registers[cpu->PC+1];
   cpu->registers[SP]-=1;
+  cpu->ram[cpu->registers[SP]]=cpu->registers[cpu->ram[cpu->PC+1]];
 }
 void pop(struct cpu *cpu) {
-  cpu->registers[cpu->PC+1]=cpu->ram[cpu->registers[SP]];
+  cpu->registers[cpu->ram[cpu->PC+1]]=cpu->ram[cpu->registers[SP]];
   cpu->registers[SP]+=1;
 }
 void cpu_load(struct cpu *cpu,char *filename)
@@ -98,14 +98,14 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         multiply(cpu);
         break;
-      case HLT:
-        halt(cpu,&running);
-        break;
       case PUSH:
         push(cpu);
         break;
       case POP:
         pop(cpu);
+        break;
+      case HLT:
+        halt(cpu,&running);
         break;
     }
     cpu->PC+=((instruction>>6)+1);
