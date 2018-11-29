@@ -12,12 +12,8 @@ struct cpu
 
 //struct to represent a stack
 //The SP points at the value at the top of the stack
-typedef struct Stack
-{
-  int SP;
-  unsigned char capacity;
-  int *array;
-} Stack;
+
+#define SP 7
 
 // ALU operations
 enum alu_op

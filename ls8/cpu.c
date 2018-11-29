@@ -11,7 +11,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
   return cpu->ram[mar];
 }
 
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
   //write value to memory
   cpu->ram[mar] = mdr;
@@ -57,39 +57,12 @@ void cpu_load(struct cpu *cpu, char *argv[])
   fclose(fp);
 }
 // function to create a new stack, initialized size to 0
-Stack *newStack(unsigned char capacity)
-{
-  Stack *stack = malloc(sizeof(Stack));
-  stack->capacity = capacity;
-  stack->SP = -1;
-  stack->array = malloc(stack->capacity * sizeof(int));
-
-  return stack;
-}
 
 //function to add an item to the stack.
 //returns item pushed onto the stack if successful, -1 if full
-int push(Stack *stack)
-{
-  if (stack->SP == stack->capacity - 1)
-  {
-    return -1;
-  }
-  stack->array[++stack->SP] = item;
-
-  return item;
-}
 
 //function to remove item from the stack
 //returns item popped from the stack if successful, -1 if stack is empty
-int pop(Stack *stack, int item)
-{
-  if (stack->SP == -1)
-  {
-    return -1;
-  }
-  return stack->array[stack->SP--];
-}
 
 /**
  * ALU
@@ -130,11 +103,17 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
     case PUSH:
-      push(cpu, Stack * stack, int item);
+      // decrement the Stack pointer
+      cpu->registers[SP]--;
+      //copy value into address pointed to by SP
+      //access the cpu, then value stored at SP
+      cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
       cpu->PC += 2;
       break;
     case POP:
-      pop(cpu, Stack * stack, int item);
+      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[SP]);
+      //increment the Stack Pointer
+      cpu->registers[SP]++;
       cpu->PC += 2;
       break;
     case PRN:
@@ -163,6 +142,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[SP] = 0xf4;
   // TODO: Zero registers and RAM
   //memset(starting address of memory to be filled, value to be filled, Number of bytes to be filled starting at address[0])
   memset(cpu->registers, 0, sizeof(cpu->registers));
