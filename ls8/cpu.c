@@ -91,13 +91,13 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
 
-    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X | %02X %02X %02X | ", cpu->PC, IR, operandA, operandB);
 
-    // for(int i = 0; i < 8; i++) {
-    //   printf("%02X", cpu->registers[i]);
-    // }
+    for(int i = 0; i < 8; i++) {
+      printf("%02X ", cpu->registers[i]);
+    }
 
-    // printf("\n");
+    printf("\n");
 
     switch(IR) {
       case LDI:
@@ -113,6 +113,18 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         cpu->PC += 3;
+        break;
+
+      case PUSH:
+        cpu->registers[7]--;
+        cpu_ram_write(cpu, cpu->registers[7], cpu-> registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case POP:
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
+        cpu->PC += 2;
         break;
 
       case HLT:
