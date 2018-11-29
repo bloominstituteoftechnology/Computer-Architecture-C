@@ -97,18 +97,18 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CALL:
-      printf("working-CALL");
+      // printf("working-CALL");
     // 1. The address of the ***instruction*** _directly after_ `CALL` is
     //    pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
     // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the 
           // first instruction in the subroutine. The PC can move forward or backwards from its current location.
         cpu->registers[7]--;
-        write_ram(cpu, cpu->registers[7], cpu->PC + 3);
-        cpu->PC = cpu->registers[operandA]; 
+        write_ram(cpu, cpu->registers[7], cpu->PC + 2);
+        cpu->PC = cpu->registers[operandA] + 1;
         break; 
         
       case RET:
-      printf("working-RET");
+      // printf("working-RET");
       // Return from subroutine.
       // Pop the value from the top of the stack and store it in the `PC`.
         cpu->PC = read_ram(cpu, cpu->registers[7]);
@@ -138,6 +138,8 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         cpu->PC++;
         break; 
+      default:
+        cpu->PC++;
     }
   }
 }

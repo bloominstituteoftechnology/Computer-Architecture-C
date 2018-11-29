@@ -189,12 +189,27 @@ Calls a subroutine (function) at the address stored in the register.
 
 1. The address of the ***instruction*** _directly after_ `CALL` is
    pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
-2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+2. **The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
 
 Machine code:
 ```
 01010000 00000rrr
 50 0r
+```
+
+### JMP ^^^Similar to CALL^^^
+
+`JMP register`
+
+Jump to the address stored in the given register.
+(difference between CALL(Jump to RAM) and JMP(jump to Register)
+
+**Set the `PC` to the address stored in the given register.
+
+Machine code:
+```
+01010100 00000rrr
+54 0r
 ```
 
 ### CMP
