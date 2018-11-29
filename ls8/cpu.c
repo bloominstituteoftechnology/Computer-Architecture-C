@@ -5,6 +5,23 @@
 #include <limits.h>
 #define DATA_LEN 6
 
+void push_value(struct cpu *cpu, unsigned char value)
+{
+  //will be used to push a value to the SP in the push case
+  cpu->registers[SP]--;
+  cpu_ram_write(cpu, cpu->registers[SP], value)
+}
+
+void pop_value(struct cpu *cpu, unsigned char value)
+{
+  //will be used to pop a value from the stack
+  value = cpu_ram_read(cpu, cpu->registers[SP]);
+  //increment the Stack Pointer
+  cpu->registers[SP]++;
+
+  return value;
+}
+
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
   //read from memory address
@@ -103,18 +120,17 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
     case PUSH:
-      // decrement the Stack pointer
-      cpu->registers[SP]--;
-      //copy value into address pointed to by SP
-      //access the cpu, then value stored at SP
-      cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
-      cpu->PC += 2;
+      push_value(cpu, cpu->registers[operandA]);
       break;
     case POP:
-      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[SP]);
-      //increment the Stack Pointer
-      cpu->registers[SP]++;
-      cpu->PC += 2;
+      cpu->registers[operandA] = pop_value(cpu);
+      break;
+    case CALL:
+      // push the address of the instruction after the call onto the stack
+      //set PC to a certain value
+      cpu->PC = cpu->registers[operandA];
+      break;
+    case RET:
       break;
     case PRN:
       printf("%u\n", cpu->registers[operandA]);
