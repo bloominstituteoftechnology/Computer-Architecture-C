@@ -113,7 +113,7 @@ void cpu_run(struct cpu *cpu)
       // Pop the value from the top of the stack and store it in the `PC`.
         cpu->PC = read_ram(cpu, cpu->registers[7]);
         cpu->registers[7] ++;
-        // cpu->PC += 2;  
+        cpu->PC += 2;  
         break;
 
       case PRN:
