@@ -38,6 +38,8 @@ unsigned char push_stack(){
 
 }
 
+unsigned char pop_from_stack(unsigned char cpu, )
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -90,19 +92,21 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->PC+3;
         break;
       case MUL:
-        cpu->registers[operand1] = multiply(cpu->registers[0], cpu->registers[1]);
+        cpu->registers[operand1] = multiply(cpu->registers[operand1], cpu->registers[operand2]);
         printf("MUL >>> %d\n", cpu->registers[operand1]);
-        cpu->PC = cpu->PC+3;
+        cpu->PC = cpu->PC+2;
         break;
       case PUSH:
         SP = find_SP(cpu);
         cpu_ram_write(cpu, SP, cpu->registers[operand1]);
+        cpu->PC = cpu->PC+2;
         break;
       case POP:
         SP = find_SP(cpu) + 1;
         cpu_ram_write(cpu, SP, cpu->registers[operand1]);
+        cpu->PC = cpu->PC+2;
       case PRN:
-        printf("Printing %d\n", cpu->registers[0]);
+        printf("Printing %d\n", cpu->registers[operand1]);
         cpu->PC = cpu->PC+2;
         break;
       case HLT:
