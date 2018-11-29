@@ -67,7 +67,6 @@ void cpu_run(struct cpu *cpu)
     int IR = cpu->ram[cpu->PC];
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-    printf("test");
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(IR) {
@@ -80,10 +79,11 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN :
-        printf("%d", cpu->registers[operandA]);
+        printf("%d\n", cpu->registers[operandA]);
         break;
     }
     // 4. Move the PC to the next instruction.
+    cpu->PC += 1;
   }
 }
 
