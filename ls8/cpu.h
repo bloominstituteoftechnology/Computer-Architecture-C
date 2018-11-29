@@ -11,6 +11,7 @@ struct cpu
   unsigned char PC;
   unsigned char registers[8];
   unsigned char ram[256];
+  unsigned char SP;
 };
 
 // ALU operations
@@ -30,8 +31,10 @@ enum alu_op
 #define HLT 0b00000001
 #define PRN 0b01000111
 #define MUL 0b10100010
-// Function declarations
+#define POP 0b01000110
+#define PUSH 0b01000101
 
+// Function declarations
 extern void cpu_load(struct cpu *cpu, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);

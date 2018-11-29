@@ -3,7 +3,7 @@
 #include <string.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+#define SP 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -54,6 +54,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char ret = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return ret;
+}
+
 /**
  * Run the CPU
  */
@@ -86,6 +99,12 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       alu(cpu, ALU_MUL, value1, value2);
+      break;
+    case PUSH:
+      cpu_push(cpu, cpu->registers[value1]);
+      break;
+    case POP:
+      cpu->registers[value1] = cpu_pop(cpu);
       break;
     }
 
