@@ -62,6 +62,10 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 {
   cpu->registers[place] = cpu->registers[place] * cpu->registers[place2];
 }
+void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] + cpu->registers[place2];
+}
 
 /**
  * Run the CPU
@@ -97,6 +101,10 @@ void cpu_run(struct cpu *cpu)
       cpu_reg_multiply(cpu, operandA, operandB);
       cpu->PC += 2;
       break;
+    case ADD:
+      cpu_reg_add(cpu, operandA, operandB);
+      cpu->PC += 2; 
+      break; 
     case PUSH:
       SP--;
       cpu->ram[SP] = cpu->registers[operandA];
