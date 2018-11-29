@@ -57,9 +57,11 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+unsigned char ir;
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    ir=cpu_ram_read(cpu, cpu->pc);
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
@@ -72,6 +74,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-
+  cpu->pc=0;
+  memset(cpu->registers, 0, 8);
   // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, 256);
 }
