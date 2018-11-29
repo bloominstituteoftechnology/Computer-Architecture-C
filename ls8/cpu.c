@@ -137,12 +137,14 @@ void cpu_run(struct cpu *cpu)
                         PC += shift;
                         break;
 
-                case PUSH:
-                        cpu_ram_write(cpu, --regist[SP], regist[operandA]);
-                        break;
-
                 case POP:
                         cpu_ram_read(cpu, regist[SP]++);
+                        PC += shift;
+                        break;
+
+                case PUSH:
+                        cpu_ram_write(cpu, regist[SP]--, regist[operandA]);
+                        PC += shift;
                         break;
 
                 default:
@@ -150,7 +152,7 @@ void cpu_run(struct cpu *cpu)
                         exit(2);
                 }
                 // 4. Move the PC to the next instruction. done with incemeneting shift var
-                PC += shift;
+                //PC += shift;
         }
 }
 
