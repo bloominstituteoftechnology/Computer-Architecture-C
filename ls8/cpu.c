@@ -192,11 +192,15 @@ void cpu_run(struct cpu *cpu)
       */
       case RET:
       printf(" ...... RET ...... \n");
-
+      cpu->PC = cpu_pop(cpu); //pops the most recent item from the stack
+      cpu->PC += 1;
       break;  
 
       /* CALL - is two bytes long, so the next instruction must be 
       two bytes down, so PC+2 will give the correct address
+
+      ie trnsfer the address of the next instruction to the stack
+      (skip the instructions in between)
       */
       case CALL:
       printf(" ...... CALL ...... \n");
