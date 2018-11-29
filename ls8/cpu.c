@@ -62,12 +62,8 @@ unsigned char pop_handler(struct cpu *cpu, unsigned char operandA){
   return cpu->reg[operandA];
 }
 
-void push_handler(struct cpu *cpu, unsigned char operandA){
+void push_handler(struct cpu *cpu){
   cpu->reg[SP]--; //grows downward, larger address --> smaller address
-  //cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
-  // printf("cpu reg[SP]  =  %d\n", cpu->reg[SP]);
-  // printf("cpu reg[operandA]  =  %d\n", cpu->reg[operandA]);
-  // printf("cpu PC+2  =  %d\n", cpu->PC+2);
   cpu_ram_write(cpu, cpu->reg[SP], cpu->PC+2);
 }
 
@@ -77,6 +73,12 @@ void push_handler(struct cpu *cpu, unsigned char operandA){
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+
+  int i;
+
+  // for(i = 0; i<30; i++){
+  //   printf("cpu ram[%d] = %d\n", i, cpu->ram[i]);
+  // }
 
   while (running) {
     // TODO
@@ -89,11 +91,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     unsigned char move_pc = (IR >> 6) + 1;
-
-    // printf("cpu->PC %d      IR %d\n", cpu->PC, IR);
-    // printf("operandA %d     reg[operandA] %d\n", operandA, cpu->reg[operandA]);
-    // printf("operandB %d     reg[operandB] %d\n", operandB, cpu->reg[operandB]);
-    // printf("move_pc %d\n", move_pc);
 
     switch(IR) {
       case LDI:
@@ -116,7 +113,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += move_pc;
         break;
       case PUSH:
-        push_handler(cpu, operandA);
+        push_handler(cpu);
         cpu->PC += move_pc;
         break;
       case ADD:
@@ -124,23 +121,15 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += move_pc;
         break;
       case CALL:
-        push_handler(cpu, cpu->reg[operandA]);
+        push_handler(cpu);
         cpu->PC = cpu->reg[operandA];
         break;
       case RET:
         cpu->PC = pop_handler(cpu, operandA);
         break;
-      // case CALL:
-      //   cpu->reg[SP] = cpu->reg[SP - 1];
-      //   cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + 2);
-      //   cpu->PC = cpu->reg[operandA];
-      //   IR = 0;
-      //   break;
-      
-      // case RET:
-      //   cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]++);
-      //   IR = 0;
-      //   break;
+    }
+    for(i = 0; i<8; i++){
+      printf("cpu reg[%d] = %d\n", i, cpu->reg[i]);
     }
   }
 }
