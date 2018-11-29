@@ -3,30 +3,22 @@
 #include <string.h>
 #include "cpu.h"
 
-#define DATA_LEN 6
+#define DATA_LEN 256
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file_name)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
   int address = 0;
+  char line[8192];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp = fopen(file_name,"r");
+
+  while (fgets(line, sizeof line, fp) != NULL) {
+    cpu->ram[address++] = strtoul(line, NULL, 2);
   }
-
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -36,7 +28,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      printf("Multiply %d by %d\n", cpu->registers[regA], cpu->registers[regB]);
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -49,29 +42,39 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char regA;
+  unsigned char regB;
+  int item;
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    int ir = cpu->ram[cpu->PC];
+    unsigned char ir = cpu->ram[cpu->PC];
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch (ir) {
-      case -126:
-        cpu->registers[cpu->ram[cpu->PC+1]] = cpu->ram[cpu->PC+2];
-        cpu->PC += 2;
+      case LDI:
+        regA = cpu_ram_read(cpu, cpu->PC+1);
+        item = cpu_ram_read(cpu, cpu->PC+2);
+        cpu->registers[regA] = item;
         break;
       case PRN:
         printf("%d\n", cpu->registers[cpu->ram[cpu->PC+1]]);
         cpu->PC++;
         break;
-      case HLT:
-        running = 0;
+      case MUL:
+        regA = cpu_ram_read(cpu, cpu->PC+1);
+        regB = cpu_ram_read(cpu, cpu->PC+2);
+        alu(cpu, ALU_MUL, regA, regB);
         break;
+      case HLT:
+      running = 0;
+      break;
       default:
         break;
     }
     // 4. Move the PC to the next instruction.
-    cpu->PC++;
+    int movePC = (ir >> 6) + 1;
+    cpu->PC += movePC;
   }
 }
 
@@ -92,9 +95,9 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[7] = 0xF4;
 }
 
-unsigned int cpu_ram_read(struct cpu *cpu)
+int cpu_ram_read(struct cpu *cpu, int pc)
 {
-  return cpu->ram[cpu->PC++];
+  return (unsigned char)cpu->ram[pc];
 }
 
 void cpu_ram_write(struct cpu *cpu, int item)
