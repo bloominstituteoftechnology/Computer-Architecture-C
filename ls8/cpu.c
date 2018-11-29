@@ -103,6 +103,12 @@ void cpu_run(struct cpu *cpu)
           cpu->registers[operandA] = cpu-> ram[cpu->registers[7]]; 
           cpu->registers[7]++; 
           break; 
+        case CALL:
+          cpu->registers[7] -= 1; //decrement the stack pointer by one
+          cpu-> ram[cpu->registers[7]] = PC + 2;  // address of next instruction saved in stack, program counter increased 2 bytes
+          cpu-> PC = cpu->registers[operandA]; // set Program Counter to the subroutine
+          break; 
+        
       }
       
     
