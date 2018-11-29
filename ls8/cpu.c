@@ -16,7 +16,8 @@ void cpu_load(struct cpu *cpu, char *file_name)
   FILE *fp = fopen(file_name,"r");
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    cpu->ram[address++] = strtoul(line, NULL, 2);
+    cpu_ram_write(cpu, address, strtoul(line, NULL, 2));
+    address++;
   }
   fclose(fp);
 }
@@ -42,9 +43,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char regA;
-  unsigned char regB;
-  int item;
+  unsigned char opA;
+  unsigned char opB;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -53,22 +54,32 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     switch (ir) {
       case LDI:
-        regA = cpu_ram_read(cpu, cpu->PC+1);
-        item = cpu_ram_read(cpu, cpu->PC+2);
-        cpu->registers[regA] = item;
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        opB = cpu_ram_read(cpu, cpu->PC+2);
+        cpu->registers[opA] = opB;
         break;
       case PRN:
-        printf("%d\n", cpu->registers[cpu->ram[cpu->PC+1]]);
-        cpu->PC++;
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        printf("%d\n", cpu->registers[opA]);
         break;
       case MUL:
-        regA = cpu_ram_read(cpu, cpu->PC+1);
-        regB = cpu_ram_read(cpu, cpu->PC+2);
-        alu(cpu, ALU_MUL, regA, regB);
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        opB = cpu_ram_read(cpu, cpu->PC+2);
+        alu(cpu, ALU_MUL, opA, opB);
+        break;
+      case PUSH:
+        cpu->registers[7]--;
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu_ram_write(cpu, cpu->registers[7], cpu->registers[opA]);
+        break;
+      case POP:
+        opA = cpu_ram_read(cpu, cpu->PC+1);
+        cpu->registers[opA] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->registers[7]++;
         break;
       case HLT:
-      running = 0;
-      break;
+        running = 0;
+        break;
       default:
         break;
     }
@@ -95,13 +106,12 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[7] = 0xF4;
 }
 
-int cpu_ram_read(struct cpu *cpu, int pc)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char loc)
 {
-  return (unsigned char)cpu->ram[pc];
+  return cpu->ram[loc];
 }
 
-void cpu_ram_write(struct cpu *cpu, int item)
+void cpu_ram_write(struct cpu *cpu, unsigned char loc, int item)
 {
-  cpu->ram[cpu->PC] = item;
-  cpu->PC++;
+  cpu->ram[loc] = item;
 }
