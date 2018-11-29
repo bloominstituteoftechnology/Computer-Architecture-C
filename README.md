@@ -19,8 +19,8 @@ setting up the pull request:
 
 ### Day 2: Get `mult.ls8` running, load files dynamically
 - [x] Un-hardcode the machine code
-- [] Implement a Multiply and Print the Result (run `mult8.ls8`)
-- [ ] Beautify your `cpu_run()` function, if needed
+- [x] Implement a Multiply and Print the Result (run `mult8.ls8`)
+- [x] Beautify your `cpu_run()` function, if needed
 
 ### Day 3: Get `stack.ls8` running
 - [ ] Implement System Stack

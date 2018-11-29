@@ -28,34 +28,18 @@ void cpu_load(struct cpu *cpu, char *argv[])
   FILE *fp = fopen(argv[1], "r"); // where is path defined? at function call
   char str[256];
   int address = 0;
-  char *ptr;
-  char file = NULL;
+  // char *ptr;
+  // char *file;
   if(fp == NULL) {
     printf("error reading the file");
   }
-  while(file = fgets(str, sizeof(str), fp) != NULL) {
+  while(fgets(str, sizeof(str), fp)) {
     unsigned char ret = strtoul(str, NULL, 2);
-    cpu->ram[address++] = ret;
+    cpu_ram_write(address++, cpu, ret);
   }
   fclose(fp);
 }
 
-// fgets
-// char *fgets(char *str, int n, FILE *stream)
-// str − This is the pointer to an array of chars where the string read is stored.
-
-// n − This is the maximum number of characters to be read (including the final null-character). Usually, the length of the array passed as str is used.
-
-// stream − This is the pointer to a FILE object that identifies the stream where characters are read from.
-
-
-// strtoul
-// unsigned long int strtoul(const char *str, char **endptr, int base)
-// str − This is the string containing the representation of an unsigned integral number.
-
-// endptr − This is the reference to an object of type char*, whose value is set by the function to the next character in str after the numerical value.
-
-// base − This is the base, which must be between 2 and 36 inclusive, or be the special value 0.
 
 /**
  * ALU
@@ -71,6 +55,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+
 /**
  * Run the CPU */
 void cpu_run(struct cpu *cpu)
@@ -85,8 +70,8 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     ir = cpu_ram_read(cpu->pc, cpu);
-    char operA = cpu_ram_read(cpu->pc + 1, cpu);
-    char operB = cpu_ram_read(cpu->pc + 2, cpu);
+    unsigned char operA = cpu_ram_read(cpu->pc + 1, cpu);
+    unsigned char operB = cpu_ram_read(cpu->pc + 2, cpu);
     // 2. switch() over it to decide on a course of action.
     switch(ir) {
       case HLT: // HLT
@@ -106,6 +91,26 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operA, operB);
         cpu->pc += 3;
         break;
+      // need to create a case for stack DS
+      case PUSH: 
+        // push function
+        cpu->registers[7]--;
+        cpu_ram_write(cpu->registers[7],cpu, cpu->registers[operA]);   
+        cpu->pc += 2;
+        break;
+      case POP:
+        if(cpu->registers[7] == 0xF4){
+          fprintf(stderr,"error can not pop");
+        }
+        cpu->registers[operA] = cpu_ram_read(cpu->registers[7],cpu);
+        cpu->registers[7]++;
+        cpu->pc += 2;
+        break;
+
+// void cpu_ram_write(unsigned char index, struct cpu  *cpu, unsigned char value) 
+// {
+//   cpu->ram[index] = value;
+// }
       // look at line 68. Any arithmetic will be handled there.
       // https://lambdaschoolstudents.slack.com/archives/CD1TWFL0Y/p1543271408505200?thread_ts=1543269930.500700&cid=CD1TWFL0Y
 
@@ -119,73 +124,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu = calloc(1, sizeof(struct cpu));
+  // cpu = calloc(1, sizeof(struct cpu));
   // TODO: Zero registers and RAM
   cpu->pc = 0;
-  memset(&cpu->registers, 0, 8);
-  memset(&cpu->ram, 0, 256);
+  memset(cpu->registers, 0, 8);
+  memset(cpu->ram, 0, 256);
+  cpu->registers[7] = 0xF4; 
   
 }
-
-
-
-
-
-
-
-
-// Example Code for reference
-// switch(expression) {
-
-//    case constant-expression  :
-//       statement(s);
-//       break; /* optional */
-	
-//    case constant-expression  :
-//       statement(s);
-//       break; /* optional */
-  
-//    /* you can have any number of case statements */
-//    default : /* Optional */
-//    statement(s);
-// }
-
-
-// memset() is used to fill a block of memory with a particular value.
-// The syntax of memset() function is as follows :
-
-// // ptr ==> Starting address of memory to be filled
-// // x   ==> Value to be filled
-// // n   ==> Number of bytes to be filled starting 
-// //         from ptr to be filled
-// void *memset(void *ptr, int x, size_t n);
-
-
-
-
-// hard coded cpu load code
-  // char data[DATA_LEN] = {
-    // From print8.ls8
-        // 0b10000010, // LDI R0,8
-        // 0b00000000,
-        // 0b00001000,
-        // 0b10000010, // LDI R1,9
-        // 0b00000001,
-        // 0b00001001,
-        // 0b10100010,// MUL R0,R1
-        // 0b00000000,
-        // 0b00000001,
-        // 0b01000111, // PRN R0
-        // 0b00000000,
-        // 0b00000001, // HLT
-      
-  // };
-
-//   int address = 0;
-
-//   for (int i = 0; i < DATA_LEN; i++) {
-//     cpu->ram[address++] = data[i];
-//   }
-
-//   // TODO: Replace this with something less hard-coded
-// }
