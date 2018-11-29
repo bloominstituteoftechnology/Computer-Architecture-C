@@ -51,7 +51,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu-> registers[regA] *= cpu-> registers[regB];  // multiply value at both registers
       break;
-
+    case ALU_ADD: 
+      cpu-> registers[regA] += cpu-> registers[regB]; 
+      break; 
   }
 }
 
