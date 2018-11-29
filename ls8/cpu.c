@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 #define DATA_LEN 6
-#define DEBUG 1
+#define DEBUG 0
 #define IM 5 
 #define IS 6
 #define SP 7
@@ -64,8 +64,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char item)
   cpu->ram[index] = item;
 }
 void handleInterrupt(struct cpu *cpu) {
-  // TODO:
-  // disable interrupts
+
   cpu->registers[IS] = 0;
   // pushing onto the stack
   cpu->ram[--cpu->registers[SP]] = cpu->PC;
@@ -80,7 +79,7 @@ void handleInterrupt(struct cpu *cpu) {
   if (cpu->registers[IS] == 1) {
     cpu->PC = cpu->ram[0xF8];
   } else if (cpu->registers[IS] = 2) {
-   cpu->PC = cpu->ram[0xF9];
+    cpu->PC = cpu->ram[0xF9];
   }
 }
 /**
@@ -122,17 +121,17 @@ void cpu_run(struct cpu *cpu)
       }
     }
     int PC = cpu->PC;
-    unsigned char IR = cpu_ram_read(cpu, PC);
+    cpu->IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
     if (time_diff >= 1000) {
-      IR = 0b01010010;
+      cpu->IR = 0b01010010;
       cpu->registers[0] = 1;
       operandA = 0;
     }
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
-    switch(IR) {
+    switch(cpu->IR) {
       case HLT:
         #if DEBUG
           printf("HLT\n");
@@ -237,13 +236,13 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[operandB]);
         break;
       default:
-        printf("Instruction number: %d\n", IR);
+        printf("Instruction number: %d\n", cpu->IR);
         printf("Default case reached. Command invalid.\n");
         break;
     }
     // 4. Move the PC to the next instruction.
-    if (!((IR >> 4) & 1)) {
-      cpu->PC += 1 + (IR >> 6);
+    if (!((cpu->IR >> 4) & 1)) {
+      cpu->PC += 1 + (cpu->IR >> 6);
     }
     #if DEBUG
       // sleep(1);
@@ -263,5 +262,8 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[SP] = 0xF4;
   cpu->PC = 0;
   cpu->FL = 0;
+  cpu->IR = 0;
+  cpu->MAR = 0;
+  cpu->MDR = 0;
   memset(cpu->ram, 0, 256);
 }
