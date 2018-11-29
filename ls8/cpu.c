@@ -1,6 +1,10 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define DATA_LEN 6
+
+
 
 /** Add RAM functions */
 unsigned char cpu_ram_read(struct cpu *cpu, int index) {
@@ -15,31 +19,25 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char, argv[])
-{
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    //0b10000010, // LDI R0,8
-    //0b00000000,
-    //0b00001000,
-    //0b01000111, // PRN R0
-    //0b00000000,
-    //0b00000001  // HLT
-  };
-  FILE *fp = fopen(argv[1], "r")
-  int address = 0;
-  char new[8192];
+void cpu_load(struct cpu *cpu, char *argv[]){
 
-  while (fgets(new, sizeofn new, fp) != NULL) {
-    cpu->ram[address++] = strtoul(new, NULL, 2);
+  FILE *fp;
+  unsigned char address = 0;
+  char new[1024];
+  fp = fopen(argv[1], "r");
+  if(fp == NULL) {
+    printf("error \n");
+    exit(1);
+  }
+  while (fgets(new, sizeof(new), fp) != NULL) {
+    unsigned char value = strtoul(new, NULL, 2);
+    if(new == NULL) {
+      continue;
+    }
+    cpu -> ram[address++] = value;
   }
   fclose(fp);
 
-  //for (int i = 0; i < DATA_LEN; i++) {
-   // cpu->ram[address++] = data[i];
- // }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -50,6 +48,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu -> reg[regA]*=cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
