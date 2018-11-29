@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR){
   return cpu->ram[MAR];
@@ -17,21 +18,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR){
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
   int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
 
   FILE *fp = fopen(filename, "r");
   char line[256];
@@ -69,23 +56,20 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char operandA, unsigned char 
   }
 }
 
-void pop_handler(struct cpu *cpu, unsigned char operandA){
-  cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
-  cpu->reg[7]++;
+unsigned char pop_handler(struct cpu *cpu, unsigned char operandA){
+  cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+  cpu->reg[SP]++;
+  return cpu->reg[operandA];
 }
 
 void push_handler(struct cpu *cpu, unsigned char operandA){
-  cpu->reg[7]--;
-  cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+  cpu->reg[SP]--; //grows downward, larger address --> smaller address
+  //cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+  // printf("cpu reg[SP]  =  %d\n", cpu->reg[SP]);
+  // printf("cpu reg[operandA]  =  %d\n", cpu->reg[operandA]);
+  // printf("cpu PC+2  =  %d\n", cpu->PC+2);
+  cpu_ram_write(cpu, cpu->reg[SP], cpu->PC+2);
 }
-
-void call_handler(struct cpu *cpu, unsigned char operandA){
-    push_handler(cpu, cpu->PC+2);
-    printf("cpu->PC in call %d\n", cpu->PC);
-    cpu->PC = cpu->reg[operandA];
-    printf("cpu->reg %d\n", cpu->reg[7]);
-}
-
 
 /**
  * Run the CPU
@@ -111,20 +95,17 @@ void cpu_run(struct cpu *cpu)
     // printf("operandB %d     reg[operandB] %d\n", operandB, cpu->reg[operandB]);
     // printf("move_pc %d\n", move_pc);
 
-
     switch(IR) {
-      case ADD:
-        alu(cpu, ALU_ADD, operandA, operandB);
-        cpu->PC += move_pc;
-        break;
-      case CALL:
-        call_handler(cpu, operandA);
-        printf("PC     =    %d\n", cpu->PC);
-        break;
       case LDI:
-        printf("LDI\n");
         cpu->reg[operandA] = operandB;
         cpu->PC += move_pc;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += move_pc;
+        break;
+      case HLT:
+        running = 0;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
@@ -134,20 +115,32 @@ void cpu_run(struct cpu *cpu)
         pop_handler(cpu, operandA);
         cpu->PC += move_pc;
         break;
-      case PRN:
-        printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += move_pc;
-        break;
       case PUSH:
         push_handler(cpu, operandA);
         cpu->PC += move_pc;
         break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += move_pc;
+        break;
+      case CALL:
+        push_handler(cpu, cpu->reg[operandA]);
+        cpu->PC = cpu->reg[operandA];
+        break;
       case RET:
-        cpu->PC = cpu_ram_read(cpu, cpu->reg[7]--);
+        cpu->PC = pop_handler(cpu, operandA);
         break;
-      case HLT:
-        running = 0;
-        break;
+      // case CALL:
+      //   cpu->reg[SP] = cpu->reg[SP - 1];
+      //   cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + 2);
+      //   cpu->PC = cpu->reg[operandA];
+      //   IR = 0;
+      //   break;
+      
+      // case RET:
+      //   cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]++);
+      //   IR = 0;
+      //   break;
     }
   }
 }
