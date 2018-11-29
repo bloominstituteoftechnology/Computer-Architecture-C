@@ -122,9 +122,9 @@ void cpu_run(struct cpu *cpu)
       // I push the current PC to the stack because when i get it in the return PC will be increased by 1 after the switch function.
       //This should place it where I want it to be. 
       SP--; 
-      cpu->ram[SP] = cpu->PC;
-      cpu->PC += 1; 
-      printf("This should be next %c\n", cpu->ram[cpu->PC]);
+      cpu->ram[SP] = cpu->PC +1;
+      cpu->PC += 2; 
+      printf("This should be next %d\n", cpu->ram[cpu->PC]);
       break;
     case RET:
       printf("The RET hits but before it hits things should have printed out though it does halt the program");
