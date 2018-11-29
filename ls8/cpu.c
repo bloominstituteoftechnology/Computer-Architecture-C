@@ -128,7 +128,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers[7] = cpu->ram[0xF4];
+  cpu->registers[7] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, 7);
   memset(cpu->ram, 0, 256);
