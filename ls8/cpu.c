@@ -56,19 +56,19 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val) {
 }
 
 void push(struct cpu *cpu, unsigned char stackPointer) {
-  printf("cpu->register[SP] push %d\n", cpu->registers[SP]);
+  printf("cpu->register push %d\n", cpu->registers[SP]);
   cpu->registers[SP]--;
-  printf("cpu->register[SP] push %d\n", cpu->registers[SP]);
-  cpu->ram[SP] = cpu->registers[stackPointer];
-  printf("stackPointer %d\n", stackPointer);
+  printf("cpu->register push %d\n", cpu->registers[SP]);
+  cpu->ram[cpu->registers[SP]] = cpu->registers[stackPointer];
+  printf("cpu->ram[cpu->registers[SP]] %d\n", cpu->ram[cpu->registers[SP]]);
 }
 
 void pop(struct cpu *cpu, unsigned char stackPointer) {
-  printf("cpu->register[SP] pop %d\n", cpu->registers[SP]);
-  cpu->ram[SP] = cpu->registers[stackPointer];
-  printf("cpu->register[SP] pop %d\n", cpu->registers[SP]);
-  printf("stackPointer %d\n", stackPointer);
+  cpu->registers[stackPointer] = cpu->ram[cpu->registers[SP]];
+  printf("cpu->registers[stackPointer] %d\n", cpu->registers[stackPointer]);
+  printf("cpu->register pop %d\n", cpu->registers[SP]);
   cpu->registers[SP]++;
+  printf("cpu->register pop %d\n", cpu->registers[SP]);
 }
 
 /**
@@ -150,7 +150,7 @@ void cpu_init(struct cpu *cpu)
   // PC and FL registers are cleared to 0
   cpu->PC = 0;
   memset(cpu->registers,0,7);
-  cpu->registers[7] = 0xF4;
+  cpu->registers[SP] = 0xF4;
   // TODO: Zero registers and RAM
   memset(cpu->ram,0,256);
 }
