@@ -77,6 +77,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+      //printf("Adding....in ALU_\n");
       break;
 
     case ALU_SUB:
@@ -97,7 +98,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char PC = cpu->PC;
-
+ 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -109,6 +110,7 @@ void cpu_run(struct cpu *cpu)
 	unsigned operandA = cpu_ram_read(cpu, (PC + 1));
 	unsigned operandB = cpu_ram_read(cpu, (PC + 2));
         int shift = ((IR >> 6)) + 1;
+	
 
 	switch(IR){
 
@@ -118,55 +120,61 @@ void cpu_run(struct cpu *cpu)
 
 		case LDI:
 		cpu->reg[operandA] = operandB;
-        	PC += shift;
+		//printf("Loading... \n");
 		break;
 
       		case PRN:
         	printf("%d \n", cpu->reg[operandA]);
-        	PC += shift;
-        	break;
+		break;
 		
 		case PUSH:
-		printf("Pushing value %d to Stack \n", cpu->reg[operandA]);
+		//printf("Pushing value %d to Stack \n", cpu->reg[operandA]);
 		cpu_ram_write(cpu, --cpu->reg[SP], cpu->reg[operandA]);
-	        PC += shift;	
 		break;
 
 		case POP:
 		cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]++);
-		PC += shift;
-		printf("Popping value %d from Stack \n", cpu->reg[operandA]);
-
+		//printf("Popping value %d from Stack \n", cpu->reg[operandA]);
 		break;
 
+		case CALL:
+        	cpu->reg[SP]--;
+        	cpu_ram_write(cpu, cpu->reg[SP], PC + 2);
+        	PC = cpu->reg[operandA];
+        	shift = 0;
+		//printf("CALL PC value is: %d \n", PC);
+		break;
+      
+      		case RET:
+        	PC = cpu_ram_read(cpu, cpu->reg[SP]);
+		cpu->reg[SP]++;
+        	shift = 0;
+		//printf("Return \n");
+		break;
 
 		case MUL:
       		alu(cpu, ALU_MUL, operandA, operandB);
-      		PC += shift;
 		break;
 
 		case DIV:
 		alu(cpu, ALU_DIV, operandA, operandB);
-		PC+= shift;
 		break;
 
     		case ADD:
       		alu(cpu, ALU_ADD, operandA, operandB);
-      		PC += shift;
+		//printf("Adding..\n");
 		break;
 
 		case SUB:
                 alu(cpu, ALU_SUB, operandA, operandB);
-                PC += shift;
 		break;
 		
-		default:
+		/*default:
         	printf("Unknown instruction %02x: %02x\n", PC, IR);
-        	exit(1);
+        	exit(1);*/
 
 	}	
-
-
+		 PC += shift;
   }
 }
 
@@ -180,7 +188,7 @@ void cpu_init(struct cpu *cpu)
    
    cpu->PC = 0x00;
    
-   cpu->reg[SP] = 0xF4;   //setting SP to higer address
+   cpu->reg[SP] = 0xF4;   //setting SP to higher address
 
    memset(cpu->reg, 0, sizeof(cpu->reg));
    memset(cpu->ram, 0, sizeof(cpu->ram));
