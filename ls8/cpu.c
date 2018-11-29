@@ -69,8 +69,10 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char PRN;
+    int SP = cpu->R[7];
     int mult;
     int a;
+
     //<-- try putting int a over here
     // 2. switch() over it to decide on a course of action.
     switch (IR)
@@ -104,9 +106,17 @@ void cpu_run(struct cpu *cpu)
     
 
     case 0b01000101: // PUSH
+      cpu->R[SP] = cpu->R[cpu_ram_read(cpu, cpu-> PC +1)]; 
+      SP--;
+      cpu->PC += 2;
+      printf("SP in PUSH %d\n", cpu->R[SP]);
       break;
 
     case 0b01000110: // POP
+      cpu->R[SP] = cpu->R[cpu_ram_read(cpu, cpu-> PC +1)]; 
+      SP++;
+      cpu->PC += 2;
+      printf("SP in POP %d\n", cpu->R[SP]);
       break;
 
     default:
@@ -158,6 +168,8 @@ void cpu_init(struct cpu *cpu)
     else
     {
       cpu->R[i] = 0xF4;
+      cpu->SP = i;
+      printf("this thing worked stack pointer %d\n", cpu->SP);
     }
     //  }
   }

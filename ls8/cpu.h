@@ -6,6 +6,7 @@
 struct cpu
 {
   // TODO
+  int SP;
   unsigned char PC; // this is good
   unsigned char FL; // this too i think For the array switch thing would I just have a 7 slot array then
   //lol I don't evven remember how to array in c XD
