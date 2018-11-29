@@ -125,7 +125,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
-    int INC_PC = 0;
     if (time_diff >= 1000) {
       IR = 0b01010010;
       cpu->registers[0] = 1;
@@ -137,109 +136,106 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         #if DEBUG
           printf("HLT\n");
-          #endif
+        #endif
         running = 0;
-        INC_PC = 1;
         break;
       case LDI:
         #if DEBUG
           printf("LDI\n");
-          #endif
+        #endif
         cpu->registers[operandA] = operandB;
-        INC_PC = 1;
         break;
       case PRN:
         #if DEBUG
           printf("RET\n");
-          #endif
+        #endif
         printf("%d\n", cpu->registers[operandA]);
-        INC_PC = 1;
         break;
       case MUL:
         #if DEBUG
           printf("MUL\n");
-          #endif
+        #endif
         alu(cpu, ALU_MUL, operandA, operandB);
-        INC_PC = 1;
         break;
       case PUSH:
         #if DEBUG
           printf("PUSH\n");
-          #endif
+        #endif
         cpu->ram[--cpu->registers[SP]] = cpu->registers[operandA];
-        INC_PC = 1;
         break;
       case POP:
         #if DEBUG
           printf("POP\n");
-          #endif
+        #endif
         cpu->registers[operandA] = cpu->ram[cpu->registers[SP]++];
-        INC_PC = 1;
         break;
       case CALL:
         #if DEBUG
           printf("CALL\n");
-          #endif
+        #endif
         cpu->ram[--cpu->registers[SP]] = PC+2;
         cpu->PC = cpu->registers[operandA] + 1;
         #if DEBUG
           printf("What we're setting PC to in CALL: %d\n", cpu->registers[operandA]);
-          #endif
-        INC_PC = 0;
+        #endif
         break;
       case RET:
         #if DEBUG
           printf("RET\n");
-          #endif
+        #endif
         cpu->PC = cpu->ram[cpu->registers[SP]++];
-        INC_PC = 0;
         break;
       case ADD:
         #if DEBUG 
           printf("ADD\n");
-          #endif
+        #endif
         alu(cpu, ALU_ADD, operandA, operandB);
-        INC_PC = 1;
         break;
       case ST:
         #if DEBUG 
-        printf("ST\n");
+          printf("ST\n");
         #endif
         cpu->ram[cpu->registers[operandA]] = cpu->registers[operandB];
         break;
       case INT:
-      #if DEBUG
-      printf("INT\n");
-      #endif
-      cpu->registers[IS] = cpu->registers[operandA];
-      break;
+        #if DEBUG
+          printf("INT\n");
+        #endif
+        cpu->registers[IS] = cpu->registers[operandA];
+        break;
       case IRET:
-      #if DEBUG
-      printf("IRET\n");
-      #endif
-      cpu->registers[6] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[5] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[4] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[3] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[2] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[1] = cpu->ram[cpu->registers[SP]++];
-      cpu->registers[0] = cpu->ram[cpu->registers[SP]++];
-      cpu->FL = cpu->ram[cpu->registers[SP]++];
-      cpu->PC = cpu->ram[cpu->registers[SP]++];
-      interrupt_happened = 0;
-      break;
+        #if DEBUG
+          printf("IRET\n");
+        #endif
+        cpu->registers[6] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[5] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[4] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[3] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[2] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[1] = cpu->ram[cpu->registers[SP]++];
+        cpu->registers[0] = cpu->ram[cpu->registers[SP]++];
+        cpu->FL = cpu->ram[cpu->registers[SP]++];
+        cpu->PC = cpu->ram[cpu->registers[SP]++];
+        interrupt_happened = 0;
+        break;
       case JMP:
-      #if DEBUG
-      printf("JMP\n");
-      #endif
-      cpu->PC = cpu->ram[cpu->registers[operandA]];
-      break;
+        #if DEBUG
+          printf("JMP\n");
+        #endif
+        cpu->PC = cpu->ram[cpu->registers[operandA]];
+        break;
       case PRA:
-      #if DEBUG
-      printf("PRA\n");
-      #endif
-      printf("%c\n", cpu->registers[operandA]);
-      break;
+        #if DEBUG
+          printf("PRA\n");
+        #endif
+        printf("%c\n", cpu->registers[operandA]);
+        break;
+      case LD:
+        #if DEBUG
+          printf("LD\n");
+        #endif
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[operandB]);
+        break;
       default:
         printf("Instruction number: %d\n", IR);
         printf("Default case reached. Command invalid.\n");
