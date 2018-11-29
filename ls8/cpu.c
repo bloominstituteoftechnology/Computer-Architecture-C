@@ -4,23 +4,7 @@
 #include <stdlib.h>
 
 // #define DATA_LEN 6
-#define SP 5
-
-unsigned char cpu_pop(struct cpu *cpu)
-{
-  unsigned char value = cpu->ram[cpu->reg[SP]];
-
-  cpu->reg[SP]++;
-
-  return value;
-}
-
-void cpu_push(struct cpu *cpu, unsigned char value)
-{
-  cpu->reg[SP]--;
-
-  cpu->ram[cpu->reg[SP]] = value;
-}
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
@@ -49,7 +33,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
   FILE *fp = fopen(argv[1], "r");
   char str[60];
 
-  int address = PROGRAM_ENTRY;
+  int address = PROGRAM_ENTRY; //0x00
   char *ptr;
 
   while (fgets(str, sizeof(str), fp) != NULL)
@@ -60,7 +44,8 @@ void cpu_load(struct cpu *cpu, char *argv[])
     {
       continue;
     }
-    cpu->ram[address++] = ret;
+    // cpu->ram[address++] = ret;
+    cpu_ram_write(cpu, address++, ret);
   }
 
   fclose(fp);
@@ -103,6 +88,28 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  if (cpu->reg[7] == EMPTY_STACK)
+  {
+    fprintf(stderr, "Popping off is not allowed\n");
+  }
+
+  unsigned char value = cpu->ram[cpu->reg[SP]];
+
+  cpu->reg[SP]++;
+
+  return value;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->reg[SP]--;
+
+  cpu->ram[cpu->reg[SP]] = value;
+}
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -137,10 +144,12 @@ void cpu_run(struct cpu *cpu)
 
     case PUSH:
       cpu_push(cpu, cpu->reg[value1]);
+      cpu->PC += 2;
       break;
 
     case POP:
       cpu->reg[value1] = cpu_pop(cpu);
+      cpu->PC += 2;
       break;
 
     case HLT:
@@ -151,6 +160,7 @@ void cpu_run(struct cpu *cpu)
     default:
       // exit(1);
       fprintf(stderr, "error\n");
+      printf("Current Instruction: %u\n", curr_instruct);
       exit(1);
     }
     // 3. Do whatever the instruction should do according to the spec.
@@ -164,9 +174,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->reg[SP] = EMPTY_STACK;
   cpu->PC = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
+  cpu->reg[7] = EMPTY_STACK; //SP saved in the 7th index 8th register and 0xF4
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
   // TODO: Zero registers and RAM
