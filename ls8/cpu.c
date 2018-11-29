@@ -138,12 +138,12 @@ void cpu_run(struct cpu *cpu)
                         break;
 
                 case POP:
-                        cpu_ram_read(cpu, regist[SP]++);
+                        regist[operandA] = cpu_ram_read(cpu, regist[SP]++);
                         PC += shift;
                         break;
 
                 case PUSH:
-                        cpu_ram_write(cpu, regist[SP]--, regist[operandA]);
+                        cpu_ram_write(cpu, --regist[SP], regist[operandA]);
                         PC += shift;
                         break;
 
