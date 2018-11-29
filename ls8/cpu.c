@@ -46,6 +46,15 @@ void pop(struct cpu *cpu) {
   cpu->registers[cpu->ram[cpu->PC+1]]=cpu_ram_read(cpu,cpu->registers[SP]);
   cpu->registers[SP]+=1;
 }
+void call(struct cpu *cpu) {
+  cpu->registers[SP]-=1;
+  cpu_ram_write(cpu,cpu->registers[SP],cpu->PC+2);
+  cpu->PC=cpu->registers[cpu->ram[cpu->PC+1]];
+}
+void ret(struct cpu *cpu) {
+  cpu->PC=cpu_ram_read(cpu,cpu->registers[SP]);
+  cpu->registers[SP]+=1;
+}
 void cpu_load(struct cpu *cpu,char *filename)
 {
   FILE *fp=fopen(filename,"r");
@@ -107,8 +116,16 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         halt(&running);
         break;
+      case CALL:
+        call(cpu);
+        break;
+      case RET:
+        ret(cpu);
+        break;
     }
-    cpu->PC+=((instruction>>6)+1);
+    if (instruction==cpu_ram_read(cpu,cpu->PC)) {
+      cpu->PC+=((instruction>>6)+1);
+    }
   }
 }
 
