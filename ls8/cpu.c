@@ -3,17 +3,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *filename)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
   FILE *fp;
   unsigned char address = 0;
   char new[1024];
-  fp = fopen(filename, "r");
+  fp = fopen(argv[1], "r");
   if(fp == NULL) {
     printf("error \n");
     exit(1);
@@ -101,10 +108,3 @@ void cpu_init(struct cpu *cpu)
   cpu->reg[7] = 0xF4;
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
-  cpu->ram[index] = value;
-}
