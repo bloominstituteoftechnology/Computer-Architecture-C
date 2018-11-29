@@ -44,6 +44,10 @@ void cpu_load(struct cpu *cpu, char *path)
     char *endptr;
     unsigned char curr = strtol(line, &endptr, 2);
 
+    if(endptr == line){
+      continue;
+    }
+
     cpu->ram[address++] = curr;
   }
 }
@@ -56,11 +60,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
-      cpu->registers[regA] = cpu->registers[regA] & 0xFF;
       break;
-
-    // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
   }
+  cpu->registers[regA] = cpu->registers[regA] & 0xFF;
 }
 
 /**
@@ -103,12 +108,24 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->registers[operandA] = stack_pop(cpu);
         break;
+      case CALL:
+        stack_push(cpu, cpu->PC + 2);
+        cpu->PC = cpu->registers[operandA];
+        break;
+      case RET:
+        cpu->PC = stack_pop(cpu);
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
       default:
+        printf("Command: %d\n", IR);
         printf("Unknown Command. Exiting...\n");
         exit(3);
     }
-
-    cpu->PC += (IR >> 6 & 3) + 1;
+    if(!(IR >> 4 & 1)){
+      cpu->PC += (IR >> 6 & 3) + 1;
+    }
   }
 }
 
