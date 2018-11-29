@@ -138,6 +138,7 @@ void cpu_run(struct cpu *cpu)
         inc = 1;
       }
   //   // 2. switch() over it to decide on a course of action.
+  // printf("!%i\n",cpu->IR);
     switch (cpu->IR){
     case HLT:
       running = 0;
@@ -203,8 +204,101 @@ void cpu_run(struct cpu *cpu)
       cpu_ram_write(cpu);
       cpu->PC = cpu->registers[operandA];
       break;
+    case ST:
+      cpu->MAR = cpu->registers[operandA];
+      cpu->MDR = cpu->registers[operandB];
+      cpu_ram_write(cpu);
+      break;
+    case CMP:
+    
+      if(cpu->registers[operandA] > cpu->registers[operandB]){
+        
+        cpu->FL = 2;
+      }
+      else if(cpu->registers[operandA] == cpu->registers[operandB]){
+        cpu->FL = 1;
+      }
+      else{
+        cpu->FL = 4;
+      }
+      break;
+    case IRET:
+      
+      for(int i = 6; i >= 0; i--)
+      {
+        cpu->MAR = cpu->registers[7];
+        cpu_ram_read(cpu);
+        cpu->registers[i] = cpu->MDR;
+        incr(cpu,7);
+        
+      }
+      cpu->MAR = cpu->registers[7];
+      cpu_ram_read(cpu);
+      cpu->FL = cpu->MDR;
+      incr(cpu,7);
+      cpu->MAR = cpu->registers[7];
+      cpu_ram_read(cpu);
+      cpu->PC = cpu->MDR;
+      incr(cpu,7);
+      break;
+    case JEQ:
+      if(cpu->FL == 1){
+        cpu->PC = cpu->registers[operandA];
+      }
+      else{
+        inc +=2;
+      }
+      break;
+    case JGE:
+      if(cpu->FL == 1 || cpu->FL ==2){
+        cpu->PC = cpu->registers[operandA];
+      }else{
+        inc +=2;
+      }
+      break;
+    case JGT:
+      if( cpu->FL ==2){
+        cpu->PC = cpu->registers[operandA];
+      }else{
+        inc +=2;
+      }
+      break;
+    case JLE:
+        if(cpu->FL == 1 || cpu->FL ==4){
+          cpu->PC = cpu->registers[operandA];
+        }else{
+        inc +=2;
+      }
+        break;
+    case JLT:
+        if(cpu->FL ==4){
+          cpu->PC = cpu->registers[operandA];
+        }else{
+        inc +=2;
+      }
+        break;
+      case JNE:
+        if(cpu->FL !=1){
+          cpu->PC = cpu->registers[operandA];
+        }else{
+        inc +=2;
+      }
+        break;
+      case JMP:
+          cpu->PC = cpu->registers[operandA];
+        break;
+      case LD:
+         cpu->MAR = cpu->registers[operandB];
+        cpu_ram_read(cpu);
+        cpu->registers[operandA] = cpu->MDR;
+        break;
+      case NOP:
+        break;
+      case PRA:
+        printf("%c\n",cpu->registers[operandA]);
+        break;
     default:
-    printf("Something went wrong\n");
+      printf("Something went wrong\n");
 
     }
         cpu->PC +=inc;
