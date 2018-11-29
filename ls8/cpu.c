@@ -116,6 +116,15 @@ void cpu_run(struct cpu *cpu)
       SP++;
       cpu->PC += 1;
       break;
+    case CALL:
+      SP--; 
+      cpu->ram[SP] = cpu->PC;
+      cpu->PC += 2; 
+      break;
+    case RET:
+      cpu->PC = cpu->ram[SP];
+      SP++; 
+      break; 
     case HLT:
       running = 0; //should end loop
       break;
