@@ -37,7 +37,7 @@ enum alu_op {
 #define ADD 0b10100000
 #define RET 0b00010001
 #define CALL 0b01010000
-
+#define NOP 0b00000000
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
