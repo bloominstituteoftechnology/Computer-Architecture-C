@@ -125,7 +125,8 @@ void cpu_run(struct cpu *cpu)
       //This should place it where I want it to be. 
       SP--; 
       // cpu->ram[SP] = cpu->PC +1;
-      cpu->ram[SP] = cpu->PC; 
+      // cpu->ram[SP] = cpu->PC; 
+      cpu->ram[SP] = cpu->registers[operandA];
       cpu->PC += 2; 
       printf("This should be next %d\n", cpu->ram[cpu->PC]);
       break;
