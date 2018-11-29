@@ -62,9 +62,9 @@ unsigned char pop_handler(struct cpu *cpu, unsigned char operandA){
   return cpu->reg[operandA];
 }
 
-void push_handler(struct cpu *cpu){
+void push_handler(struct cpu *cpu, unsigned char operandA){
   cpu->reg[SP]--; //grows downward, larger address --> smaller address
-  cpu_ram_write(cpu, cpu->reg[SP], cpu->PC+2);
+  cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
 }
 
 /**
@@ -113,7 +113,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += move_pc;
         break;
       case PUSH:
-        push_handler(cpu);
+        push_handler(cpu, operandA);
         cpu->PC += move_pc;
         break;
       case ADD:
@@ -121,15 +121,13 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += move_pc;
         break;
       case CALL:
-        push_handler(cpu);
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->PC+2);
         cpu->PC = cpu->reg[operandA];
         break;
       case RET:
         cpu->PC = pop_handler(cpu, operandA);
         break;
-    }
-    for(i = 0; i<8; i++){
-      printf("cpu reg[%d] = %d\n", i, cpu->reg[i]);
     }
   }
 }
