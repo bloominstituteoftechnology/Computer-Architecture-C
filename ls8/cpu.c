@@ -17,7 +17,7 @@ void setregister(struct cpu *cpu){
   cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]=cpu_ram_read(cpu,cpu->PC+2);
 }
 void print(struct cpu *cpu){
-  printf("%i\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
+  printf("%hhu\n",cpu->registers[cpu_ram_read(cpu,cpu->PC+1)]);
 }
 void halt(int *running){
   *running=0;
@@ -54,6 +54,10 @@ void call(struct cpu *cpu) {
 void ret(struct cpu *cpu) {
   cpu->PC=cpu_ram_read(cpu,cpu->registers[SP]);
   cpu->registers[SP]+=1;
+}
+void add(struct cpu *cpu) {
+  unsigned char ans=cpu->registers[cpu->ram[cpu->PC+1]]+cpu->registers[cpu->ram[cpu->PC+2]];
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
 }
 void cpu_load(struct cpu *cpu,char *filename)
 {
@@ -121,6 +125,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case RET:
         ret(cpu);
+        break;
+      case ADD:
+        add(cpu);
         break;
     }
     if (instruction==cpu_ram_read(cpu,cpu->PC)) {
