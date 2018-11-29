@@ -65,8 +65,17 @@ void cpu_reg_multiply(struct cpu *cpu, unsigned char place, unsigned char place2
 void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
 {
   printf("Are we adding\n");
-  cpu->registers[place] = cpu->registers[place] + cpu->registers[place2];
-  printf("yes we are adding here is the add data >> %d\n", cpu->registers[place]);
+  int value = cpu->registers[place] + cpu->registers[place2];
+  cpu->registers[place] = value;
+  printf("%d  + %d yes we are adding here is the add data >> %d\n", cpu->registers[place], cpu->registers[place2], cpu->registers[place]);
+}
+int convert (int dec) 
+{
+  if (dec == 0){
+    return 0; 
+  } else {
+    return (dec % 2 + 10 * convert(dec/2)); 
+  }
 }
 
 /**
@@ -88,7 +97,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu->ram[cpu->PC + 1];
     unsigned char operandB = cpu->ram[cpu->PC + 2];
     cpu->registers[7] = cpu->ram[SP];//meeting spec requirements register 7  has the pointer to the top of ram. 
-    printf("%c\n", current);
+    printf("%d\n", current);
     switch (current)
     {
 
@@ -119,16 +128,15 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       break;
     case CALL:
-      //if 7 is the call instruction and 8 is HLT or any other instruction we take 8 with pc +1 push to stack. we want to get to 9.
-      //The way I have it set up incrementing by 1 should be done here since pc is incremented after the switch. 
-      // I push the current PC to the stack because when i get it in the return PC will be increased by 1 after the switch function.
-      //This should place it where I want it to be. 
+     
       SP--; 
-      // cpu->ram[SP] = cpu->PC +1;
-      // cpu->ram[SP] = cpu->PC; 
-      cpu->ram[SP] = cpu->registers[operandA];
-      cpu->PC += 2; 
-      printf("This should be next %d\n", cpu->ram[cpu->PC]);
+      cpu->ram[SP] = cpu->ram[cpu->PC + 2];
+      // cpu->PC = cpu->registers[operandA];
+      // cpu->PC += 2;
+      cpu->PC = cpu->registers[operandA]; 
+      cpu_reg_read(cpu, operandA);
+      cpu->PC--; 
+      // cpu->PC = operandA;
       break;
     case RET:
       printf("The RET hits but before it hits things should have printed out though it does halt the program");
