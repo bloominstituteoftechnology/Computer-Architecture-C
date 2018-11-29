@@ -121,14 +121,16 @@ void cpu_run(struct cpu *cpu)
     // }
 
     // 2. switch() over it to decide on a course of action.
+    // printf("%i\n", cpu->PC);  // displays every instruction on a new line
+
     switch(IR) {
       // 3. Do whatever the instruction should do according to the spec.
       case LDI:
-      // printf(" ....... LDI ...... \n");
+      printf(" ....... LDI ...... \n");
       cpu->registers[operandA] = operandB;
-      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
-      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
-      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       cpu->PC += 3;
       break;
 
@@ -165,7 +167,6 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
       // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       running = 0;
-      cpu->PC += 1;
       break;
 
       case PUSH:
@@ -193,21 +194,26 @@ void cpu_run(struct cpu *cpu)
       case RET:
       printf(" ...... RET ...... \n");
       cpu->PC = cpu_pop(cpu); //pops the most recent item from the stack
-      cpu->PC += 1;
+      // cpu->PC += 1;
       break;  
 
       /* CALL - is two bytes long, so the next instruction must be 
-      two bytes down, so PC+2 will give the correct address
+      two bytes down. PC+2 will give the correct address
 
-      ie trnsfer the address of the next instruction to the stack
+      i.e. trnsfer the address of the next instruction to the stack
       (skip the instructions in between)
+
+      use cpu_push(cpu, value)
+
       */
       case CALL:
       printf(" ...... CALL ...... \n");
-
+      cpu_push(cpu, cpu->PC+2);
+      printf("what is operandA: %d\n", cpu->registers[operandA]);
+      cpu->PC = cpu->registers[operandA];
+      // cpu->PC += 2;
       break;
-    }
-
+      }
 
       /* JMP - moves the PC to a specific place in memory?
       */
