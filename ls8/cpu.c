@@ -12,7 +12,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index){
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char SP, int item){
+void cpu_ram_write(struct cpu *cpu, int SP, int item){
   cpu->ram[SP] = item;
   return;
 }
@@ -25,20 +25,13 @@ int multiply(unsigned char regA, unsigned char regB){
 }
 
 // Define SP
-unsigned char find_SP(unsigned char cpu){
-  unsigned char SP = cpu->registers[7];
+int find_SP(struct cpu *cpu){
+  int SP = cpu->registers[7];
   while(cpu->ram[SP] != 0){
     SP--;
   }
   return SP;
 }
-
-
-unsigned char push_stack(){
-
-}
-
-unsigned char pop_from_stack(unsigned char cpu, )
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
