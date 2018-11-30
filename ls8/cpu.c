@@ -22,16 +22,18 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
 
   int address = 0;
+  char *endptr[10];
 
   while(fgets(line, sizeof(line), fp) != NULL) {
-    cpu->ram[address] = strtoul(line, NULL, 2); 
-    address++; 
+    strtoul(line, endptr, 2);
+    if(endptr[0] != line) {
+      cpu->ram[address] = strtoul(line, NULL, 2); 
+      address++; 
+    }
   }
   
   fclose(fp);
 }
-
-  // TODO: Replace this with something less hard-coded
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char PC) 
@@ -61,10 +63,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_CMP:
       if(regA == regB) {
         cpu->FL = 00000001;
+        break;
       } else if(regA < regB) {
         cpu->FL = 00000100;
+        break;
       } else if(regA > regB) {
         cpu->FL = 00000010;
+        break;
       }
       break;
   }
@@ -86,14 +91,14 @@ void cpu_run(struct cpu *cpu)
         cpu->R[cpu->ram[cpu->PC + movePC - 1]] = cpu->ram[cpu->PC + movePC];
         // printf("Loaded R[0] with: %d\n", cpu->R[0]);
         // printf("Loaded R[1] with: %d\n", cpu->R[1]);
+        // printf("LDI %d\n", cpu->PC);
         cpu->PC += movePC;
-        printf("LDI %d\n", cpu->PC);
         break;
 
       case PRN:
         printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
+        // printf("PRN %d\n", cpu->PC); 
         cpu->PC += movePC;
-        printf("PRN %d\n", cpu->PC); 
         break;
 
       case MUL:
@@ -108,9 +113,9 @@ void cpu_run(struct cpu *cpu)
       
       case CMP: 
         alu(cpu, 2, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        // printf("CMP %d\n", cpu->PC);
+        // printf("Result %d\n", cpu->FL);
         cpu->PC += movePC;
-        printf("CMP %d\n", cpu->PC);
-        printf("Result %d\n", cpu->FL);
         break;
 
       case PUSH:
@@ -137,35 +142,37 @@ void cpu_run(struct cpu *cpu)
         break;  
 
       case JMP:
-        cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
-        printf("JMP %d\n", cpu->PC);
+        // printf("JMP %d\n", cpu->PC);
+        cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
         break;
       
       case JEQ:
         if(cpu->FL == 00000001) {
-          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
+          // printf("JEQ jumped %d\n", cpu->PC);
+          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
         } else {
+        // printf("JEQ %d\n", cpu->PC);
             cpu->PC += movePC;
         }
-        printf("JEQ %d\n", cpu->PC);
         break;
       
       case JNE:
+        // printf("JNE at %d\n", cpu->PC);
         if(cpu->FL == 00000010 || cpu->FL == 00000100 || cpu->FL == 0 ) {
-          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]];
+          cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
+          // printf("JNE jumped %d\n", cpu->PC);
         } else {
+        // printf("JNE %d\n", cpu->PC);
             cpu->PC += movePC;
         } 
-        printf("JNE %d\n", cpu->PC);
         break;
 
       case HLT:
         running = 0;
-        printf("HLT %d\n", cpu->PC);
+        // printf("HLT %d\n", cpu->PC);
         break; 
     }
     cpu->PC++; 
-    
   }
 }
 
