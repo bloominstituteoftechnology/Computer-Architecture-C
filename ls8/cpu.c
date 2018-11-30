@@ -136,7 +136,14 @@ void cpu_run(struct cpu *cpu)
         break;
 
     }
-     cpu->PC += move_pc;
+        if (cpu->add_pc == 0) {
+      cpu->PC += move_pc;
+    }
+    else {
+      cpu->add_pc = 0;
+      continue;
+    }
+
   }
 }
 
