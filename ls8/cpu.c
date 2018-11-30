@@ -40,7 +40,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+int alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
@@ -48,6 +48,32 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_ADD:
       cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
+    case ALU_AND:
+      cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB];
+      break;
+    case ALU_OR:
+      cpu->registers[regA] = cpu->registers[regA] | cpu->registers[regB];
+      break;
+    case ALU_XOR:
+      cpu->registers[regA] = cpu->registers[regA] ^ cpu->registers[regB];
+      break;
+    case ALU_NOT:
+      return ~cpu->registers[regA];
+      break;
+    case ALU_SHL:
+      return cpu->registers[regA] << cpu->registers[regB];
+      break;
+    case ALU_SHR:
+      return cpu->registers[regA] >> cpu->registers[regB];
+      break;
+    case ALU_MOD:
+      if (cpu->registers[regB] == 0) {
+        printf("Divide by 0 error in ALU_MOD. Exiting.");
+        break;
+      } else {
+        cpu->registers[regA] = cpu->registers[regA] % cpu->registers[regB];
+      }
       break;
     default:
       printf("Default case reached. No ALU function triggered.\n");
@@ -270,6 +296,54 @@ void cpu_run(struct cpu *cpu)
           cpu->PC += 2;
         }
         break;
+      case AND:
+        #if DEBUG
+          printf("AND\n");
+        #endif
+        alu(cpu, ALU_AND, operandA, operandB);
+        break;
+      case OR:
+        #if DEBUG
+          printf("OR\n");
+        #endif
+        alu(cpu, ALU_OR, operandA, operandB);
+        break;
+      case XOR:
+        #if DEBUG
+          printf("XOR\n");
+        #endif
+        alu(cpu, ALU_XOR, operandA, operandB);
+        break;
+      case NOT:
+        #if DEBUG
+          printf("NOT\n");
+        #endif
+        alu(cpu, ALU_NOT, operandA, operandB);
+        break;
+      case SHL:
+        #if DEBUG
+          printf("SHL\n");
+        #endif
+        alu(cpu, ALU_SHL, operandA, operandB);
+        break;
+      case SHR:
+        #if DEBUG
+          printf("SHR\n");
+        #endif
+        alu(cpu, ALU_SHR, operandA, operandB);
+        break;
+      case MOD:
+        #if DEBUG
+          printf("MOD\n");
+        #endif
+        alu(cpu, ALU_MOD, operandA, operandB);
+        break;
+      // case ADDI:
+      //   #if DEBUG
+      //     printf("ADDI\n");
+      //   #endif  
+      //   cpu->registers[operandA] += operandB;
+      //   break;
       default:
         printf("Instruction number: %d\n", cpu->IR);
         printf("Default case reached. Command invalid.\n");
