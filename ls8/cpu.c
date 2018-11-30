@@ -6,25 +6,20 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
+void stack_push(struct cpu *cpu, unsigned char value) {
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP] = value];
+
+}
+
+unsigned char stack_pop(struct cpu *cpu) {
+  unsigned char value = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return value;
+}
 void cpu_load(char *filename , struct cpu *cpu)
 {
-  /* char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  } */
-
-  // TODO: Replace this with something less hard-coded
 
   FILE *fp;
   char line[1024];
@@ -115,6 +110,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[SP] = EMPTY_STACK;
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);

@@ -14,7 +14,8 @@ enum alu_op {
 	ALU_MUL
 	// Add more here
 };
-
+#define SP 5
+#define EMPTY_STACK  0xf4
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
