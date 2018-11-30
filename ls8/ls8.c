@@ -4,13 +4,20 @@
 /**
  * Main
  */
-int main(void)
-{
-  struct cpu cpu;
 
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
+  int main(int argc, char *argv[]){
+  	
+	if(argc ==2){
+  		struct cpu cpu;
+  		cpu_init(&cpu);
+  		cpu_load(&cpu, argv);
+  		cpu_run(&cpu);
+	}
+	else {
+                printf("Please provide a file name \n");
+		return 0;
+	}
+  	return 0;
+}	 
 
-  return 0;
-}
+
