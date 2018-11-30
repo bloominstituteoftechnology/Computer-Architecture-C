@@ -5,6 +5,13 @@
 
 #define DATA_LEN 6
 
+/*general processes:
+
+accessing a value in a register:  cpu->registers[operandA]
+
+
+*/
+
 /* stack pointer (SP) needs to be 
 initialized with some value and set 
 as point to a memory location
@@ -127,6 +134,7 @@ void cpu_run(struct cpu *cpu)
       // 3. Do whatever the instruction should do according to the spec.
       case LDI:
       printf(" ....... LDI ...... \n");
+      //set the value of a register to an integer
       cpu->registers[operandA] = operandB;
       printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
       printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
@@ -139,6 +147,8 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
       // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
       // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+
+      //print to the console the decimal integer value stored in given register
       printf("Printed value: %d\n", cpu->registers[operandA]);
       cpu->PC += 2;
       break;
@@ -159,6 +169,22 @@ void cpu_run(struct cpu *cpu)
       // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
       alu(cpu, ALU_MUL, operandA, operandB);
       cpu->PC += 3;
+      break;
+
+      case PRA:
+      // printf(" ....... PRA ...... \n");
+      // printf("RAM at F4: %d\n", cpu->ram[(cpu->PC + 4) & 0xF4]);
+      // printf("RAM at F3: %d\n", cpu->ram[(cpu->PC + 3) & 0xF3]);
+      // printf("RAM at F2: %d\n", cpu->ram[(cpu->PC + 2) & 0xF2]);
+      printf("%c\n", cpu->registers[operandA]);
+      cpu->PC += 2;
+      break;
+
+      case JMP:
+      printf(" ...... JMP ...... \n");
+      //Jump to the address stored in the given register.
+      cpu->PC = cpu->registers[operandA];
+      // don't increment the PC because we have already set the PC value explicitly
       break;
 
       case HLT:
@@ -215,10 +241,33 @@ void cpu_run(struct cpu *cpu)
       break;
       }
 
-      /* JMP - moves the PC to a specific place in memory?
-      */
-    // 4. Move the PC to the next instruction.
+     // CMP - compares
+     //case CMP:
 
+    /*
+      Compare the values in two registers.
+
+      * If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
+
+      * If registerA is less than registerB, set the Less-than `L` flag to 1,
+      otherwise set it to 0.
+
+      * If registerA is greater than registerB, set the Greater-than `G` flag
+      to 1, otherwise set it to 0.
+      */  
+
+
+    // JEQ - conditional jump
+    // case JEQ:
+
+    // If `equal` flag is set (true), jump to the address stored in the given register.
+    
+    
+    // JNE - 
+    // case JNE:
+    // If `E` flag is clear (false, 0), jump to the address stored in the given register. 
+
+    // 4. Move the PC to the next instruction.
   }
 }
 

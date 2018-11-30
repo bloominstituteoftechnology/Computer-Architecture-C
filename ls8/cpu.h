@@ -54,7 +54,8 @@ enum alu_op {
 #define JNE 0b01010110 // 86
 #define POP 0b01000110 // 70
 #define PUSH 0b01000101 // 69
-
+#define JMP 0b01010100 // 84
+#define CMP 0b10100111 // 167
 
 // Function declarations
 
