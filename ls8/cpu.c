@@ -97,6 +97,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         cpu->PC = cpu->PC+2;
         break;
+
+      case PUSH :
+        stack_push(cpu, operandA);
+        cpu->PC = cpu->PC+1;
+        break;
+
+      case POP:
+        stack_pop(cpu);
+        cpu->PC = cpu->PC+1;
+        break;
     }
     // 4. Move the PC to the next instruction.
     cpu->PC += 1;
