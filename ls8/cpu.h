@@ -38,7 +38,7 @@ enum alu_op
 #define POP 0b01000110  //Pop the value at the top of the stack into the given register.
 #define CALL 0b01010000 // Calls a subroutine (function) at the address stored in the register.
 #define RET 0b00010001
-// #define JMP 0b01010100 // Jump to the address stored in the given register.
+#define JMP 0b01010100 // Jump to the address stored in the given register.
 
 // Function declarations
 
