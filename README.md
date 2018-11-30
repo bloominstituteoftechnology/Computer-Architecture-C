@@ -19,13 +19,13 @@
 ### Day 2: Get `mult.ls8` running, load files dynamically
 -> [X] Un-hardcode the machine code
 - [X] Implement a Multiply and Print the Result (run `mult8.ls8`)
-- [-] Beautify your `cpu_run()` function, if needed
+- [X] Beautify your `cpu_run()` function, if needed
 
 ### Day 3: Get `stack.ls8` running
 - [X] Implement System Stack
 
 ### Day 4: Get `call.ls8` running
-- [ ] Implement Subroutine Calls
+- [X] Implement Subroutine Calls
 
 ### Stretch
 - [ ] Add the timer interrupt to the LS-8 emulator
