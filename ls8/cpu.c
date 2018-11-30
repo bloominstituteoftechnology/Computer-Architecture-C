@@ -55,6 +55,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   while (fgets(line, sizeof line, fp) != NULL) {
     // char *endchar;
+    // if (line[0] == 0 || line[0] == 1) {}
     cpu->ram[address++] = strtoul(line, NULL, 2);
     if (line == NULL) {
       continue;
@@ -103,6 +104,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  // if (0b00000100 == 4) {
+  //   printf("equal\n");
+  // }
 
   while (running) {
     // TODO
@@ -121,67 +125,107 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
+        // printf("LDI case triggered\n");
+        cpu->PC += advance_pc;
         break;
 
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += advance_pc;
         break;
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += advance_pc;
         break;
 
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += advance_pc;
         break;
 
       case PUSH:
         cpu->reg[SP]--;
         cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        cpu->PC += advance_pc;
         break;
 
       case POP:
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
         cpu->reg[SP]++;
+        cpu->PC += advance_pc;
         break;
 
       case CALL:
         cpu->reg[SP]--;
         cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + advance_pc);
         cpu->PC = cpu->reg[operandA];
-        cpu->FL = 8;
+        // cpu->FL = 8;
         break;
 
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
         cpu->reg[SP]++;
-        cpu->FL = 8;
+        // cpu->FL = 8;
         break;
 
       case CMP:
         alu(cpu, ALU_CMP, operandA, operandB);
+        // printf("CMP ran\n");
+        cpu->PC += advance_pc;
         break;
 
       case JMP:
         cpu_jmp(cpu, cpu->reg[operandA]);
+        // cpu->FL = 8;
+        break;
 
+      case JEQ:
+        if (cpu->FL == 1) {
+          cpu_jmp(cpu, cpu->reg[operandA]);
+          // cpu->FL = 8;
+          // printf("JEQ true\n");
+          break;
+        }
+        // printf("JEQ false\n");
+        cpu->PC += advance_pc;
+        break;
+
+      case JNE:
+        if (cpu->FL != 1) {
+          // printf("cpu->pc is %d\n", cpu->PC);
+          // printf("DST is %d\n", cpu->reg[operandA]);
+          cpu_jmp(cpu, cpu->reg[operandA]);
+          // cpu->FL = 8;
+          // printf("JNE true\n");
+          // printf("cpu->pc is %d\n", cpu->PC);
+          break;
+        }
+        // printf("JNE false\n");
+        cpu->PC += advance_pc;
         break;
 
       case NOP:
+      // printf("NOP case triggered\n");
+      cpu->PC += advance_pc;
         break;
 
       default:
         printf("Default case triggered\n");
+        cpu->PC += advance_pc;
         break;
 
     }
-    if (cpu->FL <= 4) {
-      cpu->PC += advance_pc;
-    }
-    else {
-      cpu->FL = 0;
-      continue;
-    }
+    // if (cpu->FL <= 4) {
+    //   cpu->PC += advance_pc;
+    //   printf("the FL is %d\n", cpu->FL);
+    //   printf("register 2 is %d\n", cpu->reg[2]);
+    // }
+    // else {
+    //   cpu->FL = 0b00000000;
+    //   // printf("FL is now %d\n", cpu->FL);
+    //   continue;
+    // }
     
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
