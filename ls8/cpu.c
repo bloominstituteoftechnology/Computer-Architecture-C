@@ -9,7 +9,7 @@ struct flags {
   unsigned char L;
   unsigned char G;
   unsigned char E;
-}
+};
 void flags_init(struct flags *flags) {
   flags->L = 0;
   flags->G = 0;
@@ -96,6 +96,8 @@ void cpu_run(struct cpu *cpu)
   cpu->reg[7] = stack_p;
   unsigned char prev_loc = 0;
 
+  // Needed for flags
+  unsigned char E = 0;
 
   while (running)
   {
@@ -110,8 +112,48 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+
+    // IR === Instruction Register
     switch (IR)
     {
+    case CMP:
+      printf("CMP\n");
+      unsigned char regA = cpu->reg[operand_a];
+      unsigned char regB = cpu->reg[operand_b];
+      // Compare the values in two registers.
+      if(regA == regB) {
+        // If equal, set E flag to 1, otherwise set to 0
+        E = 1;
+      }
+      else if (regA > regB) {
+        E = 0;
+      }
+      else {
+        E = 0;
+      }
+      break;
+    case JMP:
+      printf("JMP\n");
+      // Jump to the address stored in the given register.
+      cpu->PC = cpu->reg[operand_a];
+      add_to_pc = 0;
+      break;
+    case JEQ:
+      printf("JEQ\n");
+    // If equal flag is set (true), jump to the address stored in the given register.
+      if(E == 1) {
+      cpu->PC = cpu->reg[operand_a];
+      add_to_pc = 0;
+      }
+      break;
+    case JNE:
+      printf("JNE\n");
+    // If E flag is clear (false, 0), jump to the address stored in the given register.
+      if(E != 1) {
+      cpu->PC = cpu->reg[operand_a];
+      add_to_pc = 0;
+      }
+      break;
     case LDI:
       printf("\nLDI: R%d: stored value is: %d\n\n", operand_a, operand_b);
       cpu->reg[operand_a] = operand_b;
