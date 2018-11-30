@@ -20,10 +20,12 @@ void cpu_load(struct cpu *cpu, char *filename)
   char line[32];
   char *ptr;
   while (fgets(line, sizeof line, fp) != NULL) {
-    cpu->ram[address++] = strtoul(line, &ptr, 2);
-    #if DEBUG
-      printf("Line that is not used: %s\n", ptr);
-      #endif
+    if (line[0] == '0' || line[0] == '1') {
+      cpu->ram[address++] = strtoul(line, &ptr, 2);
+      #if DEBUG
+        printf("Line that is not used: %s\n", ptr);
+        #endif
+    }
   }
   fclose(fp);
   #if DEBUG
@@ -173,7 +175,7 @@ void cpu_run(struct cpu *cpu)
           printf("CALL\n");
         #endif
         cpu->ram[--cpu->registers[SP]] = PC+2;
-        cpu->PC = cpu->registers[operandA] + 1;
+        cpu->PC = cpu->registers[operandA];
         #if DEBUG
           printf("What we're setting PC to in CALL: %d\n", cpu->registers[operandA]);
         #endif
@@ -221,7 +223,7 @@ void cpu_run(struct cpu *cpu)
         #if DEBUG
           printf("JMP\n");
         #endif
-        cpu->PC = cpu->ram[cpu->registers[operandA]];
+        cpu->PC = cpu->registers[operandA];
         break;
       case PRA:
         #if DEBUG
