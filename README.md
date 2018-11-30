@@ -11,7 +11,7 @@ setting up the pull request:
 - [x] Inventory what is here
 - [x] Implement `struct cpu` in `cpu.h`
 - [x] Add RAM functions
-- [x] Implement `cpu_init()`
+- [x] Implement q`cpu_init()`
 - [x] Implement the core of `cpu_run()`
 - [x] Implement the `HLT` instruction handler
 - [x] Add the `LDI` instruction
@@ -23,10 +23,10 @@ setting up the pull request:
 - [x] Beautify your `cpu_run()` function, if needed
 
 ### Day 3: Get `stack.ls8` running
-- [ ] Implement System Stack
+- [x] Implement System Stack
 
 ### Day 4: Get `call.ls8` running
-- [ ] Implement Subroutine Calls
+- [] Implement Subroutine Calls
 
 ### Stretch
 - [ ] Add the timer interrupt to the LS-8 emulator

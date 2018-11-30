@@ -96,7 +96,7 @@ void cpu_run(struct cpu *cpu)
         // push function
         cpu->registers[7]--;
         cpu_ram_write(cpu->registers[7],cpu, cpu->registers[operA]);   
-        cpu->pc += 2;
+        cpu->pc += 2; 
         break;
       case POP:
         if(cpu->registers[7] == 0xF4){
@@ -106,11 +106,19 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[7]++;
         cpu->pc += 2;
         break;
+      case CALL:
+        cpu->registers[7]--;
+        cpu->ram[cpu->registers[7]] = cpu->pc + 2;
+        cpu->pc = cpu->registers[operA];
+        break;
+      
 
-// void cpu_ram_write(unsigned char index, struct cpu  *cpu, unsigned char value) 
-// {
-//   cpu->ram[index] = value;
-// }
+
+
+// 1. The address of the ***instruction*** _directly after_ `CALL` is
+//    pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+// 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+
       // look at line 68. Any arithmetic will be handled there.
       // https://lambdaschoolstudents.slack.com/archives/CD1TWFL0Y/p1543271408505200?thread_ts=1543269930.500700&cid=CD1TWFL0Y
 
