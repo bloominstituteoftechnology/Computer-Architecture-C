@@ -307,7 +307,7 @@ Machine code:
 
 `JEQ register`
 
-If `equal` flag is set (true), jump to the address stored in the given register.
+If `equal` flag is set (true), -->jump to the address stored in the given register<-->.
 
 Machine code:
 ```
@@ -383,8 +383,8 @@ Machine code:
 
 `JNE register`
 
-If `E` flag is clear (false, 0), jump to the address stored in the given
-register.
+If `E` flag is clear (false, 0), ->jump to the address stored in the given
+register<-.
 
 Machine code:
 ```
