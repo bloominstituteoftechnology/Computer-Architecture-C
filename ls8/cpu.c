@@ -7,9 +7,9 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(/* char *filename ,*/ struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
+  /* char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
     0b00000000,
@@ -23,9 +23,16 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
-  }
+  } */
 
   // TODO: Replace this with something less hard-coded
+
+  FILE *fp;
+  char storage[256] = 
+  fp = fopen("./examples/print8.ls8", "r");
+  while (fgets (storage, sizeof storage, fp) != NULL) {
+    strtol(storage, )
+  }
 }
 
 /**
