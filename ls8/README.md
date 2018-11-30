@@ -142,7 +142,7 @@ the LS-8 spec.
 *At this point, you should be able to run the program and have it print `8` to
 the console!*
 
-## Step 8: Un-hardcode the machine code
+## Step 8: Un-hardcode the machine code day 2 
 
 In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded
 into the source. This isn't particularly user-friendly.
@@ -155,7 +155,7 @@ command line like so:
 ```
 
 (The programs `print8.ls8` and `mult.ls8` are provided in the `examples/`
-directory for your convenience.)
+   for your convenience.)
 
 For processing the command line, the signature of `main()` should be changed to:
 
@@ -178,7 +178,7 @@ so you can look in `argv[1]` for the name of the file to load.
 > Bonus: check to make sure the user has put a command line argument where you
 > expect, and print an error and exit if they didn't.
 
-In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
+In `cpu_load()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
 
 As you process lines from the file, you should be on the lookout for blank lines
 (ignore them), and you should ignore everything after a `#`, since that's a
@@ -187,7 +187,7 @@ comment.
 You'll have to convert the binary strings to integer values to store in RAM. The
 built-in `strtoul()` library function might help you here.
 
-## Step 9: Implement a Multiply and Print the Result
+## Step 9: Implement a Multiply and Print the Result day 2 
 
 Extend your LS8 emulator to support the following program:
 
@@ -217,12 +217,12 @@ One you run it with `./ls8 examples/mult.ls8`, you should see:
 Check the LS-8 spec for what the `MUL` instruction does.
 
 > Note: `MUL` is the responsiblity of the ALU, so it would be
-nice if your code eventually called the `alu()` function with appropriate
+nice if your code eventually called the `alu()` function with apprtopriate
 arguments to get the work done.
 > 
 
-
-## Step 10: Beautify your `cpu_run()` loop, if needed
+a
+## Step 10: Beautify your `cpu_run()` loop, if needed day 2
 
 Do you have a big `if-else-if` block or `switch` block in your `cpu_run()`
 function? Is there a way to better modularize your code?
@@ -247,7 +247,6 @@ function handle_HLT() { ... }
 
 branchTable[LDI] = handle_LDI;
 branchTable[HLT] = handle_HLT;
-
 let IR = ram_read(this.reg.PC); // Fetch instruction
 let handler = branchTable[IR]; // Look up handler in branch table
 
