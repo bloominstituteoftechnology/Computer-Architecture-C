@@ -21,11 +21,15 @@ void cpu_load(struct cpu *cpu,char *filename)
   if (fp==NULL) {
     printf("Could not open file");
   }
-  int address=0;
+  unsigned char address=0x00;
   char string[256];
   while (fgets(string,sizeof(string),fp)!=NULL) {
-    unsigned char data=strtol(string,NULL,2);
-    cpu->ram[address++]=data;
+    char *ep = NULL;
+    unsigned char data=strtol(string,&ep,2);
+    if(ep == string) {
+      continue;
+    }
+    cpu_ram_write(cpu, address++, data);
   }
 fclose(fp);
 
