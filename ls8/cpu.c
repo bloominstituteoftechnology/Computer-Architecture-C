@@ -73,6 +73,42 @@ void cpu_reg_add(struct cpu *cpu, unsigned char place, unsigned char place2)
   int value = cpu->registers[place] + cpu->registers[place2];
   cpu->registers[place] = value;
 }
+
+void cpu_reg_and (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] =  cpu->registers[place] & cpu->registers[place2];
+}
+
+void cpu_reg_not (struct cpu *cpu, unsigned char place)
+{
+  cpu->registers[place] = ~cpu->registers[place];
+}
+
+void cpu_reg_xor (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] ^ cpu->registers[place2];
+}
+
+void cpu_reg_or (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] | cpu->registers[place2];
+}
+
+void cpu_reg_mod (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] % cpu->registers[place2];
+}
+
+void cpu_reg_shl (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] << cpu->registers[place2];
+}
+
+void cpu_reg_shr (struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  cpu->registers[place] = cpu->registers[place] >> cpu->registers[place2];
+}
+
 int convert(int dec)
 {
   if (dec == 0)
