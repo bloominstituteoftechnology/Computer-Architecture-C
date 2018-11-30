@@ -23,7 +23,8 @@ enum alu_op {
   ALU_NOT,
   ALU_MOD,
   ALU_SHL,
-  ALU_SHR
+  ALU_SHR,
+  ALU_CMP
 	// Add more here
 };
 

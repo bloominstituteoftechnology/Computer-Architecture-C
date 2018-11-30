@@ -58,8 +58,8 @@ void add(struct cpu *cpu,unsigned char a, unsigned char b) {
   unsigned char ans=a+b;
   cpu->registers[cpu->ram[cpu->PC+1]]=ans;
 }
-void compare(struct cpu *cpu) {
-  if (cpu->registers[cpu->ram[cpu->PC+1]]==cpu->registers[cpu->ram[cpu->PC+2]]) {
+void compare(struct cpu *cpu,unsigned char a, unsigned char b) {
+  if (a==b) {
     cpu->FL=e_true;
   } else {
     cpu->FL=e_false;
@@ -164,6 +164,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_SHR:
       shift_right(cpu,regA,regB);
       break;
+    case ALU_CMP:
+      compare(cpu,regA,regB);
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -210,7 +213,7 @@ void cpu_run(struct cpu *cpu)
         alu(cpu,ALU_ADD,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
         break;
       case CMP:
-        compare(cpu);
+        alu(cpu,ALU_CMP,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
         break;
       case JMP:
         jump(cpu);
