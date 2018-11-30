@@ -121,7 +121,7 @@ void compare(struct cpu *cpu, unsigned char place, unsigned char place2)
     //place is less than place2
     compare_status = -1;
   }
-
+  printf("Compare result = %d\n", compare_status); 
   update_flags(cpu, compare_status); // a function should server one purpose so I creaed another
   //update_flags will handle the conditionals and updating for the cpu->FL.
 }
@@ -191,6 +191,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case JMP:
+      printf("JMP jump to %d\n", cpu->registers[operandA]);
       cpu->PC = cpu->registers[operandA];
       //May need to decrement possibly? check it out first. or continue instead of break
       break;
@@ -198,6 +199,7 @@ void cpu_run(struct cpu *cpu)
     case JEQ:
       if (cpu->FL[0] == 1)
       { //cpu->FL[0] is the 'E' flag.
+        printf("JEQ Jumping to %d\n", cpu->registers[operandA]);
         cpu->PC = cpu->registers[operandA];
       }
       else
@@ -210,6 +212,7 @@ void cpu_run(struct cpu *cpu)
     case JNE:
       if (cpu->FL[0] == 0)
       { //cpu->FL[0] is the 'E' flag.
+        printf("JNE jumping to %d\n", cpu->registers[operandA]);
         cpu->PC = cpu->registers[operandA];
         //May need to decrement possibly? check it out first. or continue instead of break
       }
@@ -224,6 +227,7 @@ void cpu_run(struct cpu *cpu)
       running = 0; //should end loop
       break;
     }
+    printf("increment\n");
     cpu->PC += 1;
   }
 }

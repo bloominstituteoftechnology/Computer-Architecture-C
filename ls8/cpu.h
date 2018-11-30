@@ -45,7 +45,13 @@ enum alu_op
 #define JEQ 0b01010101
 #define CMP 0b10100111
 
-
+#define SHL 0b10101100
+#define SHR 0b10101101
+#define OR 0b10101010
+#define NOT 0b01101001
+#define MOD 0b10100100
+#define XOR 0b10101011
+#define AND 0b10101000
 
 // Function declarations
 
