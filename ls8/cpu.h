@@ -22,7 +22,8 @@ enum alu_op
   // Add more here
   ALU_DIV,
   ALU_SUB,
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP,
 };
 
 // Instructions
@@ -30,6 +31,9 @@ enum alu_op
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
+#define FLAG_EQ 0b00000001
+#define FLAG_GT 0b00000010
+#define FLAG_LT 0b00000100
 #define EMPTY_STACK 0xF4
 #define PROGRAM_ENTRY 0x00
 #define ADD 0b10100000

@@ -95,7 +95,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
   case ALU_SUB:
     reg[regA] -= reg[regB];
+    break;
     // TODO: implement more ALU ops
+
+  case ALU_CMP: //lecture code solution
+    if (regA == regB)
+    {
+      cpu->FL = FLAG_EQ;
+    }
+    else
+    {
+      cpu->FL = 0;
+    }
+    break;
   }
 }
 
@@ -180,18 +192,11 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case CMP:
-      if (cpu->reg[value1] == cpu->reg[value2])
-      {
-        cpu->FL = 1;
-      }
-      else
-      {
-        cpu->FL = 0;
-      }
+      alu(cpu, ALU_CMP, value1, value2);
       break;
 
     case JEQ:
-      if (cpu->FL)
+      if (cpu->FL == FLAG_EQ)
       {
         cpu->PC = cpu->reg[value1];
       }
