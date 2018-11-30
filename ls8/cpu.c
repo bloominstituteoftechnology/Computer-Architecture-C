@@ -106,6 +106,18 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
 
+      case PUSH:
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case POP:
+        cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
+        cpu->registers[SP]++;
+        cpu->PC += 2;
+        break;
+
       default:
         break;
     }
