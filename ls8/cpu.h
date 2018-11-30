@@ -5,10 +5,16 @@
 struct cpu
 {
   // TODO
+  unsigned char FL;
   unsigned char PC;
   unsigned char registers[8]; // registers (array)
   unsigned char ram[256];     // ram (array)
 };
+
+// define flags registers
+#define FL_EQ 1
+#define FL_GT 2
+#define FL_LT 4
 
 //struct to represent a stack
 //The SP points at the value at the top of the stack
@@ -20,7 +26,8 @@ enum alu_op
 {
   ALU_MUL,
   // Add more here
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
 };
 
 // Instructions

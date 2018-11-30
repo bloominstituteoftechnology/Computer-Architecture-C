@@ -93,6 +93,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     reg[regA] += reg[regB];
     break;
+
+  case ALU_CMP:
+    // check if register values are the same, if they are set FL_EQ
+    if (reg[regA] == reg[regB])
+    {
+      cpu->FL = cpu->FL | FL_EQ;
+    }
+    break;
   }
 }
 
@@ -120,6 +128,9 @@ void cpu_run(struct cpu *cpu)
     case PUSH:
       push_value(cpu, cpu->registers[operandA]);
       cpu->PC += 2;
+      break;
+    case CMP:
+      alu(cpu, ALU_CMP, operandA, operandB);
       break;
     case JMP:
       cpu->PC = cpu->registers[operandA];
