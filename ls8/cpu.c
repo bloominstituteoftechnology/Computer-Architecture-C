@@ -4,6 +4,36 @@
 
 #define DATA_LEN 6
 
+// Flags 
+struct flags {
+  unsigned char L;
+  unsigned char G;
+  unsigned char E;
+}
+void flags_init(struct flags *flags) {
+  flags->L = 0;
+  flags->G = 0;
+  flags->E = 0;
+}
+void set_equal_flag(struct flags *flags) {
+  flags->E = 1;
+}
+void set_flags(struct flags *flags) {
+  if(flags->E == 1) {
+    flags->G = 0;
+    flags->L = 0;
+  }
+  else if (flags->G == 1) {
+    flags->E = 0;
+    flags->L = 0;
+  }
+  else if (flags->L == 1) {
+    flags->G = 0;
+    flags->E = 0;
+  }
+}
+// End Flags
+
 // Read from memory
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
