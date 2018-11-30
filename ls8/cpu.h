@@ -9,6 +9,7 @@ struct cpu {
   // ram (array)
   // creating a IR in struct is better way to do it
   unsigned char pc;
+  unsigned char flags;
   unsigned char registers[8];
   unsigned char ram[256];
 };
@@ -17,6 +18,7 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
   ALU_ADD,
+  CMP,
 	// Add more here
   
 };
@@ -35,7 +37,7 @@ enum alu_op {
 #define CALL 0b01010000
 #define RET 0b00010001
 #define ADD 0b10100000
-
+#define CMP 0b10100111
 
 /*
 #define DEBUG 1

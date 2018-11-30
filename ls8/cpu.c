@@ -54,6 +54,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       reg[regA] += reg[regB];
       break;
+    case CMP:
+      if(reg[regA] == reg[regB]){
+        
+      }else if (reg[regA] < reg[regB]){
+
+      }
     // TODO: implement more ALU ops
   }
 }
@@ -123,6 +129,8 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operA, operB);
         cpu->pc += 3;
         break;
+      case CMP:
+
 
     }
    }
