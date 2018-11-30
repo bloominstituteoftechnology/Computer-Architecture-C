@@ -65,6 +65,8 @@ void pop(struct cpu *cpu, unsigned char stackPointer) {
   cpu->registers[SP]++;
 }
 
+
+
 /**
  * ALU
  */
@@ -82,14 +84,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     
     case ALU_CMP:
       if (cpu->registers[regA] == cpu->registers[regB]) {
+        printf("regA == regB: %d   %d\n",  cpu->registers[regA], cpu->registers[regB]);
         cpu->FL = 0b00000001;
       }
       
       else if (cpu->registers[regA] > cpu->registers[regB]) {
+        printf("regA > regB: %d   %d\n",  cpu->registers[regA], cpu->registers[regB]);
         cpu->FL = 0b00000010;
       }
 
       else if (cpu->registers[regA] < cpu->registers[regB]) {
+        printf("regA < regB: %d   %d\n",  cpu->registers[regA], cpu->registers[regB]);
         cpu->FL = 0b00000100;
       }
       
@@ -170,17 +175,26 @@ void cpu_run(struct cpu *cpu)
         break;
       case JNE:
         printf("JNE: \n");
+        if (cpu->FL == 0b00000000) {
+          cpu->PC = cpu->registers[operandA];
+        }
+        cpu->PC += 2;
         break;
       case JEQ:
         printf("JEQ: \n");
+        if (cpu->FL == 0b00000001) {
+          cpu->PC = cpu->registers[operandA];
+        }
+        cpu->PC += 2;
         break;
       case JMP:
         printf("JMP: \n");
+        cpu->PC = cpu->registers[operandA];
+        cpu->PC += 2;
         break;
       case CMP:
         printf("CMP: \n");
         alu(cpu, ALU_CMP, operandA, operandB);
-        printf("cpu->PC: %d\n", cpu->PC);
         cpu->PC += 3;
         break;
     }
