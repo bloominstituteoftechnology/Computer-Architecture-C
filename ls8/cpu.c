@@ -24,9 +24,14 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   while (fgets(line, sizeof line, fp) != NULL)
   {
-    cpu->ram[mem_index] = strtoul(line, NULL, 2);
+    if(line[0] == '#'){
+      continue; 
+    }
+    cpu->ram[mem_index] = strtoul(line, NULL, 2); 
     mem_index++;
   }
+
+  
 
   fclose(fp);
 }
@@ -121,7 +126,6 @@ void compare(struct cpu *cpu, unsigned char place, unsigned char place2)
     //place is less than place2
     compare_status = -1;
   }
-  printf("Compare result = %d\n", compare_status);
   update_flags(cpu, compare_status); // a function should server one purpose so I creaed another
   //update_flags will handle the conditionals and updating for the cpu->FL.
 }
@@ -190,47 +194,42 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case JMP:
-      printf("JMP jump to %d\n", cpu->registers[operandA]);
       cpu->PC = cpu->registers[operandA];
       cpu->PC--;
-      printf("cpu->PC decremented and is now %d\n", cpu->PC);
-      //May need to decrement possibly? check it out first. or continue instead of break
       break;
 
     case JEQ:
       if (cpu->FL[0] == 1)
       { //cpu->FL[0] is the 'E' flag.
-        printf("JEQ Jumping to %d\n", cpu->registers[operandA]);
         cpu->PC = cpu->registers[operandA];
+        cpu->PC--; 
       }
       else
       {
         cpu->PC += 1;
-        //maybe 2  check it out first.
       }
       break;
 
     case JNE:
       if (cpu->FL[0] == 0)
       { //cpu->FL[0] is the 'E' flag.
-        printf("JNE jumping to %d\n", cpu->registers[operandA]);
         cpu->PC = cpu->registers[operandA];
-        //May need to decrement possibly? check it out first. or continue instead of break
+        cpu->PC--; 
       }
       else
       {
         cpu->PC += 1;
-        //maybe 2  check it out first.
+
       }
       break;
 
     case HLT:
       running = 0; //should end loop
-      break;
+      break; 
     }
+    
 
     cpu->PC += 1;
-    printf("incremented to %d \n", cpu->PC);
   }
 }
 
