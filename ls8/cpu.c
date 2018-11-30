@@ -74,7 +74,6 @@ void cpu_run(struct cpu *cpu)
     switch(instruction) {
       case LDI:
         cpu->registers[(cpu->ram[c+1])] = cpu->ram[c+2];
-        printf("register: %d\n", cpu->registers[(cpu->ram[c+1])]);
         cpu->PC += 3;
         break;
       case CALL:
@@ -102,6 +101,41 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[(cpu->ram[c+1])] = cpu->ram[cpu->registers[7]];
         ++cpu->registers[7];
         cpu->PC += 2;
+        break;
+      case JMP:
+        cpu->PC = regA;
+        break;
+      case CMP:
+        if (regA > regB) {
+          cpu->FL[5] = 0;
+          cpu->FL[6] = 1;
+          cpu->FL[7] = 0;
+          cpu->PC += 3;
+        } else if (regA == regB) {
+          cpu->FL[5] = 0;
+          cpu->FL[6] = 0;
+          cpu->FL[7] = 1;
+          cpu->PC += 3;
+        } else if (regA < regB) {
+          cpu->FL[5] = 1;
+          cpu->FL[6] = 0;
+          cpu->FL[7] = 0;
+          cpu->PC += 3;
+        }
+        break;
+      case JEQ:
+        if (cpu->FL[7] == 1){
+          cpu->PC = regA;
+        } else {
+          cpu->PC += 2;
+        };
+        break;
+      case JNE:
+        if (cpu->FL[7] == 0){
+          cpu->PC = regA;
+        } else {
+          cpu->PC += 2;
+        };
         break;
       case ALU_MUL:
         printf("mul: %d * %d\n", regA, regB);
@@ -139,5 +173,6 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[7] = 0xF4;
   // TODO: Zero registers and RAM
   memset(&cpu->registers[0], 0, 8);
+  memset(&cpu->FL[0], 0, 8);
   memset(&cpu->ram[0], 0, 256);
 }
