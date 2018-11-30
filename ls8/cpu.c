@@ -6,7 +6,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(/* char *filename ,*/ struct cpu *cpu)
+void cpu_load(char *filename , struct cpu *cpu)
 {
   /* char data[DATA_LEN] = {
     // From print8.ls8
@@ -27,11 +27,11 @@ void cpu_load(/* char *filename ,*/ struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 
   FILE *fp;
-  char line[32];
+  char line[1024];
   int address = 0;
   char *pointer;
   
-  fp = fopen("./examples/print8.ls8", "r");
+  fp = fopen(filename, "r");
   while (fgets (line, sizeof line, fp) != NULL) {
     unsigned char byte = strtoul(line, &pointer, 2);;
     if (pointer == line) {
@@ -48,7 +48,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -77,7 +77,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    int IR = cpu->ram[cpu->PC];
+    int IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 2. switch() over it to decide on a course of action.
@@ -89,10 +89,18 @@ void cpu_run(struct cpu *cpu)
 
       case LDI :
         cpu->registers[operandA] = operandB;
+        //printf("%d A test\n", cpu->registers[operandA]);
+        cpu->PC = cpu->PC+2;
         break;
 
       case PRN :
         printf("%d\n", cpu->registers[operandA]);
+        cpu->PC = cpu->PC+1;
+        break;
+
+      case MUL :
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC = cpu->PC+2;
         break;
     }
     // 4. Move the PC to the next instruction.
