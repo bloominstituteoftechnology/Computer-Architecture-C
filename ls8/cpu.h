@@ -20,6 +20,7 @@ enum alu_op
 {
   ALU_MUL,
   // Add more here
+  ALU_ADD
 };
 
 // Instructions
@@ -27,15 +28,17 @@ enum alu_op
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI 0b10000010
+#define LDI 0b10000010 // Set the value of a register to an integer.
 // TODO: more instructions here. These can be used in cpu_run().
-#define HLT 0b00000001
-#define PRN 0b01000111
-#define MUL 0b10100010
-#define PUSH 0b01000101
-#define POP 0b01000110
-#define CALL 0b01010000
+#define HLT 0b00000001  // Halt the CPU (and exit the emulator).
+#define PRN 0b01000111  // Print numeric value stored in the given register.
+#define MUL 0b10100010  // Multiply the values in two registers together and store the result in registerA.
+#define ADD 0b10100000  // Add the value in two registers and store the result in registerA.
+#define PUSH 0b01000101 // Push the value in the given register on the stack.
+#define POP 0b01000110  //Pop the value at the top of the stack into the given register.
+#define CALL 0b01010000 // Calls a subroutine (function) at the address stored in the register.
 #define RET 0b00010001
+#define JMP 0b01010100 // Jump to the address stored in the given register.
 
 // Function declarations
 
