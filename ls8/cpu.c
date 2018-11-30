@@ -112,6 +112,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MOD:
       cpu->registers[regA] %= cpu->registers[regB];
       break;
+      
+    case ALU_ADDI:
+      cpu->registers[regA] += regB;
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -251,6 +255,10 @@ void cpu_run(struct cpu *cpu)
         }        
         break;
 
+      case ADDI:
+        alu(cpu, ALU_ADDI, operandA, operandB);
+        cpu->PC += 3;
+        break;
     }
   }
 }
