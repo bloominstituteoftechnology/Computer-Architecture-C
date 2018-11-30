@@ -15,6 +15,20 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 {
   cpu->ram[index] = value;
 }
+
+void call(struct cpu *cpu, unsigned char reg_value)
+{
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = cpu->PC + 2;
+  cpu->PC = cpu->reg[reg_value];
+}
+
+void ret(struct cpu *cpu)
+{
+  cpu->PC = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -142,6 +156,11 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
 
+    case ADD:
+      alu(cpu, ALU_ADD, value1, value2);
+      cpu->PC += 3;
+      break;
+
     case PUSH:
       cpu_push(cpu, cpu->reg[value1]);
       cpu->PC += 2;
@@ -150,6 +169,14 @@ void cpu_run(struct cpu *cpu)
     case POP:
       cpu->reg[value1] = cpu_pop(cpu);
       cpu->PC += 2;
+      break;
+
+    case CALL:
+      call(cpu, value1);
+      break;
+
+    case RET:
+      ret(cpu);
       break;
 
     case HLT:
@@ -176,8 +203,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
-  cpu->reg[7] = EMPTY_STACK; //SP saved in the 7th index 8th register and 0xF4
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->reg[7] = EMPTY_STACK; //SP saved in the 7th index 8th register and 0xF4
 
   // TODO: Zero registers and RAM
 }

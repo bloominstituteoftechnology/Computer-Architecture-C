@@ -30,15 +30,18 @@ enum alu_op
 
 #define EMPTY_STACK 0xF4
 #define PROGRAM_ENTRY 0x00
-
+#define ADD 0b10100000
 #define LDI 0b10000010
+#define CALL 0b01010000
+#define RET 0b00010001
+#define JMP 0b01010100
 // TODO: more instructions here. These can be used in cpu_run().
 #define PRN 0b01000111
 #define HLT 0b00000001
 #define MUL 0b10100010
 #define POP 0b01000110
 #define PUSH 0b01000101
-
+#define PRA 0b01001000
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu, char *argv[]);
