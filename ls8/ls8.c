@@ -1,16 +1,30 @@
 #include <stdio.h>
 #include "cpu.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <ctype.h>
+
+
 
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
   struct cpu cpu;
-
-  cpu_init(&cpu);
-  cpu_load(&cpu);
-  cpu_run(&cpu);
-
+  char *filename = argv[1];
+  if (argc > 1) {
+    cpu_init(&cpu);
+    cpu_load(&cpu, filename);
+    cpu_run(&cpu);
+  } else {
+    printf("ls8: please provide a file to run\n");
+}
+  
   return 0;
+
+
+  
 }
