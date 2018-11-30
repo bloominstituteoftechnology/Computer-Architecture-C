@@ -108,10 +108,12 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[7] --;
       cpu->ram[cpu->registers[7]] = cpu->registers[operA];
       cpu->PC += 2;
+      break;
     case POP:
       cpu->registers[operA] = cpu_ram_read(cpu, cpu->registers[7]);
       cpu->registers[7] ++;
       cpu->PC += 2;
+      break;
     case HLT: //exit the emulator
       running = 0;
       break;
