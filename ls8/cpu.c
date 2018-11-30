@@ -98,11 +98,23 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, param1, param2);
       break;
+    case ADD:
+      alu(cpu, ALU_ADD, param1, param2);
+      break;
     case PUSH:
       cpu_push(cpu, cpu->registers[param1]);
       break;
     case POP:
       cpu->registers[param1] = cpu_pop(cpu);
+      break;
+    case CALL:
+      cpu_push(cpu, cpu->PC + 2);
+      cpu->PC = cpu->registers[param1];
+      pc_change = 0;
+      break;
+    case RET:
+      cpu->PC = cpu_pop(cpu);
+      pc_change = 0;
       break;
     case HLT:
       running = 0;
