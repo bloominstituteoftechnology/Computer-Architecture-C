@@ -133,11 +133,11 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
       case CMP:
-        alu(cpu, ALU_CMP, operA, operB);
-        cpu->pc += 3;
+        alu(cpu, ALU_CMP, operA, operB);  
+        cpu->pc += 3; 
         break;
       case JMP:
-        cpu->pc = cpu->ram[cpu->flags];
+        cpu->pc = cpu->registers[operA];
         break;
       case JEQ:
         if(cpu->flags == 0b0000001){ 
