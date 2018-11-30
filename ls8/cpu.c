@@ -191,7 +191,7 @@ void cpu_run(struct cpu *cpu)
       case JMP:
         printf("JMP: \n");
         cpu->PC = cpu->registers[operandA];
-        cpu->PC += 2;
+        // cpu->PC += 2;
         break;
       case CMP:
         printf("CMP: \n");
