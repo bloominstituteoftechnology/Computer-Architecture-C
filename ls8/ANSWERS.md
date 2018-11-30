@@ -1,5 +1,5 @@
 Explain how the CPU provides concurrency or parallelism:
-
+The CPU provides concurrency because it allows for multitasking.  Like how we call to use the CALL instruction and then perform a task before the next instruction.  I believe this is similar to how concurrency works. 
 
 Describe assembly language and machine language:
 
