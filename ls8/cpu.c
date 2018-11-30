@@ -96,6 +96,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
   case ALU_CMP:
     // check if register values are the same, if they are set FL_EQ
+    // set value with bitwise or, clear with and
     if (reg[regA] == reg[regB])
     {
       cpu->FL = cpu->FL | FL_EQ;
@@ -140,12 +141,26 @@ void cpu_run(struct cpu *cpu)
       cpu->PC = cpu->registers[operandA];
       break;
     case JEQ:
+      // JMP if flag is set to equal
       if (cpu->FL & FL_EQ)
       {
         cpu->PC = cpu->registers[operandA];
       }
+      else
+      {
+        cpu->PC += 2;
+      }
       break;
     case JNE:
+      // similar to JEQ, JMP if NOT equal
+      if (!(cpu->FL & FL_EQ))
+      {
+        cpu->PC = cpu->registers[operandA];
+      }
+      else
+      {
+        cpu->PC += 2;
+      }
       break;
     case CALL:
       // push the address of the instruction after the call onto the stack
