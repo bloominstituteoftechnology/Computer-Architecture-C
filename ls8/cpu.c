@@ -28,21 +28,8 @@
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
 
   int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
 
   // TODO: Replace this with something less hard-coded
   FILE *fp = fopen(filename, "r");
@@ -81,13 +68,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_CMP:
-      if (regA < regB) {
+      // printf("regA is %d, regB is %d at start of alu_CMP\n", regA, regB);
+      if (cpu->reg[regA] < cpu->reg[regB]) {
         cpu->FL = 0b00000100;
       }
-      if (regA == regB) {
+      if (cpu->reg[regA] == cpu->reg[regB]) {
         cpu->FL = 0b00000001;
       }
-      if (regA == regB) {
+      if (cpu->reg[regA] > cpu->reg[regB]) {
         cpu->FL = 0b00000010;
       }
       break;
@@ -104,9 +92,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  // if (0b00000100 == 4) {
-  //   printf("equal\n");
-  // }
 
   while (running) {
     // TODO
@@ -125,7 +110,7 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->reg[operandA] = operandB;
-        // printf("LDI case triggered\n");
+        // printf("LDI case triggered, PC is %d\n", cpu->PC);
         cpu->PC += advance_pc;
         break;
 
@@ -160,34 +145,33 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[SP]--;
         cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + advance_pc);
         cpu->PC = cpu->reg[operandA];
-        // cpu->FL = 8;
         break;
 
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
         cpu->reg[SP]++;
-        // cpu->FL = 8;
         break;
 
       case CMP:
+        // printf("FL is %d at start of CMP\n", cpu->FL);
         alu(cpu, ALU_CMP, operandA, operandB);
-        // printf("CMP ran\n");
+        // printf("CMP ran, r0 is %d, r1 is %d\n", cpu->reg[operandA], cpu->reg[operandB]);
         cpu->PC += advance_pc;
+        // printf("FL is %d at end of CMP\n", cpu->FL);
         break;
 
       case JMP:
         cpu_jmp(cpu, cpu->reg[operandA]);
-        // cpu->FL = 8;
         break;
 
       case JEQ:
+      // printf("FL is %d at start of JEQ\n", cpu->FL);
         if (cpu->FL == 1) {
           cpu_jmp(cpu, cpu->reg[operandA]);
-          // cpu->FL = 8;
-          // printf("JEQ true\n");
+          // printf("JEQ true, PC is %d\n", cpu->PC);
           break;
         }
-        // printf("JEQ false\n");
+        // printf("JEQ false PC is %d\n", cpu->PC);
         cpu->PC += advance_pc;
         break;
 
@@ -196,12 +180,11 @@ void cpu_run(struct cpu *cpu)
           // printf("cpu->pc is %d\n", cpu->PC);
           // printf("DST is %d\n", cpu->reg[operandA]);
           cpu_jmp(cpu, cpu->reg[operandA]);
-          // cpu->FL = 8;
           // printf("JNE true\n");
           // printf("cpu->pc is %d\n", cpu->PC);
           break;
         }
-        // printf("JNE false\n");
+        // printf("JNE false PC is %d\n", cpu->PC);
         cpu->PC += advance_pc;
         break;
 
