@@ -32,7 +32,6 @@ enum alu_op
 
 #define EMPTY_STACK 0xF4
 #define PROGRAM_ENTRY 0x00
-#define MAX_ADDRESS 0xFF
 #define ADD 0b10100000
 #define LDI 0b10000010
 #define CALL 0b01010000

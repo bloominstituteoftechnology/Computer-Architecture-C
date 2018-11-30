@@ -179,6 +179,43 @@ void cpu_run(struct cpu *cpu)
       ret(cpu);
       break;
 
+    case CMP:
+      if (cpu->reg[value1] == cpu->reg[value2])
+      {
+        cpu->FL = 1;
+      }
+      else
+      {
+        cpu->FL = 0;
+      }
+      break;
+
+    case JEQ:
+      if (cpu->FL)
+      {
+        cpu->PC = cpu->reg[value1];
+      }
+      else
+      {
+        cpu->PC += 2;
+      }
+      break;
+
+    case JMP:
+      cpu->PC = cpu->reg[value1];
+      break;
+
+    case JNE:
+      if (!cpu->FL)
+      {
+        cpu->PC = cpu->reg[value1];
+      }
+      else
+      {
+        cpu->PC += 2;
+      }
+      break;
+
     case HLT:
       printf("Halting program\n");
       exit(0);
@@ -202,6 +239,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
   cpu->reg[7] = EMPTY_STACK; //SP saved in the 7th index 8th register and 0xF4
