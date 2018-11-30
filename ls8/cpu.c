@@ -3,7 +3,8 @@
 #include "string.h"
 #include "stdlib.h"
 #define SP 7
-
+#define e_true 0b00000001
+#define e_false 0b00000000
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -22,9 +23,7 @@ void print(struct cpu *cpu){
 void halt(int *running){
   *running=0;
 }
-void multiply(struct cpu *cpu) {
-  unsigned char a=cpu->registers[cpu_ram_read(cpu,cpu->PC+1)];
-  unsigned char b=cpu->registers[cpu_ram_read(cpu,cpu->PC+2)];
+void multiply(struct cpu *cpu,unsigned char a,unsigned char b) {
   unsigned char ans=0;
   while (1) {
     if (b&1) {
@@ -55,27 +54,27 @@ void ret(struct cpu *cpu) {
   cpu->PC=cpu_ram_read(cpu,cpu->registers[SP]);
   cpu->registers[SP]+=1;
 }
-void add(struct cpu *cpu) {
-  unsigned char ans=cpu->registers[cpu->ram[cpu->PC+1]]+cpu->registers[cpu->ram[cpu->PC+2]];
+void add(struct cpu *cpu,unsigned char a, unsigned char b) {
+  unsigned char ans=a+b;
   cpu->registers[cpu->ram[cpu->PC+1]]=ans;
 }
 void compare(struct cpu *cpu) {
   if (cpu->registers[cpu->ram[cpu->PC+1]]==cpu->registers[cpu->ram[cpu->PC+2]]) {
-    cpu->equal=1;
+    cpu->FL=e_true;
   } else {
-    cpu->equal=0;
+    cpu->FL=e_false;
   }
 }
 void jump(struct cpu *cpu) {
   cpu->PC=cpu->registers[cpu->ram[cpu->PC+1]];
 }
 void jump_equality(struct cpu *cpu) {
-  if (cpu->equal==1) {
+  if (cpu->FL==e_true) {
     jump(cpu);
   }
 }
 void jump_inequality(struct cpu *cpu) {
-  if (cpu->equal==0) {
+  if (cpu->FL==e_false) {
     jump(cpu);
   }
 }
@@ -88,24 +87,66 @@ void cpu_load(struct cpu *cpu,char *filename)
     exit(1);
   }
   while (fgets(string,128,fp)!=NULL) {
-    if (string[0]!='#') {
+    if (string[0]=='1' || string[0]=='0') {
       unsigned char data=strtoul(string,NULL,2);
       cpu->ram[address++] = data;
     }
   }
   // TODO: Replace this with something less hard-coded
 }
-
+void and(struct cpu *cpu, unsigned char a, unsigned char b) {
+  unsigned char ans=a&b;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void or(struct cpu *cpu,unsigned char a, unsigned char b) {
+  unsigned char ans=a|b;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void xor(struct cpu *cpu,unsigned char a, unsigned char b) {
+  unsigned char ans=a^b;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void not(struct cpu *cpu,unsigned char a) {
+  unsigned char ans=~a;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void mod(struct cpu *cpu,unsigned char a,unsigned char b,int *running) {
+  if (b==0) {
+    printf("In JavaScript the return value would be NaN.  Here your program crashes.\n");
+    halt(running);
+  } else {
+    unsigned char ans=a%b;
+    cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+  }
+}
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB,int *running)
 {
   switch (op) {
     case ALU_MUL:
       // TODO
+      multiply(cpu,regA,regB);
       break;
-
+    case ALU_ADD:
+      add(cpu,regA,regB);
+      break;
+    case ALU_AND:
+      and(cpu,regA,regB);
+      break;
+    case ALU_OR:
+      or(cpu,regA,regB);
+      break;
+    case ALU_XOR:
+      xor(cpu,regA,regB);
+      break;
+    case ALU_NOT:
+      not(cpu,regA);
+      break;
+    case ALU_MOD:
+      mod(cpu,regA,regB,running);
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -131,7 +172,7 @@ void cpu_run(struct cpu *cpu)
         print(cpu);
         break;
       case MUL:
-        multiply(cpu);
+        alu(cpu,ALU_MUL,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
         break;
       case PUSH:
         push(cpu);
@@ -149,7 +190,7 @@ void cpu_run(struct cpu *cpu)
         ret(cpu);
         break;
       case ADD:
-        add(cpu);
+        alu(cpu,ALU_ADD,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
         break;
       case CMP:
         compare(cpu);
@@ -162,6 +203,21 @@ void cpu_run(struct cpu *cpu)
         break;
       case JNE:
         jump_inequality(cpu);
+        break;
+      case AND:
+        alu(cpu,ALU_AND,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
+        break;
+      case OR:
+        alu(cpu,ALU_OR,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
+        break;
+      case XOR:
+        alu(cpu,ALU_XOR,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
+        break;
+      case NOT:
+        alu(cpu,ALU_NOT,cpu->registers[cpu->ram[cpu->PC+1]],0,0);
+        break;
+      case MOD:
+        alu(cpu,ALU_MOD,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],&running);
         break;
     }
     if (instruction==cpu_ram_read(cpu,cpu->PC)) {
@@ -182,5 +238,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram,0,sizeof(cpu->ram));
   memset(cpu->registers,0,sizeof(cpu->registers));
   cpu->registers[SP]=0xF4;
-  cpu->equal=0;
+  cpu->FL=e_false;
 }
