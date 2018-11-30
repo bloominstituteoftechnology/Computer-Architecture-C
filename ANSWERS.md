@@ -32,7 +32,7 @@
 #to decimal: 76
 16 * 4 = 64 + 12 = 76 
 
-#Convert 68 decimal
+#Conver 68 decimal
 
 #to binary: 01000100
 68/64 = 1 with a reaminder of 4

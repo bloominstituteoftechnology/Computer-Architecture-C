@@ -72,6 +72,35 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         break;
       }
       break;
+    
+    case ALU_AND: 
+      cpu->R[0] = regA & regB; 
+      break;
+    
+    case ALU_OR: 
+      cpu->R[0] = regA | regB; 
+      break;
+
+    case ALU_XOR: 
+      cpu->R[0] = regA ^ regB; 
+      break;
+    
+    case ALU_NOT: 
+      cpu->R[0] = ~regA; 
+      break;
+
+    case ALU_SHL: 
+      cpu->R[0] = regA<<regB; 
+      break;
+
+    case ALU_SHR: 
+      cpu->R[0] = regA>>regB; 
+      break;
+
+    case ALU_MOD: 
+      cpu->R[0] = regA % regB; 
+      break;
+
   }
 }
 
@@ -89,15 +118,11 @@ void cpu_run(struct cpu *cpu)
     switch (c) {
       case LDI: 
         cpu->R[cpu->ram[cpu->PC + movePC - 1]] = cpu->ram[cpu->PC + movePC];
-        // printf("Loaded R[0] with: %d\n", cpu->R[0]);
-        // printf("Loaded R[1] with: %d\n", cpu->R[1]);
-        // printf("LDI %d\n", cpu->PC);
         cpu->PC += movePC;
         break;
 
       case PRN:
-        printf("R[0] Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
-        // printf("PRN %d\n", cpu->PC); 
+        printf("Decimal: %d\n", cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC;
         break;
 
@@ -110,11 +135,49 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, 1, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC;
         break;
-      
+
       case CMP: 
         alu(cpu, 2, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
-        // printf("CMP %d\n", cpu->PC);
-        // printf("Result %d\n", cpu->FL);
+        cpu->PC += movePC;
+        break;
+
+      case AND: 
+        alu(cpu, 3, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case OR:
+        alu(cpu, 4, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case XOR:
+        alu(cpu, 5, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case NOT:
+        alu(cpu, 6, cpu->R[cpu->ram[cpu->PC + movePC]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case SHL:
+        alu(cpu, 7, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case SHR:
+        alu(cpu, 8, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
+        cpu->PC += movePC;
+        break;
+
+      case MOD:
+        if(cpu->R[cpu->ram[cpu->PC + movePC]] == 0) {
+          printf("Register B cannot equal zero when performing a MOD\n");
+          running = 0; 
+          break; 
+        }
+        alu(cpu, 9, cpu->R[cpu->ram[cpu->PC + movePC - 1]], cpu->R[cpu->ram[cpu->PC + movePC]]);
         cpu->PC += movePC;
         break;
 
@@ -142,34 +205,27 @@ void cpu_run(struct cpu *cpu)
         break;  
 
       case JMP:
-        // printf("JMP %d\n", cpu->PC);
         cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
         break;
       
       case JEQ:
         if(cpu->FL == 00000001) {
-          // printf("JEQ jumped %d\n", cpu->PC);
           cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
         } else {
-        // printf("JEQ %d\n", cpu->PC);
             cpu->PC += movePC;
         }
         break;
       
       case JNE:
-        // printf("JNE at %d\n", cpu->PC);
         if(cpu->FL == 00000010 || cpu->FL == 00000100 || cpu->FL == 0 ) {
           cpu->PC = cpu->R[cpu->ram[cpu->PC + movePC]] - 1;
-          // printf("JNE jumped %d\n", cpu->PC);
         } else {
-        // printf("JNE %d\n", cpu->PC);
             cpu->PC += movePC;
         } 
         break;
 
       case HLT:
         running = 0;
-        // printf("HLT %d\n", cpu->PC);
         break; 
     }
     cpu->PC++; 
