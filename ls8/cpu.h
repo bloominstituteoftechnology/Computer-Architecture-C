@@ -16,8 +16,8 @@ enum alu_op
   ALU_MUL,
   ALU_ADD,
   ALU_CMP,
-  ALU_AND
-
+  ALU_AND,
+  ALU_OR
 };
 
 // Instructions
@@ -39,6 +39,8 @@ enum alu_op
 #define JEQ 0b01010101
 #define JNE 0b01010110
 #define AND 0b10101000
+#define OR 0b10101010
+
 
 // Function declarations
 
