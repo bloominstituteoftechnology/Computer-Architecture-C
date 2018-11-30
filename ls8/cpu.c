@@ -88,8 +88,10 @@ void cpu_load(struct cpu *cpu,char *filename)
     exit(1);
   }
   while (fgets(string,128,fp)!=NULL) {
-    unsigned char data=strtoul(string,NULL,2);
-    cpu->ram[address++] = data;
+    if (string[0]!='#') {
+      unsigned char data=strtoul(string,NULL,2);
+      cpu->ram[address++] = data;
+    }
   }
   // TODO: Replace this with something less hard-coded
 }
