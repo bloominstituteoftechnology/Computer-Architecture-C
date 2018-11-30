@@ -9,12 +9,13 @@ struct cpu {
 	unsigned char registers[8];
   // ram (array)
 	unsigned char ram[256];
+	// flags
+	unsigned char fl[8];
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL,
-	ALU_CMP
+	ALU_MUL
 	// Add more here
 };
 
