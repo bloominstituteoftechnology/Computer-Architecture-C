@@ -57,9 +57,19 @@ void cpu_load(struct cpu *cpu, char *path)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
-    case ALU_MUL:
+      case ALU_MUL:
+        cpu->registers[regA] *= cpu->registers[regB];
+        break;
       // TODO
-      break;
+      case ALU_CMP:
+        if(cpu->registers[regA] > cpu->registers[regB]){
+        cpu->FLAG = 00000010; 
+        }else if(cpu->registers[regA] < cpu->registers[regB]){
+        cpu->FLAG = 00000100; 
+        }else{
+        cpu->FLAG = 00000001; 
+        }
+        break;
 
     // TODO: implement more ALU ops
   }
@@ -96,6 +106,9 @@ unsigned char ir;
         cpu->registers[operandA]*=cpu->registers[operandB];
         // cpu->pc+=3;
         break;
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB); 
+          break; 
     }
     cpu->pc+=(ir >> 6) +1;
     // 3. Do whatever the instruction should do according to the spec.
