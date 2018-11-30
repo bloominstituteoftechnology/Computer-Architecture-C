@@ -51,6 +51,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       reg[regA] *= reg[regB];
       break;
+    case ALU_ADD:
+      reg[regA] += reg[regB];
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -107,20 +110,19 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 2;
         break;
       case CALL:
+        // if(cpu->pc[str])
         cpu->registers[7]--;
         cpu->ram[cpu->registers[7]] = cpu->pc + 2;
         cpu->pc = cpu->registers[operA];
         break;
-      
-
-
-
-// 1. The address of the ***instruction*** _directly after_ `CALL` is
-//    pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
-// 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
-
-      // look at line 68. Any arithmetic will be handled there.
-      // https://lambdaschoolstudents.slack.com/archives/CD1TWFL0Y/p1543271408505200?thread_ts=1543269930.500700&cid=CD1TWFL0Y
+      case RET:
+        cpu->pc = cpu->ram[cpu->registers[7]];
+        cpu->registers[7]++;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operA, operB);
+        cpu->pc += 3;
+        break;
 
     }
    }
