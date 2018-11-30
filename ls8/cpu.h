@@ -18,7 +18,8 @@ enum alu_op
   ALU_CMP,
   ALU_AND,
   ALU_OR,
-  ALU_XOR
+  ALU_XOR,
+  ALU_NOT
 };
 
 // Instructions
@@ -42,6 +43,7 @@ enum alu_op
 #define AND 0b10101000
 #define OR 0b10101010
 #define XOR 0b10101011
+#define NOT 0b01101001
 
 
 // Function declarations
