@@ -132,13 +132,22 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_CMP, operandA, operandB);
       break;
     case JMP:
-
+      cpu->PC = cpu->registers[operandA];
+      pc_increment = 0;
       break;
     case JEQ:
-
+      if ((cpu->FL >> 0) & 1U)
+      {
+        cpu->PC = cpu->registers[operandA];
+        pc_increment = 0;
+      }
       break;
     case JNE:
-
+      if (!((cpu->FL >> 0) & 1U))
+      {
+        cpu->PC = cpu->registers[operandA];
+        pc_increment = 0;
+      }
       break;
     case HLT:
       running = 0;
