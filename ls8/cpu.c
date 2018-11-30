@@ -96,6 +96,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  // for loop to test broken code in while loop to prevent infiite loop and allow to see code at beginning of the loop for debugging.
   // for(int i = 0; i < 14; i++) {
   while (running) {
     unsigned char IR;
@@ -152,12 +153,33 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CMP:
-        if(cpu_registers[operandA] < cpu_registers[operandB]) {
+        if(cpu->registers[operandA] < cpu->registers[operandB]) {
           cpu->FL = 0b00000100;
-        }else if(cpu_registers[operandA] > cpu_registers[operandB]) {
+        }else if(cpu->registers[operandA] > cpu->registers[operandB]) {
           cpu->FL = 0b00000010;
         } else {
           cpu->FL = 0b00000001;
+        }
+        cpu->PC += 3;
+        break;
+
+      case JMP:
+        cpu->PC = cpu->registers[operandA];
+        break;
+
+      case JEQ:
+        if(cpu->FL == 0b00000001) {
+          cpu->PC = cpu->registers[operandA];
+        }else{
+          cpu->PC += 2;
+        }
+        break;
+
+      case JNE:
+        if(cpu->FL != 0b00000001) {
+          cpu->PC = cpu->registers[operandA];
+        }else{
+          cpu->PC += 2;
         }
         break;
     }
