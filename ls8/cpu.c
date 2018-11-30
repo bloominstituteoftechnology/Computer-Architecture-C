@@ -129,15 +129,23 @@ void cpu_run(struct cpu *cpu)
       push_value(cpu, cpu->registers[operandA]);
       cpu->PC += 2;
       break;
+    case POP:
+      cpu->registers[operandA] = pop_value(cpu);
+      cpu->PC += 2;
+      break;
     case CMP:
       alu(cpu, ALU_CMP, operandA, operandB);
       break;
     case JMP:
       cpu->PC = cpu->registers[operandA];
       break;
-    case POP:
-      cpu->registers[operandA] = pop_value(cpu);
-      cpu->PC += 2;
+    case JEQ:
+      if (cpu->FL & FL_EQ)
+      {
+        cpu->PC = cpu->registers[operandA];
+      }
+      break;
+    case JNE:
       break;
     case CALL:
       // push the address of the instruction after the call onto the stack
