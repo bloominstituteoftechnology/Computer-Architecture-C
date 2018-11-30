@@ -85,6 +85,34 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] += cpu->registers[regB];
       break;
 
+    case ALU_AND:
+      cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB];
+      break;
+      
+    case ALU_OR:
+      cpu->registers[regA] = cpu->registers[regA] | cpu->registers[regB];
+      break;
+      
+    case ALU_XOR:
+      cpu->registers[regA] = cpu->registers[regA] ^ cpu->registers[regB];
+      break;
+      
+    case ALU_NOT:
+      cpu->registers[regA] = ~cpu->registers[regA];
+      break;
+      
+    case ALU_SHL:
+      cpu->registers[regA] <<= cpu->registers[regB];
+      break;
+      
+    case ALU_SHR:
+      cpu->registers[regA] >>= cpu->registers[regB];
+      break;
+      
+    case ALU_MOD:
+      cpu->registers[regA] %= cpu->registers[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -182,6 +210,47 @@ void cpu_run(struct cpu *cpu)
           cpu->PC += 2;
         }
         break;
+
+      case AND:
+        alu(cpu, ALU_AND, operandA, operandB);
+        cpu->PC += 3;
+        break;
+        
+      case OR:
+        alu(cpu, ALU_OR, operandA, operandB);
+        cpu->PC += 3;
+        break;
+        
+      case XOR:
+        alu(cpu, ALU_XOR, operandA, operandB);
+        cpu->PC += 3;
+        break;
+        
+      case NOT:
+        alu(cpu, ALU_NOT, operandA, operandB);
+        cpu->PC += 2;
+        break;
+        
+      case SHL:
+        alu(cpu, ALU_SHL, operandA, operandB);
+        cpu->PC += 3;
+        break;
+        
+      case SHR:
+        alu(cpu, ALU_SHR, operandA, operandB);
+        cpu->PC += 3;
+        break;
+        
+      case MOD:
+        if(operandB != 0) {
+          alu(cpu, ALU_MOD, operandA, operandB);
+          cpu->PC += 3;
+        } else {
+          printf("Error: Invalid Value");
+          running = 0;
+        }        
+        break;
+
     }
   }
 }
