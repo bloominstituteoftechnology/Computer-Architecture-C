@@ -38,6 +38,7 @@ enum alu_op {
 #define RET 0b00010001
 #define ADD 0b10100000
 #define CMP 0b10100111
+#define JMP 0b01010100
 
 /*
 #define DEBUG 1
