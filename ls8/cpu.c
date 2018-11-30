@@ -126,11 +126,11 @@ void cpu_run(struct cpu *cpu)
     cpu->IR = cpu_ram_read(cpu, PC);
     unsigned char operandA = cpu_ram_read(cpu, PC+1);
     unsigned char operandB = cpu_ram_read(cpu, PC+2);
-    if (time_diff >= 1000) {
-      cpu->IR = 0b01010010;
-      cpu->registers[0] = 1;
-      operandA = 0;
-    }
+    // if (time_diff >= 1000) {
+    //   cpu->IR = 0b01010010;
+    //   cpu->registers[0] = 1;
+    //   operandA = 0;
+    // }
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     switch(cpu->IR) {
@@ -148,7 +148,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         #if DEBUG
-          printf("RET\n");
+          printf("PRN\n");
         #endif
         printf("%d\n", cpu->registers[operandA]);
         break;
@@ -237,6 +237,39 @@ void cpu_run(struct cpu *cpu)
         #endif
         cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[operandB]);
         break;
+      case CMP:
+        #if DEBUG
+          printf("CMP\n");
+        #endif
+        if (cpu->registers[operandA] == cpu->registers[operandB]) {
+          cpu->FL = 0b00000001;
+        } else if (cpu->registers[operandA] < cpu->registers[operandB]) {
+          cpu->FL = 0b00000100;
+        } else if (cpu->registers[operandA] > cpu->registers[operandB]) {
+          cpu->FL = 0b00000010;
+        }
+        break;
+      case JEQ:
+        #if DEBUG
+          printf("JEQ\n");
+          printf("FL: %d, masked: %d\n", cpu->FL, cpu->FL & 1);
+        #endif
+        if ((cpu->FL & 1) == 1) {
+          cpu->PC = cpu->registers[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+      case JNE:
+        #if DEBUG
+          printf("JNE\n");
+        #endif
+        if ((cpu->FL & 1) == 0) {
+          cpu->PC = cpu->registers[operandA];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
       default:
         printf("Instruction number: %d\n", cpu->IR);
         printf("Default case reached. Command invalid.\n");
@@ -247,7 +280,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1 + (cpu->IR >> 6);
     }
     #if DEBUG
-      // sleep(1);
+      sleep(1);
       #endif
     
   }
