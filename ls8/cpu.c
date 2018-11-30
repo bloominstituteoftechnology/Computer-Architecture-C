@@ -68,7 +68,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO
     cpu->registers[regA] *= cpu->registers[regB];
     break;
-
+  case ALU_ADD:
+    // TODO
+    cpu->registers[regA] += cpu->registers[regB];
+    break;
     // TODO: implement more ALU ops
   }
 }
@@ -90,18 +93,20 @@ void cpu_run(struct cpu *cpu)
     // 2. switch() over it to decide on a course of action.
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
+    int pc_increment = (instruction >> 6) + 1;
     switch (instruction)
     {
     case LDI:
       cpu->registers[operandA] = operandB;
-      // cpu->PC += 3;
       break;
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
-      // cpu->PC += 2;
       break;
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
       break;
     case PUSH:
       cpu->registers[7]--;
@@ -111,13 +116,28 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
       cpu->registers[7]++;
       break;
+    case CALL:
+      cpu->registers[7]--;
+      cpu_ram_write(cpu, cpu->registers[7], cpu->PC + 2);
+      cpu->PC = cpu->registers[operandA];
+      pc_increment = 0;
+      break;
+    case RET:
+      cpu->PC = cpu_ram_read(cpu, cpu->registers[7]);
+      cpu->registers[7]++;
+      pc_increment = 0;
+      break;
     case HLT:
       running = 0;
       // cpu->PC++;
       //do we need this? check on it
       break;
+
+    default:
+      exit(1);
     }
-    cpu->PC += (instruction >> 6) + 1;
+    //add if statement here
+    cpu->PC += pc_increment;
   }
 }
 
@@ -128,8 +148,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers[7] = 0xF4;
   // TODO: Zero registers and RAM
-  memset(cpu->registers, 0, 7);
-  memset(cpu->ram, 0, 256);
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+
+  cpu->registers[7] = 0xF4;
 }
