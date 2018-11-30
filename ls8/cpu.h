@@ -46,6 +46,9 @@ enum alu_op
 #define CALL 0b01010000 // Calls a subroutine (function) at the address stored in the register.
 #define RET 0b00010001
 #define JMP 0b01010100 // Jump to the address stored in the given register.
+#define CMP 0b10100111 // Compare the values in two registers.
+#define JEQ 0b01010101 // If `equal` flag is set (true), jump to the address stored in the given register.
+#define JNE 0b01010110 // If `E` flag is clear (false, 0), jump to the address stored in the given register.
 
 // Function declarations
 
