@@ -6,13 +6,15 @@ struct cpu {
   // TODO
   int PC; // PC
   unsigned char registers[8]; // registers (array)
+  unsigned int FL[8];
   unsigned char ram[256]; // ram (array)
 };
 
 // ALU operations
 enum alu_op {
 	ALU_MUL,
-	ALU_ADD
+	ALU_ADD,
+  ALU_CMP
 };
 #define SP 5
 #define EMPTY_STACK  0xf4
@@ -30,6 +32,10 @@ enum alu_op {
 #define CALL 0b01010000
 #define RET  0b00010001
 #define ADD  0b10100000
+#define CMP  0b10100111
+#define JEQ  0b01010101
+#define JNE  0b01010110
+#define JMP  0b01010100
 // Function declarations
 
 extern void cpu_load(char *filename, struct cpu *cpu);

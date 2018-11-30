@@ -52,6 +52,25 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->registers[regA] += cpu->registers[regB];
     break;
+  case ALU_CMP:
+  //printf("%d! %d!!\n", cpu->registers[regA], cpu->registers[regB]);
+      if (cpu->registers[regA] > cpu->registers[regB]) {
+        cpu->FL[6] = 1;
+        cpu->FL[7] = 0;
+        cpu->FL[5] = 0;
+      }
+      else if (cpu->registers[regA] < cpu->registers[regB]) {
+        cpu->FL[5] = 1;
+        cpu->FL[6] = 0;
+        cpu->FL[7] = 0;
+      }
+      else if (cpu->registers[regA] == cpu->registers[regB]) {
+        cpu->FL[7] = 1;
+        cpu->FL[5] = 0;
+        cpu->FL[6] = 0;
+      }
+      break;
+  
 
     // TODO: implement more ALU ops
   }
@@ -93,7 +112,7 @@ void cpu_run(struct cpu *cpu)
 
     case LDI:
       cpu->registers[operandA] = operandB;
-      //printf("%d A test\n", cpu->registers[operandA]);
+      //printf("%d~\n", cpu->registers[operandA]);
       cpu->PC = cpu->PC + 2;
       break;
 
@@ -130,8 +149,34 @@ void cpu_run(struct cpu *cpu)
       stack_push(cpu, cpu->PC + 2);
       cpu->PC = cpu->registers[operandA];
       break;
+
+    case CMP:
+      alu(cpu, ALU_CMP, operandA, operandB);
+      cpu->PC = cpu->PC + 2;
+      break;
+    case JEQ:
+      if (cpu->FL[7] == 1) {
+        cpu->PC = cpu->registers[operandA];
+      }
+      else {
+        cpu->PC = cpu->PC + 1;
+      }
+      break;
+    case JNE:
+      if (cpu->FL[7] != 1) {
+        cpu->PC = cpu->registers[operandA];
+      }
+      else {
+        cpu->PC = cpu->PC + 1;
+      }
+      break;
+    case JMP:
+      cpu->PC = cpu->registers[operandA];
+      break;
     }
+
     // 4. Move the PC to the next instruction.
+    printf("%d!! %d??\n", IR, cpu->PC);
     cpu->PC += 1;
   }
 }
@@ -147,4 +192,5 @@ void cpu_init(struct cpu *cpu)
   // TODO: Zero registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->FL, 0, sizeof cpu->FL);
 }
