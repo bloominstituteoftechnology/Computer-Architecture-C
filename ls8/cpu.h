@@ -19,7 +19,8 @@ enum alu_op {
 };
 
 // Instructions
-
+#define SP 7 //r7
+#define SS 0xF4 //Stack Start
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
@@ -27,6 +28,12 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL  0b10100010
+#define PUSH 0b01000101
+#define POP  0b01000110
+#define CALL 0b01010000
+#define RET  0b00010001
+#define ADD  0b10100000
+#define ST   0b10000100
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

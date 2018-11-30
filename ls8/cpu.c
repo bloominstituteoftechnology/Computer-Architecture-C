@@ -12,6 +12,19 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char ind)
 {
   cpu->ram[ind] = item;
 }
+
+void stack_push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]] = value;
+}
+
+unsigned char stack_pop(struct cpu *cpu)
+{
+  unsigned char retVal = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+  return retVal;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
