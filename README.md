@@ -11,15 +11,15 @@
 - [X] Implement `struct cpu` in `cpu.h`
 - [X] Add RAM functions
 - [X] Implement `cpu_init()`
-- [ ] Implement the core of `cpu_run()`
-- [ ] Implement the `HLT` instruction handler
-- [ ] Add the `LDI` instruction
-- [ ] Add the `PRN` instruction
+- [X] Implement the core of `cpu_run()`
+- [X] Implement the `HLT` instruction handler
+- [X] Add the `LDI` instruction
+- [X] Add the `PRN` instruction
 
 ### Day 2: Get `mult.ls8` running, load files dynamically
-- [ ] Un-hardcode the machine code
-- [ ] Implement a Multiply and Print the Result (run `mult8.ls8`)
-- [ ] Beautify your `cpu_run()` function, if needed
+- [X] Un-hardcode the machine code
+- [X] Implement a Multiply and Print the Result (run `mult8.ls8`)
+- [X] Beautify your `cpu_run()` function, if needed
 
 ### Day 3: Get `stack.ls8` running
 - [ ] Implement System Stack
