@@ -108,12 +108,11 @@ void cpu_run(struct cpu *cpu)
         #if DEBUG
         printf("halted\n");
         #endif
-        running = 0; // it shouldn't matter, but put a break under here. the compiler was complaining about it
+        running = 0; 
         break;
 
       case LDI:
         a = cpu->R[oppA] = oppB;
-        // a = cpu->R[operand1] = operand2;
         cpu->PC += 3;
         break;
 
@@ -124,7 +123,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case MUL: 
-        alu(ALU_MUL) *= cpu->R[oppB];
+        alu(cpu, ALU_MUL,oppA,oppB);
         cpu->PC += 3;
         break;
 
@@ -153,8 +152,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case ADD: 
-        // alu(cpu, ALU_ADD, cpu_ram_read(cpu, cpu->PC + 1), cpu_ram_read(cpu, cpu->PC + 2));
-        result = cpu->R[oppA] += cpu->R[oppB];
+        alu(cpu, ALU_ADD,oppA,oppB);
         cpu->PC = cpu->PC + 3;
         break;
 
