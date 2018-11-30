@@ -13,6 +13,11 @@ struct cpu {
   // ram (array)
   unsigned char ram[256];
 
+  //declaring flags
+  unsigned char equal;
+  unsigned char greater;
+  unsigned char less;
+
 };
 
 // ALU operations
@@ -22,6 +27,7 @@ enum alu_op {
 	ALU_ADD,
 	ALU_SUB,
 	ALU_DIV,
+	ALU_CMP,
 };
 
 // Instructions
