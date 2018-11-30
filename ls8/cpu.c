@@ -18,6 +18,11 @@
    cpu->ram[MAR] = MDR;
  }
 
+ void cpu_jmp(struct cpu *cpu, unsigned char DST)
+ {
+   cpu->PC = DST;
+ }
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -72,6 +77,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regB] + cpu->reg[regA];
+      break;
+
+    case ALU_CMP:
+      if (regA < regB) {
+        cpu->FL = 0b00000100;
+      }
+      if (regA == regB) {
+        cpu->FL = 0b00000001;
+      }
+      if (regA == regB) {
+        cpu->FL = 0b00000010;
+      }
+      break;
+
+    default:
+      printf("ALU default case reached\n");
       break;
   }
 }
@@ -128,13 +149,22 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[SP]--;
         cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + advance_pc);
         cpu->PC = cpu->reg[operandA];
-        cpu->FL = 1;
+        cpu->FL = 8;
         break;
 
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
         cpu->reg[SP]++;
-        cpu->FL = 1;
+        cpu->FL = 8;
+        break;
+
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
+
+      case JMP:
+        cpu_jmp(cpu, cpu->reg[operandA]);
+
         break;
 
       case NOP:
@@ -145,7 +175,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
     }
-    if (cpu->FL == 0) {
+    if (cpu->FL <= 4) {
       cpu->PC += advance_pc;
     }
     else {
