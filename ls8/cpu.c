@@ -1,27 +1,38 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define DATA_LEN 6
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp;
+  unsigned char address = 0;
+  char new[1024];
+  fp = fopen(argv[1], "r");
+  if(fp == NULL) {
+    printf("error \n");
+    exit(1);
   }
+  while (fgets(new, sizeof(new), fp) != NULL) {
+    unsigned char value = strtoul(new, NULL, 2);
+    if(new == NULL) {
+      continue;
+    }
+    cpu -> ram[address++] = value;
+  }
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
@@ -34,9 +45,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
+
   }
 }
 
@@ -50,7 +63,63 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char ir = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    int shift = (ir >> 6) + 1;
     // 2. switch() over it to decide on a course of action.
+    switch(ir) {
+      case LDI:
+      cpu->reg[operandA] = operandB;
+      break;
+
+      case PRN:
+      printf("%d \n", cpu->reg[operandA]);
+      break;
+
+      case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+
+      case HLT: 
+      running = 0;
+      break;
+
+     case CMP:
+     if(cpu->reg[operandA] == cpu->reg[operandB]) {
+        cpu->flag[0] = 1;
+     }
+     if(cpu->reg[operandA] > cpu->reg[operandB]) {
+         cpu->flag[1] = 1;
+          }
+    if(cpu->reg[operandA] < cpu->reg[operandB]) {
+         cpu->flag[2] = 1;
+    }
+
+     break;
+
+     case JEQ:
+        if(cpu->flag[0] == 0) {
+          cpu->PC = cpu->reg[operandA];
+          shift = 0;
+        }
+        break;
+      case JNE:
+        if(cpu->flag[0] == 0) {
+          cpu->PC = cpu->reg[operandA];
+          shift = 0;
+        }
+        break;
+
+
+
+
+     
+
+
+
+    }
+    cpu->PC += shift;
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
   }
@@ -62,6 +131,15 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
+
 
   // TODO: Zero registers and RAM
+   memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->flag, 0, sizeof(cpu->flag));
+
+
+  cpu->reg[7] = 0xF4;
 }
+
