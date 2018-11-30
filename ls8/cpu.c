@@ -86,11 +86,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       }
       
       else if (cpu->registers[regA] > cpu->registers[regB]) {
-        cpu->FL = 0b00000001;
+        cpu->FL = 0b00000010;
       }
 
       else if (cpu->registers[regA] < cpu->registers[regB]) {
-        cpu->FL = 0b00000001;
+        cpu->FL = 0b00000100;
       }
       
       else {
