@@ -75,13 +75,6 @@ void cpu_load(struct cpu *cpu, char *argv[])
   }
   fclose(fp);
 }
-// function to create a new stack, initialized size to 0
-
-//function to add an item to the stack.
-//returns item pushed onto the stack if successful, -1 if full
-
-//function to remove item from the stack
-//returns item popped from the stack if successful, -1 if stack is empty
 
 /**
  * ALU
@@ -126,21 +119,23 @@ void cpu_run(struct cpu *cpu)
       break;
     case PUSH:
       push_value(cpu, cpu->registers[operandA]);
+      cpu->PC += 2;
       break;
-    case JMP:
-      cpu->PC = cpu->registers[operandA];
-      break;
+      // case JMP:
+      //   cpu->PC = cpu->registers[operandA];
+      // break;
     case POP:
       cpu->registers[operandA] = pop_value(cpu);
+      cpu->PC += 2;
       break;
     case CALL:
       // push the address of the instruction after the call onto the stack
-      //set PC to the return address, jump to PC address
       push_value(cpu, cpu->PC + 2);
+      //set PC to the return address
       cpu->PC = cpu->registers[operandA];
       break;
     case RET:
-      //Pop value off the stack and set the PC to tht value
+      //Pop value off the stack and set the PC to that value
       cpu->PC = pop_value(cpu);
       break;
     case PRN:

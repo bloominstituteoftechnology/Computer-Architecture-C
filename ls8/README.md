@@ -363,7 +363,8 @@ instruction like normal, but others, like `CALL` and `JMP` want to go to a
 specific address.
 
   > Note: `CALL` is very similar to the `JMP` instruction. However, there is one key difference between them. Can you find it in the specs? 
-  > 
+  > The address of the ***instruction*** _directly after_ `CALL` is
+   pushed onto the stack.
 
   * In **any** case where the instruction handler sets the `PC` directly, you
 _don't_ want to advance the PC to the next instruction. So you'll have to set up
