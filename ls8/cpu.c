@@ -202,6 +202,7 @@ void cpu_run(struct cpu *cpu)
       SP--;
       cpu->ram[SP] = cpu->PC + 2;
       cpu->PC = cpu->registers[operandA];
+      cpu->PC--; 
       break;
     case RET:
       cpu->PC = cpu->ram[SP];
