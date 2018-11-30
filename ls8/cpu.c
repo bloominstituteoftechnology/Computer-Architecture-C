@@ -150,6 +150,18 @@ void cpu_run(struct cpu *cpu)
         printf("RET PC: %d\n", cpu->PC);
         cpu->registers[SP]++;
         break;
+      case JNE:
+        printf("JNE: \n");
+        break;
+      case JEQ:
+        printf("JEQ: \n");
+        break;
+      case JMP:
+        printf("JMP: \n");
+        break;
+      case CMP:
+        printf("CMP: \n");
+        break;
     }
   }
 }
