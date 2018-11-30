@@ -119,6 +119,14 @@ void mod(struct cpu *cpu,unsigned char a,unsigned char b,int *running) {
     cpu->registers[cpu->ram[cpu->PC+1]]=ans;
   }
 }
+void shift_left(struct cpu*cpu,unsigned char a,unsigned char b) {
+  unsigned char ans=a<<b;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void shift_right(struct cpu*cpu,unsigned char a,unsigned char b) {
+  unsigned char ans=a>>b;
+  cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
 /**
  * ALU
  */
@@ -146,6 +154,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_MOD:
       mod(cpu,regA,regB,running);
+      break;
+    case ALU_SHL:
+      shift_left(cpu,regA,regB);
+      break;
+    case ALU_SHR:
+      shift_right(cpu,regA,regB);
       break;
     // TODO: implement more ALU ops
   }
@@ -218,6 +232,12 @@ void cpu_run(struct cpu *cpu)
         break;
       case MOD:
         alu(cpu,ALU_MOD,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],&running);
+        break;
+      case SHL:
+        alu(cpu,ALU_SHL,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
+        break;
+      case SHR:
+        alu(cpu,ALU_SHR,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
         break;
     }
     if (instruction==cpu_ram_read(cpu,cpu->PC)) {

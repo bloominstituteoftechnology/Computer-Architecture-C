@@ -21,7 +21,9 @@ enum alu_op {
   ALU_OR,
   ALU_XOR,
   ALU_NOT,
-  ALU_MOD
+  ALU_MOD,
+  ALU_SHL,
+  ALU_SHR
 	// Add more here
 };
 
@@ -48,6 +50,9 @@ enum alu_op {
 #define XOR  0b10101011
 #define NOT  0b01101001
 #define MOD  0b10100100
+#define SHL  0b10101100
+#define SHR  0b10101101
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
