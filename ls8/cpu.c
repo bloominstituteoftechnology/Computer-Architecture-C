@@ -150,6 +150,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC += 3;
         break;
+
+      case CMP:
+        if(cpu_registers[operandA] < cpu_registers[operandB]) {
+          cpu->FL = 0b00000100;
+        }else if(cpu_registers[operandA] > cpu_registers[operandB]) {
+          cpu->FL = 0b00000010;
+        } else {
+          cpu->FL = 0b00000001;
+        }
+        break;
     }
   }
 }
@@ -161,6 +171,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
   
 
   // TODO: Zero registers and RAM
