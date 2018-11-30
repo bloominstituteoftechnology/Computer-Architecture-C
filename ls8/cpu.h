@@ -52,7 +52,7 @@ enum alu_op {
 #define MOD  0b10100100
 #define SHL  0b10101100
 #define SHR  0b10101101
-
+#define ST   0b10000100
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

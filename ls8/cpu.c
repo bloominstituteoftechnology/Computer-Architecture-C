@@ -119,13 +119,16 @@ void mod(struct cpu *cpu,unsigned char a,unsigned char b,int *running) {
     cpu->registers[cpu->ram[cpu->PC+1]]=ans;
   }
 }
-void shift_left(struct cpu*cpu,unsigned char a,unsigned char b) {
+void shift_left(struct cpu *cpu,unsigned char a,unsigned char b) {
   unsigned char ans=a<<b;
   cpu->registers[cpu->ram[cpu->PC+1]]=ans;
 }
-void shift_right(struct cpu*cpu,unsigned char a,unsigned char b) {
+void shift_right(struct cpu *cpu,unsigned char a,unsigned char b) {
   unsigned char ans=a>>b;
   cpu->registers[cpu->ram[cpu->PC+1]]=ans;
+}
+void store(struct cpu *cpu) {
+  cpu->ram[cpu->registers[cpu->ram[cpu->PC+1]]]=cpu->registers[cpu->ram[cpu->PC+2]];
 }
 /**
  * ALU
@@ -238,6 +241,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case SHR:
         alu(cpu,ALU_SHR,cpu->registers[cpu->ram[cpu->PC+1]],cpu->registers[cpu->ram[cpu->PC+2]],0);
+        break;
+      case ST:
+        store(cpu);
         break;
     }
     if (instruction==cpu_ram_read(cpu,cpu->PC)) {
