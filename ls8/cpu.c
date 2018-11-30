@@ -2,7 +2,6 @@
 #include "stdio.h"
 #include "string.h"
 
-#define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -28,10 +27,17 @@ void cpu_load(/* char *filename ,*/ struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 
   FILE *fp;
-  char storage[256] = 
+  char line[32];
+  int address = 0;
+  char *pointer;
+  
   fp = fopen("./examples/print8.ls8", "r");
-  while (fgets (storage, sizeof storage, fp) != NULL) {
-    strtol(storage, )
+  while (fgets (line, sizeof line, fp) != NULL) {
+    unsigned char byte = strtoul(line, &pointer, 2);;
+    if (pointer == line) {
+      continue;
+}
+    cpu->ram[address++] = byte;
   }
 }
 
