@@ -90,7 +90,7 @@ void cpu_run(struct cpu *cpu)
       printf("\nPRN: R%d: value is %d\n\n", operand_a, cpu->reg[operand_a]);
       break;
     case HLT:
-      printf("\nHLT: Program halted\n\n");
+      printf("\nHLT: Program haulted\n\n");
       running = 0;
       exit(0);
     case CALL:
