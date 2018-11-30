@@ -106,6 +106,9 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         running = 0;
         break;
+      default:
+        running = 0;
+        break;
     }
     cpu->pc += add_to_pc;
     // 1. Get the value of the current instruction (in address PC).
