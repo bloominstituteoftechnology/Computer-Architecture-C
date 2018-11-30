@@ -36,22 +36,6 @@ void cpu_load(struct cpu *cpu, char *filename)
   fclose(fp);
 }
 
-/**
- * ALU
- */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       cpu->register[regA] = regB; // just to use the values so that i don't get warnings
-//       //will make changes to this later.
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
-//
 /*Helper functions step 2*/
 
 void cpu_reg_read(struct cpu *cpu, unsigned char place)
@@ -255,43 +239,41 @@ void cpu_run(struct cpu *cpu)
       else
       {
         cpu->PC += 1;
-
       }
       break;
 
     case AND:
-      cpu_reg_and(operandA, operandB);
+      cpu_reg_and(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case OR:
-      cpu_reg_or(operandA, operandB);
+      cpu_reg_or(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case XOR:
-      cpu_reg_xor(operandA, operandB);
+      cpu_reg_xor(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case NOT:
-      cpu_reg_not(operandA);
+      cpu_reg_not(cpu, operandA);
       cpu->PC += 1; 
       break;
     case SHL:
-      cpu_reg_shl(operandA, operandB);
+      cpu_reg_shl(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case SHR:
-      cpu_reg_shr(operandA, operandB);
+      cpu_reg_shr(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case MOD:
-      cpu_reg_mod(operandA, operandB);
+      cpu_reg_mod(cpu, operandA, operandB);
       cpu->PC += 2; 
       break;
     case HLT:
       running = 0; //should end loop
       break; 
     }
-    
 
     cpu->PC += 1;
   }
