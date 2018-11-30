@@ -4,7 +4,7 @@
 /**
  * Main
  */
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
   struct cpu cpu;
 if (argc != 2)

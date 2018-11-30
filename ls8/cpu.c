@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define DATA_LEN 12
+#define DATA_LEN 1024;
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)//MAR  memory address register,holds the memory address we're reading or writing
 {
@@ -41,7 +41,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)//MDR M
 
 void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char line[100];
+  char line[1024];
   int address = 0;
   FILE *fp = fopen(argv[1], "r");
   if (fp == NULL)
@@ -69,7 +69,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       // TODO
       cpu->registers[regA] *= cpu->registers[regB];
       break;
-
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -90,36 +92,65 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // 2. switch() over it to decide on a course of action.
+
+ //printf("TRACE: %02X:  %02X  %02X  %02X\n", cpu->PC, IR, operandA, operandB);
+   
+    int instruction_set_pc = (IR >> 4) & 1;
+
     switch (IR)
     {
-    case LDI:
+case LDI:
       cpu->registers[operandA] = operandB;
       break;
 
     case PRN:
-      printf("%d\n", cpu->registers[operandA]);
+      printf("\nValue at register %d: %d\n", operandA, cpu->registers[operandA]);
       break;
 
-    case PUSH:
-        cpu->registers[SP]--;
-        cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
-    case POP:
-       cpu->registers[operandA] = cpu->RAM[cpu->registers[SP]];
-       cpu->registers[SP]++;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
       break;
 
     case HLT:
       running = 0;
       break;
 
-    case MUL:
-      alu(cpu, ALU_MUL, operandA, operandB);
+    case CALL:
+      cpu->registers[SP]--;
+      cpu_ram_write(cpu, cpu->registers[SP], cpu->PC + 2);
+      cpu->PC = cpu->registers[operandA];
       break;
-    }
+
+    case RET:
+      cpu->PC = cpu_ram_read(cpu, cpu->registers[SP]);
+      cpu->registers[SP]++;
+      break;
+
+    case PUSH:
+      cpu->registers[SP]--;
+      cpu_ram_write(cpu, cpu->registers[SP], cpu->registers[operandA]);
+      break;
+
+    case POP:
+      cpu->registers[operandA] = cpu->RAM[cpu->registers[SP]];
+      cpu->registers[SP]++;
+      break;
+
+       default:
+       fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
+       exit(3);
+     }
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
+     if (!instruction_set_pc)
+     {
+       cpu->PC += (IR >> 6) + 1;
+     }
+    
   }
 }
 
@@ -128,14 +159,12 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-
-  cpu->PC = 0;
   // TODO: Initialize the PC and other special registers
-  memset(cpu->registers, 0, sizeof(cpu->registers));
-
+  cpu->PC = 0;
   // TODO: Zero registers and RAM
-  memset(cpu->RAM, 0, sizeof(cpu->RAM));
-
-  // Initialize SP
+  memset(cpu->RAM, 0, sizeof cpu->RAM);
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  
+   // Initialize SP
   cpu->registers[SP] = EMPTY_STACK;
 }
