@@ -140,7 +140,6 @@ void cpu_run(struct cpu *cpu)
       break;
     case JMP:
       cpu->PC = cpu->registers[operandA];
-      cpu->PC += 2;
       break;
     case JEQ:
       // JMP if flag is set to equal
