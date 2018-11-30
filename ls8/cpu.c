@@ -101,6 +101,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     {
       cpu->FL = cpu->FL | FL_EQ;
     }
+    cpu->PC += 3;
     break;
   }
 }
@@ -139,6 +140,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case JMP:
       cpu->PC = cpu->registers[operandA];
+      cpu->PC += 2;
       break;
     case JEQ:
       // JMP if flag is set to equal
