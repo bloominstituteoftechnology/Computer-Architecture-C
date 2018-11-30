@@ -56,19 +56,13 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val) {
 }
 
 void push(struct cpu *cpu, unsigned char stackPointer) {
-  printf("cpu->register push %d\n", cpu->registers[SP]);
   cpu->registers[SP]--;
-  printf("cpu->register push %d\n", cpu->registers[SP]);
   cpu->ram[cpu->registers[SP]] = cpu->registers[stackPointer];
-  printf("cpu->ram[cpu->registers[SP]] %d\n", cpu->ram[cpu->registers[SP]]);
 }
 
 void pop(struct cpu *cpu, unsigned char stackPointer) {
   cpu->registers[stackPointer] = cpu->ram[cpu->registers[SP]];
-  printf("cpu->registers[stackPointer] %d\n", cpu->registers[stackPointer]);
-  printf("cpu->register pop %d\n", cpu->registers[SP]);
   cpu->registers[SP]++;
-  printf("cpu->register pop %d\n", cpu->registers[SP]);
 }
 
 /**
@@ -110,31 +104,51 @@ void cpu_run(struct cpu *cpu)
     // 3. Do whatever the instruction should do according to the spec.
     // 4. Move the PC to the next instruction.
       case HLT:
+        printf("HLT: \n");
         running = 0;
         break;
       case LDI:
+        printf("LDI: \n");
         cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
       case PRN:
+        printf("PRN: \n");
         printf(">> register value: %d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
       case MUL:
+        printf("MUL: \n");
         alu(cpu, ALU_MUL, operandA, operandB);
         cpu->PC += 3;
         break;
       case ADD:
+        printf("ADD: \n");
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->PC += 3;
         break;
       case PUSH:
+        printf("PUSH: \n");
         push(cpu, operandA);
         cpu->PC += 2;
         break;
       case POP:
+        printf("POP: \n");
         pop(cpu, operandA);
         cpu->PC += 2;
+        break;
+      case CALL:
+        printf("CALL: \n");
+        cpu->registers[SP]--;
+        cpu_ram_write(cpu, cpu->registers[SP], cpu->PC+2);
+        cpu->PC = cpu->registers[operandA];
+        printf("CALL PC: %d\n", cpu->PC);
+        break;
+      case RET:
+        printf("RET: \n");
+        cpu->PC = cpu->ram[cpu->registers[SP]];
+        printf("RET PC: %d\n", cpu->PC);
+        cpu->registers[SP]++;
         break;
     }
   }
