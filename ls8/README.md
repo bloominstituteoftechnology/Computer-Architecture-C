@@ -62,6 +62,9 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+    cpu - mocks the function of the cpu
+    ls8.c - initializes cpu
+    
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
@@ -315,7 +318,7 @@ Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
   the beginning of the spec to see which register is the stack pointer. 
   
 * Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_. 
-  -  Use the stack pointer to modify the correct block of memory. 
+  - Use the stack pointer to modify the correct block of memory. 
   - Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
 
 If you run `./ls8 examples/stack.ls8` you should see the output:

@@ -197,6 +197,24 @@ Machine code:
 50 0r
 ```
 
+
+## Flags
+
+The flags register `FL` holds the current flags status. These flags
+can change based on the operands given to the `CMP` opcode.
+
+The register is made up of 8 bits. If a particular bit is set, that flag is "true".
+
+`FL` bits: `00000LGE`
+
+* `L` Less-than: during a `CMP`, set to 1 if registerA is less than registerB,
+  zero otherwise.
+* `G` Greater-than: during a `CMP`, set to 1 if registerA is greater than
+  registerB, zero otherwise.
+* `E` Equal: during a `CMP`, set to 1 if registerA is equal to registerB, zero
+  otherwise.
+
+
 ### CMP
 
 `CMP registerA registerB`
