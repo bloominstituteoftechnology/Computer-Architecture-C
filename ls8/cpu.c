@@ -3,7 +3,7 @@
 #include <string.h>
 #include "cpu.h"
 
-#define SP 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -16,7 +16,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 }
 
 /**
- * Load the binary bytes from a .ls8 source file into a RAM array
+ * Load the binary datas from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *argv[])
 {
@@ -30,10 +30,15 @@ void cpu_load(struct cpu *cpu, char *argv[])
     printf("Error: File could not be opened \n");
     exit(1);
   }
-
   while (fgets(buffer, sizeof buffer, fp) != NULL)
   {
-    cpu->ram[address++] = strtol(buffer, NULL, 2);
+    char *endchar;
+    unsigned char data = strtol(buffer, &endchar, 2);
+    if (endchar == buffer)
+    {
+      continue;
+    }
+    cpu->ram[address++] = data;
   }
 
   fclose(fp);
@@ -86,6 +91,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char value1 = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char value2 = cpu_ram_read(cpu, cpu->PC + 2);
 
+    int pc_change = (curr >> 6) + 1;
     switch (curr)
     {
     case LDI:
@@ -106,9 +112,41 @@ void cpu_run(struct cpu *cpu)
     case POP:
       cpu->registers[value1] = cpu_pop(cpu);
       break;
+    case CMP:
+      if (cpu->registers[value1] == cpu->registers[value2])
+      {
+        cpu->FL = 1;
+      }
+      else if (cpu->registers[value1] > cpu->registers[value2])
+      {
+        cpu->FL = 2;
+      }
+      else
+      {
+        cpu->FL = 4;
+      }
+      break;
+    case JMP:
+      cpu->PC = cpu->registers[value1];
+      pc_change = 0;
+      break;
+    case JEQ:
+      if (cpu->FL == 1)
+      {
+        cpu->PC = cpu->registers[value1];
+        pc_change = 0;
+      }
+      break;
+    case JNE:
+      if (cpu->FL != 1)
+      {
+        cpu->PC = cpu->registers[value1];
+        pc_change = 0;
+      }
+      break;
     }
 
-    cpu->PC += (curr >> 6) + 1;
+    cpu->PC += pc_change;
   }
 }
 
@@ -119,6 +157,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[SP] = 0xF4;
+  cpu->FL = 0;
 
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);

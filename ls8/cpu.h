@@ -12,6 +12,7 @@ struct cpu
   unsigned char registers[8];
   unsigned char ram[256];
   unsigned char SP;
+  unsigned char FL;
 };
 
 // ALU operations
@@ -33,6 +34,10 @@ enum alu_op
 #define MUL 0b10100010
 #define POP 0b01000110
 #define PUSH 0b01000101
+#define CMP 0b10100111
+#define JMP 0b01010100
+#define JNE 0b01010110
+#define JEQ 0b01010101
 
 // Function declarations
 extern void cpu_load(struct cpu *cpu, char *argv[]);
