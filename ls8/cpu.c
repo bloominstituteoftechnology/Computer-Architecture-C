@@ -259,6 +259,34 @@ void cpu_run(struct cpu *cpu)
       }
       break;
 
+    case AND:
+      cpu_reg_and(operandA, operandB);
+      cpu->PC += 2; 
+      break;
+    case OR:
+      cpu_reg_or(operandA, operandB);
+      cpu->PC += 2; 
+      break;
+    case XOR:
+      cpu_reg_xor(operandA, operandB);
+      cpu->PC += 2; 
+      break;
+    case NOT:
+      cpu_reg_not(operandA);
+      cpu->PC += 1; 
+      break;
+    case SHL:
+      cpu_reg_shl(operandA, operandB);
+      cpu->PC += 2; 
+      break;
+    case SHR:
+      cpu_reg_shr(operandA, operandB);
+      cpu->PC += 2; 
+      break;
+    case MOD:
+      cpu_reg_mod(operandA, operandB);
+      cpu->PC += 2; 
+      break;
     case HLT:
       running = 0; //should end loop
       break; 
