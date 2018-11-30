@@ -84,6 +84,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_OR:
     cpu->registers[regA] = cpu->registers[regA] | cpu->registers[regB];
     break;
+  case ALU_XOR:
+    cpu->registers[regA] = cpu->registers[regA] ^ cpu->registers[regB];
+    break;
   }
 }
 
@@ -160,6 +163,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case OR:
       alu(cpu, ALU_OR, operandA, operandB);
+      break;
+    case XOR:
+      alu(cpu, ALU_XOR, operandA, operandB);
       break;
     case HLT:
       running = 0;

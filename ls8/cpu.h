@@ -17,7 +17,8 @@ enum alu_op
   ALU_ADD,
   ALU_CMP,
   ALU_AND,
-  ALU_OR
+  ALU_OR,
+  ALU_XOR
 };
 
 // Instructions
@@ -40,6 +41,7 @@ enum alu_op
 #define JNE 0b01010110
 #define AND 0b10101000
 #define OR 0b10101010
+#define XOR 0b10101011
 
 
 // Function declarations
