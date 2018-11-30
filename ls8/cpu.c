@@ -54,7 +54,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       reg[regA] += reg[regB];
       break;
-    case CMP:
+    case ALU_CMP:
       if(reg[regA] == reg[regB]){
         cpu->flags = 0b0000001;
       }else if (reg[regA] < reg[regB]){
@@ -64,6 +64,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       }else {
         cpu->flags = 0b0000000;
       }
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -134,13 +135,38 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
       case CMP:
-        alu(cpu, CMP, operA, operB);
+        alu(cpu, ALU_CMP, operA, operB);
         cpu->pc += 3;
         break;
       case JMP:
-        cpu->pc = cpu->registers[cpu->flags];
+        cpu->pc = cpu->flags;
+        break;
+      case JEQ:
+        if(cpu->flags == 0b0000001){
+          cpu->pc = cpu->flags;
+        }
         break;
       
+      // If `equal` flag is set (true), jump to the address stored in the given register.
+
+      case JNE:
+        if(cpu->flags == 0b0000000){
+          cpu->pc = cpu->flags;
+        }
+        break;
+        
+      // If `E` flag is clear (false, 0), jump to the address stored in the given register.
+      
+
+
+      // `FL` bits: `00000LGE`
+
+      // * `L` Less-than: during a `CMP`, set to 1 if registerA is less than registerB,
+      //   zero otherwise.
+      // * `G` Greater-than: during a `CMP`, set to 1 if registerA is greater than
+      //   registerB, zero otherwise.
+      // * `E` Equal: during a `CMP`, set to 1 if registerA is equal to registerB, zero
+      //   otherwise.
 
     }
    }
@@ -155,6 +181,7 @@ void cpu_init(struct cpu *cpu)
   // cpu = calloc(1, sizeof(struct cpu));
   // TODO: Zero registers and RAM
   cpu->pc = 0;
+  cpu->flags = 0;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
   cpu->registers[7] = 0xF4; 
