@@ -80,6 +80,52 @@ int convert(int dec)
   }
 }
 
+void update_flags(struct cpu *cpu, int compare_status)
+{
+  //0 is the E   1 is the L  and 2 is the G
+  switch (compare_status)
+  {
+
+  case 0:
+    cpu->FL[0] = 1; // 'E'
+    cpu->FL[1] = 0; //'L'
+    cpu->FL[2] = 0; // 'G'
+    break;
+  case 1:
+    cpu->FL[0] = 0; // 'E'
+    cpu->FL[1] = 0; //'L'
+    cpu->FL[2] = 1; // 'G'
+    break;
+  case -1:
+    cpu->FL[0] = 0; // 'E'
+    cpu->FL[1] = 1; //'L'
+    cpu->FL[2] = 0; // 'G'
+    break;
+  }
+}
+
+void compare(struct cpu *cpu, unsigned char place, unsigned char place2)
+{
+  int compare_status = -3; //set to -3 because I am only going to check for 1 0 -1.
+
+  if (cpu->registers[place] == cpu->registers[place2])
+  {
+    compare_status = 0;
+  }
+  else if (cpu->registers[place] > cpu->registers[place2])
+  {
+    compare_status = 1;
+  }
+  else
+  {
+    //place is less than place2
+    compare_status = -1;
+  }
+
+  update_flags(cpu, compare_status); // a function should server one purpose so I creaed another
+  //update_flags will handle the conditionals and updating for the cpu->FL.
+}
+
 /**
  * Run the CPU
  */
@@ -88,6 +134,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   int SP = 244;    //starting point of the stack;
+
   while (running)
   {
     // TODO
@@ -136,7 +183,43 @@ void cpu_run(struct cpu *cpu)
       cpu->PC = cpu->ram[SP];
       // cpu->PC--;
       SP++;
-      continue; 
+      continue;
+
+    case CMP:
+      compare(cpu, operandA, operandB);
+      cpu->PC += 2;
+      break;
+
+    case JMP:
+      cpu->PC = cpu->registers[operandA];
+      //May need to decrement possibly? check it out first. or continue instead of break
+      break;
+
+    case JEQ:
+      if (cpu->FL[0] == 1)
+      { //cpu->FL[0] is the 'E' flag.
+        cpu->PC = cpu->registers[operandA];
+      }
+      else
+      {
+        cpu->PC += 1;
+        //maybe 2  check it out first.
+      }
+      break;
+
+    case JNE:
+      if (cpu->FL[0] == 0)
+      { //cpu->FL[0] is the 'E' flag.
+        cpu->PC = cpu->registers[operandA];
+        //May need to decrement possibly? check it out first. or continue instead of break
+      }
+      else
+      {
+        cpu->PC += 1;
+        //maybe 2  check it out first.
+      }
+      break;
+
     case HLT:
       running = 0; //should end loop
       break;
@@ -152,6 +235,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  //Flags
+  memset(cpu->FL, 0, 3);
   // TODO: Zero registers and RAM
   memset(cpu->ram, 0, 256);     //RAM
   memset(cpu->registers, 0, 8); //registers
