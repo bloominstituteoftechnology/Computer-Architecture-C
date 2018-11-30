@@ -66,6 +66,9 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+* ls8.c: contains main file
+* cpu.h: contains cpu's info and info on ALU operations and instruction and function declarations
+* cpu.c: instructions on how to initialize and run cpu, provides instructions to cpu
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
