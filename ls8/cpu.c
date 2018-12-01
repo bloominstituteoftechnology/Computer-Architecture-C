@@ -1,119 +1,10 @@
-#include "cpu.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include "cpu.h"
 
 // #define DATA_LEN 6
 #define SP 7
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
-{
-  cpu->ram[index] = value;
-}
-
-void call(struct cpu *cpu, unsigned char reg_value)
-{
-  cpu->reg[SP]--;
-  cpu->ram[cpu->reg[SP]] = cpu->PC + 2;
-  cpu->PC = cpu->reg[reg_value];
-}
-
-void ret(struct cpu *cpu)
-{
-  cpu->PC = cpu->ram[cpu->reg[SP]];
-  cpu->reg[SP]++;
-}
-
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu, char *argv[])
-{
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
-  FILE *fp = fopen(argv[1], "r");
-  char str[60];
-
-  int address = PROGRAM_ENTRY; //0x00
-  char *ptr;
-
-  while (fgets(str, sizeof(str), fp) != NULL)
-  {
-    unsigned char ret = strtoul(str, &ptr, 2);
-
-    if (ptr == str)
-    {
-      continue;
-    }
-    // cpu->ram[address++] = ret;
-    cpu_ram_write(cpu, address++, ret);
-  }
-
-  fclose(fp);
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
-}
-
-/**
- * ALU
- */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  unsigned char *reg = cpu->reg;
-  switch (op)
-  {
-
-  case ALU_MUL:
-    // TODO
-    reg[regA] *= reg[regB];
-    break;
-
-  case ALU_ADD:
-    reg[regA] += reg[regB];
-    break;
-
-  case ALU_DIV:
-    reg[regA] /= reg[regB];
-    break;
-
-  case ALU_SUB:
-    reg[regA] -= reg[regB];
-    break;
-    // TODO: implement more ALU ops
-
-  case ALU_CMP: //lecture code solution
-    if (regA == regB)
-    {
-      cpu->FL = FLAG_EQ;
-    }
-    else
-    {
-      cpu->FL = 0;
-    }
-    break;
-  }
-}
-
-/**
- * Run the CPU
- */
 
 unsigned char cpu_pop(struct cpu *cpu)
 {
@@ -136,104 +27,192 @@ void cpu_push(struct cpu *cpu, unsigned char value)
   cpu->ram[cpu->reg[SP]] = value;
 }
 
+void cpu_load(char *filename, struct cpu *cpu)
+{
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
+
+  FILE *fp;
+  char line[60];
+  int address = PROGRAM_ENTRY;
+
+  // Open the source file
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
+  }
+
+  // Read all the lines and store them in RAM
+  while (fgets(line, sizeof line, fp) != NULL)
+  {
+
+    // Convert string to a number
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+    ;
+
+    // Ignore lines from whicn no numbers were read
+    if (endchar == line)
+    {
+      continue;
+    }
+
+    // Store in ram
+    cpu->ram[address++] = byte;
+  }
+}
+
+/**
+ * ALU
+ */
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  unsigned char *reg = cpu->reg;
+
+  unsigned char valA = reg[regA];
+  unsigned char valB = reg[regB];
+
+  switch (op)
+  {
+  case ALU_MUL:
+    valA *= valB;
+    break;
+
+  case ALU_ADD:
+    valA += valB;
+    break;
+
+  case ALU_DIV:
+    valA /= valB;
+    break;
+
+  case ALU_SUB:
+    valA -= valB;
+    break;
+
+  case ALU_CMP:
+    if (valA == valB)
+    {
+      // Set the EQ bit in the flags
+      cpu->FL |= FLAG_EQ;
+    }
+    else
+    {
+      // Clear the EQ bit in the flags
+      cpu->FL &= ~FLAG_EQ;
+    }
+    break;
+  }
+}
+
+/**
+ * Run the CPU
+ */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
+
+  int running = 1;
 
   while (running)
   {
-    // TODO
-    // 1. Get the value of the current instruction (at the address PC).
-    unsigned char curr_instruct = cpu_ram_read(cpu, cpu->PC); //LDI
-    // 2. switch() over it to decide on a course of action.
+    unsigned char curr_instruct = ram[cpu->PC];
 
-    unsigned char value1 = cpu_ram_read(cpu, cpu->PC + 1); // value at R0
-    unsigned char value2 = cpu_ram_read(cpu, cpu->PC + 2); // 8
+    unsigned char value1 = ram[(cpu->PC + 1) & 0xff];
+    unsigned char value2 = ram[(cpu->PC + 2) & 0xff];
+
+    int inst_set_pc = (curr_instruct >> 4) & 1;
 
     switch (curr_instruct)
     {
 
     case LDI:
-      cpu->reg[value1] = value2;
-      cpu->PC += 3; //PRN
+      reg[value1] = value2;
       break;
 
     case PRN:
-      printf("Printing %u\n", cpu->reg[value1]);
-      cpu->PC += 2;
+      printf("%d\n", reg[value1]);
       break;
 
     case MUL:
       alu(cpu, ALU_MUL, value1, value2);
-      cpu->PC += 3;
       break;
 
     case ADD:
       alu(cpu, ALU_ADD, value1, value2);
-      cpu->PC += 3;
       break;
 
-    case PUSH:
-      cpu_push(cpu, cpu->reg[value1]);
-      cpu->PC += 2;
-      break;
-
-    case POP:
-      cpu->reg[value1] = cpu_pop(cpu);
-      cpu->PC += 2;
+    case HLT:
+      running = 0;
       break;
 
     case CALL:
-      call(cpu, value1);
+      cpu_push(cpu, cpu->PC + 2);
+      cpu->PC = reg[value1];
       break;
 
     case RET:
-      ret(cpu);
+      cpu->PC = cpu_pop(cpu);
+      break;
+
+    case PUSH:
+      cpu_push(cpu, reg[value1]);
+      break;
+
+    case POP:
+      reg[value1] = cpu_pop(cpu);
       break;
 
     case CMP:
       alu(cpu, ALU_CMP, value1, value2);
       break;
 
+    case JMP:
+      cpu->PC = reg[value1];
+      break;
+
     case JEQ:
-      if (cpu->FL == FLAG_EQ)
+      if (cpu->FL & FLAG_EQ)
       {
-        cpu->PC = cpu->reg[value1];
+        cpu->PC = reg[value1];
       }
       else
       {
-        cpu->PC += 2;
+        inst_set_pc = 0;
       }
-      break;
-
-    case JMP:
-      cpu->PC = cpu->reg[value1];
       break;
 
     case JNE:
-      if (!cpu->FL)
+      if (!(cpu->FL & FLAG_EQ))
       {
-        cpu->PC = cpu->reg[value1];
+        cpu->PC = reg[value1];
       }
       else
       {
-        cpu->PC += 2;
+        inst_set_pc = 0;
       }
       break;
 
-    case HLT:
-      printf("Halting program\n");
-      exit(0);
-      break;
-
     default:
-      // exit(1);
       fprintf(stderr, "error\n");
-      printf("Current Instruction: %u\n", curr_instruct);
+      printf("Current Instruction %u\n", curr_instruct);
       exit(1);
     }
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+
+    if (!inst_set_pc)
+    {
+      cpu->PC += ((curr_instruct >> 6) & 0x3) + 1;
+    }
   }
 }
 
@@ -242,12 +221,8 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->FL = 0;
-  memset(cpu->reg, 0, sizeof(cpu->reg));
-  memset(cpu->ram, 0, sizeof(cpu->ram));
-  cpu->reg[7] = EMPTY_STACK; //SP saved in the 7th index 8th register and 0xF4
-
-  // TODO: Zero registers and RAM
+  memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->reg[7] = EMPTY_STACK;
 }

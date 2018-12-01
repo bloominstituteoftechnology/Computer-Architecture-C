@@ -7,7 +7,6 @@
  */
 int main(int argc, char *argv[])
 {
-
   struct cpu cpu;
 
   if (argc != 2)
@@ -15,8 +14,9 @@ int main(int argc, char *argv[])
     printf("Please enter in 2 arguments\n");
     exit(1);
   }
+
   cpu_init(&cpu);
-  cpu_load(&cpu, argv);
+  cpu_load(argv[1], &cpu);
   cpu_run(&cpu);
 
   return 0;
