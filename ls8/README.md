@@ -2,7 +2,7 @@
 
 ## Implementation of the LS-8 Emulator
 
-Objective: to gain a deeper understanding of how a CPU functions at a
+_Objective_: to gain a deeper understanding of how a CPU functions at a
 low level.
 
 We're going to write an emulator for the world-famous LambdaSchool-8 computer,
@@ -46,7 +46,7 @@ This code above requires the implementation of three instructions:
   register.
 * `HLT`: halt the CPU and exit the emulator.
 
-See [the LS-8 spec](../LS8-SPEC.md) for more details.
+See [the LS-8 spec](../LS8-spec.md) for more details.
 
 The above program is already hardcoded into the source file `cpu.c`. To run it,
 you will eventually:
