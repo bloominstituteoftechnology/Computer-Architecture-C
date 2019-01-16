@@ -158,6 +158,8 @@ Machine code values shown in both binary and hexadecimal.
 
 ### ADD
 
+*This is an instruction handled by the ALU.*
+
 `ADD registerA registerB`
 
 Add the value in two registers and store the result in registerA.
@@ -169,6 +171,8 @@ A0 0a 0b
 ```
 
 ### AND
+
+*This is an instruction handled by the ALU.*
 
 `AND registerA registerB`
 
@@ -199,6 +203,8 @@ Machine code:
 
 ### CMP
 
+*This is an instruction handled by the ALU.*
+
 `CMP registerA registerB`
 
 Compare the values in two registers.
@@ -219,6 +225,8 @@ A7 0a 0b
 
 ### DEC
 
+*This is an instruction handled by the ALU.*
+
 `DEC register`
 
 Decrement (subtract 1 from) the value in the given register.
@@ -230,6 +238,8 @@ Machine code:
 ```
 
 ### DIV
+
+*This is an instruction handled by the ALU.*
 
 `DIV registerA registerB`
 
@@ -258,6 +268,8 @@ Machine code:
 ```
 
 ### INC
+
+*This is an instruction handled by the ALU.*
 
 `INC register`
 
@@ -420,6 +432,8 @@ Machine code:
 
 ### MOD
 
+*This is an instruction handled by the ALU.*
+
 `MOD registerA registerB`
 
 Divide the value in the first register by the value in the second,
@@ -435,6 +449,8 @@ A4 0a 0b
 ```
 
 ### MUL
+
+*This is an instruction handled by the ALU.*
 
 `MUL registerA registerB`
 
@@ -460,6 +476,8 @@ Machine code:
 
 ### NOT
 
+*This is an instruction handled by the ALU.*
+
 `NOT register`
 
 Perform a bitwise-NOT on the value in a register.
@@ -471,6 +489,8 @@ Machine code:
 ```
 
 ### OR
+
+*This is an instruction handled by the ALU.*
 
 `OR registerA registerB`
 
@@ -560,6 +580,8 @@ Machine Code:
 
 ### SHL
 
+*This is an instruction handled by the ALU.*
+
 Shift the value in registerA left by the number of bits specified in registerB,
 filling the low bits with 0.
 
@@ -569,6 +591,8 @@ AC 0a 0b
 ```
 
 ### SHR
+
+*This is an instruction handled by the ALU.*
 
 Shift the value in registerA right by the number of bits specified in registerB,
 filling the high bits with 0.
@@ -594,6 +618,8 @@ Machine code:
 
 ### SUB
 
+*This is an instruction handled by the ALU.*
+
 `SUB registerA registerB`
 
 Subtract the value in the second register from the first, storing the
@@ -606,6 +632,8 @@ A1 0a 0b
 ```
 
 ### XOR
+
+*This is an instruction handled by the ALU.*
 
 `XOR registerA registerB`
 
