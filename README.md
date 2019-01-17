@@ -16,16 +16,15 @@
 - [ ] Add the `LDI` instruction
 - [ ] Add the `PRN` instruction
 
-### Day 2: Get `mult.ls8` running, load files dynamically
+### Day 2: Get `mult.ls8` and `stack.ls8` running, load files dynamically
 - [ ] Un-hardcode the machine code
-- [ ] Implement a Multiply and Print the Result (run `mult8.ls8`)
-- [ ] Beautify your `cpu_run()` function, if needed
+- [ ] Implement the `cpu_load` function to load an `.ls8` file given the filename passed in as an argument
+- [ ] Implement a Multiply instruction and Print the result (run `mult8.ls8`)
+- [ ] Implement the System Stack and be able to run the `stack.ls8` program
 
-### Day 3: Get `stack.ls8` running
-- [ ] Implement System Stack
-
-### Day 4: Get `call.ls8` running
-- [ ] Implement Subroutine Calls
+### Day 3: Get `call.ls8` running
+- [ ] Implement the CALL and RET instructions
+- [ ] Implement Subroutine Calls and be able to run the `call.ls8` program
 
 ### Stretch
 - [ ] Add the timer interrupt to the LS-8 emulator
