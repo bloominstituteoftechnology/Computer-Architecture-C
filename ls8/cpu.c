@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -34,6 +36,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registers[regA]*=cpu->registers[regB];
+      break;
+      case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
