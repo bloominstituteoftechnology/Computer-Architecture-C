@@ -12,6 +12,8 @@ struct cpu {
 //address `F4` if the stack is empty.
   // registers (array)
   // ram (array)
+  // if not signed or unsigned with a char, it's up to the compiler which it uses
+  //
 };
 
 // ALU operations
