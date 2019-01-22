@@ -6,7 +6,7 @@ struct cpu {
   // TODO
   // PC
   unsigned char PC;//Program Counter, address of the currantly executing instruction
-  unsigned char register[8];//the register is made up 8 bits
+  unsigned char registers[8];//the register is made up 8 bits
   unsigned char ram[256];//The CPU could support 256 instructions.
   unsigned char SP;//The SP points at the value at the top of the stack (most recently pushed), or at
 //address `F4` if the stack is empty.
@@ -18,7 +18,8 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_ADD
 	// Add more here
 };
 

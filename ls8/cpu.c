@@ -78,6 +78,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
+
+ unsigned char cpu_pop(struct cpu *cpu){
+   unsigned char ret = cpu->ram[cpu->registers[SP]];
+   cpu->registers[SP]++;
+   return ret;
+ }
+
+ void cpu_push(struct cpu *cpu, unsigned char val){
+   cpu->register[SP]--;
+   cpu->ram[cpu->registers[SP]]=val;
+ }
+
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -96,7 +109,7 @@ void cpu_run(struct cpu *cpu)
     // 6. Move the PC to the next instruction.
 
     //LDI, PRN,MUL,ADD, PUSH, CALL, POP, RET, HLT
-    int switch(current){
+    switch(current){
       //LDI Set the value of a register to an integer.
       case LDI:
         cpu->registers[param1] = param2;
