@@ -1,5 +1,6 @@
 #ifndef _CPU_H_
 #define _CPU_H_
+//init pull
 
 // Holds all information about the CPU
 struct cpu {
