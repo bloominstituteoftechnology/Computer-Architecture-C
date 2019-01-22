@@ -159,6 +159,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_INC, operandA, operandB);
         cpu->PC += (IR >> 6) + 1;
         break;
+      case INT:
+        cpu->IS = cpu->reg[operandA];
+        cpu->PC += (IR >> 6) + 1;
+        break;
       case LDI:
         cpu->reg[operandA] = operandB;
         cpu->PC += (IR >> 6) + 1;
@@ -181,6 +185,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->FL = 0;
+  cpu->IS = 0;
   memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
   memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }

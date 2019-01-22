@@ -9,6 +9,9 @@ struct cpu {
   //FL
   unsigned char FL;
 
+  // IS
+  unsigned char IS;
+
   // registers (array)
   unsigned char reg[8];
 
@@ -41,6 +44,7 @@ enum alu_op {
 #define DEC  0b01100110
 #define DIV  0b10100011
 #define INC  0b01100101
+#define INT  0b01010010
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
