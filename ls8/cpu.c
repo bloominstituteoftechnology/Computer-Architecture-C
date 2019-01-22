@@ -5,13 +5,13 @@
 #define DATA_LEN 6
 
 // Write the given value to the LS8's RAM at the given address
-void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address) {
-  cpu->ram[address] = value;
+void cpu_ram_write(struct cpu *cpu, unsigned char MDR, unsigned char MAR) {
+  cpu->ram[MAR] = MDR;
 }
 
 // Read the value at address and return it
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
-  return cpu->ram[address];
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
+  return cpu->ram[MAR];
 }
 
 /**
@@ -72,12 +72,15 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
     switch(IR) {
       case HLT:
+        // Break the loop
         running = 0;
         break;
       case LDI:
+        // set the current operation to the next operation
         cpu->reg[operandA] = operandB;
         break;
       case PRN:
+        // Print the value at the given register
         printf("%d\n", cpu->reg[operandA]);
         break;
 
