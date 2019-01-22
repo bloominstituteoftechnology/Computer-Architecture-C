@@ -100,22 +100,31 @@ void cpu_run(struct cpu *cpu)
       // 5. Do whatever the instruction should do according to the spec.
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->PC += (IR >> 6) + 1;
         break;
       case AND:
         alu(cpu, ALU_AND, operandA, operandB);
+        cpu->PC += (IR >> 6) + 1;
+        break;
+      case CALL:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->PC + 2);
+        cpu->PC = cpu->reg[operandA];
         break;
       case HLT:
         running = 0;
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
+        cpu->PC += (IR >> 6) + 1;
         break;
       case PRN:
         printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
+        cpu->PC += (IR >> 6) + 1;
         break;
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
+    
   }
 }
 

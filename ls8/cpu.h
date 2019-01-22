@@ -30,6 +30,7 @@ enum alu_op {
 
 #define ADD  0b10100000
 #define AND  0b10101000
+#define CALL 0b01010000
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
