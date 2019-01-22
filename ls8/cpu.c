@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -6,15 +7,12 @@
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 {
   cpu->ram[address] = value;
-  printf("CPU RAM WRITE complete");
 }
 
 // Read the value at address and return it
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
-  printf("CPU RAM READ commenced");
   return cpu->ram[address];
-  printf("CPU RAM READ complete");
 }
 
 /**
