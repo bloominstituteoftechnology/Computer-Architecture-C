@@ -64,6 +64,15 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC=0;
+  memset(cpu->registeres, 0, sizeof(cpu->registeres));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+//   for (int i=0; i<8; i++) {
+//     cpu->registeres[i] = 0;
+//   }
+//   for (int i=0;i<256; i++) {
+//     cpu->ram[i] = 0;
+//   }
 }
 void cpu_ram_read(struct cpu *cpu, unsigned char index){
   return cpu->ram[index];
