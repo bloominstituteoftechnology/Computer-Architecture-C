@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "stdio.h"
+#include "string.h"
 
 #define DATA_LEN 6
 
@@ -8,7 +10,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address) 
 }
 
 // Read the value at address and return it
-unsigned char cpu_ram_read(struct cpu *cpu, unsiged char address) {
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
   return cpu->ram[address];
 }
 
@@ -60,11 +62,29 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
+
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    switch(IR) {
+      case HLT:
+        running = 0;
+        break;
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+
+    }
+
     // 6. Move the PC to the next instruction.
+    cpu->PC += (IR >> 6) + 1;
   }
 }
 
@@ -74,7 +94,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->pc = 0;
-  memset(cpu->registers, 0, sizeof(cpu-registers));
-  memset(cpu->ram, 0, sizeof(cpu-ram));
+  cpu->PC = 0;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
