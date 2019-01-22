@@ -26,6 +26,16 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char towrite)
+{
+  cpu->ram[address] = towrite;
+}
+
 /**
  * ALU
  */
@@ -64,4 +74,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
+  cpu->registers = calloc(8, sizeof(unsigned char));
+  cpu->ram = calloc(256, sizeof(unsigned char));  
 }
