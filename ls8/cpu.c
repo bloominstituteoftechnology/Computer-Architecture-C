@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 6
+#define DATA_LEN 12
 
 /**
  * Read from RAM
@@ -25,31 +25,31 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned cha
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
   // char data[DATA_LEN] = {
   //   // From print8.ls8
   //   0b10000010, // LDI R0,8
   //   0b00000000,
   //   0b00001000,
-  //   0b10000010, // LDI R1,1
-  //   0b00000001,
-  //   0b00000001,
-  //   0b10100000, // ADD R0,R1
-  //   0b00000000,
-  //   0b00000001,
   //   0b01000111, // PRN R0
   //   0b00000000,
   //   0b00000001  // HLT
   // };
+
+  char data[DATA_LEN] = {
+    // From print8.ls8
+    0b10000010, // LDI R0,9
+    0b00000000,
+    0b00001001,
+    0b10000010, // LDI R1,1
+    0b00000001,
+    0b00000001,
+    0b10101000, // AND R0,R1
+    0b00000000,
+    0b00000001,
+    0b01000111, // PRN R0
+    0b00000000,
+    0b00000001  // HLT
+  };
 
   int address = 0;
 
@@ -69,6 +69,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
     case ALU_ADD:
       cpu->reg[regA] += cpu->reg[regB];
+      break;
+    case ALU_AND:
+      cpu->reg[regA] = cpu->reg[regA] & cpu->reg[regB];
       break;
     case ALU_MUL:
       break;
@@ -97,6 +100,9 @@ void cpu_run(struct cpu *cpu)
       // 5. Do whatever the instruction should do according to the spec.
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      case AND:
+        alu(cpu, ALU_AND, operandA, operandB);
         break;
       case HLT:
         running = 0;
