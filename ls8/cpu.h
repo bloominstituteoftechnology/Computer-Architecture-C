@@ -23,6 +23,7 @@ enum alu_op {
   ALU_AND,
   ALU_CMP,
   ALU_DEC,
+  ALU_DIV,
 	ALU_MUL,
 };
 
@@ -37,6 +38,7 @@ enum alu_op {
 #define CALL 0b01010000
 #define CMP  0b10100111
 #define DEC  0b01100110
+#define DIV  0b10100011
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111

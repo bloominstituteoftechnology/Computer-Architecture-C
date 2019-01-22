@@ -40,12 +40,12 @@ void cpu_load(struct cpu *cpu)
     0b10000010, // LDI R0,8
     0b00000000,
     0b00001000,
-    0b01100110, // DEC R0
+    0b10000010, // LDI R1,0
+    0b00000001,
     0b00000000,
-    0b01000111, // PRN R0
+    0b10100011, // DIV R0, R1
     0b00000000,
-    0b01100110, // DEC R0
-    0b00000000,
+    0b00000001,
     0b01000111, // PRN R0
     0b00000000,
     0b00000001  // HLT
@@ -89,6 +89,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_DEC:
       cpu->reg[regA]--;
+      break;
+    case ALU_DIV:
+      cpu->reg[regA] /= cpu->reg[regB];
       break;
     case ALU_MUL:
       break;
@@ -135,6 +138,18 @@ void cpu_run(struct cpu *cpu)
       case DEC:
         alu(cpu, ALU_DEC, operandA, operandB);
         cpu->PC += (IR >> 6) + 1;
+        break;
+      case DIV:
+        if (cpu->reg[operandB] == 0)
+        {
+          printf("Divide by 0 not allowed.\n");
+          running = 0;
+        }
+        else
+        {
+          alu(cpu, ALU_DIV, operandA, operandB);
+          cpu->PC += (IR >> 6) + 1;
+        }
         break;
       case HLT:
         running = 0;
