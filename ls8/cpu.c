@@ -5,7 +5,7 @@
 // Write the given value to the LS8's Ram at the given address
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 {
-  CPU->ram[address] = value;
+  cpu->ram[address] = value;
   printf("CPU RAM WRITE complete");
 }
 
@@ -13,7 +13,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   printf("CPU RAM READ commenced");
-  return CPU->ram[address];
+  return cpu->ram[address];
   printf("CPU RAM READ complete");
 }
 
