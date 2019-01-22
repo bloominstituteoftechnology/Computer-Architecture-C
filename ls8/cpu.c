@@ -61,8 +61,9 @@ void cpu_load(struct cpu *cpu, char *argv[])
 }
 
 /**
- * ALU
- */
+ * ALU arithmetic logic unit, 
+ //It represents the fundamental building block of the central processing unit (CPU) of a computer.
+ *///https://study.com/academy/lesson/arithmetic-logic-unit-alu-definition-design-function.html
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
@@ -112,7 +113,7 @@ void cpu_run(struct cpu *cpu)
     // 6. Move the PC to the next instruction.
     
     //LDI, PRN,MUL,ADD, PUSH, CALL, POP, RET, HLT
-    int pc_increment=(current>>6)+1;
+    int pc_increment=(current>>6)+1;//7
     switch(current){
       //LDI Set the value of a register to an integer.
       case LDI:
@@ -132,18 +133,31 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, param1, param2);
         printf("%d\n", param1);
         break;
-
+      //Add the value in two registers and store the result in registerA.
       case ADD:
         alu(cpu, ALU_ADD, param1, param2);
         break;
-
+      
+      //Push the value in the given register on the stack.
+      //1. Decrement the `SP`.
+      //2. Copy the value in the given register to the address pointed to by
+       // `SP`.
       case PUSH:
         cpu_push(cpu, cpu->registers[param1]);
         break;
       
+      //POP the value at the top of the stack into the given register.
+      //1. Copy the value from the address pointed to by `SP` to the given register.
+      //2. Increment `SP`.
       case POP:
         cpu->registers[param1] = cpu_pop(cpu);
         break;
+      //CALLs a function,
+//1. The address of the ***instruction*** _directly after_ `CALL` is
+  // pushed onto the stack. This allows us to 
+//return to where we left off when the subroutine finishes executing.
+//The PC is set to the address stored in the given register.
+//We jump to that location in RAM and execute the first instruction in the subroutine
 
       case CALL:
         cpu_push(cpu, cpu->PC+2);
@@ -151,9 +165,12 @@ void cpu_run(struct cpu *cpu)
         pc_increment =0;
         break;
 
+      //RET Return from subroutine.
+      //Pop the value from the top of the stack and 
+      //store it in the `PC`.
       case RET:
         cpu->PC = cpu_pop(cpu);
-        pc_change=0;
+        pc_increment=0;
         break;
         
 
