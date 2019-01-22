@@ -2,6 +2,20 @@
 
 #define DATA_LEN 6
 
+/*
+Add functions cpu_ram_read and cpu_ram_write to acces ram in struct cpu
+*/
+
+// if the read function reads from ram, it should return an unsigned char, based on how it's defined in struct cpu:
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {  // accept 2 arguments: a pointer to the cpu and an index in ram[] to access
+	return cpu->ram[index];                                           // return the data held in ram at the specified index
+}
+
+// the write function doesn't need to return anything (I think) so it can be of type void:
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {  // accept 3 arguments: pointer to the cpu, an index to be written to, and a value to write
+  	cpu->ram[index] = value;                                                     // set the value at the specified index equal to the specified value
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -64,4 +78,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0x00;
+
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
