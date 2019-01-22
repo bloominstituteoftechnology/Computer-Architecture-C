@@ -58,6 +58,24 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
+    unsigned char IR, operandA, operandB;
+    IR = cpu_ram_read(cpu, cpu->PC);
+    operandA = cpu_ram_read(cpu, cpu->PC+1);
+    operandB = cpu_ram_read(cpu, cpu->PC+2);
+
+    switch (IR)
+    {
+      case HLT:
+        running = 0;
+        break;
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        break;
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        break;
+    }
+    cpu->PC += (IR >> 6) + 1;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
@@ -76,5 +94,6 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->registers = calloc(8, sizeof(unsigned char));
-  cpu->ram = calloc(256, sizeof(unsigned char));  
+  cpu->ram = calloc(256, sizeof(unsigned char)); 
+  cpu->registers[7] = 0xF4;
 }
