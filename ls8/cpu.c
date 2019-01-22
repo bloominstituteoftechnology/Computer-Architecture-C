@@ -73,6 +73,20 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_AND:
       cpu->reg[regA] = cpu->reg[regA] & cpu->reg[regB];
       break;
+    case ALU_CMP:
+      if (cpu->reg[regA] < cpu->reg[regB])
+      {
+        cpu->FL = 0b00000100;
+      }
+      else if (cpu->reg[regA] > cpu->reg[regB])
+      {
+        cpu->FL = 0b00000010;
+      }
+      else
+      {
+        cpu->FL = 0b00000001;
+      }
+      break;
     case ALU_MUL:
       break;
   }
@@ -111,6 +125,10 @@ void cpu_run(struct cpu *cpu)
         cpu_ram_write(cpu, cpu->reg[7], cpu->PC + 2);
         cpu->PC = cpu->reg[operandA];
         break;
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        cpu->PC += (IR >> 6) + 1;
+        break;
       case HLT:
         running = 0;
         break;
@@ -135,6 +153,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
   memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
   memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
