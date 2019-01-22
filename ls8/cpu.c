@@ -2,6 +2,15 @@
 
 #define DATA_LEN 6
 
+cpu_ram_read(struct cpu *cpu,  unsigned char memaddr){
+return cpu->ram[memaddr];
+}
+
+cpu_ram_write(struct cpu *cpu, unsigned char memaddr, unsigned char *value){
+cpu->ram[memaddr] = *value;
+return 0;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -46,6 +55,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  int operandA = cpu_ram_read(cpu, cpu->PC+1); //gets next byte past PC
+  int operandB = cpu_ram_read(cpu, cpu->PC+2); //gets bye after next past PC
 
   while (running) {
     // TODO
@@ -64,4 +75,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0; //Sets position counter to 0
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->reg, 0, sizeof cpu->reg); 
+  
 }

@@ -2,11 +2,14 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-struct cpu {
+typedef struct cpu {
   // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // PC //stores currently executing insruction address
+  unsigned char PC; 
+  // registers (array) //registers go up to 8
+  unsigned char reg[8]; 
+  // ram (array)  //8 bits goes up to 256
+  unsigned char ram[256];
 };
 
 // ALU operations
