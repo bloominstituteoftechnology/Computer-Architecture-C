@@ -65,22 +65,45 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char current =cpu_ram_read(cpu, cpu->PC);
+    unsigned char param1 = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char param2 = cpu_ram_read(cpu, cpu->PC+2); 
+    int pc_increment=(current>>6)+1;
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+
+    //LDI, PRN,MUL,ADD, PUSH, CALL, POP, RET, HLT
+    int switch(current){
+      //LDI Set the value of a register to an integer.
+      case LDI:
+        cpu->registers[param1] = param2;
+        break;
+      //PRN Print numeric value stored in the given register
+      case PRN:
+        printf("%d \n", cpu->registers[param1]);
+        break;
+      //HLT halt the CPU (and exit the emulator).
+      case HLT:
+        running =0;
+        break;
+
+
+    }
+    cpu->PC +=pc_change;
   }
 }
 
 /**
  * Initialize a CPU struct
  */
-void cpu_init(struct cpu *cpu)
+void cpu_init(struct cpu *cpu)//takes a pointer to a struct cpu 
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC =0;
-  cpu->registers[SP] =0xF4;
-  memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->PC =0;//at first, the PC, registers and RAM should be cleared 0
+  cpu->registers[SP] =0xF4;//The value of the key pressed is stored in address `0xF4`
+  memset(cpu->ram, 0, sizeof cpu->ram);//clear registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
 }
