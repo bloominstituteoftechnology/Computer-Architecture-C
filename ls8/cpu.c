@@ -16,7 +16,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *argv[])
+//void cpu_load(struct cpu *cpu, char *argv[])
 // {
 //   char data[DATA_LEN] = {
 //     // From print8.ls8
@@ -36,10 +36,12 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
   // TODO: Replace this with something less hard-coded
 //}
+
+void cpu_load(struct cpu *cpu, char *argv[])
 {
   FILE *fp;
   char data[1024];
-  unsigned char address=[0];
+  int address=0;  //unsigned char address=[0];
   fp=fopen(argv[1], "r");
 
   if(!fp){
@@ -48,8 +50,9 @@ void cpu_load(struct cpu *cpu, char *argv[])
   }
 
   while(fgets(data, sizeof data, fp) !=NULL){
-    unsigned char byte = strtol(data, NULL, 2);
-    if (data=NULL){
+    char *endptr;
+    unsigned char byte = strtol(data, &endptr, 2);
+    if (endptr==data){
       continue;
     }
     cpu->ram[address++]=byte;
@@ -86,7 +89,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  }
 
  void cpu_push(struct cpu *cpu, unsigned char val){
-   cpu->register[SP]--;
+   cpu->registers[SP]--;
    cpu->ram[cpu->registers[SP]]=val;
  }
 
@@ -101,14 +104,15 @@ void cpu_run(struct cpu *cpu)
     unsigned char current =cpu_ram_read(cpu, cpu->PC);
     unsigned char param1 = cpu_ram_read(cpu, cpu->PC+1);
     unsigned char param2 = cpu_ram_read(cpu, cpu->PC+2); 
-    int pc_increment=(current>>6)+1;
+    
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-
+    
     //LDI, PRN,MUL,ADD, PUSH, CALL, POP, RET, HLT
+    int pc_increment=(current>>6)+1;
     switch(current){
       //LDI Set the value of a register to an integer.
       case LDI:
@@ -126,7 +130,7 @@ void cpu_run(struct cpu *cpu)
       //MUL multiply the values in two registers together and store the result in registerA
       case MUL:
         alu(cpu, ALU_MUL, param1, param2);
-        printf("s \n", param1);
+        printf("%d\n", param1);
         break;
 
       case ADD:
@@ -140,10 +144,21 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->registers[param1] = cpu_pop(cpu);
         break;
+
+      case CALL:
+        cpu_push(cpu, cpu->PC+2);
+        cpu->PC=cpu->registers[param1];
+        pc_increment =0;
+        break;
+
+      case RET:
+        cpu->PC = cpu_pop(cpu);
+        pc_change=0;
+        break;
         
 
     }
-    cpu->PC +=pc_change;
+    cpu->PC +=pc_increment;
   }
 }
 
