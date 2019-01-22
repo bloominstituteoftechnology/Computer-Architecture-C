@@ -4,12 +4,12 @@
 
 // Write the given value to the LS8's RAM at the given address
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address) {
-
+  cpu->ram[address] = value;
 }
 
 // Read the value at address and return it
 unsigned char cpu_ram_read(struct cpu *cpu, unsiged char address) {
-
+  return cpu->ram[address];
 }
 
 /**
