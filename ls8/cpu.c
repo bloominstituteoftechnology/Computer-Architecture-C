@@ -32,6 +32,10 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index) // we use unsigned char b
   return cpu->ram[index]; // the function takes a RAM index and returns the memory chunk associated with that index in the ram
 }
 
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
 
 /**
  * ALU
