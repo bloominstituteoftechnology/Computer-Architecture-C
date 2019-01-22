@@ -109,6 +109,11 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         running =0;
         break;
+      
+      //MUL multiply the values in two registers together and store the result in registerA
+      case MUL:
+        alu(cpu, ALU_MUL, param1, param2);
+        break;
 
 
     }
