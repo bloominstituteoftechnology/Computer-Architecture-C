@@ -8,8 +8,8 @@ struct cpu {
   // registers (array)
   // ram (array)
   unsigned char PC;
-  unsigned char registers[8];
-  unsigned char ram[256];
+  unsigned char registers[8]; // we're emulating an 8 bit cpu
+  unsigned char ram[256]; // 2^8 is 256
   unsigned char FL;
   
 };

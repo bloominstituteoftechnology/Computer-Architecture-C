@@ -26,6 +26,13 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+
+unsigned char cpu_ram_read(struct cpu *cpu, int index) // we use unsigned char because this function is returning an unsigned char value
+{
+  return cpu->ram[index]; // the function takes a RAM index and returns the memory chunk associated with that index in the ram
+}
+
+
 /**
  * ALU
  */
