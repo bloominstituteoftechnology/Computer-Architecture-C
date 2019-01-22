@@ -83,6 +83,10 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->reg[operandA] = operandB; // operandA here is the register, operandB is the value (see LS8-spec)
         break;
+
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
     }
 
     // 6. Move the PC to the next instruction.
