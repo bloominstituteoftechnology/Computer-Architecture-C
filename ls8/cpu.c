@@ -87,6 +87,10 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
         break;
+
+      case HLT:
+        running = 0;
+        break;
     }
 
     // 6. Move the PC to the next instruction.
