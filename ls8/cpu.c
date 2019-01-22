@@ -113,8 +113,21 @@ void cpu_run(struct cpu *cpu)
       //MUL multiply the values in two registers together and store the result in registerA
       case MUL:
         alu(cpu, ALU_MUL, param1, param2);
+        printf("s \n", param1);
         break;
 
+      case ADD:
+        alu(cpu, ALU_ADD, param1, param2);
+        break;
+
+      case PUSH:
+        cpu_push(cpu, cpu->registers[param1]);
+        break;
+      
+      case POP:
+        cpu->registers[param1] = cpu_pop(cpu);
+        break;
+        
 
     }
     cpu->PC +=pc_change;
