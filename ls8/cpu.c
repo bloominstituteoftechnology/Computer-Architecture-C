@@ -69,6 +69,23 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char instruction;
+  unsigned int num_operands = instruction >> 6;
+
+  unsigned char operandA = 0;
+  unsigned char operandB = 0;
+  if (num_operands > 0)
+  {
+    operandA = cpu->ram[cpu->PC + 1];
+  }
+  else if (num_operands == 2)
+  {
+    operandB = cpu->ram[cpu->PC + 2];
+  }
+  else
+  {
+    return 0;
+  }
 
   while (running)
   {
@@ -76,17 +93,22 @@ void cpu_run(struct cpu *cpu)
     switch (instruction)
     {
     case HLT:
+      running = 0;
       break;
 
     case PRN:
+      printf("%d\n", cpu->reg[operandA]);
       break;
 
     case LDI:
+      cpu->reg[operandA] = operandB;
       break;
 
     default:
       break;
     }
+
+    cpu->PC += num_operands + 1;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
@@ -102,5 +124,9 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+  cpu = malloc(sizeof(cpu));
+  cpu->PC = 0;
+  memset(cpu->reg, 0, 8);
+  memset(cpu->ram, 0, 256);
   // TODO: Initialize the PC and other special registers
 }
