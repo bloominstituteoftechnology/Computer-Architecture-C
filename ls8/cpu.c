@@ -91,13 +91,18 @@ void cpu_run(struct cpu *cpu)
         cpu->registeres[operandA] = operandB; 
         break;
       
-       case PRN:
+      case PRN:
         printf("%d\n", cpu->registeres[operandA]);
         break;
 
-       case HLT:
+      case HLT:
         running = 0;
         break;
+      
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
     }
     // 6. Move the PC to the next instruction.
     cpu->PC += curr_instr + 1;
