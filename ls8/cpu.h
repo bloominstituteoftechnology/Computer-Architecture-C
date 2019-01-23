@@ -59,6 +59,7 @@ enum alu_op {
 #define HLT  0b00000001
 #define MOD  0b10100100
 #define MUL  0b10100010
+#define NOP  0b00000000
 #define PRN  0b01000111
 
 // Function declarations
