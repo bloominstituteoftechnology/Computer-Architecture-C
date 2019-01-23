@@ -62,7 +62,23 @@ void cpu_run(struct cpu *cpu)
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+
+    switch(curr_instr)
+    {
+      case LDI:
+        cpu->registeres[operandA] = operandB; 
+        break;
+      
+       case PRN:
+        printf("%d\n", cpu->registeres[operandA]);
+        break;
+
+       case HLT:
+        running = 0;
+        break;
+    }
     // 6. Move the PC to the next instruction.
+    cpu->PC += curr_instr + 1;
   }
 }
 
