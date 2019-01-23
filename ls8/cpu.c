@@ -179,6 +179,12 @@ void cpu_run(struct cpu *cpu)
         }
         break;
       case JGE:
+        if (cpu->FL == 0b00000010 || cpu->FL == 0b00000001)
+        {
+          cpu->PC = cpu->reg[operandA];
+        }
+        break;
+      case JGT:
         if (cpu->FL == 0b00000010)
         {
           cpu->PC = cpu->reg[operandA];
