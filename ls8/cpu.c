@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 14
+#define DATA_LEN 13
 
 /**
  * Helper function to print out the binary representation of an int
@@ -54,19 +54,18 @@ void cpu_load(struct cpu *cpu)
 
     char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,16
+    0b10000010, // LDI R0,8
     0b00000000,
-    0b00010000,
-    0b10000010, // LDI R1,8
-    0b00000001,
     0b00001000,
+    0b10000010, // LDI R1,16
+    0b00000001,
+    0b00010000,
     0b01000111, // PRN R0
     0b00000000,
     0b01000111, // PRN R1
     0b00000001,
-    0b10100111, // CMP R0, R1
+    0b01011000, // JLT R0
     0b00000000,
-    0b00000001,
     0b00000001  // HLT
   };
 
@@ -128,7 +127,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
-  unsigned int num_operands;
+  unsigned int num_operands, jBits;
 
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
@@ -194,33 +193,58 @@ void cpu_run(struct cpu *cpu)
         // cpu->PC += num_operands + 1;
         // break;
       case JEQ:
-        if (cpu->FL == 0b00000001)
+        jBits = cpu->FL & (1 << 0);
+        if (jBits == 0b00000001)
         {
           cpu->PC = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->PC += num_operands + 1;
         }
         break;
       case JGE:
-        if (cpu->FL == 0b00000010 || cpu->FL == 0b00000001)
+        jBits = cpu->FL & ((1 << 0) | (1 << 1));
+        if (jBits == 0b00000010 || jBits == 0b00000001)
         {
           cpu->PC = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->PC += num_operands + 1;
         }
         break;
       case JGT:
-        if (cpu->FL == 0b00000010)
+        jBits = cpu->FL & (1 << 1);
+        if (jBits == 0b00000010)
         {
           cpu->PC = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->PC += num_operands + 1;
         }
         break;
       case JLE:
-        if (cpu->FL == 0b00000100 || cpu->FL == 0b00000001)
+        jBits = cpu->FL & ((1 << 0) | (1 << 2));
+        if (jBits == 0b00000100 || jBits == 0b00000001)
         {
           cpu->PC = cpu->reg[operandA];
         }
+        else
+        {
+          cpu->PC += num_operands + 1;
+        }
         break;
       case JLT:
-        if (cpu->FL == 0b00000100)
+        jBits = cpu->FL & (1 << 2);
+        if (jBits == 0b00000100)
         {
           cpu->PC = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->PC += num_operands + 1;
         }
         break;
       case JMP:
