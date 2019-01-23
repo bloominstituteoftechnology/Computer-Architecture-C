@@ -2,6 +2,16 @@
 
 #define DATA_LEN 6
 
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+{
+  cpu->ram[address] = value;
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -50,11 +60,35 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu->ram[cpu->PC];
     // 2. Figure out how many operands this next instruction requires
+    unsigned int amount_of_operands = IR >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = 0;
+    unsigned char operandB = 0;
+    if(amount_of_operands > 0){
+      operandA = cpu->ram[cpu->PC+1];
+    }
+    if(amount_of_operands == 2){
+      operandB = cpu->ram[cpu->PC+2];
+    }
     // 4. switch() over it to decide on a course of action.
+    switch(IR){
+      case HLT:
+        running = 0;
+        break;
+      case LDI:
+        cpu->registers[operandA] = operandB;
+        break;
+      case PRN:
+        printf("%d\n", cpu->registers[operandA]);
+        break;
+      default:
+        break;
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC = cpu->PC+1+amount_of_operands;
   }
 }
 
@@ -64,4 +98,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu = malloc(sizeof(cpu));
+  cpu->PC = 0;
+  memset(cpu->registers, 0, 8);
+  memset(cpu->ram, 0, 256);
 }

@@ -1,14 +1,19 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
   // PC
+  unsigned int PC;
   // registers (array)
-  unsigned char *registers;
+  unsigned char registers[8];
   // ram (array)
-  unsigned char *ram;
+  unsigned char ram[256];
 };
 
 // ALU operations
@@ -32,5 +37,7 @@ enum alu_op {
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address);
+extern void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address);
 
 #endif
