@@ -176,7 +176,7 @@ void cpu_run(struct cpu *cpu)
     }
 
     // 4. Move the PC to the next instruction.
-    printf("%d!! %d??\n", IR, cpu->PC);
+    //printf("%d!! %d??\n", IR, cpu->PC);
     cpu->PC += 1;
   }
 }
