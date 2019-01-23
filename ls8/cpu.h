@@ -6,6 +6,7 @@ struct cpu {
   // TODO
   // PC keeps track of where we are in the program we're executing
 	unsigned int PC;
+	unsigned int SP;
   // registers (array)  are where we push operand values
 	unsigned char reg[8];
   // ram (array) holds everything else
@@ -20,6 +21,8 @@ enum alu_op {
 	ALU_SUB
 };
 
+#define ADDR_EMPTY_STACK 0xF4
+
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -28,6 +31,7 @@ enum alu_op {
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
+#define MUL  0b10100010
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

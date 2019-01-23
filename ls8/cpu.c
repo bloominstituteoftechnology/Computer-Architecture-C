@@ -54,9 +54,11 @@ void cpu_load(struct cpu *cpu, unsigned char *argv)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
+
   switch (op) {
     case ALU_MUL:
-      cpu->reg[regA] *= cpu->reg[regB];
+      reg[regA] *= reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -103,6 +105,10 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         // Print the value at the given register
         printf("%d\n", cpu->reg[operandA]);
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // cpu->PC += 3;
         break;
 
     }
