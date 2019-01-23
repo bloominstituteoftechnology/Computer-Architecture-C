@@ -7,16 +7,20 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned char PC;
+  unsigned int PC;
   unsigned char registers[8]; // we're emulating an 8 bit cpu
   unsigned char ram[256]; // 2^8 is 256
-  unsigned char FL;
   
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_ADD,
+  ALU_SUB,
+  ALU_DIV,
+  ALU_INC,
+  ALU_DEC,
 	// Add more here
 };
 
