@@ -17,9 +17,8 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, unsigned char *argv)
 {
-  // TODO: Replace this with something less hard-coded
   FILE *fp;
   char line[1024];
 
@@ -27,8 +26,8 @@ void cpu_load(struct cpu *cpu)
   int address = 0;
 
   // Open the source file
-  if ((fp = fopen("examples/print8.ls8", "r")) == NULL) {
-    fprintf(stderr, "Cannot open print8.ls8\n");
+  if ((fp = fopen(argv, "r")) == NULL) {
+    fprintf(stderr, "Cannot open %s\n", argv);
     exit(1);
   }
 
