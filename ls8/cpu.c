@@ -20,23 +20,28 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  FILE *fp;
+  char line[1024];
+
+  if ((fp = fopen("./examples/print8.ls8", "r")) == NULL) {
+    fprintf(stderr, "Cannot open print8.ls8\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(line, sizeof(line), fp) != NULL){
+    char *ptr;
+    unsigned char ret = strtol(line, &ptr, 2);
+
+
+    if (ptr == line){
+      continue;
+    }
+
+    cpu->ram[address++] = ret;
+  }
 }
 
 
@@ -105,6 +110,14 @@ void cpu_run(struct cpu *cpu)
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
+        break;
+      case MUL:
+
+
+      //suff here
+
+
+
         break;
       default:
         break;
