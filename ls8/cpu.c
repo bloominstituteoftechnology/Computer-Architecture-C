@@ -46,8 +46,8 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
   // 1. BASE CASE: If invalid number of arguments are passed, error
   if (argc < 2) {
     fprintf(stderr, "Usage Error: Needs two arguments\n");
-    printf("Argument 1: ./ls8");
-    printf("Argument 2: examples/ls8_file_name.ls8");
+    printf("Argument 1: ./ls8\n");
+    printf("Argument 2: examples/ls8_file_name.ls8\n");
     exit(1);
   }
 
@@ -58,7 +58,7 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
 
   // 3. BASE CASE 2: Error Opening File ( invalid file )
   if ( ( fp = fopen(file_name, "r") ) == NULL ) {
-   fprintf(stderr, "Opening File Error: invalid file name");
+   fprintf(stderr, "Opening File Error: invalid file name\n");
    exit(1);
   }
 
