@@ -47,6 +47,7 @@ void cpu_load(struct cpu *cpu, unsigned char *argv)
     // Increment RAM address by how much was written to it
     cpu->ram[address++] = ret;
   }
+  fclose(fp);
 }
 
 /**
@@ -78,18 +79,18 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
 
-    unsigned int num_of_operands = IR >> 6;
+    // unsigned int num_of_operands = IR >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char operandA;
-    unsigned char operandB;
-    if (num_of_operands == 2) {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      operandB = cpu_ram_read(cpu, cpu->PC + 2);
-    } else if (num_of_operands == 1) {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    } else {
-
-    }
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    // if (num_of_operands == 2) {
+    //   operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    //   operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    // } else if (num_of_operands == 1) {
+    //   operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    // } else {
+    //
+    // }
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -107,18 +108,26 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
       case MUL:
+        // Multiple two numbers together
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->PC += 3;
+        break;
+      case POP:
+        // Remove item from stack
+        cpu_ram_write(cpu, cpu->reg[ptr], cpu->reg[SP]++);
+        break;
+      case PUSH:
+        // Add item to stack
+        cpu_ram_write(cpu, cpu->reg[ptr], --cpu->reg[SP]);
         break;
 
     }
 
     // 6. Move the PC to the next instruction.
-    // cpu->PC += (IR >> 6) + 1; <- could also eleminate the num_of_operands
+    cpu->PC += (IR >> 6) + 1; //<- could also eleminate the num_of_operands
                                 //  and have the bitshift here as (IR >> 6) will
                                 //  return the same value as num_of_operands
 
-    cpu->PC += num_of_operands + 1;
+    // cpu->PC += num_of_operands + 1;
   }
 }
 
@@ -128,7 +137,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = ADDR_PROGRAM_ENTRY;
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }

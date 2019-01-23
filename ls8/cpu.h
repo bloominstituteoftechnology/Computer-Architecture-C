@@ -1,12 +1,13 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define SP 7 // Stack pointer
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
   // PC keeps track of where we are in the program we're executing
 	unsigned int PC;
-	unsigned int SP;
   // registers (array)  are where we push operand values
 	unsigned char reg[8];
   // ram (array) holds everything else
@@ -21,7 +22,8 @@ enum alu_op {
 	ALU_SUB
 };
 
-#define ADDR_EMPTY_STACK 0xF4
+#define ADDR_PROGRAM_ENTRY 0x00 // When programs start gettign loaded
+#define ADDR_EMPTY_STACK 0xF4   // Where SP is on the empty stack
 
 // Instructions
 
@@ -32,6 +34,8 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL  0b10100010
+#define POP  0b01000110
+#define PUSH 0b01000101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
