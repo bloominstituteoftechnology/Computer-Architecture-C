@@ -1,6 +1,18 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
+{
+  cpu->ram[index] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -34,6 +46,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
+      break;
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -50,6 +66,10 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char current = cpu_ram_read(cpu, cpu->PC);
+    unsigned char param1 = cpu_ram_read(cpu, cpu->PC+1);
+    unsigned char param2 = cpu_ram_read(cpu, cpu->PC+2); 
+    int pc_increment=(current>>6)+1;
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -65,18 +85,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->registers[stack_p] = 0xF4;
+  cpu->registers[cpu->stack_p] = 0xF4;
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
-}
-
-
-void cpu_ram_read(struct cpu *cpu, unsigned char index)
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
-{
-  cpu->ram[index] = value;
 }
