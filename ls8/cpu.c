@@ -26,8 +26,8 @@ void cpu_load(struct cpu *cpu)
   FILE *fp;
   char line[1024];
 
-  if ((fp = fopen("./examples/print8.ls8", "r")) == NULL) {
-    fprintf(stderr, "Cannot open print8.ls8\n");
+  if ((fp = fopen("./examples/stack.ls8", "r")) == NULL) {
+    fprintf(stderr, "Cannot open mult8.ls8\n");
     exit(1);
   }
 
@@ -74,6 +74,23 @@ void cpu_load(struct cpu *cpu)
 /**
  * Run the CPU
  */
+
+void push(int val, struct cpu *cpu)
+{
+  cpu->SP++;
+  cpu->ram[cpu->SP] = val;
+}
+
+int pop(struct cpu *cpu)
+{
+  int ret = cpu->ram[cpu->SP];
+  cpu->SP--;
+
+  cpu->ram[cpu->SP] = ret;
+  printf()
+}
+
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -97,8 +114,6 @@ void cpu_run(struct cpu *cpu)
       operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     }
 
-
-
     // 4. switch() over it to decide on a course of action.
     switch (instruction) {
       case HLT:
@@ -106,19 +121,26 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         // print whatever is in the specified register
-        printf("%d\n", cpu->reg[operandA]);
+        // printf("PRN printing: %d\n", cpu->reg[operandA]);
+        printf("PRN reg %d\n", cpu->reg[cpu->SP]);
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
         break;
       case MUL:
-
-
-      //suff here
-
-
+        printf("cpu->reg[0]: %i\n", cpu->reg[0]);
+        printf("cpu->reg[1]: %i\n", cpu->reg[1]);
+        cpu->reg[operandA] = cpu->reg[0] * cpu->reg[1];
+        break;
+      case PUSH:
+        // printf("pushing:  %i\n", cpu->reg[operandA]);
+        push(cpu->reg[operandA], cpu);
+      // void push(int val, struct cpu *cpu)
+      //do stuff
 
         break;
+      case POP:
+        pop(cpu);
       default:
         break;
     }
@@ -137,4 +159,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
+  cpu->SP = ADDR_PROGRAM_ENTRY;
 }

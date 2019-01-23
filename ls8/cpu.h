@@ -6,11 +6,15 @@ struct cpu {
   // TODO
   // PC
   unsigned int PC;
+  unsigned int SP;
   // registers (array)
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
 };
+
+	#define ADDR_PROGRAM_ENTRY 0x00 //when the program is loading
+	#define ADDR_EMPTY_STACK 0XF4		//when SP is on the empty stack
 
  // Inventory what is here
  // Implement struct cpu in cpu.h
@@ -36,6 +40,8 @@ struct cpu {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL  0b10100010
+#define PUSH 0b01000101
+#define POP  0b01000110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
