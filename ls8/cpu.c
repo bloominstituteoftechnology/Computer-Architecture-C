@@ -104,7 +104,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN:
-        printf("%02x\n", cpu->registers[operand_a]);
+        printf("%d\n", cpu->registers[operand_a]);
         break;
       
       default:
