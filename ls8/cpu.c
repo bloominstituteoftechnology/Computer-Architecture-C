@@ -120,13 +120,10 @@ void cpu_run(struct cpu *cpu)
       // --> 5. Do whatever the instruction should do according to the spec.
     if (num_of_operands == 2) {
       operand_a = cpu_ram_read( cpu, (cpu->PC + 1) & 0xff );
-      operand_b = cpu_ram_read( cpu, (cpu->PC + 2) & 0xff );
-      printf("2 operands found\n");
+      operand_b = cpu_ram_read( cpu, (cpu->PC + 2) & 0xff );      
     } else if (num_of_operands == 1) {
-      operand_a = cpu_ram_read( cpu, (cpu->PC + 1) & 0xff );
-      printf("1 operand found\n");
-    } else {
-      printf("no operands\n");
+      operand_a = cpu_ram_read( cpu, (cpu->PC + 1) & 0xff );      
+    } else {      
     }
 
     // --> 4. switch() over it to decide on a course of action.
