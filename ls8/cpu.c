@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 #define DATA_LEN 6
 
@@ -31,9 +33,16 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
+  unsigned char valB = reg[regB];
   switch (op) {
     case ALU_MUL:
       // TODO
+      reg[regA] *= valB;
+      break;
+    case ALU_ADD:
+      // TODO
+      reg[regA] += valB;
       break;
 
     // TODO: implement more ALU ops
@@ -43,7 +52,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
-void cpu_run(struct cpu *cpu)
+void cpu_run(struct cpu *cpu )
 {
   int running = 1; // True until we get a HLT instruction
 
@@ -65,3 +74,12 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
 }
+
+void cpu_ram_read(struct cpu *cpu, unsigned char index){
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char index){
+  cpu->ram[index] = val;
+}
+
