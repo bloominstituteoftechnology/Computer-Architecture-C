@@ -45,6 +45,8 @@ enum alu_op {
 #define DIV  0b10100011
 #define INC  0b01100101
 #define INT  0b01010010
+#define IRET 0b00010011 // not done
+#define JEQ  0b01010101
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111

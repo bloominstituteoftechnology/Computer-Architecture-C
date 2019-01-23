@@ -163,6 +163,16 @@ void cpu_run(struct cpu *cpu)
         cpu->IS = cpu->reg[operandA];
         cpu->PC += (IR >> 6) + 1;
         break;
+      case IRET:
+        // TODO
+        // cpu->PC += (IR >> 6) + 1;
+        // break;
+      case JEQ:
+        if (cpu->FL == 0b00000001)
+        {
+          cpu->PC = cpu->reg[operandA];
+        }
+        break;
       case LDI:
         cpu->reg[operandA] = operandB;
         cpu->PC += (IR >> 6) + 1;
