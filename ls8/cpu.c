@@ -1,7 +1,19 @@
 #include "cpu.h"
-
+#include <stdio.h>
+#include <string.h>
 #define DATA_LEN 6
 
+
+// write the given value to the LS8's Ram at the given address
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+{
+  cpu->ram[address] = value;
+}
+// read the value at address and return it
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -64,4 +76,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
