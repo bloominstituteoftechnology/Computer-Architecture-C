@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 13
+#define DATA_LEN 16
 
 /**
  * Helper function to print out the binary representation of an int
@@ -60,12 +60,15 @@ void cpu_load(struct cpu *cpu)
     0b10000010, // LDI R1,16
     0b00000001,
     0b00010000,
+    0b10000010, // LDI R2,15(HLT is at this address)
+    0b00000010,
+    0b00001111,
     0b01000111, // PRN R0
     0b00000000,
     0b01000111, // PRN R1
     0b00000001,
-    0b01011000, // JLT R0
-    0b00000000,
+    0b01010110, // JNE R2
+    0b00000010,
     0b00000001  // HLT
   };
 
@@ -251,6 +254,15 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[operandA];
         break;
       case JNE:
+        jBits = cpu->FL & (1 << 0);
+        if (jBits == 0b00000000)
+        {
+          cpu->PC = cpu->reg[operandA];
+        }
+        else
+        {
+          cpu->PC += num_operands + 1;
+        }
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
