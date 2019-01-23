@@ -21,25 +21,50 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) { 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+  FILE *fp;
+	fp = fopen(argv[1], "r");  // open file for reading
+	char line[1024];
+	int address = 0;
+	char *data;
+
+  // Error handling in case file doesn't open or doesn't exist:
+  if(fp == NULL) {
+		fprintf(stderr, "File %s cannot be opened or does not exist. \n", argv[1]);
+		exit(1);
+	}
+
+  while(fgets(line, sizeof(line), fp) != NULL) {  // fgets returns line -- chars are read from fp and stored in line, max num of chars read == sizeof(line)
+			
+   	unsigned char byte = strtoul(line, &data, 2); // converts line from binary string to integer value
+			                                            // unsigned long int strtoul(const char *str, char **endptr, int base)
+
+    if(data == line) {
+      continue;
+    }
+      				
+		cpu->ram[address++] = byte;
+  }
+	
+	fclose(fp);
 }
 
 /**
@@ -50,6 +75,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -86,7 +112,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       // LDI -- Set a specified register to a specified integer value
-      // in this case, set the next instruction to the instruction 2 steps ahead:
+      // ??? in this case, set the next instruction to the instruction 2 steps ahead:
       case LDI:
         cpu->reg[operandA] = operandB;
 		    // PC += shift;
@@ -97,12 +123,17 @@ void cpu_run(struct cpu *cpu)
         printf("%d \n", cpu->reg[operandA]);
         // PC += shift;
 		    break;
+      
+      case MUL:
+      		alu(cpu, ALU_MUL, operandA, operandB);
+		      // PC += shift;
+		      break;
 
       default:
         break;
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC += num_operands + 1;
+    PC += num_operands + 1;
   }
 }
 
