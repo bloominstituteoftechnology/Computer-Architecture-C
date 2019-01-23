@@ -23,7 +23,7 @@ void cpu_load(struct cpu *cpu)
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < DATA_LEN; i++) { // loads the instructions of the print8 function into ram
     cpu->ram[address++] = data[i];
   }
 
@@ -68,6 +68,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_DEC:
       break;
 
+    default:
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -80,8 +83,7 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    unsigned char operandA = NULL;  // initialize our operands for scope reach
-    unsigned char operandB = NULL;    
+    unsigned char operandA, operandB;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
@@ -90,24 +92,29 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
 
     if(num_operands == 2){
+      
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff),
       operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
+      printf("Two operands, %d, %d\n", operandA, operandB);
     } else if (num_operands == 1){
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+      printf("One operand, %d\n", operandA);
     } else {
-      // if no operands, set running to 0
-      running = 0;
+      printf("No operands.\n");
+      // do something if no operands
     }
     // 4. switch() over it to decide on a course of action.
 
     switch(instruction){
 
       case HLT:
+        printf("HLT received, ending program.\n");
         running = 0;
         break;
 
       case PRN:
       // print what is in the specified register
+        printf("%d\n", cpu->registers[operandA]);
         break;
 
       case LDI:
@@ -128,7 +135,6 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
 
   // R0-R6 are cleared to 0
   memset(cpu->registers, 0, sizeof(cpu->registers));
@@ -144,6 +150,7 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
   // The program can now be loaded into RAM starting at address 0x00.
+  printf("CPU Initilized Successfully!\n");
 
 
 }

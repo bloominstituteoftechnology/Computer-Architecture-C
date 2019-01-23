@@ -7,10 +7,10 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned int PC;
-  unsigned char registers[8];
-  unsigned char ram[256];
-  unsigned char FL;
+  unsigned int PC; // keeps track of where we are in the program
+  unsigned char registers[8]; // stores the values of the current process operands
+  unsigned char ram[256]; // stores memory to be accesses by the program
+  unsigned char FL; // holds flag information
   
 };
 
