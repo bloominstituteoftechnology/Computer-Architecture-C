@@ -74,13 +74,10 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void)cpu; // suppress compiler warnings
-  (void)regA;
-  (void)regB;
-
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] *= cpu-> reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -130,6 +127,10 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+        break;
+
       default:
         break;
     }
