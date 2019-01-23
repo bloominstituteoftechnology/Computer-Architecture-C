@@ -24,7 +24,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   // for each line in the binary file, push it to the ram 
   while(fgets(data, sizeof(data), file) != NULL){
-    printf("binary: %s", data);
+    // printf("binary: %s", data);
     // convert each binary string into numbers
     char *ptr;
     unsigned char ret = strtol(data, &ptr, 2);
@@ -34,7 +34,7 @@ void cpu_load(struct cpu *cpu, char *filename)
       continue;
     }
 
-  printf("conversion: %02X\n \n", ret);
+  // printf("conversion: %02X\n \n", ret);
 
   // write the return value to ram
   cpu->ram[address] = ret;
