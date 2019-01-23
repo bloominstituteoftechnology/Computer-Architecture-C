@@ -9,27 +9,47 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  int address = 0; // initialize the ram address we'll use
 
-  int address = 0;
+  FILE *file = fopen(filename, "r"); // open the filename passed in argv
 
-  for (int i = 0; i < DATA_LEN; i++) { // loads the instructions of the print8 function into ram
-    cpu->ram[address++] = data[i];
+  char *data[64];
+
+  if(file == NULL){
+    fprintf(stderr, "No file with that filename was found.\n");
+    exit(1);
   }
+
+  // for each line in the binary file, push it to the ram 
+  while(fgets(data, sizeof(data), file) != NULL){
+    printf("%s", data);
+
+
+  }
+
+  fclose(file);
+
 
   // TODO: Replace this with something less hard-coded
 }
 
+
+// char data[DATA_LEN] = {
+//     // From print8.ls8
+//     0b10000010, // LDI R0,8
+//     0b00000000, // set register 0
+//     0b00001000, // to value of 8
+//     0b01000111, // PRN R0
+//     0b00000000, // print register 0's value
+//     0b00000001  // HLT
+//   };
+
+//   int address = 0;
+
+//   for (int i = 0; i < DATA_LEN; i++) { // loads the instructions of the print8 function into ram
+//     cpu->ram[address++] = data[i];
 
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -101,6 +121,7 @@ void cpu_run(struct cpu *cpu)
       printf("One operand, %d\n", operandA);
     } else {
       printf("No operands.\n");
+      running = 0;
       // do something if no operands
     }
     // 4. switch() over it to decide on a course of action.
