@@ -78,7 +78,9 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction;
     // 2. Figure out how many operands this next instruction requires
+    unsigned int num_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -92,4 +94,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  // set all values to 0
+  cpu->PC = 0;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->reg[7] = 0xF4;
 }
