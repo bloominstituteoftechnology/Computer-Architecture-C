@@ -1,5 +1,5 @@
 #include "cpu.h"
-
+#include <stdio.h>
 #define DATA_LEN 6
 
 // Implement CPU_RAM_READ & CPU_RAM_WRITE
@@ -63,12 +63,39 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    
+    unsigned char instruction;
+
     // 2. Figure out how many operands this next instruction requires
-    // 3. Get the appropriate value(s) of the operands following this instruction
-    // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
+    unsigned int num_of_operands = instruction >> 6; // --> instruction >> 6
+
+    // 3. Get the appropriate value(s) of the operands following this instruction          
+      // --> 5. Do whatever the instruction should do according to the spec.
+    if (num_of_operands == 2) {
+      // do something here
+      printf("2 operands found");
+    } else if (num_of_operands == 1) {
+      // do something here
+      printf("1 operand found");
+    }
+
+    // --> 4. switch() over it to decide on a course of action.
+    switch(instruction) {
+      case HLT:
+        break;
+      
+      case LDI:
+        // cpu->registers[operand_a] = operand_b;
+        break;
+
+      case PRN:
+        break;
+      
+      default:
+        break;
+    } // --> switch()
+
     // 6. Move the PC to the next instruction.
+    /* cpu->PC += num_operands + 1 */
   }
 }
 
