@@ -1,29 +1,55 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
-
   // TODO: Replace this with something less hard-coded
+
+  // need file
+  FILE *fp = fopen(file, "r");
+
+  // if file does not exist
+  if (fp == NULL)
+  {
+    printf("File does not exist");
+    exit(1);
+  }
+  else
+  {
+    // create a var that will hold line of file
+    char file_line[1024];
+    int address = 0;
+    // while not end of file
+    while (fgets(file_line, sizeof(file_line), fp) != NULL)
+    {
+      // cycle through ram and store value of line into ram
+      cpu->ram[address] = strtol(file_line, NULL, 2);
+      address++;
+    }
+  }
+  // close file
+  fclose(fp);
+}
+
+// cpu read ram
+// would have to take a cpu struct and an index for ram
+void cpu_ram_read(struct cpu *cpu, unsigned char memadr)
+{
+  return cpu->ram[memadr];
+}
+
+// cpu write ram
+// would have to take a cpu struct, an index for ram, and char value
+void cpu_ram_read(struct cpu *cpu, unsigned char memadr, unsigned char value)
+{
+  return cpu->ram[memadr] = value;
 }
 
 /**
@@ -31,10 +57,11 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -47,7 +74,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (running)
+  {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
