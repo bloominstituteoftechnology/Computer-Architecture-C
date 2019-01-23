@@ -57,18 +57,14 @@ void cpu_load(struct cpu *cpu)
     0b10000010, // LDI R0,8
     0b00000000,
     0b00001000,
-    0b10000010, // LDI R1,16
+    0b10000010, // LDI R1,2
     0b00000001,
-    0b00010000,
-    0b10000010, // LDI R2,15(HLT is at this address)
     0b00000010,
-    0b00001111,
+    0b10000011, // LD R0,R1
+    0b00000000,
+    0b00000001,
     0b01000111, // PRN R0
     0b00000000,
-    0b01000111, // PRN R1
-    0b00000001,
-    0b01010110, // JNE R2
-    0b00000010,
     0b00000001  // HLT
   };
 
@@ -263,6 +259,10 @@ void cpu_run(struct cpu *cpu)
         {
           cpu->PC += num_operands + 1;
         }
+        break;
+      case LD:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[operandB]);
+        cpu->PC += num_operands + 1;
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
