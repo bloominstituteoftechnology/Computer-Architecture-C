@@ -56,7 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
