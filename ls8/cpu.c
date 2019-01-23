@@ -2,7 +2,24 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 12
+#define DATA_LEN 14
+
+/**
+ * Helper function to print out the binary representation of an int
+ */
+void print_binary(int x)
+{
+  static char b[9];
+  b[0] = '\0';
+
+  int z;
+  for (z = 128; z > 0; z >>= 1)
+  {
+    strcat(b, ((x & z) == z) ? "1" : "0");
+  }
+
+  printf("%s\n", b);
+}
 
 /**
  * Read from RAM
@@ -35,17 +52,21 @@ void cpu_load(struct cpu *cpu)
   //   0b00000001  // HLT
   // };
 
-  char data[DATA_LEN] = {
+    char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8
+    0b10000010, // LDI R0,16
     0b00000000,
+    0b00010000,
+    0b10000010, // LDI R1,8
+    0b00000001,
     0b00001000,
-    0b01100101, // INC R0
-    0b00000000,
-    0b01100101, // INC R0
-    0b00000000,
     0b01000111, // PRN R0
     0b00000000,
+    0b01000111, // PRN R1
+    0b00000001,
+    0b10100111, // CMP R0, R1
+    0b00000000,
+    0b00000001,
     0b00000001  // HLT
   };
 
@@ -73,15 +94,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_CMP:
       if (cpu->reg[regA] < cpu->reg[regB])
       {
-        cpu->FL = 0b00000100;
+        cpu->FL = (cpu->FL & ~7) | 4;
       }
       else if (cpu->reg[regA] > cpu->reg[regB])
       {
-        cpu->FL = 0b00000010;
+        cpu->FL = (cpu->FL & ~7) | 2;
       }
       else
       {
-        cpu->FL = 0b00000001;
+        cpu->FL = (cpu->FL & ~7) | 1;
       }
       break;
     case ALU_DEC:
@@ -204,6 +225,8 @@ void cpu_run(struct cpu *cpu)
         break;
       case JMP:
         cpu->PC = cpu->reg[operandA];
+        break;
+      case JNE:
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
