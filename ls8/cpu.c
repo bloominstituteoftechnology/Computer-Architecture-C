@@ -312,8 +312,12 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
         cpu->PC += num_operands + 1;
         break;
+      case PRA:
+        printf("%c\n", cpu->reg[operandA]);
+        cpu->PC += num_operands + 1;
+        break;
       case PRN:
-        printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
+        printf("%d\n", cpu->reg[operandA]);
         cpu->PC += num_operands + 1;
         break;
       case PUSH:
