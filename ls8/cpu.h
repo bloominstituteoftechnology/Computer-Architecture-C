@@ -70,7 +70,10 @@ enum alu_op {
 #define NOP  0b00000000
 #define NOT  0b01101001
 #define OR   0b10101010
+#define POP  0b01000110
+// #define PRA  ...
 #define PRN  0b01000111
+#define PUSH 0b01000101
 
 // Function declarations
 

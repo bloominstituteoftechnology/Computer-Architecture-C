@@ -308,8 +308,16 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_OR, operandA, operandB);
         cpu->PC += num_operands + 1;
         break;
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
+        cpu->PC += num_operands + 1;
+        break;
       case PRN:
         printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
+        cpu->PC += num_operands + 1;
+        break;
+      case PUSH:
+        cpu_ram_write(cpu, --cpu->SP, cpu->reg[operandA]);
         cpu->PC += num_operands + 1;
         break;
     }
