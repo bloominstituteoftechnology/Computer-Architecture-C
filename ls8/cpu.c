@@ -2,24 +2,34 @@
 
 #define DATA_LEN 6
 
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+{
+  cpu->ram[address] = value;
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
+      // From print8.ls8
+      0b10000010, // LDI R0,8
+      0b00000000,
+      0b00001000,
+      0b01000111, // PRN R0
+      0b00000000,
+      0b00000001 // HLT
   };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < DATA_LEN; i++)
+  {
     cpu->ram[address++] = data[i];
   }
 
@@ -31,10 +41,23 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    break;
+
+  case ALU_ADD:
+    // TODO
+    break;
+
+  case ALU_INC:
+    // TODO
+    break;
+
+  case ALU_DEC:
+    // TODO
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -47,7 +70,23 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (running)
+  {
+
+    switch (instruction)
+    {
+    case HLT:
+      break;
+
+    case PRN:
+      break;
+
+    case LDI:
+      break;
+
+    default:
+      break;
+    }
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
