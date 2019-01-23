@@ -1,10 +1,13 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define DATA_LEN 6
 
 // Implement CPU_RAM_READ & CPU_RAM_WRITE
 
+
+// ------------------------ DAY 1 Helper Funcs ----------------------
 // 1. Take in the cpu || an index to write into || and a value to write into it
 void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val) {
     // 2. Set given index to the value given
@@ -15,6 +18,14 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val) {
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
   return cpu->ram[index]; // cpu->ram[cpu->pc]
 }
+// --------------------------------------------------------------------
+
+
+
+
+// ------------------------ DAY 2 Helper Funcs ----------------------
+
+// --------------------------------------------------------------------
 
 /*
 
@@ -30,25 +41,47 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
 {
-  char data[DATA_LEN] = { // --> RAM ARRAY 
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = { // --> RAM ARRAY 
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+
+  // 1. Grab our file & create a line buffer
+  FILE *fp = fopen(file_name, "r");
+  char line_buffer[1024];
+
+  // 2. Handle our base case (if the file failed to open, or invalid file name)
+  if ( fp == NULL ) {
+    fprintf(stderr, "File Open Error: Could Not Open Given File (may be invalid, or try again)");
+    exit(1);
+  } else { // 2a. Encounter valid filename
+
+    // 3. Set up Index to use
+    int address_index = 0;
+
+    // 4. Loop through each line and increment while there are more lines left
+    while ( fgets(line_buffer, sizeof(line_buffer), fp) != NULL ) {
+      cpu->ram[address_index] = strtol(line_buffer, NULL, 2);
+      address_index++;
+    } // --> while loop fgets()
+  } // --> else statement fp = fopen()
+  fclose(fp);
+
 }
 
 /**
