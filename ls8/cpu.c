@@ -42,45 +42,44 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, int argc, char *argv[])
-{
-  // char data[DATA_LEN] = { // --> RAM ARRAY 
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
-
-  // 1. Grab our file & create a line buffer
-  FILE *fp = fopen(file_name, "r");
-  char line_buffer[1024];
-
-  // 2. Handle our base case (if the file failed to open, or invalid file name)
-  if ( fp == NULL ) {
-    fprintf(stderr, "File Open Error: Could Not Open Given File (may be invalid, or try again)");
+{ 
+  // 1. BASE CASE: If invalid number of arguments are passed, error
+  if (argc < 2) {
+    fprintf(stderr, "Usage Error: Needs two arguments\n");
+    printf("Argument 1: ./ls8");
+    printf("Argument 2: examples/ls8_file_name.ls8");
     exit(1);
-  } else { // 2a. Encounter valid filename
+  }
 
-    // 3. Set up Index to use
+  // 2. Access FILE, take note of target file, line buffer needed
+  FILE *fp;
+  char *file_name = argv[1];
+  char line_buffer[1024];  
+
+  // 3. BASE CASE 2: Error Opening File ( invalid file )
+  if ( ( fp = fopen(file_name, "r") ) == NULL ) {
+   fprintf(stderr, "Opening File Error: invalid file name");
+   exit(1);
+  }
+
+  // 4. Read lines
+  while ( fgets(line_buffer, sizeof(line_buffer), fp) != NULL ) {
     int address_index = 0;
+    char *ptr;
+    unsigned char ret = strtol(line_buffer, &ptr, 2);
 
-    // 4. Loop through each line and increment while there are more lines left
-    while ( fgets(line_buffer, sizeof(line_buffer), fp) != NULL ) {
-      cpu->ram[address_index] = strtol(line_buffer, NULL, 2);
-      address_index++;
-    } // --> while loop fgets()
-  } // --> else statement fp = fopen()
-  fclose(fp);
+    // 4a. Skip over the empty lines / null lines
+    if (ptr == line_buffer) {
+      continue;
+    }
+
+    // 5. Store into RAM, increment address_index
+    cpu_ram_write(cpu, address_index, ret);
+    address_index++;
+
+
+  }
+  
 
 }
 
