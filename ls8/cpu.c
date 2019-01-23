@@ -310,6 +310,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case POP:
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
+        if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
         cpu->PC += num_operands + 1;
         break;
       case PRA:
@@ -321,7 +322,8 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += num_operands + 1;
         break;
       case PUSH:
-        cpu_ram_write(cpu, --cpu->SP, cpu->reg[operandA]);
+        if (--cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+        cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
         cpu->PC += num_operands + 1;
         break;
     }
