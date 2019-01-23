@@ -1,8 +1,10 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define DATA_LEN 12
+#define ADDR_EMPTY_STACK 0xF4 // where SP is on the empty stack
+
 
 /**
  * Helper function to print out the binary representation of an int
@@ -40,41 +42,42 @@ unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned cha
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,3
-    0b00000000,
-    0b00000011,
-    0b10000010, // LDI R1,4
-    0b00000001,
-    0b00000100,
-    0b10101010, // OR R0, R1, Answer: 7
-    0b00000000,
-    0b00000001,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (argc < 2)
+  {
+    fprintf(stderr, "Usage: ./ls8 filename\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  char line[1024];
+  char *file = argv[1];
+
+  // initialize RAM address to start writing to
+  int address = 0;
+
+  // open the source file
+  if ((fp = fopen(file, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", file);
+    exit(1);
+  }
+
+  // read the source file line by line
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    char *ptr;
+    unsigned char instruction;
+
+    instruction = strtol(line, &ptr, 2);
+
+    // ignore lines from which no numbers were read
+    if (ptr == line) continue;
+
+    // add instruction to RAM and increment RAM address
+    cpu->ram[++address] = instruction;
+  }
 }
 
 /**
@@ -146,8 +149,8 @@ void cpu_run(struct cpu *cpu)
     num_operands = IR >> 6;
 
     // 3. Get the appropriate value(s) of the operands following this instruction
-    operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
+    operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xFF);
 
     // 4. switch() over it to decide on a course of action.
     switch(IR)
@@ -320,8 +323,10 @@ void cpu_init(struct cpu *cpu)
 {
   // Initialize the PC and other special registers
   cpu->PC = 0;
-  cpu->FL = 0;
-  cpu->IS = 0;
+  cpu->FL = 0; // 00000LGE
+  // cpu->IM = cpu->reg[5]; // R5
+  // cpu->IS = cpu->reg[6]; // R6
+  cpu->SP = ADDR_EMPTY_STACK; // R7
   memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
   memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
