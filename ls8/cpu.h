@@ -31,6 +31,7 @@ enum alu_op {
   ALU_MOD,
 	ALU_MUL,
   ALU_NOT,
+  ALU_OR,
 };
 
 // Instructions
@@ -62,6 +63,7 @@ enum alu_op {
 #define MUL  0b10100010
 #define NOP  0b00000000
 #define NOT  0b01101001
+#define OR   0b10101010
 #define PRN  0b01000111
 
 // Function declarations

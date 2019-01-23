@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LEN 11
+#define DATA_LEN 12
 
 /**
  * Helper function to print out the binary representation of an int
@@ -54,14 +54,15 @@ void cpu_load(struct cpu *cpu)
 
   char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,1
+    0b10000010, // LDI R0,3
+    0b00000000,
+    0b00000011,
+    0b10000010, // LDI R1,4
+    0b00000001,
+    0b00000100,
+    0b10101010, // OR R0, R1, Answer: 7
     0b00000000,
     0b00000001,
-    0b10000010, // LDI R1,2
-    0b00000001,
-    0b00000010,
-    0b01101001, // NOT R0
-    0b00000000,
     0b01000111, // PRN R0
     0b00000000,
     0b00000001  // HLT
@@ -119,6 +120,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_NOT:
       cpu->reg[regA] = ~cpu->reg[regA];
+      break;
+    case ALU_OR:
+      cpu->reg[regA] |= cpu->reg[regB];
       break;
     default:
       break;
@@ -295,6 +299,10 @@ void cpu_run(struct cpu *cpu)
         break;
       case NOT:
         alu(cpu, ALU_NOT, operandA, operandB);
+        cpu->PC += num_operands + 1;
+        break;
+      case OR:
+        alu(cpu, ALU_OR, operandA, operandB);
         cpu->PC += num_operands + 1;
         break;
       case PRN:
