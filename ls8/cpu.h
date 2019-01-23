@@ -50,6 +50,7 @@ enum alu_op {
 #define JGE  0b01011010
 #define JGT  0b01010111
 #define JLE  0b01011001
+#define JLT  0b01011000
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111

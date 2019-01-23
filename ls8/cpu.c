@@ -196,6 +196,12 @@ void cpu_run(struct cpu *cpu)
           cpu->PC = cpu->reg[operandA];
         }
         break;
+      case JLT:
+        if (cpu->FL == 0b00000100)
+        {
+          cpu->PC = cpu->reg[operandA];
+        }
+        break;
       case LDI:
         cpu->reg[operandA] = operandB;
         cpu->PC += num_operands + 1;
