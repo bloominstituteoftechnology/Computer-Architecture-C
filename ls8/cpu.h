@@ -5,26 +5,51 @@
 struct cpu {
   // TODO
   // PC
+  unsigned int PC; // Program Counter
   // registers (array)
+  unsigned char reg[8]; // emulating an 8 bit cpu
   // ram (array)
-  unsigned char PC;
-  unsigned char registers[8]; // emulating an 8 bit cpu
   unsigned char ram[256]; // 2^8 is 256
+  // Flags (00000LGE)
   unsigned char FL;
+  // IS
+  unsigned int IS; // Interrupt
+
 
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+  ALU_ADD,
+  ALU_AND,
+  ALU_CMP,
+  ALU_DEC,
+  ALU_DIV,
+  ALU_INC,
+
+	ALU_MUL,
 };
 
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
-
+#define ADD  0b10100000
+#define AND  0b10101000
+#define CALL 0b01010000
+#define CMP  0b10100111
+#define DEC  0b01100110
+#define DIV  0b10100011
+#define INC  0b01100101
+#define INT  0b01010010
+#define IRET 0b00010011
+#define JEQ  0b01010101
+#define JGE  0b01011010
+#define JGT  0b01010111
+#define JLE  0b01011001
+#define JLT  0b01011000
+#define JMP  0b01010100
+#define JNE  0b01010110
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
