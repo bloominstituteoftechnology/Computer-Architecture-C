@@ -19,23 +19,35 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  char line[1024];
 
+  // Initialize RAM address to start writing to
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  // Open the source file
+  if ((fp = fopen("examples/print8.ls8", "r")) == NULL) {
+    fprintf(stderr, "Cannot open print8.ls8\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  // Read in the source file line by line
+  while(fgets(line, sizeof(line), fp) != NULL) {
+
+    // convert these to binary strings to numbers
+    char *ptr;
+    unsigned char ret = strtol(line, &ptr, 2);
+
+    // Ignore lines from which no numbers were read
+    if (ptr == line) {
+      continue;
+    }
+
+    // Write to RAM
+    // Increment RAM address by how much was written to it
+    cpu->ram[address++] = ret;
+  }
 }
 
 /**
@@ -100,7 +112,7 @@ void cpu_run(struct cpu *cpu)
     // cpu->PC += (IR >> 6) + 1; <- could also eleminate the num_of_operands
                                 //  and have the bitshift here as (IR >> 6) will
                                 //  return the same value as num_of_operands
-                                
+
     cpu->PC += num_of_operands + 1;
   }
 }
