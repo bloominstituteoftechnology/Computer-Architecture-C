@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -27,14 +29,14 @@ void cpu_load(struct cpu *cpu)
 }
 
 
-unsigned char cpu_ram_read(struct cpu *cpu, int index)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
-  return cpu->ram[index];
+  return cpu->ram[adress];
 }
 
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
-  cpu->ram[index] = value;
+  cpu->ram[address] = value;
 }
 
 /**
@@ -43,11 +45,39 @@ void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
-    case ALU_MUL:
-      // TODO
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
-
-    // TODO: implement more ALU ops
+    case ALU_AND:
+      cpu->reg[regA] = cpu->reg[regA] & cpu->reg[regB];
+      break;
+    case ALU_CMP:
+      if (cpu->reg[regA] < cpu->reg[regB])
+      {
+        cpu->FL = (cpu->FL & ~7) | 4;
+      }
+      else if (cpu->reg[regA] > cpu->reg[regB])
+      {
+        cpu->FL = (cpu->FL & ~7) | 2;
+      }
+      else
+      {
+        cpu->FL = (cpu->FL & ~7) | 1;
+      }
+      break;
+    case ALU_DEC:
+      cpu->reg[regA]--;
+      break;
+    case ALU_DIV:
+      cpu->reg[regA] /= cpu->reg[regB];
+      break;
+    case ALU_INC:
+      cpu->reg[regA]++;
+      break;
+    case ALU_MUL:
+      break;
+    default:
+      break;
   }
 }
 
