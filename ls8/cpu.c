@@ -6,6 +6,9 @@
 #define ADDR_EMPTY_STACK 0xF4 // where SP is on the empty stack
 
 
+// initialize RAM address to start writing to when reading from a file
+unsigned int address = 0;
+
 /**
  * Helper function to print out the binary representation of an int
  */
@@ -53,9 +56,6 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
   FILE *fp;
   char line[1024];
   char *file = argv[1];
-
-  // initialize RAM address to start writing to
-  int address = 0;
 
   // open the source file
   if ((fp = fopen(file, "r")) == NULL)
@@ -322,7 +322,10 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += num_operands + 1;
         break;
       case PUSH:
-        if (--cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+        if (--cpu->SP <= address) {
+          fprintf(stderr, "Stack overflow has occurred.\n");
+          exit(1);
+        }
         cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
         cpu->PC += num_operands + 1;
         break;
