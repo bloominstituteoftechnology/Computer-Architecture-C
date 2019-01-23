@@ -74,11 +74,12 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
     }
 
     // 5. Store into RAM, increment address_index
-    cpu_ram_write(cpu, address_index, ret);
+    cpu_ram_write(cpu, address_index++, ret);
     address_index++;
 
 
   }
+  fclose(fp);
   
 
 }
