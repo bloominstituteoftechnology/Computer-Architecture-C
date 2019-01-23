@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -20,8 +22,10 @@ void cpu_load(struct cpu *cpu)
     0b10000010, // LDI R0,8
     0b00000000,
     0b00001000,
+
     0b01000111, // PRN R0
     0b00000000,
+
     0b00000001  // HLT
   };
 
@@ -63,29 +67,45 @@ void cpu_run(struct cpu *cpu)
     operandA = cpu_ram_read(cpu, cpu->PC+1);
     operandB = cpu_ram_read(cpu, cpu->PC+2);
 
+    int add_to_pc = (IR >> 6) + 1;
+
+    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
         break;
 
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
         break;
 
       case HLT:
         running = 0;
-        cpu->PC += 1;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
         break;
 
       
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC += add_to_pc;
   }
 }
 
@@ -96,4 +116,10 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC =0;
+  cpu->reg[SP] = 0xf4;
+
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->reg, 0, sizeof cpu->reg);
+
+  cpu->reg[7] = 0xF4;
 }
