@@ -36,7 +36,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
-  cpu->ram[address] = value;
+  return cpu->ram[address] = value;
 }
 
 /**
