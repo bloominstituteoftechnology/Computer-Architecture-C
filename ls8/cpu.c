@@ -57,10 +57,10 @@ void cpu_load(struct cpu *cpu)
     0b10000010, // LDI R0,8
     0b00000000,
     0b00001000,
-    0b10000010, // LDI R1,2
+    0b10000010, // LDI R1,5
     0b00000001,
-    0b00000010,
-    0b10000011, // LD R0,R1
+    0b00000101,
+    0b10100100, // MOD R0,R1
     0b00000000,
     0b00000001,
     0b01000111, // PRN R0
@@ -111,6 +111,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_INC:
       cpu->reg[regA]++;
+      break;
+    case ALU_MOD:
+      cpu->reg[regA] %= cpu->reg[regB];
       break;
     case ALU_MUL:
       break;
@@ -267,6 +270,18 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->reg[operandA] = operandB;
         cpu->PC += num_operands + 1;
+        break;
+      case MOD:
+        if (cpu->reg[operandB] == 0)
+        {
+          printf("Divide by 0 not allowed.\n");
+          running = 0;
+        }
+        else
+        {
+          alu(cpu, ALU_MOD, operandA, operandB);
+          cpu->PC += num_operands + 1;
+        }
         break;
       case PRN:
         printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);

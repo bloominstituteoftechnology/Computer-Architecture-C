@@ -28,6 +28,7 @@ enum alu_op {
   ALU_DEC,
   ALU_DIV,
   ALU_INC,
+  ALU_MOD,
 	ALU_MUL,
 };
 
@@ -56,6 +57,7 @@ enum alu_op {
 #define LD   0b10000011
 #define LDI  0b10000010
 #define HLT  0b00000001
+#define MOD  0b10100100
 #define PRN  0b01000111
 
 // Function declarations
