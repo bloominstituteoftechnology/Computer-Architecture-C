@@ -64,7 +64,6 @@ void cpu_load(struct cpu *cpu)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
-    // TODO: implement more ALU ops
     case ALU_ADD:
       cpu->reg[regA] += cpu->reg[regB];
       break;
@@ -96,6 +95,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_MUL:
       break;
+    default:
+      break;
   }
 }
 
@@ -106,26 +107,30 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
+  unsigned int num_operands;
 
   while (running) {
-    // TODO
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
+
     // 2. Figure out how many operands this next instruction requires
+    num_operands = IR >> 6;
+
     // 3. Get the appropriate value(s) of the operands following this instruction
     operandA = cpu_ram_read(cpu, cpu->PC + 1);
     operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
     // 4. switch() over it to decide on a course of action.
     switch(IR)
     {
       // 5. Do whatever the instruction should do according to the spec.
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case AND:
         alu(cpu, ALU_AND, operandA, operandB);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case CALL:
         cpu->reg[7]--;
@@ -134,11 +139,11 @@ void cpu_run(struct cpu *cpu)
         break;
       case CMP:
         alu(cpu, ALU_CMP, operandA, operandB);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case DEC:
         alu(cpu, ALU_DEC, operandA, operandB);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case DIV:
         if (cpu->reg[operandB] == 0)
@@ -149,7 +154,7 @@ void cpu_run(struct cpu *cpu)
         else
         {
           alu(cpu, ALU_DIV, operandA, operandB);
-          cpu->PC += (IR >> 6) + 1;
+          cpu->PC += num_operands + 1;
         }
         break;
       case HLT:
@@ -157,15 +162,15 @@ void cpu_run(struct cpu *cpu)
         break;
       case INC:
         alu(cpu, ALU_INC, operandA, operandB);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case INT:
         cpu->IS = cpu->reg[operandA];
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case IRET:
-        // TODO
-        // cpu->PC += (IR >> 6) + 1;
+        // TODO: Implement this
+        // cpu->PC += num_operands + 1;
         // break;
       case JEQ:
         if (cpu->FL == 0b00000001)
@@ -175,15 +180,13 @@ void cpu_run(struct cpu *cpu)
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
       case PRN:
         printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
-        cpu->PC += (IR >> 6) + 1;
+        cpu->PC += num_operands + 1;
         break;
     }
-    // 6. Move the PC to the next instruction.
-    
   }
 }
 
@@ -192,7 +195,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->FL = 0;
   cpu->IS = 0;

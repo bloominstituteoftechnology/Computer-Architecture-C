@@ -4,13 +4,13 @@
 // Holds all information about the CPU
 struct cpu {
   // PC
-  unsigned char PC;
+  unsigned int PC; // Program Counter
 
   //FL
-  unsigned char FL;
+  unsigned int FL; // Flags
 
   // IS
-  unsigned char IS;
+  unsigned int IS; // Interrupt
 
   // registers (array)
   unsigned char reg[8];
