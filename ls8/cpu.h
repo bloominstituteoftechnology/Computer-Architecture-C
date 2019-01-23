@@ -7,7 +7,7 @@ struct cpu {
   unsigned int PC; // Program Counter
 
   //FL
-  unsigned int FL; // Flags
+  unsigned int FL; // Flags (00000LGE)
 
   // IS
   unsigned int IS; // Interrupt
@@ -47,6 +47,7 @@ enum alu_op {
 #define INT  0b01010010
 #define IRET 0b00010011 // not done
 #define JEQ  0b01010101
+#define JGE  0b01011010
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
