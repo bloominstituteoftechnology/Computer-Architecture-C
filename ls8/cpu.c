@@ -74,12 +74,10 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
     }
 
     // 5. Store into RAM, increment address_index
-    cpu_ram_write(cpu, address_index++, ret);
-    address_index++;
+    cpu->ram[++address_index] = ret;
 
 
-  }
-  fclose(fp);
+  }  
   
 
 }
@@ -134,18 +132,19 @@ void cpu_run(struct cpu *cpu)
       
       case LDI:        
         cpu->registers[operand_a] = operand_b;
+        cpu->PC += num_of_operands + 1;
         break;
 
       case PRN:
         printf("%d\n", cpu->registers[operand_a]);
+        cpu->PC += num_of_operands + 1;
         break;
       
       default:
         break;
     } // --> switch()
 
-    // 6. Move the PC to the next instruction.
-    cpu->PC += num_of_operands + 1;
+    // 6. Move the PC to the next instruction.    
   }
 }
 
