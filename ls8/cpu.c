@@ -54,13 +54,13 @@ void cpu_load(struct cpu *cpu)
 
     char data[DATA_LEN] = {
     // From print8.ls8
-    0b10000010, // LDI R0,8
+    0b10000010, // LDI R0,4
     0b00000000,
-    0b00001000,
-    0b10000010, // LDI R1,5
+    0b00000100,
+    0b10000010, // LDI R1,2
     0b00000001,
-    0b00000101,
-    0b10100100, // MOD R0,R1
+    0b00000010,
+    0b10100010, // MUL R0,R1
     0b00000000,
     0b00000001,
     0b01000111, // PRN R0
@@ -116,6 +116,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] %= cpu->reg[regB];
       break;
     case ALU_MUL:
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
     default:
       break;
@@ -282,6 +283,10 @@ void cpu_run(struct cpu *cpu)
           alu(cpu, ALU_MOD, operandA, operandB);
           cpu->PC += num_operands + 1;
         }
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += num_operands + 1;
         break;
       case PRN:
         printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
