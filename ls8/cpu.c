@@ -5,7 +5,7 @@
 
 #define DATA_LEN 6
 #define SP 7
-
+#define IS
 unsigned char cpu_ram_read( struct cpu *cpu, unsigned char address){
   return cpu->ram[address];
 }
@@ -50,7 +50,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
     exit(1);
   }
 
-  while(fgets(data, sizeof data, fp) !=NULL){
+  while(fgets(data, sizeof(data), fp) !=NULL){
     char *endptr;
     unsigned char byte = strtol(data, &endptr, 2);
     if (endptr==data){
@@ -113,6 +113,13 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     
+//     interrupts = cpu.reg[IM] & cpu.reg[IS];
+//     for (int i = 0; i < 8; i++) {
+//   // Right shift interrupts down by i, then mask with 1 to see if that bit was set
+//   int interrupt_happened = ((interrupts >> i) & 1) == 1;
+
+//   // ...
+// }
     //LDI, PRN,MUL,ADD, PUSH, CALL, POP, RET, HLT
     int pc_increment=(current>>6)+1;//7
     switch(current){
@@ -173,8 +180,15 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu_pop(cpu);
         pc_increment=0;
         break;
-        
 
+      case ST:
+        cpu->registers[param1] =param2;
+        pc_increment++ ;
+        break;
+
+      default:
+      printf("hello, you are not done with this func yet\n");
+      exit(1);
     }
     cpu->PC +=pc_increment;
   }
