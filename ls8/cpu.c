@@ -4,6 +4,7 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read( struct cpu *cpu, unsigned char address){
   return cpu->ram[address];

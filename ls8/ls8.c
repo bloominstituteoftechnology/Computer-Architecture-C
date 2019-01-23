@@ -8,7 +8,7 @@
  */
 int main(int argc, char *argv[])
 { 
-  printf("\nStarting Main....\n");
+  printf("\nStarting Main ls8.c....\n");
   
 
   if (argc !=2) {
