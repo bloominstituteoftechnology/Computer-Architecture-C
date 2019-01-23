@@ -3,14 +3,20 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // PC
-  unsigned int PC; // Program Counter
+  // Program Counter
+  unsigned int PC;
 
-  //FL
-  unsigned int FL; // Flags (00000LGE)
+  // Flags (00000LGE)
+  unsigned int FL;
 
-  // IS
-  unsigned int IS; // Interrupt
+  // Interrupt Mask (R5)
+  unsigned int IM;
+
+  // Interrupt Status (R6)
+  unsigned int IS;
+
+  // Stack Pointer (R7)
+  unsigned int SP;
 
   // registers (array)
   unsigned char reg[8];
@@ -68,7 +74,7 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, int argc, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
