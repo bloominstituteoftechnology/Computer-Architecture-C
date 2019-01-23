@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -19,23 +20,51 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char addr = 0x00; // initialize RAM address to start writing to
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  // open the source file
+  if (fp == NULL) {
+    fprintf(stderr, "Trouble opening the file.\n");
+    exit(2);
   }
+
+  // read the source file line by line
+  while (fgets(line, sizeof(line), fp) != NULL) { // char *fgets(char *str, int n, FILE *stream)
+    // convert these binary strings to numbers
+    char *endptr;
+    unsigned char ret = strtoul(line, &endptr, 2); // stored as numerical value, but prints to binary or hexvalues
+
+    if (endptr == line) { // ALT1 ignore lines from which no numbers were read, endptr gets set to line if no numbers converted
+      continue;
+    }
+
+    // write ret to RAM
+    // increment RAM address by how much was written to it
+    cpu_ram_write(cpu, ret, addr++); // void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+  }
+
+  fclose(fp);
+
+  // REFERENCE
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -45,6 +74,10 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  (void)cpu; // suppress compiler warnings
+  (void)regA;
+  (void)regB;
+
   switch (op) {
     case ALU_MUL:
       // TODO
