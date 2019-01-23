@@ -31,7 +31,7 @@ void cpu_load(struct cpu *cpu)
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
-  return cpu->ram[adress];
+  return cpu->ram[address];
 }
 
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
