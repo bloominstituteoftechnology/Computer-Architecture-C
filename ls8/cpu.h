@@ -5,11 +5,11 @@
 struct cpu {
   // TODO
   // PC --> keeps track of where we are in the program
-  unsigned int pc; // --> Move me after each function is done
+  unsigned int PC; // --> Move me after each function is done
   // registers (array) --> where we push operand values
   unsigned char registers[8]; // --> R0 -> R7
   // ram (array) --> holds everything else 
-  unsigned char ram[256];
+  unsigned char ram[256]; // --> 11111111
 
 };
 
