@@ -5,15 +5,27 @@
 struct cpu {
   // TODO
   // PC
+  unsigned int PC;
   // registers (array)
+  unsigned char reg[8];
   // ram (array)
+  unsigned char ram[256];
 };
 
+ // Inventory what is here
+ // Implement struct cpu in cpu.h
+ // Add RAM functions cpu_ram_read and cpu_ram_write
+ // Implement cpu_init()
+ // Implement the core of cpu_run()
+ // Implement the HLT instruction handler
+ // Add the LDI instruction
+ // Add the PRN instruction
+
 // ALU operations
-enum alu_op {
-	ALU_MUL
-	// Add more here
-};
+// enum alu_op {
+// 	ALU_MUL
+// 	// Add more here
+// };
 
 // Instructions
 
