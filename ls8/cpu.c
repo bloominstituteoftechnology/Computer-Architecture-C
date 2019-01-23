@@ -2,6 +2,19 @@
 
 #define DATA_LEN 6
 
+// Implement CPU_RAM_READ & CPU_RAM_WRITE
+
+// 1. Take in the cpu || an index to write into || and a value to write into it
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val) {
+    // 2. Set given index to the value given
+    cpu->ram[index] = val;
+}
+
+// 1. Take in a cpu || index they want to read
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -50,6 +63,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -63,5 +77,6 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // TODO: Initialize the PC and other special registers  
+  cpu->pc = 0;
 }

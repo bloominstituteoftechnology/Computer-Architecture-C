@@ -4,14 +4,22 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // PC --> keeps track of where we are in the program
+  unsigned int pc; // --> Move me after each function is done
+  // registers (array) --> where we push operand values
+  unsigned char registers[8]; // --> R0 -> R7
+  // ram (array) --> holds everything else 
+  unsigned char ram[256];
+
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_HTL,
+  ALU_LDT,
+  ALU_PRN,
+
 	// Add more here
 };
 
