@@ -26,29 +26,17 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
 // ------------------------ DAY 2 Helper Funcs ----------------------
 void push(struct cpu *cpu, unsigned char val) {  
   cpu->SP--;
-  cpu_ram_write(cpu, val, cpu->SP);
-  // printf("push\n");
+  cpu_ram_write(cpu, val, cpu->SP);  
 }
 
 unsigned char pop(struct cpu *cpu) {
   unsigned char ret = cpu_ram_read(cpu, cpu->SP);
   cpu->SP++;
 
-  return ret;
-  // printf("pop\n");  
+  return ret;   
 }
 // --------------------------------------------------------------------
 
-/*
-
-  index:
-  1. 0b10000010
-  2. 
-  3.
-  ...
-  256.
-
-*/
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -179,8 +167,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers  
-  printf("cpu_init print\n");
-  // cpu->stack_pointer = -1;
+  printf("cpu_init print\n");  
   cpu->PC = 0;
   cpu->SP = ADDR_EMPTY_STACK;
   

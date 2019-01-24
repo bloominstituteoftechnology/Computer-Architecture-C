@@ -6,7 +6,7 @@ struct cpu {
   // TODO
   // PC --> keeps track of where we are in the program
   unsigned char PC; // --> Move me after each function is done
-  unsigned char SP;
+  unsigned char SP; // --> Stack pointer
   // registers (array) --> where we push operand values
   unsigned char registers[8]; // --> R0 -> R7
   // ram (array) --> holds everything else 
@@ -17,8 +17,8 @@ struct cpu {
 
 };
 
-#define ADDR_EMPTY_STACK 0xF4
 #define ADDR_PROGRAM_ENTRY 0x00
+#define ADDR_EMPTY_STACK 0xF4
 
 // ALU operations
 enum alu_op {
