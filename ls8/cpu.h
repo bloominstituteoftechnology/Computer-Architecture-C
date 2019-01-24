@@ -6,6 +6,7 @@
 struct cpu
 {
   // TODO
+  unsigned char SP;
   unsigned int PC;
   unsigned char reg[8];
   unsigned char ram[256];
@@ -27,7 +28,11 @@ enum alu_op
 // literals should be used.
 
 #define LDI 0b10000010
+#define PUSH 0b01000101
+#define POP 0b01000110
 #define HLT 0b00000001
+#define INC 0b01100101
+#define DEC 0b01100110
 #define PRN 0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
 

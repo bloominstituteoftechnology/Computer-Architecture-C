@@ -62,7 +62,6 @@ void cpu_load(struct cpu *cpu, char *argv[])
   unsigned char address = 0;
   while (fgets(string, sizeof(string), fp) != NULL)
   {
-
     unsigned long int data = strtoul(string, NULL, 2);
     cpu->ram[address] = data;
     address++;
@@ -106,8 +105,8 @@ void cpu_run(struct cpu *cpu)
   unsigned char instruction;
   unsigned int num_operands = instruction >> 6;
 
-  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+  unsigned char operandA;
+  unsigned char operandB;
   if (num_operands == 1)
   {
     operandA = cpu->ram[cpu->PC + 1];
