@@ -75,19 +75,17 @@ void cpu_load(struct cpu *cpu)
  * Run the CPU
  */
 
-void push(int val, struct cpu *cpu)
+
+
+void push(unsigned char val, struct cpu *cpu)
 {
-  cpu->SP++;
-  cpu->ram[cpu->SP] = val;
+  cpu->SP--;
+  cpu_ram_write(cpu, val, cpu->SP);
 }
 
-int pop(struct cpu *cpu)
+unsigned char pop(struct cpu *cpu)
 {
-  int ret = cpu->ram[cpu->SP];
-  cpu->SP--;
-
-  cpu->ram[cpu->SP] = ret;
-  printf()
+  return cpu_ram_read(cpu, cpu->SP++);
 }
 
 
@@ -120,32 +118,23 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       case PRN:
-        // print whatever is in the specified register
-        // printf("PRN printing: %d\n", cpu->reg[operandA]);
-        printf("PRN reg %d\n", cpu->reg[cpu->SP]);
+        printf("%d\n", cpu->reg[operandA]);
         break;
       case LDI:
         cpu->reg[operandA] = operandB;
         break;
       case MUL:
-        printf("cpu->reg[0]: %i\n", cpu->reg[0]);
-        printf("cpu->reg[1]: %i\n", cpu->reg[1]);
         cpu->reg[operandA] = cpu->reg[0] * cpu->reg[1];
         break;
       case PUSH:
-        // printf("pushing:  %i\n", cpu->reg[operandA]);
         push(cpu->reg[operandA], cpu);
-      // void push(int val, struct cpu *cpu)
-      //do stuff
-
         break;
       case POP:
-        pop(cpu);
+        cpu->reg[operandA] = pop(cpu);
       default:
         break;
+      
     }
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
     cpu->PC += num_operands + 1;
   }
 }
@@ -156,8 +145,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = -1;
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
-  cpu->SP = ADDR_PROGRAM_ENTRY;
+  cpu->SP = ADDR_EMPTY_STACK;
 }
