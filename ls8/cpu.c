@@ -86,7 +86,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  cpu->SP = 0b11110100;
+  cpu->registers[7] = 0b11110100;
   // int number = 1;
   while (running) {
     // TODO
@@ -119,21 +119,37 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case PUSH:
-        cpu->ram[--cpu->SP] = cpu->registers[operandA];
+        cpu->ram[--cpu->registers[7]] = cpu->registers[operandA];
         break;
       case POP:
-        cpu->registers[operandA] = cpu->ram[cpu->SP++];
+        cpu->registers[operandA] = cpu->ram[cpu->registers[7]++];
+        break;
       case CALL:
-        cpu->ram[--cpu->SP] = cpu->PC + 2;
+        cpu->ram[--cpu->registers[7]] = cpu->PC + 2;
         cpu->PC = cpu->registers[operandA];
         increment_PC = 0;
         break;
       case RET:
-        cpu->PC = cpu->ram[cpu->SP++];
+        cpu->PC = cpu->ram[cpu->registers[7]++];
         increment_PC = 0;
         break;
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      case ST:
+        cpu->ram[cpu->registers[operandA]] = cpu->registers[operandB];
+        break;
+      case JMP:
+        cpu->PC = cpu->registers[operandA];
+        increment_PC = 0;
+        break;
+      case PRA:
+        printf("%c\n", cpu->registers[operandA]);
+        break;
+      case IRET:
+        for(int i=6; i>=0; i--){
+          cpu->registers[i] = cpu->ram[cpu->registers[7]++];
+        }
         break;
       default:
         break;
@@ -156,7 +172,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu = malloc(sizeof(cpu));
   cpu->PC = 0;
-  cpu->SP = 0b11110011;
+  cpu->registers[7] = 0b11110011;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
 }

@@ -10,7 +10,6 @@ struct cpu {
   // TODO
   // PC
   unsigned int PC;
-  unsigned int SP;
   // registers (array)
   unsigned char registers[8];
   // ram (array)
@@ -40,6 +39,10 @@ enum alu_op {
 #define RET  0b00010001
 #define JMP  0b01010100
 #define ADD  0b10100000
+#define ST   0b10000100
+#define JMP  0b01010100
+#define PRA  0b01001000
+#define IRET 0b00010011
 
 // Function declarations
 
