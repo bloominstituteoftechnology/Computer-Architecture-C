@@ -6,12 +6,12 @@
 #define DATA_LEN 6
 #define SP 7
 
-// void cpu_push(struct cpu *cpu, unsigned char val)
-// {
-//   cpu->reg[SP]--;
-//   cpu->ram[cpu->reg[SP]] = val; // storing the address 
-//   // cpu_ram_write(cpu, val, cpu->reg[SP]);
-// }
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val; // storing the address 
+  // cpu_ram_write(cpu, val, cpu->reg[SP]);
+}
 
 unsigned char cpu_pop(struct cpu *cpu)
 {
@@ -93,7 +93,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   // TODO
   switch (op) {
     case ALU_MUL:
-      cpu->reg[regA] *= cpu-> reg[regB];
+      cpu->reg[regA] *= cpu->reg[regB];
+      break;
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
     default:
       break;
@@ -150,6 +153,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
         break;
 
+      // ### ADD
+      // *This is an instruction handled by the ALU.*
+      // `ADD registerA registerB`
+      // Add the value in two registers and store the result in registerA.  
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+        break;
+
       case PUSH:
         cpu->reg[SP]--;
         cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; // store the value at operandA into ram
@@ -162,9 +173,31 @@ void cpu_run(struct cpu *cpu)
         // cpu->reg[operandA] = cpu_pop(cpu); // unsigned char cpu_pop(struct cpu *cpu)
         break;
 
+      // ### CALL register
+      // Calls a subroutine (function) at the address stored in the register.
+      // 1. The address of the ***instruction*** _directly after_ `CALL` is
+      //   pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+      // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+      case CALL:
+        cpu->reg[SP]--;
+        cpu->ram[cpu->reg[SP]] = cpu->PC+2;
+        // cpu_push(cpu, cpu->PC+2);
+        cpu->PC = cpu->reg[operandA];
+        break;
+
+      // ### RET
+      // Return from subroutine.
+      // Pop the value from the top of the stack and store it in the `PC`.
+      case RET:
+        cpu->PC = cpu->ram[cpu->reg[SP]];
+        cpu->reg[SP]++;
+        // cpu->PC = cpu_pop(cpu);
+        break;
+
       default:
-        printf("Unknown instruction %02x\n", IR);
-        exit(3);
+        break;
+        // printf("Unknown instruction %02x\n", IR);
+        // exit(3);
     }
 
     // 6. Move the PC to the next instruction.

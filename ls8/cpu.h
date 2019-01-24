@@ -14,7 +14,8 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_ADD
 	// Add more here
 };
 
@@ -29,13 +30,12 @@ enum alu_op {
 #define MUL  0b10100010
 #define PUSH 0b01000101
 #define POP  0b01000110
+#define CALL 0b01010000
+#define RET  0b00010001
+#define ADD  0b10100000
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
-extern void cpu_push(struct cpu *cpu, unsigned char val);
-extern unsigned char cpu_pop(struct cpu *cpu);
-extern void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address);
-extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address);
 extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
