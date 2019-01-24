@@ -4,6 +4,22 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define SP 7
+
+// void cpu_push(struct cpu *cpu, unsigned char val)
+// {
+//   cpu->reg[SP]--;
+//   cpu->ram[cpu->reg[SP]] = val; // storing the address 
+//   // cpu_ram_write(cpu, val, cpu->reg[SP]);
+// }
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  // unsigned char ret = cpu_ram_read(cpu, cpu->reg[SP]);
+  unsigned char ret = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+  return ret;
+}
 
 // Write the given value to the LS8's Ram at the given address
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
@@ -74,10 +90,12 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  // TODO
   switch (op) {
     case ALU_MUL:
-      // TODO
       cpu->reg[regA] *= cpu-> reg[regB];
+      break;
+    default:
       break;
 
     // TODO: implement more ALU ops
@@ -109,7 +127,8 @@ void cpu_run(struct cpu *cpu)
     }
 
     // TRACER
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    // printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    // printf("TRACE: %2s: %02X %02X %02X\n", cpu->ram, IR, operandA, operandB);
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -131,8 +150,21 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
         break;
 
-      default:
+      case PUSH:
+        cpu->reg[SP]--;
+        cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; // store the value at operandA into ram
+        // cpu_push(cpu, cpu->reg[operandA]); // void cpu_push(struct cpu *cpu, unsigned char val)
         break;
+
+      case POP:
+        cpu->reg[operandA] = cpu->ram[cpu->reg[SP]]; // pull the value at operandA into ram
+        cpu->reg[SP]++;
+        // cpu->reg[operandA] = cpu_pop(cpu); // unsigned char cpu_pop(struct cpu *cpu)
+        break;
+
+      default:
+        printf("Unknown instruction %02x\n", IR);
+        exit(3);
     }
 
     // 6. Move the PC to the next instruction.
@@ -143,10 +175,12 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
+
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = 0x00; // when programs start getting loaded (ADDR_PROGRAM_ENTRY)
+  cpu->reg[SP] = 0xF4; // where SP is on the empty stack (ADDR_EMPTY_STACK)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
