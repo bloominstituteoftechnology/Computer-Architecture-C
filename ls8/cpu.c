@@ -82,6 +82,7 @@ void cpu_run(struct cpu *cpu)
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC += (num_operands + 1);
   }
 }
 
