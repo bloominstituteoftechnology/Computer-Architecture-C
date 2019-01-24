@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 #define DATA_LEN 6
+#define SP 7
 
 // Implement CPU_RAM_READ & CPU_RAM_WRITE
 
@@ -24,16 +26,16 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
 
 
 // ------------------------ DAY 2 Helper Funcs ----------------------
-void push(struct cpu *cpu, unsigned char val) {  
-  cpu->SP--;
-  cpu_ram_write(cpu, val, cpu->SP);  
+void push(struct cpu *cpu, unsigned char val){
+  cpu->registers[SP]--;
+  cpu->ram[cpu->registers[SP]]=val;
 }
 
-unsigned char pop(struct cpu *cpu) {
-  unsigned char ret = cpu_ram_read(cpu, cpu->SP);
-  cpu->SP++;
+unsigned char pop(struct cpu *cpu){
+  unsigned char ret = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
 
-  return ret;   
+  return ret;
 }
 // --------------------------------------------------------------------
 
@@ -140,15 +142,15 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->registers[operand_a]);        
         break;
 
-      case MUL:
+      case MUL:  
         alu(cpu, ALU_MUL, operand_a, operand_b);
         break;
 
-      case PUSH:
+      case PUSH:  
         push(cpu, cpu->registers[operand_a]);
         break;
 
-      case POP:
+      case POP:      
         cpu->registers[operand_a] = pop(cpu);
         break;
       
@@ -169,7 +171,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers  
   printf("cpu_init print\n");  
   cpu->PC = 0;
-  cpu->SP = ADDR_EMPTY_STACK;
+  cpu->registers[SP] = 0xF4;
   
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));

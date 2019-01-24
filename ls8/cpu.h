@@ -5,20 +5,20 @@
 struct cpu {
   // TODO
   // PC --> keeps track of where we are in the program
-  unsigned char PC; // --> Move me after each function is done
-  unsigned char SP; // --> Stack pointer
-  // registers (array) --> where we push operand values
-  unsigned char registers[8]; // --> R0 -> R7
-  // ram (array) --> holds everything else 
-  unsigned char ram[256]; // --> 11111111
+  unsigned char PC; // --> Move me after each function is done  
 
   // stack pointer & stack array  
+  unsigned char SP;
+
+  // registers (array) --> where we push operand values
+  unsigned char registers[8]; // --> R0 -> R7
   
+  // ram (array) --> holds everything else 
+  unsigned char ram[256]; // --> 11111111  
 
 };
 
 #define ADDR_PROGRAM_ENTRY 0x00
-#define ADDR_EMPTY_STACK 0xF4
 
 // ALU operations
 enum alu_op {
