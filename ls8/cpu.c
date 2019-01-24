@@ -56,6 +56,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registeres[regA]*=cpu->registeres[regB];
+      break;
+      case ALU_ADD:
+      cpu->registeres[regA] += cpu->registeres[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -102,7 +106,20 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
+      
+      case PUSH:
+        cpu->registeres[7] -= 1; 
+        cpu-> ram[cpu->registeres[7]] = cpu->registeres[operandA]; 
+        break; 
+      
+      case POP:
+        cpu->registeres[operandA] = cpu-> ram[cpu->registeres[7]]; 
+        cpu->registeres[7]++; 
+        break; 
 
+      case ADD: 
+        alu(cpu, ALU_ADD, operandA, operandB); 
+        break;
     }
     // 6. Move the PC to the next instruction.
     cpu->PC += curr_instr + 1;
