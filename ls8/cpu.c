@@ -329,6 +329,12 @@ void cpu_run(struct cpu *cpu)
         cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
         cpu->PC += num_operands + 1;
         break;
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->SP++);
+        if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+        break;
+      default:
+        break;
     }
   }
 }

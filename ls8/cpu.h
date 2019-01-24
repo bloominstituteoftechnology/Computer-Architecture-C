@@ -74,6 +74,7 @@ enum alu_op {
 #define PRA  0b01001000
 #define PRN  0b01000111
 #define PUSH 0b01000101
+#define RET  0b00010001
 
 // Function declarations
 
