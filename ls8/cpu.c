@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -7,23 +9,12 @@
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char line[1024];
 
-  int address = 0;
+  if((fp = fopen("print8.ls8", "r")) == NULL) {
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
   }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -45,44 +36,63 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+  // Just so we don't have to type cpu-> every time
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
+
   int running = 1; // True until we get a HLT instruction
-  unsigned char operandA = NULL;
-  unsigned char operandB = NULL;
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
-    // 2. Figure out how many operands this next instruction requires
-    unsigned int num_operands = instruction >> 6;
-    // 3. Get the appropriate value(s) of the operands following this instruction
-    if(num_operands == 2) {
-      operandA = cpu_ram_read(cpu, (cpu->PC + 1) &0xff);
-      operandB = cpu_ram_read(cpu, (cpu->PC + 2) &0xff);
+    unsigned char operandA = NULL;
+    unsigned char operandB = NULL;
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned int num_operands = IR >> 6;
+
+    // &'ing by 0xff is essentially modding by 0xff, or 255
+    // This just ensures that we wrap around if we ever reach
+    // the end of the 255 bytes of allocated RAM and don't go
+    // past it
+    if (num_operands == 2) {
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
+      operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
     } else if (num_operands == 1) {
-      operandA = cpu_ram_read(cpu, (cpu->PC + 1) &0xff);
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     } else {}
-    // 4. switch() over it to decide on a course of action.
-    switch(instruction) {
+
+    // True if this instruction might set the PC
+    // This line is shifting the instruction by 4 bits to access
+    // the flag that indicates whether the PC might be set, and
+    // then &'ing it to see if the bit is set to 0 or 1
+    int instruction_set_pc = (IR >> 4) & 1;
+
+    switch (IR) {
+
+      case LDI:
+        reg[operandA] = operandB;
+        break;
+
+      case PRN:
+        printf("%d\n", reg[operandA]);
+        break;
+
       case HLT:
         running = 0;
         break;
-      
-      case PRN:
-        printf("%d\n", cpu->reg[operandA]);
-        break;
-
-      case LDI:
-        cpu->reg[operandA] = operandB;
-        break;
 
       default:
-        printf("PC  %02x: unknown instruction %02x\n", cpu->PC, instruction);
+        fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
         exit(3);
     }
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
-    cpu->PC += (num_operands + 1);
+
+    if (!instruction_set_pc) {
+      // Increment PC by the number of arguments that were passed
+      // to the instruction we just executed
+      // We do this by shifting 6 bits and modding by 4 to access
+      // the 1st and 2nd bits of the IR, which indicate how many
+      // operands the previous instruction expected
+      // Plus 1 because that is the size of the opcode itself
+      cpu->PC += num_operands + 1;
+    }
   }
 }
 
@@ -97,12 +107,19 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->ram));
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+/**
+ * Helper function to write a value to the specified index in RAM
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char index)
 {
-  return cpu->ram[address];
+  cpu->ram[index] = val;
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+/**
+ * Helper function to read a value from the specified index in RAM
+ * Returns the read value
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  cpu->ram[address] = value;
+  return cpu->ram[index];
 }
