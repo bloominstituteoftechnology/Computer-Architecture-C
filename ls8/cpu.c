@@ -74,6 +74,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
   }
 }
 
@@ -101,6 +104,7 @@ void cpu_run(struct cpu *cpu)
       operandB = cpu->ram[cpu->PC+2];
     }
     // 4. switch() over it to decide on a course of action.
+    int increment_PC = 1;
     switch(IR){
       case HLT:
         running = 0;
@@ -119,12 +123,28 @@ void cpu_run(struct cpu *cpu)
         break;
       case POP:
         cpu->registers[operandA] = cpu->ram[cpu->SP++];
+      case CALL:
+        cpu->ram[--cpu->SP] = cpu->PC + 2;
+        cpu->PC = cpu->registers[operandA];
+        increment_PC = 0;
+        break;
+      case RET:
+        cpu->PC = cpu->ram[cpu->SP++];
+        increment_PC = 0;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
       default:
         break;
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    cpu->PC = cpu->PC+1+amount_of_operands;
+    if(increment_PC){
+      cpu->PC = cpu->PC+1+amount_of_operands;
+    }else{
+      increment_PC = 1;
+    }
   }
 }
 
