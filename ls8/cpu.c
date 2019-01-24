@@ -84,6 +84,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
+      printf("Multiply has finished.\n");
       break;
 
     case ALU_ADD:
@@ -128,15 +130,16 @@ void cpu_run(struct cpu *cpu)
       
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff),
       operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
-      printf("Two operands, %d, %d\n", operandA, operandB);
+      printf("Two operands, reg: %d, val: %d\n", operandA, operandB);
     } else if (num_operands == 1){
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
       printf("One operand, %d\n", operandA);
-    } else {
-      printf("No operands.\n");
-      running = 0;
-      // do something if no operands
     }
+    // } else {
+    //   printf("No operands.\n");
+    //   running = 0;
+    //   // halt process if no operands given
+    // }
     // 4. switch() over it to decide on a course of action.
 
     switch(instruction){
@@ -153,6 +156,15 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
+        break;
+
+      case MUL:
+        printf("MUL was called.\n");
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // alu takes in cpu, operation, and value A and B.
+        // mult.ls8 does the following: R0 is set to value A. R1 is set to value B. MUL is called on R0 and R1. R0 is printed. 
+        // Our answer should be in R0 when print is called.
+        // Halt.
         break;
 
       default:
