@@ -74,6 +74,20 @@ void cpu_run(struct cpu *cpu)
     printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB; // operandA here is the register, operandB is the value (see LS8-spec)
+        break;
+
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+    }
     // 6. Move the PC to the next instruction.
   }
 }
