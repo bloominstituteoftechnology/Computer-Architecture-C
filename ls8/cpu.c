@@ -15,17 +15,55 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  FILE *fp = fopen(filename, "r");
+  char buff[255];
+  int index = 0;
+  char data[256];
+  int data_index = 0;
+  int found_something = 0;
+  for(int curr=fgetc(fp); !feof(fp); curr=fgetc(fp)){
+    if(curr == ' '){
+      continue;
+    }
+    if(curr == '\n'){
+      if(!found_something){
+        continue;
+      }
+      buff[index] = '\0';
+      index = 0;
+      data[data_index++] = strtoul(buff, 0, 2);
+      found_something = 0;
+      continue;
+    }
+    if(curr == '#'){
+      if(!found_something){
+        continue;
+      }
+      buff[index] = '\0';
+      index = 0;
+      data[data_index++] = strtoul(buff, 0, 2);
+      while(curr!='\n'){
+        curr = fgetc(fp);
+      }
+      found_something = 0;
+      continue;
+    }
+    buff[index++] = curr;
+    found_something = 1;
+  }
+  fclose(fp);
 
   int address = 0;
 
