@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include <stdlib.h>
 
-#define ADDR_EMPTY_STACK 0xF4 
+#define ADDR_EMPTY_STACK 0xF4
 
 cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
@@ -13,7 +13,7 @@ cpu_ram_read(struct cpu *cpu, unsigned char index)
 cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 {
   cpu->ram[index] = value;
-  return 0; 
+  return 0;
 }
 
 /**
@@ -28,15 +28,15 @@ void cpu_load(struct cpu *cpu, char *argv[])
   {
     perror("Error opening file"); //if fp == NULL something went wrong, filepath or otherwise
   }
-  char string[256];//Where instuctions will be placed;
-  unsigned char address = 0; //starting address 
+  char string[256];          //Where instuctions will be placed;
+  unsigned char address = 0; //starting address
   //You'll have to convert the binary strings to integer values to store in RAM. The
-//built-in `strtoul()` library function might help you here.
+  //built-in `strtoul()` library function might help you here.
   while (fgets(string, sizeof(string), fp) != NULL)
   {
     // if(string[0] != '#'){
-    //unsigned long int strtoul(const char *str, char **endptr, int base) 
-    unsigned long int data= strtoul(string, NULL, 2);
+    //unsigned long int strtoul(const char *str, char **endptr, int base)
+    unsigned long int data = strtoul(string, NULL, 2);
     cpu->ram[address] = data;
     address++;
     // }
@@ -54,9 +54,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     cpu->reg[regA] *= cpu->reg[regB];
-    // return regA; 
+    // return regA;
     break;
-
+  case ALU_CMP:
+    if (cpu->reg[regA] == cpu->reg[regB])
+    {
+      cpu->FL = (cpu->FL & ~7) | 1;
+    }
+    else if (cpu->reg[regA] <= cpu->reg[regB])
+    {
+      cpu->FL = (cpu->FL & ~7) | 2;
+    }
+    else
+    {
+      cpu->FL = (cpu->FL & ~7) | 4;
+    }
+    break;
     // TODO: implement more ALU ops
   }
 }
@@ -79,7 +92,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     int operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff); //gets next byte past PC
     int operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff); //gets bye after next past PC
-                                                   //Gives you the right number of bytes to jump to get to next instruction;
+                                                            //Gives you the right number of bytes to jump to get to next instruction;
     printf("CPU Run Values: cpu->PC:%02x operandA:%02x operandB:%02x IR:%02x \n", cpu->PC, operandA, operandB, IR);
     // TODO
     // 4. switch() over it to decide on a course of action.
@@ -98,18 +111,33 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
-    case PUSH:   
+    case PUSH:
       cpu->SP--;
-      cpu->reg[operandA] = cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
+      cpu->reg[operandA] = cpu_ram_write(cpu, --cpu->SP, cpu->reg[operandA]);
       break;
     case POP:
-    cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP);
-     cpu->SP++;
+      cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP);
+      cpu->SP++;
+      break;
+    case CALL:
+      //The address of the ***instruction*** _directly after_ `CALL` is pushed onto the stack.
+      cpu_ram_write(cpu, cpu->reg[7], ++cpu->PC);
+      cpu->PC = cpu->reg[operandA];
+      break;
+    case RET:
+      cpu->PC = cpu_ram_read(cpu, cpu->reg[7]);
+      break;
+    case CMP:
+      ALU(cpu, ALU_CMP, operandA, operandB);
+      break;
+    case JMP:
+      cpu->PC = operandA; 
       break;
     }
     
+
     // 6. Move the PC to the next instruction.
-    cpu->PC += numOperands+1  ;
+    cpu->PC += numOperands + 1;
   }
 }
 
@@ -120,9 +148,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0; //Sets position counter to 0
-  
+
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
   cpu->SP = ADDR_EMPTY_STACK;
-  
 }
