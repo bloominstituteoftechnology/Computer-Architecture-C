@@ -24,7 +24,19 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
 
 
 // ------------------------ DAY 2 Helper Funcs ----------------------
+void push(struct cpu *cpu, unsigned char val) {  
+  cpu->SP--;
+  cpu_ram_write(cpu, val, cpu->SP);
+  // printf("push\n");
+}
 
+unsigned char pop(struct cpu *cpu) {
+  unsigned char ret = cpu_ram_read(cpu, cpu->SP);
+  cpu->SP++;
+
+  return ret;
+  // printf("pop\n");  
+}
 // --------------------------------------------------------------------
 
 /*
@@ -143,6 +155,14 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operand_a, operand_b);
         break;
+
+      case PUSH:
+        push(cpu, cpu->registers[operand_a]);
+        break;
+
+      case POP:
+        cpu->registers[operand_a] = pop(cpu);
+        break;
       
       default:
         break;
@@ -160,7 +180,10 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers  
   printf("cpu_init print\n");
+  // cpu->stack_pointer = -1;
   cpu->PC = 0;
+  cpu->SP = ADDR_EMPTY_STACK;
+  
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
