@@ -1,56 +1,75 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define DATA_LEN 6
+#define ADDR_EMPTY_STACK 0xF4 // where SP is on the empty stack
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu)
+// initialize RAM address to start
+  unsigned int address = 0;
+
+// Function to print out binary num. of int.
+void print_binary(int x)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b10000010, // LDI R1,16
-    0b00000001,
-    0b00010000,
-    0b10000010, // LDI R2,15(HLT is at this address)
-    0b00000010,
-    0b00001111,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b01000111, // PRN R1
-    0b00000001,
-    0b01010110, // JNE R2
-    0b00000010,
-    0b00000001  // HLT
-  };
+  static char b[9];
+  b[0] = '\0';
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  int z;
+  for (z = 128; z > 0; z >>= 1)
+  {
+    strcat(b, ((x & z) == z) ? "1" : "0");
   }
 
+  printf("%s\n", b);
 }
 
-
+// READ FROM RAM
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
+// WRITE TO RAM
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   return cpu->ram[address] = value;
 }
 
-/**
- * ALU
- */
+// Load binary bytes from .ls8 source file into RAM array
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
+{
+  if (argc < 2)
+  {
+    fprintf(stderr, "Usage: ./ls8 filename\n");
+    exit(1);
+  }
+  FILE *fp;
+  char line[1024];
+  char *file = argv[1];
+
+  // open source file
+  if ((fp = fopen(file, "r")) == NULL)
+  {
+    fprintf(stderr, "Cannot open file %s\n", file);
+    exit(1);
+  }
+  // read each line of source file
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    char *ptr;
+    unsigned char instruction;
+    instruction = strtol(line, &ptr, 2);
+    // ignore lines from which no numbers were read
+    if (ptr == line) continue;
+    // add instruction to RAM and increment RAM address
+    cpu->ram[address++] = instruction;
+  }
+}
+
+
+/*******
+ * ALU *
+ *******/
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
@@ -83,16 +102,39 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_INC:
       cpu->reg[regA]++;
       break;
+    case ALU_MOD:
+      cpu->reg[regA] %= cpu->reg[regB];
+      break;
     case ALU_MUL:
+      cpu->reg[regA] *= cpu->reg[regB];
+      break;
+    case ALU_NOT:
+      cpu->reg[regA] = ~cpu->reg[regA];
+      break;
+    case ALU_OR:
+      cpu->reg[regA] |= cpu->reg[regB];
+      break;
+    case ALU_SHL:
+      cpu->reg[regA] <<= cpu->reg[regB];
+      break;
+    case ALU_SHR:
+      cpu->reg[regA] >>= cpu->reg[regB];
+      break;
+    case ALU_SUB:
+      cpu->reg[regA] -= cpu->reg[regB];
+      break;
+    case ALU_XOR:
+      cpu->reg[regA] ^= cpu->reg[regB];
       break;
     default:
       break;
   }
 }
 
-/**
- * Run the CPU
- */
+
+/***************
+ * Run the CPU *
+ ***************/
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
@@ -100,7 +142,6 @@ void cpu_run(struct cpu *cpu)
   unsigned int num_operands, jBits;
 
   while (running) {
-    // TODO
     // 1. Get the value of the current instruction (in address PC).
         IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
@@ -121,8 +162,8 @@ void cpu_run(struct cpu *cpu)
             cpu->PC += num_operands + 1;
             break;
           case CALL:
-            cpu->reg[7]--;
-            cpu_ram_write(cpu, cpu->reg[7], cpu->PC + 2);
+            cpu->PC += num_operands + 1;
+            cpu_ram_write(cpu, --cpu->SP, cpu->PC);
             cpu->PC = cpu->reg[operandA];
             break;
           case CMP:
@@ -157,9 +198,9 @@ void cpu_run(struct cpu *cpu)
             cpu->PC += num_operands + 1;
             break;
           case IRET:
-            // TODO: Implement this
-            // cpu->PC += num_operands + 1;
-            // break;
+// TODO: Implement this
+// cpu->PC += num_operands + 1;
+// break;
           case JEQ:
             jBits = cpu->FL & (1 << 0);
             if (jBits == 0b00000001)
@@ -229,13 +270,87 @@ void cpu_run(struct cpu *cpu)
               cpu->PC += num_operands + 1;
             }
             break;
+          case LD:
+            cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[operandB]);
+            cpu->PC += num_operands + 1;
+            break;
           case LDI:
             cpu->reg[operandA] = operandB;
             cpu->PC += num_operands + 1;
             break;
-          case PRN:
-            printf("Register: %X, Value: %d\n", operandA, cpu->reg[operandA]);
+          case MOD:
+            if (cpu->reg[operandB] == 0)
+            {
+              printf("Divide by 0 not allowed.\n");
+              running = 0;
+            }
+            else
+            {
+              alu(cpu, ALU_MOD, operandA, operandB);
+              cpu->PC += num_operands + 1;
+            }
+            break;
+          case MUL:
+            alu(cpu, ALU_MUL, operandA, operandB);
             cpu->PC += num_operands + 1;
+            break;
+          case NOP:
+            cpu->PC += num_operands + 1;
+            break;
+          case NOT:
+            alu(cpu, ALU_NOT, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          case OR:
+            alu(cpu, ALU_OR, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          case POP:
+            cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
+            if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+            cpu->PC += num_operands + 1;
+            break;
+          case PRA:
+            printf("%c\n", cpu->reg[operandA]);
+            cpu->PC += num_operands + 1;
+            break;
+          case PRN:
+            printf("%d\n", cpu->reg[operandA]);
+            cpu->PC += num_operands + 1;
+            break;
+          case PUSH:
+            if (--cpu->SP <= address) {
+              fprintf(stderr, "Stack overflow has occurred.\n");
+              exit(1);
+            }
+            cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
+            cpu->PC += num_operands + 1;
+            break;
+          case RET:
+            cpu->PC = cpu_ram_read(cpu, cpu->SP++);
+            if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+            break;
+          case SHL:
+            alu(cpu, ALU_SHL, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          case SHR:
+            alu(cpu, ALU_SHR, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          case ST:
+            cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
+            cpu->PC += num_operands + 1;
+            break;
+          case SUB:
+            alu(cpu, ALU_SUB, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          case XOR:
+            alu(cpu, ALU_XOR, operandA, operandB);
+            cpu->PC += num_operands + 1;
+            break;
+          default:
             break;
     }
   }
@@ -249,7 +364,7 @@ void cpu_init(struct cpu *cpu)
     // Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->FL = 0;
-  cpu->IS = 0;
+  cpu->SP = ADDR_EMPTY_STACK;
   memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
   memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
