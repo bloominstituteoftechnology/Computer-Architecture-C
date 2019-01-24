@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include <stdlib.h>
 
+#define SP 7
 #define DATA_LEN 6
 
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
@@ -13,6 +14,20 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
+}
+
+void push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+unsigned char pop(struct cpu *cpu)
+{
+  unsigned char ret = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+
+  return ret;
 }
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -91,8 +106,8 @@ void cpu_run(struct cpu *cpu)
   unsigned char instruction;
   unsigned int num_operands = instruction >> 6;
 
-  unsigned char operandA = 0;
-  unsigned char operandB = 0;
+  unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+  unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
   if (num_operands == 1)
   {
     operandA = cpu->ram[cpu->PC + 1];
