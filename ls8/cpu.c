@@ -83,6 +83,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       break;
+    
+    default:
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -160,7 +163,6 @@ void cpu_run(struct cpu *cpu)
       case RET:
         PC = cpu_ram_read(cpu, cpu->reg[SP]);
 		    cpu->reg[SP]++;
-        shift = 0;
 		    break;
 
       case JMP:
