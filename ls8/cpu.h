@@ -4,19 +4,19 @@
 // Holds all information about the CPU
 struct cpu {
   // Program Counter
-  unsigned int PC;
+  unsigned char PC;
 
   // Flags (00000LGE)
-  unsigned int FL;
+  unsigned char FL;
 
   // Interrupt Mask (R5)
-  unsigned int IM;
+  unsigned char IM;
 
   // Interrupt Status (R6)
-  unsigned int IS;
+  unsigned char IS;
 
   // Stack Pointer (R7)
-  unsigned int SP;
+  unsigned char SP;
 
   // registers (array)
   unsigned char reg[8];
