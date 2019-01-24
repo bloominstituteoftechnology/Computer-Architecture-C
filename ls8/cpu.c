@@ -93,18 +93,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] = cpu->reg[regA] & cpu->reg[regB];
       break;
     case ALU_CMP:
-      if (cpu->reg[regA] < cpu->reg[regB])
-      {
-        cpu->FL = (cpu->FL & ~7) | 4;
-      }
-      else if (cpu->reg[regA] > cpu->reg[regB])
-      {
-        cpu->FL = (cpu->FL & ~7) | 2;
-      }
-      else
-      {
-        cpu->FL = (cpu->FL & ~7) | 1;
-      }
+      if (cpu->reg[regA] < cpu->reg[regB])      cpu->FL = (cpu->FL & ~7) | 4;
+      else if (cpu->reg[regA] > cpu->reg[regB]) cpu->FL = (cpu->FL & ~7) | 2;
+      else                                      cpu->FL = (cpu->FL & ~7) | 1;
       break;
     case ALU_DEC:
       cpu->reg[regA]--;
@@ -209,7 +200,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += num_operands + 1;
         break;
       case INT:
-        cpu->IS = cpu->reg[operandA];
+        cpu->IS = cpu->reg[operandA] & 0xFF;
         cpu->PC += num_operands + 1;
         break;
       case IRET:
@@ -322,7 +313,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case POP:
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
-        if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+        if (cpu->SP == 0x00) cpu->SP = ADDR_EMPTY_STACK;
         cpu->PC += num_operands + 1;
         break;
       case PRA:
@@ -343,7 +334,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case RET:
         cpu->PC = cpu_ram_read(cpu, cpu->SP++);
-        if (cpu->SP > 255) cpu->SP = ADDR_EMPTY_STACK;
+        if (cpu->SP == 0x00) cpu->SP = ADDR_EMPTY_STACK;
         break;
       case SHL:
         alu(cpu, ALU_SHL, operandA, operandB);
