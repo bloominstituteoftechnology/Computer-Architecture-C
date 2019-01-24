@@ -1,0 +1,10 @@
+10000010 # LDI R0,32
+00000000
+00100000
+10000010 # LDI R1,5
+00000001
+00000101
+10000100 # ST R0,R1
+00000000
+00000001
+00000001 # HLT (perform a cpu_ram_read to check if it got written to mem correctly)

@@ -79,6 +79,7 @@ enum alu_op {
 #define RET  0b00010001
 #define SHL  0b10101100
 #define SHR  0b10101101
+#define ST   0b10000100
 
 // Function declarations
 

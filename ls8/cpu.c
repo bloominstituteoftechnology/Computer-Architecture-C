@@ -347,6 +347,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_SHR, operandA, operandB);
         cpu->PC += num_operands + 1;
         break;
+      case ST:
+        cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
+        cpu->PC += num_operands + 1;
+        break;
       default:
         break;
     }
