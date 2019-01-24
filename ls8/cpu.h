@@ -39,6 +39,7 @@ enum alu_op {
   ALU_NOT,
   ALU_OR,
   ALU_SHL,
+  ALU_SHR,
 };
 
 // Instructions
@@ -77,6 +78,7 @@ enum alu_op {
 #define PUSH 0b01000101
 #define RET  0b00010001
 #define SHL  0b10101100
+#define SHR  0b10101101
 
 // Function declarations
 
