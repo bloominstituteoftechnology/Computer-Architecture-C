@@ -136,6 +136,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_SUB:
       cpu->reg[regA] -= cpu->reg[regB];
       break;
+    case ALU_XOR:
+      cpu->reg[regA] ^= cpu->reg[regB];
+      break;
     default:
       break;
   }
@@ -356,6 +359,10 @@ void cpu_run(struct cpu *cpu)
         break;
       case SUB:
         alu(cpu, ALU_SUB, operandA, operandB);
+        cpu->PC += num_operands + 1;
+        break;
+      case XOR:
+        alu(cpu, ALU_XOR, operandA, operandB);
         cpu->PC += num_operands + 1;
         break;
       default:
