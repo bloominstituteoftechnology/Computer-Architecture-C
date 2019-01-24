@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+// stack pointer
+#define SP 7
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -72,6 +74,24 @@ void cpu_ram_write(struct cpu *cpu, unsigned char memadr, unsigned char value)
   cpu->ram[memadr] = value;
 }
 
+// cpu push
+void cpu_push(struct cpu *cpu, unsigned char value)
+{
+  // decrement stack pointer
+  cpu->reg[SP]--;
+  cpu_ram_write(cpu, cpu->reg[SP], value);
+}
+
+// cpu pop
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char ret = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+  return ret;
+}
+
+//
+
 /**
  * ALU
  */
@@ -84,7 +104,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[regA] *= cpu->reg[regB];
     break;
 
-    // TODO: implement more ALU ops
+  // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
   }
 }
 
@@ -139,6 +162,28 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
+    // uses function cpu_push that pushes value into reg
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operandA]);
+      break;
+
+    case POP:
+      cpu->reg[operandA] = cpu_pop(cpu);
+      break;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+
+    case CALL:
+      cpu_push(cpu, cpu->PC + 1);
+      cpu->PC = cpu->reg[operandA] - 1;
+      break;
+
+    case RET:
+      cpu->PC = cpu_pop(cpu);
+      break;
+
     default:
       break;
     }
@@ -156,7 +201,9 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   // set all values to 0
   cpu->PC = 0;
+
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
+
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
-  cpu->reg[7] = 0xF4;
 }
