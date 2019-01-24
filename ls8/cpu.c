@@ -76,7 +76,7 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
     if (ptr == line) continue;
 
     // add instruction to RAM and increment RAM address
-    cpu->ram[++address] = instruction;
+    cpu->ram[address++] = instruction;
   }
 }
 
@@ -165,8 +165,8 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += num_operands + 1;
         break;
       case CALL:
-        cpu->reg[7]--;
-        cpu_ram_write(cpu, cpu->reg[7], cpu->PC + 2);
+        cpu->PC += num_operands + 1;
+        cpu_ram_write(cpu, --cpu->SP, cpu->PC);
         cpu->PC = cpu->reg[operandA];
         break;
       case CMP:
