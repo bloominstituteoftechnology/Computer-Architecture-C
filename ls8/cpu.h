@@ -40,6 +40,7 @@ enum alu_op {
   ALU_OR,
   ALU_SHL,
   ALU_SHR,
+  ALU_SUB,
 };
 
 // Instructions
@@ -80,6 +81,7 @@ enum alu_op {
 #define SHL  0b10101100
 #define SHR  0b10101101
 #define ST   0b10000100
+#define SUB  0b10100001
 
 // Function declarations
 
