@@ -46,17 +46,40 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char *reg = cpu->reg;
-  unsigned char *ram = cpu->ram;
-  unsigned char operandA;
-  unsigned char operandB;
+  unsigned char operandA = NULL;
+  unsigned char operandB = NULL;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
+    unsigned int num_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    if(num_operands == 2) {
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) &0xff);
+      operandB = cpu_ram_read(cpu, (cpu->PC + 2) &0xff);
+    } else if (num_operands == 1) {
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) &0xff);
+    } else {}
     // 4. switch() over it to decide on a course of action.
+    switch(instruction) {
+      case HLT:
+        running = 0;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        break;
+
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+
+      default:
+        printf("PC  %02x: unknown instruction %02x\n", cpu->PC, instruction);
+        exit(3);
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }
