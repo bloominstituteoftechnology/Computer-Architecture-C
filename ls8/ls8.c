@@ -5,7 +5,7 @@
 /**
  * Main
  */
-int main(int argc, int argv[])
+int main(int argc, char *argv[])
 {
   if (argc != 2) {
     printf("Usage: ./ls8 filename \n");
