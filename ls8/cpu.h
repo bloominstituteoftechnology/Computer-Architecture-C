@@ -12,9 +12,6 @@ struct cpu {
   // Interrupt Mask (R5)
   unsigned char IM;
 
-  // Interrupt Status (R6)
-  unsigned char IS;
-
   // Stack Pointer (R7)
   unsigned char SP;
 
