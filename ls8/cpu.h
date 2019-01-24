@@ -11,7 +11,7 @@ struct cpu {
   // ram (array)
   unsigned char ram[256];
   // Stack pointer
-  unsigned int SP;
+  // unsigned int SP;
 };
 
 // ALU operations

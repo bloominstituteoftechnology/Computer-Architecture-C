@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #define DATA_LEN 6
 
-
+#define SP 7
 unsigned int ram_address = 0;
+
 /*
 Add functions cpu_ram_read and cpu_ram_write to acces ram in struct cpu
 */
@@ -126,16 +127,16 @@ void cpu_run(struct cpu *cpu)
 		    break;
       
       case POP:
-        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
-        if (cpu->SP > 255) cpu->SP = 0xF4;
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]++);
+        if (cpu->reg[SP] > 255) cpu->reg[SP] = 0xF4;
         break;
 
       case PUSH:
-        if (--cpu->SP <= ram_address) {
+        if (--cpu->reg[SP] <= ram_address) {
           fprintf(stderr, "Warning: Stack overflow.\n");
           exit(1);
         }
-        cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
         break;
           
       case MUL:
@@ -162,5 +163,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
-  cpu->SP = 0xF4;  // The stack should start at the top of memory (at a high address) and grow downward as things are pushed on
+  cpu->reg[SP] = 0xF4;  // The stack should start at the top of memory (at a high address) and grow downward as things are pushed on
 }
