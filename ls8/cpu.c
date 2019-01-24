@@ -1,7 +1,5 @@
 #include "cpu.h"
 
-#define DATA_LEN 6
-
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 {
   cpu->ram[address] = value;
@@ -30,32 +28,24 @@ void cpu_load(struct cpu *cpu, char *filename)
   FILE *fp = fopen(filename, "r");
   char buff[255];
   int index = 0;
-  char data[256];
+  unsigned char data[256];
   int data_index = 0;
   int found_something = 0;
   for(int curr=fgetc(fp); !feof(fp); curr=fgetc(fp)){
     if(curr == ' '){
       continue;
     }
-    if(curr == '\n'){
+    if(curr=='\n' || curr=='#'){
       if(!found_something){
         continue;
       }
       buff[index] = '\0';
       index = 0;
       data[data_index++] = strtoul(buff, 0, 2);
-      found_something = 0;
-      continue;
-    }
-    if(curr == '#'){
-      if(!found_something){
-        continue;
-      }
-      buff[index] = '\0';
-      index = 0;
-      data[data_index++] = strtoul(buff, 0, 2);
-      while(curr!='\n'){
-        curr = fgetc(fp);
+      if(curr == '#'){
+        while(curr != '\n'){
+          curr = fgetc(fp);
+        }
       }
       found_something = 0;
       continue;
@@ -67,11 +57,9 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < data_index; i++) {
     cpu->ram[address++] = data[i];
   }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -82,6 +70,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -94,7 +83,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  cpu->SP = 0b11110100;
+  // int number = 1;
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -121,6 +111,14 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
         break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case PUSH:
+        cpu->ram[--cpu->SP] = cpu->registers[operandA];
+        break;
+      case POP:
+        cpu->registers[operandA] = cpu->ram[cpu->SP++];
       default:
         break;
     }
@@ -138,6 +136,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu = malloc(sizeof(cpu));
   cpu->PC = 0;
+  cpu->SP = 0b11110011;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
 }
