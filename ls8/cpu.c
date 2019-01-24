@@ -5,16 +5,42 @@
 #define DATA_LEN 6
 
 /**
+ * Helper function to write a value to the specified index in RAM
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char index)
+{
+  cpu->ram[index] = val;
+}
+
+/**
+ * Helper function to read a value from the specified index in RAM
+ * Returns the read value
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+  return cpu->ram[index];
+}
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *file_name, struct cpu *cpu)
 {
   FILE *fp;
+  int address = ADDR_PROGRAM_ENTRY;
   char line[1024];
 
   if((fp = fopen("print8.ls8", "r")) == NULL) {
+    fprintf(stderr, "Cannot open this file >> %s", file_name);
+  };
 
-  }
+  while(fgets(line, sizeof(line), fp) != NULL){
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+    if(endchar == line) continue;
+    cpu_ram_write(cpu, byte, address++);
+  };
+
 }
 
 /**
@@ -105,21 +131,4 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->ram, 0, sizeof(cpu->reg));
   memset(cpu->reg, 0, sizeof(cpu->ram));
-}
-
-/**
- * Helper function to write a value to the specified index in RAM
- */
-void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char index)
-{
-  cpu->ram[index] = val;
-}
-
-/**
- * Helper function to read a value from the specified index in RAM
- * Returns the read value
- */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
-{
-  return cpu->ram[index];
 }
