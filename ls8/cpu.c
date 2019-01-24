@@ -52,6 +52,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char towrite
   cpu->ram[address] = towrite;
 }
 
+
 /**
  * ALU
  */
@@ -93,7 +94,14 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
-
+      case PUSH:
+        cpu->registers[7]--;
+        cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+        break;
+      case POP:
+        cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
+        cpu->registers[7]++;
+        break;
     }
     cpu->PC += (IR >> 6) + 1;
     // TODO
@@ -112,7 +120,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = 0;
+  cpu->PC = 0;  
   cpu->registers = calloc(8, sizeof(unsigned char));
   cpu->ram = calloc(256, sizeof(unsigned char)); 
   cpu->registers[7] = 0xF4;
