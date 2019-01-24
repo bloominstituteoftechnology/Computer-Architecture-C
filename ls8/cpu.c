@@ -5,7 +5,7 @@
 #define DATA_LEN 6
 
 // Write the given value to the LS8's RAM at the given address
-void cpu_ram_write(struct cpu *cpu, unsigned char MDR, unsigned char MAR) {
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR) {
   cpu->ram[MAR] = MDR;
 }
 
@@ -14,17 +14,16 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
   return cpu->ram[MAR];
 }
 
-// Push values to the stack
-void push(struct cpu *cpu, unsigned char ptr) {
-  // Decrement the stack pointer
-  cpu->reg[SP]--;
-  cpu->ram[cpu->reg[SP]] = cpu->reg[ptr];
+// Pop item from the stack
+void pop(struct cpu *cpu, unsigned char operand) {
+  cpu->reg[operand] = cpu_ram_read(cpu, cpu->reg[SP]);
+  cpu->reg[SP]++;
 }
 
-// Pop values from the stack
-void pop(struct cpu *cpu, unsigned char ptr) {
-  cpu->reg[ptr] = cpu->ram[cpu->reg[SP]];
-  cpu->reg[SP]++;
+// Push item to the stack
+void push(struct cpu *cpu, unsigned char operand) {
+  cpu->reg[SP]--;
+  cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operand]);
 }
 
 /**
@@ -95,6 +94,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char move_pc = (IR >> 6) + 1;
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -112,19 +112,44 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
       case MUL:
+        // Multiple two numbers together
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case POP:
+        // Pop item from stack
         pop(cpu, operandA);
         break;
       case PUSH:
+        // Push item to stack
         push(cpu, operandA);
+        break;
+      case CALL:
+        PushPop item from stack
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + move_pc);
+
+        // Set PC to the operand
+        cpu->PC = cpu->reg[operandA];
+        cpu->add_pc = 1;
+        break;
+      case RET:
+        // Pop item from stack
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
+
+        // Set PC to next instruction
+        cpu->add_pc = 1;
         break;
 
     }
 
     // 6. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
+    if (cpu->add_pc == 0) {
+      cpu->PC += move_pc;
+    } else {
+      cpu->add_pc = 0;
+      continue;
+    }
 
   }
 }
@@ -137,6 +162,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = ADDR_PROGRAM_ENTRY;
   cpu->reg[SP] = ADDR_EMPTY_STACK;
+  cpu->add_pc = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }

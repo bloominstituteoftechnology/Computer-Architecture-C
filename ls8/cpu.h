@@ -8,6 +8,7 @@ struct cpu {
   // TODO
   // PC keeps track of where we are in the program we're executing
 	unsigned int PC;
+	unsigned char add_pc;
   // registers (array)  are where we push operand values
 	unsigned char reg[8];
   // ram (array) holds everything else
@@ -34,8 +35,11 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL  0b10100010
-#define POP  0b01000110
 #define PUSH 0b01000101
+#define POP  0b01000110
+#define CALL 0b01010000
+#define RET  0b00010001
+#define RET  0b00010001
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
