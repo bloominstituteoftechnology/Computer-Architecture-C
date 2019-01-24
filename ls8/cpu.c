@@ -1,15 +1,16 @@
 #include "cpu.h"
-#include <string.h>
-#include <stdio.h>
+#include "string.h"
+#include "stdio.h"
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
-  return cpu->ram[mar];
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
-  cpu->ram[mar] = mdr;
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char mdr) {
+  cpu->ram[index] = mdr;
 }
 
 /**
