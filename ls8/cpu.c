@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #define DATA_LEN 6
 
+
+unsigned int ram_address = 0;
 /*
 Add functions cpu_ram_read and cpu_ram_write to acces ram in struct cpu
 */
@@ -43,8 +45,7 @@ void cpu_load(struct cpu *cpu, char *argv[])
   FILE *fp;
 	fp = fopen(argv[1], "r");  // open file for reading
 	char line[1024];
-	int address = 0;
-	char *data;
+	char *converted_line;
 
   // Error handling in case file doesn't open or doesn't exist:
   if(fp == NULL) {
@@ -54,14 +55,14 @@ void cpu_load(struct cpu *cpu, char *argv[])
 
   while(fgets(line, sizeof(line), fp) != NULL) {  // fgets returns line -- chars are read from fp and stored in line, max num of chars read == sizeof(line)
 			
-   	unsigned char byte = strtoul(line, &data, 2); // converts line from binary string to integer value
-			                                            // unsigned long int strtoul(const char *str, char **endptr, int base)
+   	unsigned char byte = strtoul(line, &converted_line, 2); // converts line from binary string to integer value
+			                                                      // unsigned long int strtoul(const char *str, char **endptr, int base)
 
-    if(data == line) {
+    if(converted_line == line) {
       continue;
     }
       				
-		cpu->ram[address++] = byte;
+		cpu->ram[ram_address++] = byte;
   }
 	
 	fclose(fp);
@@ -93,7 +94,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     
     // TODO
-    // 1. Get the value of the current instruction (in address PC):
+    // 1. Get the value of the current instruction (in address 'PC'):
     unsigned char current_instruction = cpu_ram_read(cpu, PC);    // current_instruction == IR
     // 2. Figure out how many operands this next instruction requires:
     unsigned int num_operands = current_instruction >> 6;
@@ -124,6 +125,19 @@ void cpu_run(struct cpu *cpu)
         // PC += shift;
 		    break;
       
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
+        if (cpu->SP > 255) cpu->SP = 0xF4;
+        break;
+
+      case PUSH:
+        if (--cpu->SP <= ram_address) {
+          fprintf(stderr, "Warning: Stack overflow.\n");
+          exit(1);
+        }
+        cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);
+        break;
+          
       case MUL:
       		alu(cpu, ALU_MUL, operandA, operandB);
 		      // PC += shift;
@@ -147,4 +161,6 @@ void cpu_init(struct cpu *cpu)
 
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+
+  cpu->SP = 0xF4;  // The stack starts at the top of memory (at a high address) and grows _downward_ as things are pushed on
 }
