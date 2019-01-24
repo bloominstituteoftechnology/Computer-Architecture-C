@@ -5,6 +5,7 @@
 
 
 #define DATA_LEN 6
+#define SP 7
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -130,10 +131,10 @@ void cpu_run(struct cpu *cpu)
       
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff),
       operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
-      printf("Two operands, reg: %d, val: %d\n", operandA, operandB);
+      // printf("Two operands, reg: %d, val: %d\n", operandA, operandB);
     } else if (num_operands == 1){
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
-      printf("One operand, %d\n", operandA);
+      // printf("One operand, %d\n", operandA);
     }
     // } else {
     //   printf("No operands.\n");
@@ -167,6 +168,27 @@ void cpu_run(struct cpu *cpu)
         // Halt.
         break;
 
+      case PUSH: // push the value in the given register on the stack
+        // 1. decrement the SP i.e. R7. We decrement because R7 sits at the top of the stack and the stack builds down.
+        // printf("SP: %d\n", SP);
+        cpu->registers[SP]--;
+        // printf("dec SP: %d\n", SP);
+        cpu->ram[cpu->registers[SP]] = cpu->registers[operandA];
+        // printf("pushval: %d, address: %d\n", cpu->ram[cpu->registers[SP]], cpu->registers[SP]);
+        // 2. copy the value in the given register to the address pointed to by SP
+        // printf("Push was called.\n");
+        break;
+
+      case POP: // pop the value at the top of the stack into the given register
+        // 1. copy the value from the address pointed to by SP i.e. R7 to the given register
+        // 2. increment SP
+        cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
+        // printf("popval: %d\n", cpu->registers[operandA]);
+        cpu->registers[SP]++;
+        // printf("SP: %d\n", cpu->registers[SP]);
+        // printf("Pop was called.\n");
+        break;
+
       default:
         break;
     }
@@ -186,7 +208,7 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0, sizeof(cpu->registers));
 
   // R7 is set to 0xF4
-  cpu->registers[7] = 0xF4;
+  cpu->registers[SP] = 0xF4;
 
   // PC and FL registers are cleared to 0
   cpu->PC = 0;
