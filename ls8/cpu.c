@@ -5,6 +5,7 @@
 
 #define DATA_LEN 6
 #define SP 7
+#define ADDR_EMPTY_STACK 0xF4
 
 // Implement CPU_RAM_READ & CPU_RAM_WRITE
 
@@ -28,7 +29,8 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
 // ------------------------ DAY 2 Helper Funcs ----------------------
 void push(struct cpu *cpu, unsigned char val){
   cpu->registers[SP]--;
-  cpu->ram[cpu->registers[SP]]=val;
+  // cpu->ram[cpu->registers[SP]]=val;
+  cpu_ram_write(cpu, cpu->registers[SP], val);
 }
 
 unsigned char pop(struct cpu *cpu){
@@ -46,7 +48,7 @@ unsigned char pop(struct cpu *cpu){
 void cpu_load(struct cpu *cpu, int argc, char *argv[])
 { 
   printf("cpu_load print\n");
-  // 1. BASE CASE: If invalid number of arguments are passed, error
+  // 1. BASE CASE: If invalid number of arguments are passed, error  
   if (argc < 2) {
     fprintf(stderr, "Usage Error: Needs two arguments\n");
     printf("Argument 1: ./ls8\n");
@@ -96,6 +98,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] *= cpu->registers[regB];
       break;
 
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -139,11 +145,19 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN:
+        // for (int i = 0; i < 8; i++) {
+        //   printf("cpu->registers[%i]: %i\n", i, cpu->registers[i]);
+        // }
         printf("%d\n", cpu->registers[operand_a]);        
         break;
 
       case MUL:  
         alu(cpu, ALU_MUL, operand_a, operand_b);
+        break;
+      
+      case ADD:
+        printf("cpu->PC[%i]: add function invoked\n", cpu->PC);
+        alu(cpu, ALU_ADD, operand_a, operand_b);        
         break;
 
       case PUSH:  
@@ -153,6 +167,23 @@ void cpu_run(struct cpu *cpu)
       case POP:      
         cpu->registers[operand_a] = pop(cpu);
         break;
+      
+      case CALL:       
+        printf("cpu->PC[%i] hit\n", cpu->PC);        
+        push(cpu, cpu->PC + 1);
+        cpu->PC = cpu->registers[operand_a] - 1;              
+        break;
+
+      case RET:
+        printf("cpu->PC[%i] ret\n", cpu->PC);
+        cpu->PC = pop(cpu);        
+        break;
+
+      case JMP:
+        cpu->PC = cpu->registers[operand_a];
+        break;
+      
+
       
       default:
         break;
@@ -171,7 +202,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers  
   printf("cpu_init print\n");  
   cpu->PC = 0;
-  cpu->registers[SP] = 0xF4;
+  cpu->registers[SP] = 0xF4; // ADDR_EMPTY_STACK
   
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
