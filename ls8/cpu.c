@@ -1,21 +1,19 @@
 #include "cpu.h"
-#include <stdio.h>
+#include "stdio.h"
+#include "string.h"
 
 #define DATA_LEN 6
 
-/**
- * Add RAM functions read and write
- */
- unsigned char cpu_ram_read(struct cpu *cpu, int index)
- {
-   return cpu->ram[index];
- }
 
- void cpu_ram_write(struct cpu *cpu, int index, unsigned char val)
- {
-   cpu->ram[index] = val;
- }
+// Write the given value to the LS8's RAM at the given address
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address) {
+  cpu->ram[address] = value;
+}
 
+// Read the value at address and return it
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
+  return cpu->ram[address];
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -39,7 +37,6 @@ void cpu_load(struct cpu *cpu)
 
   // TODO: Replace this with something less hard-coded
 }
-
 /**
  * ALU
  */
@@ -54,6 +51,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+
+
 /**
  * Run the CPU
  */
@@ -65,27 +64,28 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-    // 2. switch() over it to decide on a course of action.
-    switch(IR) {
+    // 2. Figure out how many operands this next instruction requires
 
+    // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    // 4. switch() over it to decide on a course of action.
+    // 5. Do whatever the instruction should do according to the spec.
+    switch(IR) {
       case HLT:
         running = 0;
         break;
-
       case LDI:
         cpu->reg[operandA] = operandB;
-        cpu->PC += 3;
         break;
-
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
         break;
+
     }
-    // 3. Do whatever the instruction should do according to the spec.
-    // 4. Move the PC to the next instruction.
+
+    // 6. Move the PC to the next instruction.
+    cpu->PC += (IR >> 6) + 1;
   }
 }
 
@@ -96,8 +96,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-
-  // TODO: Zero registers and RAM
-  memset(cpu->reg, 0, sizeof cpu->reg);
-  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
+
+//////
