@@ -80,6 +80,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -103,32 +107,38 @@ void cpu_run(struct cpu *cpu)
     unsigned operandA = cpu_ram_read(cpu, (PC + 1));
 	  unsigned operandB = cpu_ram_read(cpu, (PC + 2));
 
-    // int shift = (num_operands) + 1;
+    int shift = (num_operands) + 1;
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch(current_instruction) {
       // HLT -- Halt the CPU and exit the emulator:
       case HLT:
-        running = 0;
+        running = 0;  // Stop the while (running) loop
         break;
 
       // LDI -- Set a specified register to a specified integer value
       // ??? in this case, set the next instruction to the instruction 2 steps ahead:
       case LDI:
         cpu->reg[operandA] = operandB;
-		    // PC += shift;
+		    // PC += num_operands + 1;
+        PC += shift;
 		    break;
 
       // PRN -- Print numeric value stored in the given register:
       case PRN:
         printf("%d \n", cpu->reg[operandA]);
-        // PC += shift;
+        // PC += num_operands + 1;
+        PC += shift;
 		    break;
       
       case POP:
         cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[SP]++);
-        if (cpu->reg[SP] > 255) cpu->reg[SP] = 0xF4;
+        if (cpu->reg[SP] > 255) {
+          cpu->reg[SP] = 0xF4;
+        }
+        // PC += num_operands + 1;
+        PC += shift;
         break;
 
       case PUSH:
@@ -137,18 +147,42 @@ void cpu_run(struct cpu *cpu)
           exit(1);
         }
         cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
+        // PC += num_operands + 1;
+        PC += shift;
         break;
-          
+      
+      case CALL:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], PC + 2);
+        PC = cpu->reg[operandA];
+        break;
+      
+      case RET:
+        PC = cpu_ram_read(cpu, cpu->reg[SP]);
+		    cpu->reg[SP]++;
+        shift = 0;
+		    break;
+
+      case JMP:
+		    PC = cpu->reg[operandA];
+		    break;
+
       case MUL:
-      		alu(cpu, ALU_MUL, operandA, operandB);
-		      // PC += shift;
-		      break;
+      	alu(cpu, ALU_MUL, operandA, operandB);
+		    PC += shift;
+		    break;
+      
+      case ADD:
+      	alu(cpu, ALU_ADD, operandA, operandB);
+		    PC += shift;
+		    break;
 
       default:
         break;
     }
     // 6. Move the PC to the next instruction.
-    PC += num_operands + 1;
+    // PC += num_operands + 1; 
+    // *** To implement CALL and RET, I need to move this into the individual instruction handlers b/c CALL and RET move the PC differently
   }
 }
 
