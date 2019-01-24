@@ -14,6 +14,19 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
   return cpu->ram[MAR];
 }
 
+// Push values to the stack
+void push(struct cpu *cpu, unsigned char ptr) {
+  // Decrement the stack pointer
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = cpu->reg[ptr];
+}
+
+// Pop values from the stack
+void pop(struct cpu *cpu, unsigned char ptr) {
+  cpu->reg[ptr] = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -79,18 +92,9 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
 
-    // unsigned int num_of_operands = IR >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
-    // if (num_of_operands == 2) {
-    //   operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    //   operandB = cpu_ram_read(cpu, cpu->PC + 2);
-    // } else if (num_of_operands == 1) {
-    //   operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    // } else {
-    //
-    // }
 
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -108,26 +112,20 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
       case MUL:
-        // Multiple two numbers together
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       case POP:
-        // Remove item from stack
-        cpu_ram_write(cpu, cpu->reg[ptr], cpu->reg[SP]++);
+        pop(cpu, operandA);
         break;
       case PUSH:
-        // Add item to stack
-        cpu_ram_write(cpu, cpu->reg[ptr], --cpu->reg[SP]);
+        push(cpu, operandA);
         break;
 
     }
 
     // 6. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1; //<- could also eleminate the num_of_operands
-                                //  and have the bitshift here as (IR >> 6) will
-                                //  return the same value as num_of_operands
+    cpu->PC += (IR >> 6) + 1;
 
-    // cpu->PC += num_of_operands + 1;
   }
 }
 
