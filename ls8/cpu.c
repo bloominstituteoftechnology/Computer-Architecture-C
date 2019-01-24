@@ -162,5 +162,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
-  cpu->SP = 0xF4;  // The stack starts at the top of memory (at a high address) and grows _downward_ as things are pushed on
+  cpu->SP = 0xF4;  // The stack should start at the top of memory (at a high address) and grow downward as things are pushed on
 }
