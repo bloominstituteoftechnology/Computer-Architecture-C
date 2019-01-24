@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include "string.h"
+#include "stdio.h"
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -14,26 +17,42 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++)
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  FILE *fp;
+  fp = fopen(argv[1], "r");
+  if (fp == NULL)
   {
-    cpu->ram[address++] = data[i];
+    perror("Could not open");
   }
 
-  // TODO: Replace this with something less hard-coded
+  char string[256];
+  unsigned char address = 0;
+  while (fgets(string, sizeof(string), fp) != NULL)
+  {
+
+    unsigned long int data = strtoul(string, NULL, 2);
+    cpu->ram[address] = data;
+    address++;
+  }
+  fclose(fp);
 }
 
 /**
@@ -44,7 +63,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->reg[regA] *= cpu->reg[regB];
     break;
 
   case ALU_ADD:
@@ -74,7 +93,7 @@ void cpu_run(struct cpu *cpu)
 
   unsigned char operandA = 0;
   unsigned char operandB = 0;
-  if (num_operands > 0)
+  if (num_operands == 1)
   {
     operandA = cpu->ram[cpu->PC + 1];
   }
