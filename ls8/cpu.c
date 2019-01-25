@@ -222,27 +222,16 @@ void cpu_run(struct cpu *cpu)
       // CALL wil push the address of the instruction after it on the stack, then move the PC
       // to the subroutine address
       case CALL:
-        // 1. The address of the instruction *directly after* CALL is pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
-        printf("subrtn address: %d\n", cpu->registers[operandB]); // 24
-        
-        // printf("return: %d\n", cpu->PC + 1); // 7
+        // operandB = subroutine address
+        printf("%d", operandB);
+        cpu->PC = operandB;
 
-        cpu_push(cpu, cpu->registers[cpu->PC+1]);
-
-        cpu->PC = cpu->registers[operandB];
-        
-        // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. 
-        // The PC can move forward or backwards from its current location.
-        printf("CALL was called.\n");
+       
         break;
+      
       // RET will pop the return address off the stack and store it in the PC
       case RET:
-        printf("RET was called.\n");
-        // printf("RET: %d %d\n", operandA, operandB);
-        unsigned char ret = cpu_pop(cpu, operandA);
-        // printf("PC POP: %d\n", cpu->ram[SP]);
-        printf("ret: %d\n", cpu->ram[ret]);
-
+        
         break;
 
       default:
