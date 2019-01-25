@@ -79,17 +79,17 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 
 
 void cpu_push(struct cpu *cpu, unsigned char value){ // abstract push for use in CALL
-    cpu->registers[SP]--;
-    cpu->ram[cpu->registers[SP]] = cpu->registers[value];
-
+    cpu->registers[SP]--;  
+    cpu->ram[cpu->registers[SP]] = value;
+    // printf("Pushed %d to ram address %d.\n", value, cpu->registers[SP]);
   }
 
-unsigned char cpu_pop(struct cpu *cpu, unsigned char value){ // abstract pop for use in RET
-  cpu->registers[value] = cpu->ram[cpu->registers[SP]];
+unsigned char cpu_pop(struct cpu *cpu){ // abstract pop for use in RET
+  unsigned char new_address = cpu->ram[cpu->registers[SP]];
+  // cpu->registers[address] = cpu->ram[cpu->registers[SP]];
+  // printf("Popping %d from ram address %d.\n", cpu->ram[cpu->registers[SP]], cpu->registers[SP]);
   cpu->registers[SP]++;
-
-
-  return cpu->registers[value];
+  return new_address;
 }
 
 /**
@@ -105,8 +105,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_ADD:
+      // printf("Adding %d + %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[regA] += cpu->registers[regB];
-      printf("Add has finished.\n");
+      // printf("Add has finished.\n");
       break;
 
     case ALU_SUB:
@@ -157,6 +158,7 @@ void cpu_run(struct cpu *cpu)
       // printf("Two operands, reg: %d, val: %d\n", operandA, operandB);
     } else if (num_operands == 1){
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+      // operandB = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
       // printf("One operand, %d\n", operandA);
     }
     // } else {
@@ -166,11 +168,10 @@ void cpu_run(struct cpu *cpu)
     // }
     // 4. switch() over it to decide on a course of action.
 
-
     switch(instruction){
 
       case HLT:
-        printf("HLT received, ending program.\n");
+        printf("HLT received at line %d, ending program.\n", cpu->PC);
         running = 0;
         break;
 
@@ -181,11 +182,11 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
-        printf("LDI: A: %d B: %d\n", operandA, operandB);
+        // printf("LDI: A: %d B: %d\n", operandA, operandB);
         break;
 
       case ADD:
-        printf("ADD was called.\n");
+        // printf("ADD was called to handle %d and %d.\n", cpu->registers[operandA], cpu->registers[operandB]);
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
 
@@ -195,51 +196,47 @@ void cpu_run(struct cpu *cpu)
         // alu takes in cpu, operation, and value A and B.
         // mult.ls8 does the following: R0 is set to value A. R1 is set to value B. MUL is called on R0 and R1. R0 is printed. 
         // Our answer should be in R0 when print is called.
-        // Halt.
         break;
 
       case PUSH: // push the value in the given register on the stack
         // 1. decrement the SP i.e. R7. We decrement because R7 sits at the top of the stack and the stack builds down.
-        // printf("SP: %d\n", SP);
-        cpu->registers[SP]--;
-        // printf("dec SP: %d\n", SP);
-        cpu->ram[cpu->registers[SP]] = cpu->registers[operandA];
-        // printf("pushval: %d, address: %d\n", cpu->ram[cpu->registers[SP]], cpu->registers[SP]);
         // 2. copy the value in the given register to the address pointed to by SP
-        // printf("Push was called.\n");
+
+        // OLD:
+        // cpu->registers[SP]--;
+        // cpu->ram[cpu->registers[SP]] = cpu->registers[operandA];
+
+        // NEW:
+        cpu_push(cpu, cpu->registers[operandA]);
         break;
 
       case POP: // pop the value at the top of the stack into the given register
         // 1. copy the value from the address pointed to by SP i.e. R7 to the given register
         // 2. increment SP
-        cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
-        // printf("popval: %d\n", cpu->registers[operandA]);
-        cpu->registers[SP]++;
-        // printf("SP: %d\n", cpu->registers[SP]);
-        // printf("Pop was called.\n");
+
+        // OLD:
+        // cpu->registers[operandA] = cpu->ram[cpu->registers[SP]];
+        // cpu->registers[SP]++;
+
+        // NEW:
+        cpu->registers[operandA] = cpu_pop(cpu);
+
         break;
 
       // CALL wil push the address of the instruction after it on the stack, then move the PC
       // to the subroutine address
       case CALL:
-        // operandB = subroutine address
-        printf("subrtn add: %d\n", cpu->registers[operandB]);
+        // printf("CALL: Pushing return address %d to stack for next value %d\n", cpu->PC+1, operandB);
+        cpu_push(cpu, cpu->PC+1);
 
-        // push return address to the stack
-        cpu->ram[cpu->registers[SP]] = cpu->PC + 1;
-        printf("return add: %d\n", cpu->ram[cpu->registers[SP]]);
-
-        // jump PC to the subroutine address
-        cpu->PC = cpu->registers[operandB];
-
-       
+        // printf("CALL: Jumping to subroutine address %d\n", cpu->registers[operandA] - 2);
+        cpu->PC = cpu->registers[operandA] - 2;
         break;
       
       // RET will pop the return address off the stack and store it in the PC
       case RET:
-        cpu->PC = cpu->ram[cpu->registers[SP]];
-        cpu->registers[SP]++;
-        
+        cpu->PC = cpu_pop(cpu);
+        // printf("PC is now set to %d.\n", cpu->PC);
         break;
 
       default:
