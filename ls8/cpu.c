@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
-
 /*
   RAM interface functions
 */
@@ -58,7 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -74,9 +72,9 @@ void cpu_run(struct cpu *cpu)
 
   unsigned char operand_a;
   unsigned char operand_b;
+  unsigned char SP = cpu->reg[7];
 
   while (running) {
-    // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
@@ -91,6 +89,7 @@ void cpu_run(struct cpu *cpu)
 
     }
     // 4. switch() over it to decide on a course of action.
+    // 5. Do whatever the instruction should do according to the spec.
     switch (IR) {
       case LDI:
         cpu->reg[operand_a] = operand_b;
@@ -98,15 +97,23 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->reg[operand_a]);
         break;
+      case PUSH:
+        SP--;
+        cpu_ram_write(cpu, cpu->reg[operand_a], SP);
+        break;
+      case POP:
+        cpu->reg[operand_a] = cpu_ram_read(cpu, SP);
+        SP++;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operand_a, operand_b);
+        break;
       case HLT:
         running = 0;
-      case MUL:
-
         break;
       default:
         break;
     }
-    // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     cpu->PC = cpu->PC + number_of_operands + 1;
   }
@@ -123,4 +130,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
 
   memset(cpu->reg, 0, 8);
+  cpu->reg[7] = 0xF4;
 }
