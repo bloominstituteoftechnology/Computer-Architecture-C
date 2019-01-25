@@ -22,7 +22,7 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
   char data[DATA_LEN] = {
     // From print8.ls8
@@ -33,6 +33,10 @@ void cpu_load(struct cpu *cpu)
     0b00000000,
     0b00000001  // HLT
   };
+
+  // FILE *program_file = fopen(filename, "r");
+  // fgetc(program_file);
+
 
   int address = 0;
 
@@ -70,15 +74,15 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu->ram[cpu->PC];
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     unsigned int number_of_operands = (IR >> 6);
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (number_of_operands == 2) {
-      operand_a = cpu->ram[cpu->PC+1];
-      operand_b = cpu->ram[cpu->PC+2];
+      operand_a = cpu_ram_read(cpu, cpu->PC+1);
+      operand_b = cpu_ram_read(cpu, cpu->PC+2);
     } else if (number_of_operands == 1) {
-      operand_a = cpu->ram[cpu->PC+1];
+      operand_a = cpu_ram_read(cpu, cpu->PC+1);
     } else {
 
     }
