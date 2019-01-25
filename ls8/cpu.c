@@ -233,6 +233,7 @@ void cpu_init(struct cpu *cpu)//takes a pointer to a struct cpu
   // TODO: Initialize the PC and other special registers
   cpu->PC =0;//at first, the PC, registers and RAM should be cleared 0
   cpu->registers[SP] =0xF4;//The value of the key pressed is stored in address `0xF4`
+  cpu->FL = 0;
   memset(cpu->ram, 0, sizeof cpu->ram);//clear registers and RAM
   memset(cpu->registers, 0, sizeof cpu->registers);
 }
