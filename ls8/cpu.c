@@ -44,6 +44,10 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address){
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value){
   cpu->ram[address] = value;
 }
+
+void cpu_increment(struct cpu *cpu, int num_ops){
+  cpu->PC = cpu->PC + num_ops + 1;
+}
 /**
  * Stack Method
  */
@@ -73,12 +77,18 @@ unsigned char cpu_pop(struct cpu *cpu){
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char num1, num2;
   switch (op) {
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
       // cpu_ram_write(cpu,regA,cpu_ram_read(cpu,regA)*cpu_ram_read(cpu,regB));
       break;
-    
+    case ALU_ADD:
+      num1 = cpu->registers[regA];
+      num2 = cpu->registers[regB];
+
+      cpu->registers[regA] = num1 + num2;
+      break;
   }
 }
 
@@ -89,7 +99,10 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
+  int should_increment;
+
   while (running) {
+    should_increment = 1;
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu,cpu->PC);
     // 2. Figure out how many operands this next instruction requires
@@ -109,7 +122,6 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         // printf("LDI: %d @R%d\n", operandB, operandA );
         cpu->registers[operandA] = operandB;
-        // cpu_ram_write(cpu,operandA,operandB);
         break;
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
@@ -123,11 +135,26 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->registers[operandA] = cpu_pop(cpu);
         break;
+      case ADD:
+        alu(cpu,ALU_ADD,operandA,operandB);
+        break;
+      case CALL:
+        cpu_push(cpu, cpu->PC + num_ops + 1);
+        cpu->PC = cpu->registers[operandA];
+        should_increment = 0;
+        break;
+      case RET:
+        cpu->PC = cpu_pop(cpu);
+        should_increment = 0;
+        break;
       case HLT:
         return;
+
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC = cpu->PC + num_ops + 1;
+    if(should_increment == 1){
+      cpu_increment(cpu,num_ops);
+    }
   }
 }
 
