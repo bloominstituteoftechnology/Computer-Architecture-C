@@ -108,6 +108,21 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->reg[regA] += cpu->reg[regB];
     break;
+
+  case ALU_CMP:
+    if (cpu->reg[regA] == cpu->reg[regB])
+    {
+      cpu->FL = 0b00000001;
+    }
+    else if (cpu->reg[regA] > cpu->reg[regB])
+    {
+      cpu->FL = 0b00000010;
+    }
+    else
+    {
+      cpu->FL = 0b00000100;
+    }
+    break;
   }
 }
 
@@ -184,6 +199,38 @@ void cpu_run(struct cpu *cpu)
       cpu->PC = cpu_pop(cpu);
       break;
 
+    case CMP:
+      // should compare both values
+      // and change the flag
+      alu(cpu, ALU_CMP, operandA, operandB);
+      break;
+
+    case JMP:
+      // should jump to location
+      cpu->PC = cpu->reg[operandA];
+      cpu->PC += 1;
+      break;
+
+    case JEQ:
+      // should check if flag is true
+      if (cpu->FL == 0b00000001)
+      {
+        // move counter
+        cpu->PC = cpu->reg[operandA];
+        cpu->PC -= 1;
+      }
+      break;
+
+    case JNE:
+      // should check if flag is false
+      if (cpu->FL != 0b00000001)
+      {
+        // move counter
+        cpu->PC = cpu->reg[operandA];
+        cpu->PC -= 1;
+      }
+      break;
+
     default:
       break;
     }
@@ -201,6 +248,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   // set all values to 0
   cpu->PC = 0;
+  cpu->FL = 0;
 
   cpu->reg[SP] = ADDR_EMPTY_STACK;
 
