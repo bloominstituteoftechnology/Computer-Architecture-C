@@ -45,7 +45,7 @@ void cpu_load(struct cpu *cpu, char *filename)
       continue;
     }
 
-    cpu->ram[address] = ret;
+    cpu_ram_write(cpu, ret, address);
     address ++;
 
   }
@@ -100,6 +100,9 @@ void cpu_run(struct cpu *cpu)
         break;
       case HLT:
         running = 0;
+      case MUL:
+
+        break;
       default:
         break;
     }
