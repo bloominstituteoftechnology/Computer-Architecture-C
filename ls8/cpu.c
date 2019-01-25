@@ -201,6 +201,13 @@ void cpu_run(struct cpu *cpu)
         pc_increment=0;
         break;
 
+        case JEQ:
+        if(cpu->FL == 1) {
+          cpu->PC= cpu->registers[param1];
+          pc_increment=0;
+        }
+        break;
+
 
       default:
       printf("hello, you are not done with this func yet\n");
