@@ -26,8 +26,8 @@ void cpu_load(struct cpu *cpu)
   FILE *fp;
   char line[1024];
 
-  if ((fp = fopen("./examples/call.ls8", "r")) == NULL) {
-    fprintf(stderr, "Cannot open mult8.ls8\n");
+  if ((fp = fopen("./examples/sprint.ls8", "r")) == NULL) {
+    fprintf(stderr, "Cannot open sprint.ls8\n");
     exit(1);
   }
 
@@ -142,6 +142,26 @@ void cpu_run(struct cpu *cpu)
       case RET:
         cpu->PC = pop(cpu);
         break;
+      case CMP:
+        if (cpu->reg[operandA] == cpu->reg[operandB]){
+          cpu->E = 1;
+        } else {
+          cpu->E = 0;
+        }
+      break;
+      case JNE:
+        if (cpu->E == 0){
+          cpu->PC = cpu->reg[operandA] - 2;
+        }
+        break;
+      case JEQ:
+        if (cpu->E == 1){
+          cpu->PC = cpu->reg[operandA] - 2;
+        }
+        break;
+      case JMP:
+        cpu->PC = cpu->reg[operandA] - 2;
+      break;
       default:
         break;
     }
@@ -159,4 +179,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
   cpu->SP = ADDR_EMPTY_STACK;
+  cpu->E = 0;
 }
