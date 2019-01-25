@@ -75,9 +75,23 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->reg[regA] *= cpu->reg[regB];
       break;
+
     case ALU_ADD:
       cpu->reg[regA] += cpu->reg[regB];
       break;
+
+    case ALU_CMP:
+      if (cpu->reg[regA] == cpu->reg[regB]) {
+        cpu->FL = cpu->FL | (1 << 0);
+      }
+      else if (cpu->reg[regA] > cpu->reg[regB]) {
+        cpu->FL = cpu->FL | (1 << 1);
+      }
+      else {
+        cpu->FL = cpu->FL | (1 << 2);
+      }
+      break;
+
     default:
       break;
 
@@ -141,6 +155,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
         break;
 
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
+
       case PUSH:
         cpu_push(cpu, cpu->reg[operandA]); // void cpu_push(struct cpu *cpu, unsigned char val)
         // cpu->reg[SP]--;
@@ -191,6 +209,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0x00; // when programs start getting loaded (ADDR_PROGRAM_ENTRY)
+  cpu->FL = 0x00; // when programs start getting loaded (ADDR_PROGRAM_ENTRY)
   cpu->reg[SP] = 0xF4; // where SP is on the empty stack (ADDR_EMPTY_STACK)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
