@@ -195,6 +195,12 @@ void cpu_run(struct cpu *cpu)
           cpu->FL = 4;
         } 
         break;
+        
+        case JMP:
+        cpu->PC = cpu->registers[param1];
+        pc_increment=0;
+        break;
+
 
       default:
       printf("hello, you are not done with this func yet\n");
