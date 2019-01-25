@@ -58,6 +58,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
 
     // TODO: implement more ALU ops
   }
@@ -107,6 +109,23 @@ void cpu_run(struct cpu *cpu)
         break;
       case MUL:
         alu(cpu, ALU_MUL, operand_a, operand_b);
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operand_a, operand_b);
+        break;
+      case CALL:
+        //should be refactored to call PUSH but with PC +1
+        SP--;
+        cpu_ram_write(cpu, cpu->PC+1, SP);
+
+        cpu->PC = cpu->reg[operand_a];
+        number_of_operands = -1; // this is to execute the instruction at the new PC
+        break;
+      case RET:
+        // should be refactored to call POP except set the PC
+        cpu->PC = cpu_ram_read(cpu, SP);
+        SP++;
+
         break;
       case HLT:
         running = 0;
