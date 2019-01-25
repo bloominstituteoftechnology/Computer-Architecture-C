@@ -51,6 +51,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     break;
   case ALU_ADD:
     cpu->registers[regA] += cpu->registers[regB];
+    printf("%d add\n", cpu->PC);
     break;
   case ALU_CMP:
   //printf("%d! %d!!\n", cpu->registers[regA], cpu->registers[regB]);
@@ -142,12 +143,13 @@ void cpu_run(struct cpu *cpu)
 
     case RET:
       cpu->PC = stack_pop(cpu);
-
+      printf("%d ret\n", cpu->PC);
       break;
 
     case CALL:
       stack_push(cpu, cpu->PC + 2);
       cpu->PC = cpu->registers[operandA];
+      printf("%d call\n", cpu->PC);
       break;
 
     case CMP:
