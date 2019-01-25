@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #define ADDR_EMPTY_STACK 0xF4 // where SP is on the empty stack
 
@@ -143,6 +144,9 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char IR, operandA, operandB;
   unsigned int num_operands, jBits;
+  unsigned int interrupts_enabled = 0;
+  struct timeval tv;
+  unsigned int prev_sec;
 
   while (running) {
     // 1. Get the value of the current instruction (in address PC).
@@ -154,6 +158,18 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
     operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xFF);
+
+    gettimeofday(&tv, NULL);
+    if (tv.tv_sec != prev_sec)
+    {
+      cpu->reg[6] |= 1;
+      prev_sec = tv.tv_sec;
+    }
+
+    if (interrupts_enabled)
+    {
+      // TODO
+    }
 
     // 4. switch() over it to decide on a course of action.
     switch(IR)
@@ -200,13 +216,34 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += num_operands + 1;
         break;
       case INT:
-        cpu->IS = cpu->reg[operandA] & 0xFF;
+        cpu->reg[6] |= cpu->reg[operandA];
+        unsigned char maskedInterrupts = cpu->IM & cpu->reg[6];
+        for (int i = 0 ; i != 8 ; i++) {
+          if ((maskedInterrupts & (1 << i)) != 0)
+          {
+            interrupts_enabled = 0;
+            cpu->reg[6] = 0x00; // Clear the bit in the IS register
+            cpu_ram_write(cpu, --cpu->SP, cpu->PC);
+            cpu_ram_write(cpu, --cpu->SP, cpu->FL);
+            for (int j = 0; j < 7; j++)
+            {
+              cpu_ram_write(cpu, --cpu->SP, cpu->reg[j]);
+            }
+            cpu->PC = cpu_ram_read(cpu, 0xF8);
+            break;
+          }
+        }
         cpu->PC += num_operands + 1;
         break;
       case IRET:
-        // TODO: Implement this
-        // cpu->PC += num_operands + 1;
-        // break;
+        for (int i = 6; i >= 0; i--)
+        {
+          cpu->reg[i] = cpu_ram_read(cpu, cpu->SP++);
+        }
+        cpu->FL = cpu_ram_read(cpu, cpu->SP++);
+        cpu->PC = cpu_ram_read(cpu, cpu->SP++);
+        interrupts_enabled = 1;
+        break;
       case JEQ:
         jBits = cpu->FL & (1 << 0);
         if (jBits == 0b00000001)
@@ -367,12 +404,12 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
+  memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
+  memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
+
   // Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->FL = 0; // 00000LGE
-  // cpu->IM = cpu->reg[5]; // R5
-  // cpu->IS = cpu->reg[6]; // R6
+  cpu->IM = cpu->reg[5]; // R5
   cpu->SP = ADDR_EMPTY_STACK; // R7
-  memset(cpu->reg, 0, 8 * sizeof(cpu->reg[0]));
-  memset(cpu->ram, 0, 256 * sizeof(cpu->ram[0]));
 }
