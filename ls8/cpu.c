@@ -1,53 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
-#include "stdio.h"
-#include "string.h"
 
 #define DATA_LEN 6
 
-// Write the given value to the LS8's RAM at the given address
-void cpu_ram_write(struct cpu *cpu, unsigned char MDR, unsigned char MAR) {
-  cpu->ram[MAR] = MDR;
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
+  return cpu->ram[index];
 }
 
-// Read the value at address and return it
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
-  return cpu->ram[MAR];
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
+  cpu->ram[index] = value;
 }
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, unsigned char *argv)
+void cpu_load(struct cpu *cpu)
 {
-  FILE *fp;
-  char line[1024];
+  char data[DATA_LEN] = {
+    // From print8.ls8
+    0b10000010, // LDI R0,8
+    0b00000000,
+    0b00001000,
+    0b01000111, // PRN R0
+    0b00000000,
+    0b00000001  // HLT
+  };
 
-  // Initialize RAM address to start writing to
   int address = 0;
 
-  // Open the source file
-  if ((fp = fopen(argv, "r")) == NULL) {
-    fprintf(stderr, "Cannot open %s\n", argv);
-    exit(1);
+  for (int i = 0; i < DATA_LEN; i++) {
+    cpu->ram[address++] = data[i];
   }
 
-  // Read in the source file line by line
-  while(fgets(line, sizeof(line), fp) != NULL) {
-
-    // convert these to binary strings to numbers
-    char *ptr;
-    unsigned char ret = strtol(line, &ptr, 2);
-
-    // Ignore lines from which no numbers were read
-    if (ptr == line) {
-      continue;
-    }
-
-    // Write to RAM
-    // Increment RAM address by how much was written to it
-    cpu->ram[address++] = ret;
-  }
-  fclose(fp);
+  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -55,11 +42,9 @@ void cpu_load(struct cpu *cpu, unsigned char *argv)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  unsigned char *reg = cpu->reg;
-
   switch (op) {
     case ALU_MUL:
-      reg[regA] *= reg[regB];
+      // TODO
       break;
 
     // TODO: implement more ALU ops
@@ -71,50 +56,31 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; 
+  int running = 1; // True until we get a HLT instruction
 
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-    // 2. Figure out how many operands this next instruction requires
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char IR, operandA, operandB;
+    IR = cpu_ram_read(cpu, cpu->pc);
+    operandA = cpu_ram_read(cpu, cpu->pc+1);
+    operandB = cpu_ram_read(cpu, cpu->pc+2);
+    int add_to_pc = (IR >> 6) + 1;
 
-
-    // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-    switch(IR) {
-      case HLT:
-        // Break the loop
-        running = 0;
-        break;
+    switch (IR) {
       case LDI:
-        // set the current operation to the next operation
-        cpu->reg[operandA] = operandB;
+        cpu->registers[operandA] = operandB;
         break;
       case PRN:
-        // Print the value at the given register
-        printf("%d\n", cpu->reg[operandA]);
+        printf("%d\n", cpu->registers[operandA]);
         break;
-      case MUL:
-        // Multiple two numbers together
-        alu(cpu, ALU_MUL, operandA, operandB);
+      case HLT:
+        running = 0;
         break;
-      case POP:
-        // Remove item from stack
-        cpu_ram_write(cpu, cpu->reg[ptr], cpu->reg[SP]++);
-        break;
-      case PUSH:
-        // Add item to stack
-        cpu_ram_write(cpu, cpu->reg[ptr], --cpu->reg[SP]);
-        break;
-
     }
-
-    // 6. Move the PC to the next instruction.
-    cpu->PC += (IR >> 6) + 1;
-
+    cpu->pc += add_to_pc;
+    // 1. Get the value of the current instruction (in address PC).
+    // 2. switch() over it to decide on a course of action.
+    // 3. Do whatever the instruction should do according to the spec.
+    // 4. Move the PC to the next instruction.
   }
 }
 
@@ -124,8 +90,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->PC = ADDR_PROGRAM_ENTRY;
-  cpu->reg[SP] = ADDR_EMPTY_STACK;
-  memset(cpu->reg, 0, sizeof(cpu->reg));
-  memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->pc = 0;
+
+  // TODO: Zero registers and RAM
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
+  cpu->registers[7] = 0xF4;
 }
