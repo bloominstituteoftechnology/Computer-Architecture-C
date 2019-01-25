@@ -186,6 +186,16 @@ void cpu_run(struct cpu *cpu)
         pc_increment++ ;
         break;
 
+        case CMP:
+        if (cpu->registers[param1] == cpu->registers[param2]) {
+          cpu->FL = 1;
+        } else if (cpu->registers[param1] > cpu->registers[param2]) {
+          cpu->FL = 2;
+        } else {
+          cpu->FL = 4;
+        } 
+        break;
+
       default:
       printf("hello, you are not done with this func yet\n");
       exit(1);
