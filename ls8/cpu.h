@@ -41,6 +41,7 @@ enum alu_op {
 
 #define CALL 0b01010000
 #define RET  0b00010001
+#define MOD  0b10100100
 
 // Function declarations
 
