@@ -12,16 +12,21 @@ struct cpu {
   unsigned char ram[256];
   // Stack pointer
   // unsigned int SP;
+
+  // Flags:
+  unsigned char E;
+  unsigned char G;
+  unsigned char L;
 };
 
 // ALU operations
 enum alu_op {
 	ALU_MUL,
   ALU_ADD,
+  ALU_CMP,
 	// // Add more here
   // ALU_DIV,
   // ALU_SUB,
-  // ALU_CMP,
 };
 
 // Instructions

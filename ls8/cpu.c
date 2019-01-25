@@ -84,6 +84,29 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       break;
     
+    case ALU_CMP:
+      if(cpu->reg[regA] == cpu->reg[regB]){
+      	cpu->E = 1;
+      }  
+      else {
+      	cpu->E = 0;
+      }
+
+      if(cpu->reg[regA] > cpu->reg[regB]){
+        cpu->G = 1;
+      }
+      else {
+        cpu->G = 0;
+      }
+
+      if(cpu->reg[regA] < cpu->reg[regB]){
+        cpu->L = 1;
+      }
+      else {
+        cpu->L = 0;
+      }
+      break;
+    
     default:
       break;
 
@@ -117,10 +140,11 @@ void cpu_run(struct cpu *cpu)
     switch(current_instruction) {
       // HLT -- Halt the CPU and exit the emulator:
       case HLT:
-        running = 0;  // Stop the while (running) loop
+        running = 0;  // Stop the 'while (running)' loop
         break;
 
       // LDI -- Set a specified register to a specified integer value
+      // consider it as taking 2 arguments: 'register' and 'immediate'
       // ??? in this case, set the next instruction to the instruction 2 steps ahead:
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -155,7 +179,7 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case CALL:
-        cpu->reg[SP]--;
+        cpu->reg[SP]--;  // decrement the value stored at reg[SP] (the stack pointer) by 2
         cpu_ram_write(cpu, cpu->reg[SP], PC + 2);
         PC = cpu->reg[operandA];
         break;
@@ -167,6 +191,27 @@ void cpu_run(struct cpu *cpu)
 
       case JMP:
 		    PC = cpu->reg[operandA];
+		    break;
+
+      case JNE:
+        if(cpu->E == 0) {
+            PC = cpu->reg[operandA];
+        } else {
+          PC += shift;
+        }
+		    break;
+
+      case JEQ:
+		    if(cpu->E == 1) {
+          PC = cpu->reg[operandA];
+        } else {
+			    PC += shift;
+		    }
+        break;
+
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        PC += shift;
 		    break;
 
       case MUL:
@@ -199,5 +244,11 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
-  cpu->reg[SP] = 0xF4;  // The stack should start at the top of memory (at a high address) and grow downward as things are pushed on
+  cpu->reg[SP] = 0xF4;  // The stack pointer is always stored in the register at reg[SP]
+                        // upon init, it's value is set to a number (0xF4) that corresponds to an index in ram[]
+                        // the stack should start at the top of memory (at a high address) and grow downward as things are pushed on
+
+  cpu->E = 0;   
+  cpu->G = 0;
+  cpu->L = 0; 
 }
