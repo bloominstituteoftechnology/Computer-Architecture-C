@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
 	if (argc != 2){
-		fprintf(stderr, "invalid number of arguments");
+		fprintf(stderr, "invalid number of arguments\n");
 		return 1;
 	}
   struct cpu cpu;
