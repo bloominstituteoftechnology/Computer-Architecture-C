@@ -475,3 +475,4 @@ normal:
 ```
 stty sane
 ```
+https://github.com/LambdaSchool/Computer-Architecture/pull/149
