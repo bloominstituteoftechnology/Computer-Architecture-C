@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -24,27 +25,30 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
 
-  // FILE *program_file = fopen(filename, "r");
-  // fgetc(program_file);
+  FILE *fp;
 
+  char line[1024];
+  if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot open file: %s\n", filename);
+    // exit(1);
+  }
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  while (fgets(line, sizeof(line), fp) != NULL) {
 
-  // TODO: Replace this with something less hard-coded
+    char *ptr;
+    unsigned char ret = strtol(line, &ptr, 2);
+
+    if (ptr == line) {
+      continue;
+    }
+
+    cpu->ram[address] = ret;
+    address ++;
+
+  }
 }
 
 /**
@@ -79,10 +83,10 @@ void cpu_run(struct cpu *cpu)
     unsigned int number_of_operands = (IR >> 6);
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (number_of_operands == 2) {
-      operand_a = cpu_ram_read(cpu, cpu->PC+1);
-      operand_b = cpu_ram_read(cpu, cpu->PC+2);
+      operand_a = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+      operand_b = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
     } else if (number_of_operands == 1) {
-      operand_a = cpu_ram_read(cpu, cpu->PC+1);
+      operand_a = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
     } else {
 
     }
