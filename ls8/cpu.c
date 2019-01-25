@@ -1,165 +1,159 @@
-#include "cpu.h"
-#include "string.h"
-#include "stdio.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "cpu.h"
 
-#define SP 7
-#define DATA_LEN 6
-
-void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
-{
-  cpu->ram[address] = value;
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
-
-void push(struct cpu *cpu, unsigned char val)
+/**
+ * Push a value on the CPU stack
+ */
+void cpu_push(struct cpu *cpu, unsigned char val)
 {
   cpu->reg[SP]--;
+
   cpu->ram[cpu->reg[SP]] = val;
 }
 
-unsigned char pop(struct cpu *cpu)
+/**
+ * Pop a value from the CPU stack
+ */
+unsigned char cpu_pop(struct cpu *cpu)
 {
-  unsigned char ret = cpu->ram[cpu->reg[SP]];
+  unsigned char val = cpu->ram[cpu->reg[SP]];
+
   cpu->reg[SP]++;
 
-  return ret;
+  return val;
 }
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu, char *argv[])
+
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
   FILE *fp;
-  fp = fopen(argv[1], "r");
-  if (fp == NULL)
+  char line[1024];
+  int address = ADDR_PROGRAM_ENTRY;
+
+  if ((fp = fopen(filename, "r")) == NULL)
   {
-    perror("Could not open");
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
   }
 
-  char string[256];
-  unsigned char address = 0;
-  while (fgets(string, sizeof(string), fp) != NULL)
+  while (fgets(line, sizeof line, fp) != NULL)
   {
-    unsigned long int data = strtoul(string, NULL, 2);
-    cpu->ram[address] = data;
-    address++;
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+
+    if (endchar == line)
+    {
+      continue;
+    }
+
+    // Store in ram
+    cpu->ram[address++] = byte;
   }
-  fclose(fp);
 }
 
-/**
- * ALU
- */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
+
+  unsigned char valB = reg[regB];
+
   switch (op)
   {
+  case ALU_CMP:
+    if (cpu->reg[regA] == cpu->reg[regB])
+    {
+      cpu->FL = 0b001;
+    }
+    else if (cpu->reg[regA] > cpu->reg[regB])
+    {
+      cpu->FL = 0b00000010;
+    }
+    else
+    {
+      cpu->FL = 0b00000100;
+    }
+    break;
+
   case ALU_MUL:
-    cpu->reg[regA] *= cpu->reg[regB];
+    reg[regA] *= valB;
     break;
-
   case ALU_ADD:
-    cpu->reg[regA] += cpu->reg[regB];
+    reg[regA] += valB;
     break;
-
-  case ALU_INC:
-    // TODO
-    break;
-
-  case ALU_DEC:
-    // TODO
-    break;
-
-    // TODO: implement more ALU ops
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
-  unsigned char instruction;
-  unsigned int num_operands = instruction >> 6;
+  unsigned char *reg = cpu->reg;
+  unsigned char *ram = cpu->ram;
 
-  unsigned char operandA;
-  unsigned char operandB;
-  if (num_operands == 1)
-  {
-    operandA = cpu->ram[cpu->PC + 1];
-  }
-  else if (num_operands == 2)
-  {
-    operandB = cpu->ram[cpu->PC + 2];
-  }
-  else
-  {
-    return 0;
-  }
+  int running = 1;
 
   while (running)
   {
+    unsigned char IR = ram[cpu->PC];
 
-    switch (instruction)
+    unsigned char operandA = ram[(cpu->PC + 1) & 0xff];
+    unsigned char operandB = ram[(cpu->PC + 2) & 0xff];
+
+    int instruction_set_pc = (IR >> 4) & 1;
+
+    switch (IR)
     {
+    case PRN:
+      printf("%d\n", reg[operandA]);
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+
     case HLT:
       running = 0;
       break;
 
-    case PRN:
-      printf("%d\n", cpu->reg[operandA]);
+    case PRA:
+      printf("%c\n", reg[operandA]);
+      break;
+    case CALL:
+      cpu_push(cpu, cpu->PC + 2);
+      cpu->PC = reg[operandA];
       break;
 
-    case LDI:
-      cpu->reg[operandA] = operandB;
+    case RET:
+      cpu->PC = cpu_pop(cpu);
+      break;
+
+    case PUSH:
+      cpu_push(cpu, reg[operandA]);
+      break;
+
+    case POP:
+      reg[operandA] = cpu_pop(cpu);
       break;
 
     default:
-      break;
+      exit(3);
     }
 
-    cpu->PC += num_operands + 1;
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. Figure out how many operands this next instruction requires
-    // 3. Get the appropriate value(s) of the operands following this instruction
-    // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
+    if (!instruction_set_pc)
+    {
+      cpu->PC += ((IR >> 6) & 0x3) + 1;
+    }
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
-  cpu = malloc(sizeof(cpu));
   cpu->PC = 0;
-  memset(cpu->reg, 0, 8);
-  memset(cpu->ram, 0, 256);
-  // TODO: Initialize the PC and other special registers
+  cpu->FL = 0;
+  memset(cpu->reg, 0, sizeof cpu->reg);
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
 }
