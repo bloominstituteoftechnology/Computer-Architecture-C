@@ -3,13 +3,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
 #define SP 7
 
 void cpu_push(struct cpu *cpu, unsigned char val)
 {
   cpu->reg[SP]--;
-  cpu->ram[cpu->reg[SP]] = val; // storing the address 
+  cpu->ram[cpu->reg[SP]] = val;
   // cpu_ram_write(cpu, val, cpu->reg[SP]);
 }
 
@@ -22,7 +21,7 @@ unsigned char cpu_pop(struct cpu *cpu)
 }
 
 // Write the given value to the LS8's Ram at the given address
-void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] = value;
 }
@@ -60,29 +59,10 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     // write ret to RAM
     // increment RAM address by how much was written to it
-    cpu_ram_write(cpu, ret, addr++); // void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+    cpu_ram_write(cpu, addr++, ret); // void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
   }
 
   fclose(fp);
-
-  // REFERENCE
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -162,15 +142,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PUSH:
-        cpu->reg[SP]--;
-        cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; // store the value at operandA into ram
-        // cpu_push(cpu, cpu->reg[operandA]); // void cpu_push(struct cpu *cpu, unsigned char val)
+        cpu_push(cpu, cpu->reg[operandA]); // void cpu_push(struct cpu *cpu, unsigned char val)
+        // cpu->reg[SP]--;
+        // cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; // store the value at operandA into ram
         break;
 
       case POP:
-        cpu->reg[operandA] = cpu->ram[cpu->reg[SP]]; // pull the value at operandA into ram
-        cpu->reg[SP]++;
-        // cpu->reg[operandA] = cpu_pop(cpu); // unsigned char cpu_pop(struct cpu *cpu)
+        cpu->reg[operandA] = cpu_pop(cpu); // unsigned char cpu_pop(struct cpu *cpu)
+        // cpu->reg[operandA] = cpu->ram[cpu->reg[SP]]; // pull the value at operandA into ram
+        // cpu->reg[SP]++;
         break;
 
       // ### CALL register
@@ -180,24 +160,22 @@ void cpu_run(struct cpu *cpu)
       // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
       case CALL:
         cpu->reg[SP]--;
-        cpu->ram[cpu->reg[SP]] = cpu->PC+2;
-        // cpu_push(cpu, cpu->PC+2);
-        cpu->PC = cpu->reg[operandA];
+        // cpu->ram[cpu->reg[SP]] = cpu->PC+1;
+        cpu_push(cpu, cpu->PC+1);
+        cpu->PC = cpu->reg[operandA]-2;
         break;
 
       // ### RET
       // Return from subroutine.
       // Pop the value from the top of the stack and store it in the `PC`.
       case RET:
-        cpu->PC = cpu->ram[cpu->reg[SP]];
-        cpu->reg[SP]++;
-        // cpu->PC = cpu_pop(cpu);
+        cpu->PC = cpu_pop(cpu);
+        // cpu->PC = cpu->ram[cpu->reg[SP]];
+        // cpu->reg[SP]++;
         break;
 
       default:
         break;
-        // printf("Unknown instruction %02x\n", IR);
-        // exit(3);
     }
 
     // 6. Move the PC to the next instruction.
