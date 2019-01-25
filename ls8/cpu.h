@@ -5,18 +5,24 @@
 struct cpu
 {
   // TODO
-  // PC keeps track of where we are in the program we're executing
-  // registers (array) are where we push operand values
-  // ram (array) holds everything else
-  unsigned int PC;
-  unsigned char reg[8];
-  unsigned char ram[256];
+  // PC
+  // registers (array)
+  // ram (array)
+  unsigned int PC;            // keeps track of where we are in the program
+  unsigned char registers[8]; // stores the values of the current process operands
+  unsigned char ram[256];     // stores memory to be accesses by the program
+  unsigned char FL;           // holds flag information
 };
 
 // ALU operations
 enum alu_op
 {
-  ALU_MUL
+  ALU_MUL,
+  ALU_ADD,
+  ALU_SUB,
+  ALU_DIV,
+  ALU_INC,
+  ALU_DEC,
   // Add more here
 };
 
@@ -28,17 +34,18 @@ enum alu_op
 #define LDI 0b10000010
 #define HLT 0b00000001
 #define PRN 0b01000111
+// TODO: more instructions here. These can be used in cpu_run().
 #define MUL 0b10100010
 #define PUSH 0b01000101
 #define POP 0b01000110
-// TODO: more instructions here. These can be used in cpu_run().
+#define ADD 0b10100000
+
+#define CALL 0b01010000
+#define RET 0b00010001
 
 // Function declarations
-extern void cpu_push(struct cpu *cpu, unsigned char val);
-extern unsigned char cpu_pop(struct cpu *cpu);
-extern void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address);
-extern unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address);
-extern void cpu_load(struct cpu *cpu, char *filename);
+
+extern void cpu_load(struct cpu *cpu, char *filename); // add filename parameter to load function
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
