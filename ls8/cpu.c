@@ -147,8 +147,8 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case CALL:
-      stack_push(cpu, cpu->PC + 2);
-      cpu->PC = cpu->registers[operandA];
+      stack_push(cpu, cpu->PC + 1);
+      cpu->PC = cpu->registers[operandA]-1;
       printf("%d call\n", cpu->PC);
       break;
 
