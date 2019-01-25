@@ -26,7 +26,7 @@ void cpu_load(struct cpu *cpu)
   FILE *fp;
   char line[1024];
 
-  if ((fp = fopen("./examples/stack.ls8", "r")) == NULL) {
+  if ((fp = fopen("./examples/call.ls8", "r")) == NULL) {
     fprintf(stderr, "Cannot open mult8.ls8\n");
     exit(1);
   }
@@ -131,9 +131,19 @@ void cpu_run(struct cpu *cpu)
         break;
       case POP:
         cpu->reg[operandA] = pop(cpu);
+        break;
+      case ADD:
+        cpu->reg[operandA] += cpu->reg[operandB];
+        break;
+      case CALL:
+        push(cpu->PC + 1, cpu);
+        cpu->PC = cpu->reg[operandA] - 2;
+        break;
+      case RET:
+        cpu->PC = pop(cpu);
+        break;
       default:
         break;
-      
     }
     cpu->PC += num_operands + 1;
   }
