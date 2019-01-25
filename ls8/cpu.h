@@ -30,6 +30,10 @@ enum alu_op {
 
 #define ADDR_PROGRAM_ENTRY 0x00
 #define ADDR_EMPTY_STACK 0xF4
+
+#define FLAG_EQ 0b00000001
+#define FLAG_GT 0b00000010
+#define FLAG_LT 0b00000100
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -49,6 +53,8 @@ enum alu_op {
 #define DEC 0b01100110
 #define INC 0b01100101
 #define JMP 0b01010100
+#define JEQ 0b01010101
+#define JNE 0b01010110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

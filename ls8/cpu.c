@@ -88,6 +88,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
     unsigned char *reg = cpu->reg;
 
+    unsigned char valA = reg[regA];
     unsigned char valB = reg[regB];
 
     switch (op)
@@ -109,20 +110,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         break;
 
     case ALU_CMP:
-        if (reg[regA] == valB)
+        if (valA == valB)
         {
             // Set the last bit of FL to 1
-            cpu->FL = cpu->FL | (1 << 0);
+            cpu->FL |= FLAG_EQ;
         }
-        else if (reg[regA] > valB)
-        {
-            // Set the second-to-last bit of FL to 1
-            cpu->FL = cpu->FL | (1 << 1);
-        }
-        else
-        {
-            // Set the third-to-last bit of FL to 1
-            cpu->FL = cpu->FL | (1 << 2);
+        else {
+          cpu->FL &= ~FLAG_EQ;
         }
         break;
     }
@@ -227,8 +221,27 @@ void cpu_run(struct cpu *cpu)
             break;
 
         case JMP:
-          cpu->PC = cpu->reg[operandA];
-          instruction_set_pc = 0;
+          cpu->PC = reg[operandA];
+
+        case JEQ: // opcode to jump if the  equal flag is set to true
+          if (cpu->FL & FLAG_EQ)
+          {
+            cpu->PC = reg[operandA];
+          } else {
+            instruction_set_pc = 0;
+          }
+          break;
+
+        case JNE:
+           if (!(cpu->FL & FLAG_EQ))
+          {
+            cpu->PC = reg[operandA];
+          } else {
+            instruction_set_pc = 0;
+          }
+          break;
+
+          
 
         default:
             fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, IR);
@@ -243,7 +256,7 @@ void cpu_run(struct cpu *cpu)
             // the 1st and 2nd bits of the IR, which indicate how many
             // operands the previous instruction expected
             // Plus 1 because that is the size of the opcode itself
-            cpu->PC += num_operands + 1;
+            cpu->PC += ((IR >> 6) & 0x3) + 1;
         }
     }
 }
@@ -254,7 +267,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
     cpu->PC = 0;
-    cpu->FL = 0;
+    // cpu->FL = 0;
 
     // Zero registers and RAM
     memset(cpu->reg, 0, sizeof cpu->reg);
