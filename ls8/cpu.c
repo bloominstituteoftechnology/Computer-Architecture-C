@@ -160,26 +160,26 @@ void cpu_run(struct cpu *cpu)
     case JEQ:
       if (cpu->FL[7] == 1) {
         cpu->PC = cpu->registers[operandA];
-        printf("%d jeq pass\n", cpu->FL[7]);
+        //printf("%d jeq pass\n", cpu->FL[7]);
       }
       else {
         cpu->PC = cpu->PC + 1;
-        printf("%d jeq fail\n", cpu->FL[7]);
+        //printf("%d jeq fail\n", cpu->FL[7]);
       }
       break;
     case JNE:
       if (cpu->FL[7] != 1) {
-        cpu->PC = cpu->registers[operandA];
-        printf("%d jne pass\n", cpu->FL[7]);
-        printf("%d jne pass to\n", cpu->PC);
+        cpu->PC = cpu->registers[operandA]-1;
+        //printf("%d jne pass\n", cpu->FL[7]);
+        //printf("%d jne pass to\n", cpu->registers[operandA]+1);
       }
       else {
         cpu->PC = cpu->PC + 1;
-        printf("%d jne fail\n", cpu->FL[7]);
+        //printf("%d jne fail\n", cpu->FL[7]);
       }
       break;
     case JMP:
-      cpu->PC = cpu->registers[operandA];
+      cpu->PC = cpu->registers[operandA]-1;
       break;
     }
 
