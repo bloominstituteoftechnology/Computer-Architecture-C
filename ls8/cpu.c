@@ -131,10 +131,7 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d \n", cpu->registers[param1]);
         break;
-      //HLT halt the CPU (and exit the emulator).
-      case HLT:
-        running =0;
-        break;
+      
       
       //MUL multiply the values in two registers together and store the result in registerA
       case MUL:
@@ -206,6 +203,17 @@ void cpu_run(struct cpu *cpu)
           cpu->PC= cpu->registers[param1];
           pc_increment=0;
         }
+        break;
+
+        case JNE:
+        if(cpu->FL !=1){
+          cpu->PC = cpu->registers[param1];
+          pc_increment =0;
+        }
+        break;
+        //HLT halt the CPU (and exit the emulator).
+      case HLT:
+        running =0;
         break;
 
 
