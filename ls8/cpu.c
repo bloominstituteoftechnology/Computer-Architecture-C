@@ -2,28 +2,53 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#define DATA_LEN 6
+#define ADDR_EMPTY_STACK 0xF4 
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  if (argc < 2) {
+    fprintf(stderr, "Missing arguments. Provide: ./ls8 filename");
+    exit(1);
+  }
+
+  FILE *fp;
+  char line [1024];
+  char *file = argv[1];
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if ((fp = fopen(file, "r")) == NULL) {
+    fprintf(stderr, "Error: unable to open file %s\n", file);
+    exit(1);
   }
+
+  while (fgets(line, sizeof(line), fp) != NULL){
+
+    char *ptr;
+    unsigned char instruction = strtol(line, &ptr, 2);
+
+    if (ptr == line) {
+      continue;
+    }
+
+    cpu->ram[++address] = instruction;
+  }
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -86,6 +111,18 @@ void cpu_run(struct cpu *cpu )
         cpu->reg[operandA] = operandB;
         break;
 
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
+        break;
+
+      case PUSH:
+        cpu_ram_write(cpu, --cpu->SP, cpu->reg[operandA]);
+        break;
+
       default:
         break;
     }
@@ -100,6 +137,8 @@ void cpu_run(struct cpu *cpu )
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->FL = 0;
+  cpu->SP = ADDR_EMPTY_STACK;
   memset(cpu->reg, 0, sizeof(cpu->reg[0]));
   memset(cpu->ram, 0, sizeof(cpu->ram[0]));
 }
