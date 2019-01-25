@@ -148,14 +148,12 @@ void cpu_run(struct cpu *cpu)
       // ??? in this case, set the next instruction to the instruction 2 steps ahead:
       case LDI:
         cpu->reg[operandA] = operandB;
-		    // PC += num_operands + 1;
         PC += shift;
 		    break;
 
       // PRN -- Print numeric value stored in the given register:
       case PRN:
         printf("%d \n", cpu->reg[operandA]);
-        // PC += num_operands + 1;
         PC += shift;
 		    break;
       
@@ -164,7 +162,6 @@ void cpu_run(struct cpu *cpu)
         if (cpu->reg[SP] > 255) {
           cpu->reg[SP] = 0xF4;
         }
-        // PC += num_operands + 1;
         PC += shift;
         break;
 
@@ -174,7 +171,6 @@ void cpu_run(struct cpu *cpu)
           exit(1);
         }
         cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA]);
-        // PC += num_operands + 1;
         PC += shift;
         break;
       
