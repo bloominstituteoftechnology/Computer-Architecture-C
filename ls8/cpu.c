@@ -223,14 +223,22 @@ void cpu_run(struct cpu *cpu)
       // to the subroutine address
       case CALL:
         // operandB = subroutine address
-        printf("%d", operandB);
-        cpu->PC = operandB;
+        printf("subrtn add: %d\n", cpu->registers[operandB]);
+
+        // push return address to the stack
+        cpu->ram[cpu->registers[SP]] = cpu->PC + 1;
+        printf("return add: %d\n", cpu->ram[cpu->registers[SP]]);
+
+        // jump PC to the subroutine address
+        cpu->PC = cpu->registers[operandB];
 
        
         break;
       
       // RET will pop the return address off the stack and store it in the PC
       case RET:
+        cpu->PC = cpu->ram[cpu->registers[SP]];
+        cpu->registers[SP]++;
         
         break;
 
