@@ -18,9 +18,9 @@ void cpu_load(struct cpu *cpu, char *dir)
     exit(1);
   }
   //
-  unsigned char temp[256];
+  char temp[256];
   char *instruction;
-
+ 
   unsigned int counter = 0;
 
   while(fgets(temp,sizeof(temp),fptr) != NULL){
@@ -51,10 +51,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      
+      unsigned char num1 = cpu_ram_read(cpu,regA);
+      unsigned char num2 = cpu_ram_read(cpu,regB);
+      cpu_ram_write(cpu,regA,num1*num2);
       break;
-
-    // TODO: implement more ALU ops
+    
   }
 }
 
@@ -83,9 +85,15 @@ void cpu_run(struct cpu *cpu)
     switch(IR){
     // 5. Do whatever the instruction should do according to the spec.
       case LDI:
+        printf("LDI: %d @R%d\n", operandB, operandA );
         cpu_ram_write(cpu,operandA,operandB);
+        break;
       case PRN:
         printf("%d\n", cpu_ram_read(cpu,operandA));
+        break;
+      case MUL:
+        alu(cpu,ALU_MUL,operandA,operandB);
+        break;
       case HLT:
         return;
     }
