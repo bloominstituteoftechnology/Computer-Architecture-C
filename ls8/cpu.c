@@ -77,6 +77,21 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
   cpu->ram[address] = value;
 }
 
+
+void cpu_push(struct cpu *cpu, unsigned char value){ // abstract push for use in CALL
+    cpu->registers[SP]--;
+    cpu->ram[cpu->registers[SP]] = cpu->registers[value];
+
+  }
+
+unsigned char cpu_pop(struct cpu *cpu, unsigned char value){ // abstract pop for use in RET
+  cpu->registers[value] = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP]++;
+
+
+  return cpu->registers[value];
+}
+
 /**
  * ALU
  */
@@ -90,6 +105,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      printf("Add has finished.\n");
       break;
 
     case ALU_SUB:
@@ -111,16 +128,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+
+
+
+
 /**
  * Run the CPU
  */
+
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  
 
   while (running) {
-    unsigned char operandA, operandB;
     // TODO
+    unsigned char operandA, operandB; 
     // 1. Get the value of the current instruction (in address PC).
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
@@ -143,6 +166,7 @@ void cpu_run(struct cpu *cpu)
     // }
     // 4. switch() over it to decide on a course of action.
 
+
     switch(instruction){
 
       case HLT:
@@ -157,6 +181,12 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
+        printf("LDI: A: %d B: %d\n", operandA, operandB);
+        break;
+
+      case ADD:
+        printf("ADD was called.\n");
+        alu(cpu, ALU_ADD, operandA, operandB);
         break;
 
       case MUL:
@@ -187,6 +217,32 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[SP]++;
         // printf("SP: %d\n", cpu->registers[SP]);
         // printf("Pop was called.\n");
+        break;
+
+      // CALL wil push the address of the instruction after it on the stack, then move the PC
+      // to the subroutine address
+      case CALL:
+        // 1. The address of the instruction *directly after* CALL is pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+        printf("subrtn address: %d\n", cpu->registers[operandB]); // 24
+        
+        // printf("return: %d\n", cpu->PC + 1); // 7
+
+        cpu_push(cpu, cpu->registers[cpu->PC+1]);
+
+        cpu->PC = cpu->registers[operandB];
+        
+        // 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. 
+        // The PC can move forward or backwards from its current location.
+        printf("CALL was called.\n");
+        break;
+      // RET will pop the return address off the stack and store it in the PC
+      case RET:
+        printf("RET was called.\n");
+        // printf("RET: %d %d\n", operandA, operandB);
+        unsigned char ret = cpu_pop(cpu, operandA);
+        // printf("PC POP: %d\n", cpu->ram[SP]);
+        printf("ret: %d\n", cpu->ram[ret]);
+
         break;
 
       default:
