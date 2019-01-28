@@ -57,7 +57,13 @@ while (fgets(line, sizeof(line), p) != NULL) {
     #endif
 
 }
-
+unsigned char cpu_ram_read(struct cpu *cpu, int index){
+  return cpu->ram[index];
+}
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
 /**
  * ALU
  */
