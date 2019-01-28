@@ -1,10 +1,19 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
-// haven't started looking into the videos and syntaxs
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
+// idk if i got this right?
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
+  cpu -> ram[mar] = mdr;
+}
+{
+  /* data */
+};
+)
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
