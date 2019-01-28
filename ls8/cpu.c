@@ -1,29 +1,61 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+//char data[DATA_LEN] = {
+// From print8.ls8
+//  0b10000010, // LDI R0,8
+//  0b00000000,
+//  0b00001000,
+//  0b01000111, // PRN R0
+//   0b00000000,
+//  0b00000001  // HLT
+//  };
 
-  int address = 0;
+ // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+ // for (int i = 0; i < DATA_LEN; i++) {
+ //   cpu->ram[address++] = data[i];
+ // }
 
-  // TODO: Replace this with something less hard-coded
+ // TODO: Replace this with something less hard-coded
+FILE *p;
+char line[256];
+int count = 0; 
+if ((p=fopen(filename,"r"))==NULL){
+fprintf(stderr, "file not open %s \n",filename);
+exit(1);
+}
+#if DEBUG
+     printf("\n**********Lines from file:***********\n");
+     #endif
+while (fgets(line, sizeof(line), p) != NULL) { 
+      char *ptr;
+      unsigned char byte = strtoul(line, &ptr, 2);
+      if (ptr == line) {
+        continue;
+      }
+      cpu->ram[count++] = byte;
+      #if DEBUG
+      printf("Value of line: %s", line);
+      #endif
+    }
+
+    #if DEBUG
+    printf("\nRAM in Load\n");
+    for (unsigned long i = 0; i < 256; i++) {
+      printf("cpu->ram[%lu] = %u\n", i, cpu->ram[i]);
+    }
+    #endif
+
 }
 
 /**
