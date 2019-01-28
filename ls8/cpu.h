@@ -5,14 +5,20 @@
 struct cpu {
   // TODO
   // PC
+  int PC; //or is it a string?
   // registers (array)
+  int registers[8];
   // ram (array)
+  int ram[255];
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+  ALU_MUL,
+  // Add more here
+  ALU_DIV,
+  ALU_ADD,
+  ALU_SUB
 };
 
 // Instructions
