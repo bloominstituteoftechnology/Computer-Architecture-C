@@ -1,7 +1,7 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
-
+// haven't started looking into the videos and syntaxs
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
