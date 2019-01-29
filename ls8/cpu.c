@@ -15,28 +15,64 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
 }
 // "read" returns the value, "write" sets the value in the array.
 
+// Establishing Stack functions
+// SP = Stack Pointer
+// push onto the stack we are going to decrement, the address is going to be moving toward 0 in ram
+void cpu_push(struct cpu *cpu, unsigned char value) {
+  cpu->SP--;
+  cpu_ram_write(cpu, value, cpu->SP); 
+}
+// pop onto the stack we are going to increment
+unsigned char cpu_pop(struct cpu *cpu) {
+  return cpu_ram_read(cpu, cpu->SP++);
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  // 1024 = char limit
+  char line[1024];
+  // index
+  int address = ADDR_PROGRAM_ENTRY;
+
+  // open the source file
+  if ((fp = fopen(filename, "r")) == NULL) {
+    // error handling
+    fprintf(stderr, "Can not open file %s\n", filename);
+    exit(2);
+  }
+  // read all the lines and store them in RAM
+  while (fgets(line, sizeof line, fp) !=NULL) {
+    // convert string to number(long int) = strol
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);
+    // no numbers = don't read
+    if (endchar == line) {
+      continue;
+    }
+    // write to the RAM, storage
+    cpu_ram_write(cpu, byte, address++);
+  }
 }
 
 /**
@@ -121,6 +157,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   // start at address 0
   cpu->PC = 0;
+  // initialize the Stack Pointer = address of empty stack
+  cpu->SP = ADDR_EMPTY_STACK;
   // zero registers and RAM, memeset = is used to fill a block of memory w/ a particular value: GeeksforGeeks
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->ram, 0, sizeof cpu->reg);
