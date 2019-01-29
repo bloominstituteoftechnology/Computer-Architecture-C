@@ -1,19 +1,20 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
-// idk if i got this right?
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
-  return cpu->ram[mar];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
-  cpu -> ram[mar] = mdr;
-}
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 {
-  /* data */
-};
-)
+  cpu->ram[address] = value;
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+/**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -36,13 +37,22 @@ void cpu_load(struct cpu *cpu)
 }
 
 /**
- * ALU
+ * ALU handles math and logic operations
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
       // TODO
+      break;
+
+    case ALU_ADD:
+      break;
+
+    case ALU_INC:
+      break;
+
+    case ALU_DEC:
       break;
 
     // TODO: implement more ALU ops
@@ -59,11 +69,37 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction ...
     // 2. Figure out how many operands this next instruction requires
+    unsigned int num_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    if (num_operands == 2) {
+      operandA = ...
+      operandB = ...
+    } else if (num_operands == 1) {
+      operandA = ...
+    } else {}
     // 4. switch() over it to decide on a course of action.
+    switch (instruction) {
+      case HLT:
+        running = 0;
+        break;
+
+      case PRN:
+        // print whatever is in the specified register
+        break;
+
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        break;
+
+      default:
+        break;
+    }
+
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC += num_operands + 1;
   }
 }
 

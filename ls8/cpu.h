@@ -6,13 +6,19 @@ struct cpu {
   // TODO
   // PC
   // registers (array)
-  // ram (array)
+  unsigned char ram[256];
+  unsigned char reg[8];
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+	ALU_MUL,
+  ALU_ADD,
+  ALU_CMP,
+  ALU_INC,
+  ALU_DEC,
+  // alu_add
+  // alu_cmp
 };
 
 // Instructions
