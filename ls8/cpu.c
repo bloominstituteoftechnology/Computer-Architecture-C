@@ -52,29 +52,37 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu->registers[cpu->PC];
     // 2. Figure out how many operands this next instruction requires
-    switch(IR){
-      //Case 1: opcode == LDI
-      case 0x82: 
-        unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
-        unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
-        cpu->PC = cpu->PC+3;
-      //Case 2: opcode == PRN
-      case 0x47:
-        unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
-        cpu->PC = cpu->PC +2;
-      //Case 3: opcode == HLT
-      case 0x01:
-        running = 0;
-    }
-
-
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    
 
+    // unsigned char num_operand = IR >> 6;
+    // switch(num_operand){
+    //   //Case 1: need 2 operands
+    //   case 0b10: 
+    //   //Case 2: need 1 operand
+    //   case 0b01:
+    // }
+    switch(IR){
+      //Case 1: opcode == LDI
+      case 0x82:
+        unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+        unsigned char operandB = cpu_ram_read(cpu, cpu->PC+2);
+        cpu->registers[operandA] = operandB;
+        cpu->PC = cpu->PC+3;
+      //Case 2: opcode == PRN
+      case 0x47:
+        unsigned char operandA = cpu_ram_read(cpu, cpu->PC+1);
+        printf("%d\n", operandA);
+        cpu->PC = cpu->PC +2;
+      //Case 3: opcode == HLT
+      case 0x00:
+        running = 0;
+        exit();
+    }
   }
+  exit();
 }
 
 /**

@@ -62,6 +62,12 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+- cpu.c: main logics of the CPU
+- cpu.h: declarations of variables in cpu.c
+- ls8.c: main function for running the virtual CPU
+- Makefile: a file that generates the necessary files
+- README.md: insturctions for the project
+
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
