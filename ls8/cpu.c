@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -28,13 +29,13 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
-void cpu_ram_read(struct cpu *cpu, unsigned char i) {
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char i) {
   return cpu->ram[i];
 }
 
 void cpu_ram_write(struct cpu *cpu, unsigned char i, unsigned char val) {
   cpu->ram[i] = val;
-  return cpu->ram[i];
+  /* return cpu->ram[i]; */
 }
 
 /**
@@ -70,12 +71,12 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    curr = cpu_ram_read(cpu, cpu->PC);
+    unsigned char curr = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
-    operands = curr >> 6;
+    unsigned char operands = curr >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
-    operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
-    operandB = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
     // 4. switch() over it to decide on a course of action.
     switch(curr) {
     case ALU_ADD:
