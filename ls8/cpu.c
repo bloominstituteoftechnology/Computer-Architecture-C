@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 #define DATA_LEN 6
@@ -30,7 +31,7 @@ unsigned char cpu_pop(struct cpu *cpu) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(char *filename, struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
   // char data[DATA_LEN] = {
   //   // From print8.ls8
@@ -55,7 +56,7 @@ void cpu_load(char *filename, struct cpu *cpu)
   // index
   int address = ADDR_PROGRAM_ENTRY;
 
-  // open the source file
+  // open the source file, r must be in "" not '', single = character, double = char pointer
   if ((fp = fopen(filename, "r")) == NULL) {
     // error handling
     fprintf(stderr, "Can not open file %s\n", filename);
