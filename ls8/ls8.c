@@ -4,7 +4,7 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char **argv)
 {
   struct cpu cpu;
 

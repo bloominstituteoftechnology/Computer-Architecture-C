@@ -12,9 +12,9 @@
 - [X] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
 - [X] Implement `cpu_init()`
 - [X] Implement the core of `cpu_run()`
-- [ ] Implement the `HLT` instruction handler
-- [ ] Add the `LDI` instruction
-- [ ] Add the `PRN` instruction
+- [x] Implement the `HLT` instruction handler
+- [X] Add the `LDI` instruction
+- [X] Add the `PRN` instruction
 
 ### Day 2: Add the ability to load files dynamically, get `mult.ls8` and `stack.ls8` running
 - [ ] Un-hardcode the machine code
