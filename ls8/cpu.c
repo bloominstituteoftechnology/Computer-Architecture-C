@@ -106,6 +106,9 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
         break;
+      case CALL:
+        
+        break;
       default:
         break;
     }
