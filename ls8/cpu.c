@@ -115,7 +115,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case PRN:
-        printf("%d\n", cpu->reg[operandA]);
+        printf("%d\n", cpu->reg[operandA & 7]);
         // cpu->PC += 2;
         break;
 
@@ -123,14 +123,34 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      case POP:
+        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        break;
+
+      case PUSH:
+        cpu->reg[7]--;
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA & 7]);
+        break;
+
+      case JMP:
+        cpu->PC = cpu->reg[operandA & 7];
+        add_to_pc = 0;
+        break;
+
       case HLT:
         running = 0;
         // cpu->PC += 1;
         break;
+
+      default:
+        printf("Unknown instruction %02x\n", IR);
+        // exit(3);
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     cpu->PC += add_to_pc;
+    cpu->PC &= 0xff;
   }
 }
 
