@@ -68,10 +68,12 @@ void cpu_run(struct cpu *cpu)
   unsigned char operandA;
   unsigned char operandB;
 
+  unsigned char SP = 0xF4;
+  unsigned char IR;
+  unsigned char num_operand;
   while (running) {
-
-    unsigned char IR = cpu->ram[cpu->PC];
-    unsigned char num_operand = IR >> 6;
+    IR = cpu->ram[cpu->PC];
+    num_operand = IR >> 6;
     if (num_operand == 2){
         operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
         operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
@@ -106,9 +108,17 @@ void cpu_run(struct cpu *cpu)
       case MUL:
         cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
         break;
-      case CALL:
-        
+      case PUSH:
+        SP--;
+        // printf("%x\n", SP);
+        cpu->ram[SP] = cpu->registers[operandA];
         break;
+      case POP:
+        cpu->registers[operandA] = cpu->ram[SP];
+        SP++;
+        // printf("%x\n", SP);
+        break;
+
       default:
         break;
     }
