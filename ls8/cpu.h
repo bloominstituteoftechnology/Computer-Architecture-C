@@ -10,6 +10,8 @@ struct cpu {
   unsigned char registers[8];
   // ram (array)
   unsigned char ram[256];
+  //stack
+  unsigned char stack[232];
 };
 
 // ALU operations
@@ -26,11 +28,15 @@ enum alu_op {
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
+
 // TODO: more instructions here. These can be used in cpu_run().
+#define MUL  0b10100010
+#define CALL 0b01010000
+
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *file_path);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

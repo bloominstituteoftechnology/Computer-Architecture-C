@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DATA_LEN 6
+// #define DATA_LEN 1024
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index){
   return cpu->ram[index];
@@ -16,25 +16,32 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value){
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file_path)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  int data_length = 0;
 
   // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  char line[1024];
+
+  fp = fopen(file_path, "r");
+  while(fgets(line, sizeof line, fp) != NULL){
+    // printf("%s", line);
+    cpu->ram[data_length] = (unsigned char) strtoul(line, NULL, 2);
+    data_length++;
+  }
+  fclose(fp);
+
 }
 
 /**
@@ -66,8 +73,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu->ram[cpu->PC];
     unsigned char num_operand = IR >> 6;
     if (num_operand == 2){
-        operandA = cpu_ram_read(cpu, cpu->PC+1);
-        operandB = cpu_ram_read(cpu, cpu->PC+2);
+        operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+        operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
     }
     else if (num_operand == 1)
     {
@@ -87,22 +94,22 @@ void cpu_run(struct cpu *cpu)
       //Case 1: opcode == LDI
       case LDI:
         cpu->registers[operandA] = operandB;
-        cpu->PC = cpu->PC+3;
         break;
       //Case 2: opcode == PRN
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
-        cpu->PC = cpu->PC +2;
         break;
       //Case 3: opcode == HLT
       case HLT:
         running = 0;
-        exit(0);
+        break;
+      case MUL:
+        cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
         break;
       default:
-        printf("Default");
-        exit(0);
+        break;
     }
+    cpu->PC = cpu->PC + num_operand +1;
   }
   exit(0);
 }
@@ -114,6 +121,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
-  memset(cpu->registers, 0, 1*sizeof(unsigned char)); 
-  memset(cpu->ram, 0, 1*sizeof(unsigned char)); 
+  memset(cpu->registers, 0, sizeof(cpu->registers)); 
+  memset(cpu->ram, 0, sizeof(cpu->ram)); 
+  cpu->registers[7] = 0xF4;
 }
