@@ -70,13 +70,10 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void)cpu;  // hack to suppress compiler warnings
-  (void)regA;
-  (void)regB;
-
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -100,7 +97,13 @@ void cpu_run(struct cpu *cpu)
 
     int add_to_pc = (IR >> 6) + 1;
 
-    printf("TRACE: %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for (int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
 
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
@@ -114,6 +117,10 @@ void cpu_run(struct cpu *cpu)
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
         // cpu->PC += 2;
+        break;
+
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       case HLT:
