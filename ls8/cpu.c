@@ -33,6 +33,7 @@ unsigned char cpu_pop(struct cpu *cpu) {
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
+  ////// This is what we started with....
   // char data[DATA_LEN] = {
   //   // From print8.ls8
   //   0b10000010, // LDI R0,8
@@ -42,51 +43,85 @@ void cpu_load(struct cpu *cpu, char *filename)
   //   0b00000000,
   //   0b00000001  // HLT
   // };
-
   // int address = 0;
-
   // for (int i = 0; i < DATA_LEN; i++) {
   //   cpu->ram[address++] = data[i];
   // }
+  ///////
 
   // TODO: Replace this with something less hard-coded
-  FILE *fp;
-  // 1024 = char limit
-  char line[1024];
-  // index
-  int address = ADDR_PROGRAM_ENTRY;
 
-  // open the source file, r must be in "" not '', single = character, double = char pointer
-  if ((fp = fopen(filename, "r")) == NULL) {
-    // error handling
-    fprintf(stderr, "Can not open file %s\n", filename);
-    exit(2);
+  //// This wouldn't stop running....
+  // FILE *fp;
+  // // 1024 = char limit
+  // char line[1024];
+  // // index
+  // int address = ADDR_PROGRAM_ENTRY;
+
+  // // open the source file, r must be in "" not '', single = character, double = char pointer
+  // if ((fp = fopen(filename, "r")) == NULL) {
+  //   // error handling
+  //   fprintf(stderr, "Can NOT open file %s\n", filename);
+  //   exit(2);
+  // }
+  // // read all the lines and store them in RAM
+  // while (fgets(line, sizeof line, fp) !=NULL) {
+  //   // convert string to number(long int) = strol
+  //   char *endchar;
+  //   unsigned char byte = strtol(line, &endchar, 2);
+  //   // no numbers = don't read
+  //   // line is the first character, endchar is the first none/invalid character/the end
+  //   if (endchar == line) {
+  //     // which means there are no numbers
+  //     continue;
+  //   }
+  //   // write to the RAM, storage
+  //   cpu_ram_write(cpu, byte, address++);
+  // }
+  // fclose(fp);
+  //////////
+
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char addr = 0x00; //memory init to 0
+  // error handling
+  if (fp == NULL) {
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2); // <stdlib.h>
   }
-  // read all the lines and store them in RAM
-  while (fgets(line, sizeof line, fp) !=NULL) {
-    // convert string to number(long int) = strol
-    char *endchar;
-    unsigned char byte = strtol(line, &endchar, 2);
-    // no numbers = don't read
-    if (endchar == line) {
+  // while not = to null, read the lines from the file and store to memory
+  while (fgets(line, sizeof line, fp) != NULL) {
+    // a pointer to a pointer, so we can change the original pointer
+    char *endpointer;
+    // The strtoul() function converts a character string to an unsigned long integer value.
+    unsigned char bytes = strtoul(line, &endpointer, 2);
+    if (endpointer == line) {
+      // which means there are no numbers
       continue;
     }
-    // write to the RAM, storage
-    cpu_ram_write(cpu, byte, address++);
+    // store results to memory
+    cpu_ram_write(cpu, addr++, bytes);
   }
+  // close the file
+  fclose(fp);
 }
 
 /**
  * ALU
  */
+// 
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
-
-    // TODO: implement more ALU ops
+    
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+      break;
+    
   }
 }
 
@@ -132,6 +167,11 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         // moves the PC to the next instruction
         // cpu->PC += 2;
+        break;
+
+      // Multiply
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       // Halt

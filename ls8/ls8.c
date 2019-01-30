@@ -9,7 +9,7 @@ int main(int argc, char **argv)
   struct cpu cpu;
   // 
    if (argc != 2) {
-     // error handling
+     // error handling/ usage mesage so user knows what to do
      fprintf(stderr, "usage: ls8 filname.ls8\n");
      return 1;
    }
