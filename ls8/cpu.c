@@ -5,6 +5,14 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char i) {
+  return cpu->ram[i];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char i, unsigned char val) {
+  cpu->ram[i] = val;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -27,15 +35,6 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char i) {
-  return cpu->ram[i];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char i, unsigned char val) {
-  cpu->ram[i] = val;
-  /* return cpu->ram[i]; */
 }
 
 /**
@@ -73,24 +72,25 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char curr = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
-    unsigned char operands = curr >> 6;
+    int add_1 = (curr>>6)+1;
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
     unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
     // 4. switch() over it to decide on a course of action.
     switch(curr) {
-    case ALU_ADD:
-      registers[regA] += val;
+    case LDI:
+      cpu->registers[operandA] = operandB;
       break;
-    case ALU_MUL:
-      registers[regA] *= val;
+    case PRN:
+      printf("%d\n", cpu->registers[operandA]);
       break;
-    case ALU_DIV:
-      registers[regA] /= val;
+    case HLT:
+      running = 0;
       break;
-    case ALU_SUB:
-      registers[regA] -= val;
-    }    
+    case MULT:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     cpu->PC++; //TODO: review this step

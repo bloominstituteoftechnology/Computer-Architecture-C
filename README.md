@@ -7,11 +7,11 @@
 ## Task List: add this to the first comment of your Pull Request
 
 ### Day 1: Get `print8.ls8` running
-- [ ] Inventory what is here
-- [ ] Implement `struct cpu` in `cpu.h`
-- [ ] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
-- [ ] Implement `cpu_init()`
-- [ ] Implement the core of `cpu_run()`
+- [X] Inventory what is here
+- [X] Implement `struct cpu` in `cpu.h`
+- [X] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
+- [X] Implement `cpu_init()`
+- [X] Implement the core of `cpu_run()`
 - [ ] Implement the `HLT` instruction handler
 - [ ] Add the `LDI` instruction
 - [ ] Add the `PRN` instruction
