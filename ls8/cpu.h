@@ -5,11 +5,12 @@
 struct cpu {
   // TODO
   // PC
-  unsigned int PC;
+  unsigned char PC;
   // registers (array)
-  unsigned int registers[8];
+  unsigned char registers[8];
   // ram (array)
-  unsigned int ram[256];
+  unsigned char ram[256];
+  unsigned char mystack;
 };
 
 // ALU operations
@@ -32,8 +33,10 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 #define MULT 0b10100010
 // Function declarations
+#define POP  0b01000110
+#define PUSH  0b01000101
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *myfile);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char i) {
   return cpu->ram[i];
@@ -16,25 +17,21 @@ void cpu_ram_write(struct cpu *cpu, unsigned char i, unsigned char val) {
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
-{
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000, // 0
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000, // 0
-    0b00000001  // HLT
-  };
+void cpu_load(struct cpu *cpu, char *myfile) {
+  FILE *fp;
+  char buffer[512];
+  fp = fopen(myfile, "r");
+  unsigned char address = 0;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while (fgets(buffer, sizeof buffer, fp) != NULL) {
+    char *ptr;
+    unsigned char string = strtol(buffer, &ptr, 2);
+    if(ptr == buffer) {
+      continue;
+    }
+    cpu->ram[++address] = string;
   }
-
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
 }
 
 /**
@@ -59,6 +56,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->registers[regA] += cpu->registers[regB];
     break;
   }
+}
+
+void push(struct cpu *cpu, unsigned char val) {
+  cpu->registers[SP] = cpu->registers[SP] - 1;
+  cpu_ram_write(cpu, cpu->registers[SP], val);
+}
+
+char pop(struct cpu *cpu) {
+  unsigned char myram = cpu->ram[cpu->registers[SP]];
+  cpu->registers[SP] = cpu->registers[SP] + 1;
+  return myram;
 }
 
 /**
@@ -90,6 +98,12 @@ void cpu_run(struct cpu *cpu)
     case MULT:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
+    case PUSH:
+      push(cpu, cpu->registers[operandA]);
+      break;
+    case POP:
+      cpu->registers[operandA] = pop(cpu);
+      break;
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
@@ -104,6 +118,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->registers[cpu->mystack] = 0xF4;
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);
 }
