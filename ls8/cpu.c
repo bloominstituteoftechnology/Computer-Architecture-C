@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -14,28 +15,40 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   return cpu->ram[address];
 }
 
+void cpu_push(struct cpu *cpu, unsigned char val) 
+{
+cpu->SP--;
+cpu_ram_write(cpu, val, cpu->SP);
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  return cpu_ram_read(cpu, cpu->SP++);
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char line[1024];
+  int address = ADDR_PROGRAM_ENTRY;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot Open File %s\n", filename);
+    exit(2);
   }
+  while (fgets (line, sizeof line, fp) != NULL) {
 
-  // TODO: Replace this with something less hard-coded
+    char *endchar;
+    unsigned char byte = strtol(line, &endchar, 2);;
+
+    if (endchar == line) {
+      continue;
+    }
+    cpu_ram_write(cpu, byte, address++); 
+  }
 }
 
 /**
@@ -45,19 +58,21 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] == cpu->reg[regB];
       break;
 
     case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
       break;
 
     case ALU_INC:
+      cpu->reg[regA]++;
       break;
 
     case ALU_DEC:
+      cpu->reg[regA]--;
       break;
 
-    // TODO: implement more ALU ops
   }
 }
 
@@ -68,15 +83,11 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  // unsigned char IR, operandA, operandB;
-
   while (running) {
-    // TODO
+  
     // 1. Get the value of the current instruction (in address PC).
     unsigned char operandA = NULL;
     unsigned char operandB = NULL;
-
-    // unsigned char operandA, operandB;
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     unsigned int num_operands = instruction >> 6;
@@ -95,13 +106,32 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
         // print whatever is in the specified register
+        printf("%d\n", cpu->reg[operandA]);
         break;
 
       case LDI:
         cpu->reg[operandA] = operandB;
         break;
 
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+
+      case PUSH:
+        cpu_push(cpu, cpu->reg[operandA]);
+        break;
+
+      case POP:
+        cpu->reg[operandA] = cpu_pop(cpu);
+        break;
+        
       default:
+      fprintf(stderr, "PC %02x: unknown instructions %o2x\n", cpu->reg, instruction);
+      exit(3);
         break;
     }
 
@@ -118,6 +148,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->SP = ADDR_EMPTY_STACK;
+  // cpu->reg[SP] = ADDR_EMPTY_STACK;
+
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }

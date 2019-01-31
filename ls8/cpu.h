@@ -6,17 +6,21 @@ struct cpu {
   // TODO
   // PC
   unsigned int PC;
-  // registers (array)
-  unsigned int SP;
+  unsigned int SP;   // stack pointer
   unsigned char ram[256];
-  unsigned char reg[8];
+  unsigned char reg[8]; // registers (array)
 };
+
+// #define SP 7
+
+#define ADDR_EMPTY_STACK 0xf4
+#define ADDR_PROGRAM_ENTRY 0X00
 
 // ALU operations
 enum alu_op {
 	ALU_MUL,
   ALU_ADD,
-  ALU_CMP,
+  // ALU_CMP,
   ALU_INC,
   ALU_DEC,
   // alu_add
