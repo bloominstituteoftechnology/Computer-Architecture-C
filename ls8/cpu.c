@@ -70,15 +70,16 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char instruction ...
+    unsigned char operandA, operandB;
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     unsigned int num_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (num_operands == 2) {
-      operandA = ...
-      operandB = ...
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1)& 0xff);
+      operandB = cpu_ram_read(cpu, (cpu->PC + 2)& 0xff);
     } else if (num_operands == 1) {
-      operandA = ...
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1)& 0xff);
     } else {}
     // 4. switch() over it to decide on a course of action.
     switch (instruction) {
