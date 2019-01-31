@@ -5,13 +5,17 @@
 struct cpu {
   // TODO
   // PC
-  int PC;
+  unsigned char PC;
+  unsigned char FL;
+  unsigned char SP;
+  unsigned char IR;
+  unsigned char MAR;
+  unsigned char MDR;
+
   // registers (array)
   unsigned char registers[8];
   // ram (array)
   unsigned char ram[256];
-  //stack
-  unsigned char stack[232];
 };
 
 // ALU operations

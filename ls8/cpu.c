@@ -38,28 +38,27 @@ void cpu_load(struct cpu *cpu, char *file_path)
   while(fgets(line, sizeof line, fp) != NULL){
     // printf("%s", line);
     if (line[0] == '#'){
-      printf("here\n");
+      // printf("cpu_load: Leading #\n");
     }
     else{
       cpu->ram[data_length] = (unsigned char) strtoul(line, NULL, 2);
-      // printf("ram %d - %x\n", data_length, cpu->ram[data_length]);
+      printf("ram %d - %x\n", data_length, cpu->ram[data_length]);
       data_length++;
     }
   }
+  printf("\n");
   fclose(fp);
 
 }
-
-unsigned char cpu_push(unsigned char SP, struct cpu *cpu, unsigned char operandA){
-  SP--;
-  cpu->ram[SP] = cpu->registers[operandA];
-  return SP;
+// push value to top of stack
+void cpu_push(struct cpu *cpu, unsigned char value){
+  cpu->SP--;
+  cpu->ram[cpu->SP] = value;
 }
-
-unsigned char cpu_pop(unsigned char SP, struct cpu *cpu, unsigned char operandA){
-  cpu->registers[operandA] = cpu->ram[SP];
-  SP++;
-  return SP;
+// pop the top of stack and return the value 
+unsigned char cpu_pop(struct cpu *cpu){
+  cpu->SP++;
+  return cpu->ram[cpu->SP-1];
 }
 
 /**
@@ -74,11 +73,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     // TODO: implement more ALU ops
     case ALU_ADD:
-      printf("reg[operandA]: %d\n", cpu->registers[regA]);      
-      printf("reg[operandB]: %d\n", cpu->registers[regB]);
+      printf("ADD: reg[operandA]: %d\n", cpu->registers[regA]);      
+      printf("     reg[operandB]: %d\n", cpu->registers[regB]);
       cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
       break;
   }
+}
+
+void print_state(struct cpu *cpu){
+  printf("PC: %u, IR: %x, SP: %x, R0: %x, R1: %x, R2: %x, stack-value: %x\n", cpu->PC, cpu->IR, cpu->SP, cpu->registers[0], cpu->registers[1], cpu->registers[2], cpu->ram[cpu->SP]);
 }
 
 /**
@@ -90,20 +93,18 @@ void cpu_run(struct cpu *cpu)
 
   unsigned char operandA;
   unsigned char operandB;
-
-  unsigned char SP = 0xF4;
-  unsigned char IR;
   unsigned char num_operand;
   while (running) {
-    IR = cpu->ram[cpu->PC];
-    num_operand = IR >> 6;
+    cpu->IR = cpu->ram[cpu->PC];
+    print_state(cpu);
+    num_operand = cpu->IR >> 6;
     if (num_operand == 2){
         operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
         operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
     }
     else if (num_operand == 1)
     {
-        operandA = cpu_ram_read(cpu, cpu->PC+1);
+        operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
     }
     else{
     }
@@ -115,13 +116,13 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    switch(IR){
+    switch(cpu->IR){
       //Set register[operandA] to operandB
       case LDI:
         cpu->registers[operandA] = operandB;
         break;
       case PRN:
-        printf("%d\n", cpu->registers[operandA]);
+        printf("PRN: %d\n", cpu->registers[operandA]);
         break;
       //exit cpu_run
       case HLT:
@@ -130,34 +131,35 @@ void cpu_run(struct cpu *cpu)
       //Add two operands and store value in registers[operandA]
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
-        // printf("Add: %d\n", cpu->registers[operandA]);
         break;
       //multiply two operands and store the product in resgister[operandA]
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        // cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
         break;
       //Push the value of operandA onto the stack
       case PUSH:        
-        SP = cpu_push(SP, cpu, operandA);
+        cpu_push(cpu, cpu->registers[operandA]);
         break;
       //Pop a value off the stack and store it in register[operandA]
       case POP:
-        SP = cpu_pop(SP, cpu, operandA);
+        cpu->registers[operandA] = cpu_pop(cpu);
         break;
       case CALL:
-        SP = cpu_push(SP, cpu, SP+2);
+        cpu_push(cpu, cpu->PC+2);
         cpu->PC = cpu->registers[operandA];
-        printf("Cal SP: %x\n", SP);
+        // printf("Call SP: %x\n", SP);
         break;
       case RET:
-        SP = cpu_pop(SP, cpu, cpu->PC);        
-        printf("RET SP: %x\n", SP);
+        cpu->PC = cpu_pop(cpu);        
+        // printf("RET SP: %x\n", SP);
         break;
       default:
         break;
     }
-    cpu->PC = cpu->PC + num_operand +1;
+    if ( (cpu->IR != RET) || (cpu->IR != CALL) ){
+      printf("add operand\n");
+      cpu->PC = cpu->PC + num_operand +1;
+    }
   }
   exit(0);
 }
@@ -169,7 +171,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->SP = 0xF4;
   memset(cpu->registers, 0, sizeof(cpu->registers)); 
   memset(cpu->ram, 0, sizeof(cpu->ram)); 
-  cpu->registers[7] = 0xF4;
+  cpu->registers[7] = cpu->SP;
 }
