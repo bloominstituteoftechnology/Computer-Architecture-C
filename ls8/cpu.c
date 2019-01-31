@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdlib.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -65,12 +67,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR, operandA, operandB;
+
+  // unsigned char IR, operandA, operandB;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char operandA, operandB;
+    unsigned char operandA = NULL;
+    unsigned char operandB = NULL;
+
+    // unsigned char operandA, operandB;
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     unsigned int num_operands = instruction >> 6;
@@ -111,4 +117,17 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->PC = 0;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
+
+
+// So cpu_ram_read() and cpu_ram_write() access values from and modifies values in the ram array.
+// Remember ram is going to be an array of numbers that is an attribute of the cpu struct.
+// Even though it will be an array of numbers you’ll want to use the `unsigned char` type in your array
+// because you’ll be working with relatively small numbers in this computer 
+// (because of it’s limited memory holding capbilities). `cpu_ram_write` modifies the array so it 
+// doesn’t need to return anything it just needs an index and a value to put into the array (edited) 
+// `cpu_ram_read` on the other hand just reads from the ram array so it just needs an index as input
+// so it knows which value to read and it returns the value in question as it’s output.
