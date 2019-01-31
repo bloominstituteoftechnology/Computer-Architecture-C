@@ -94,6 +94,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     // a pointer to a pointer, so we can change the original pointer
     char *endpointer;
     // The strtoul() function converts a character string to an unsigned long integer value.
+    // we have to convert the binary string to integer values to store in RAM
     unsigned char bytes = strtoul(line, &endpointer, 2);
     if (endpointer == line) {
       // which means there are no numbers
@@ -154,7 +155,7 @@ void cpu_run(struct cpu *cpu)
     printf("TRACE:  %02X: %02X %02X %02X\n", cpu->PC, IR, operandA, operandB);
 
     switch(IR) {
-      //
+      // sets a specified register to a specified value.
       case LDI:
         // register number 0, set to the value 8
         cpu->reg[operandA] = operandB;
@@ -164,7 +165,7 @@ void cpu_run(struct cpu *cpu)
 
       // PRN- print out the numeric value in a register
       case PRN:
-        printf("%d\n", cpu->reg[operandA]);
+        printf("%d\n", cpu->reg[operandA & 7]);
         // moves the PC to the next instruction
         // cpu->PC += 2;
         break;
@@ -174,6 +175,25 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
+      // Push
+      case PUSH:
+        cpu->reg[7]--;
+        // clamp operand to 7 so it never gets bigger than the array
+        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA & 7]);
+        break;
+
+      // Pop
+      case POP:
+        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[7]);
+        cpu->reg[7]++;
+        break;
+
+      // Jump
+      case JMP:
+        cpu->PC = cpu->reg[operandA & 7];
+        add_to_pc = 0;
+        break;
+
       // Halt
       case HLT:
         // if running is false then break
@@ -181,7 +201,10 @@ void cpu_run(struct cpu *cpu)
         // moves the PC to the next instruction
         // cpu->PC += 1;
         break;
-
+      
+      default:
+        printf("%c :: Instruction Unknown...sorry", IR);
+        exit(3);
     }
     // moves the PC to the next instruction
     cpu->PC += add_to_pc;

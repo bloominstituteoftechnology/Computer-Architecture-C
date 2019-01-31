@@ -40,6 +40,7 @@ enum alu_op {
 #define MUL  0b10100010
 #define DIV  0b10100011
 #define INC  0b01100101
+#define JMP  0b01010100
 
 // TODO: more instructions here. These can be used in cpu_run().
 

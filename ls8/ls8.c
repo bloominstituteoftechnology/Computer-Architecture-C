@@ -4,6 +4,12 @@
 /**
  * Main
  */
+
+// argc is the argument count, and argv is an array of strings that hold
+// the individual arguments, starting with the command name itself.
+// If the user runs ./ls8 examples/mult.ls8, the values in argv will be:
+// argv[0] == "./ls8"
+// argv[1] == "examples/mult.ls8" .................Training Kit
 int main(int argc, char **argv)
 {
   struct cpu cpu;
