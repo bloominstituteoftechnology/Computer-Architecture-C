@@ -73,6 +73,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA]--;
       break;
 
+    case ALU_CMP:
+    // cpu->FL = 0;
+      if (cpu->reg[regA] == cpu->reg[regB]) {
+        // set the equal bit
+        cpu->FL = (cpu->FL & ~7) | 1;
+      } else if (cpu->reg[regA] < cpu->reg[regB]) {    
+        // set the lest than bit
+        cpu->FL = (cpu->FL & ~7) | 2;
+      } else {     
+        // set the greater than bit
+        cpu->FL = (cpu->FL & ~7) | 4;
+      }
+      break;
   }
 }
 
@@ -128,6 +141,10 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->reg[operandA] = cpu_pop(cpu);
         break;
+
+      case CMP:
+      alu(cpu, ALU_CMP, operandA, operandB);
+        break;
         
       default:
       fprintf(stderr, "PC %02x: unknown instructions %o2x\n", cpu->reg, instruction);
@@ -148,6 +165,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
   cpu->SP = ADDR_EMPTY_STACK;
   // cpu->reg[SP] = ADDR_EMPTY_STACK;
 
