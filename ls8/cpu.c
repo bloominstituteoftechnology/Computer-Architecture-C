@@ -62,7 +62,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA]*=cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -106,6 +106,11 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
       printf("%d\n", cpu->reg[operand1]);
+      break;
+
+      case MUL:
+      alu(cpu, ALU_MUL, operand1, operand2);
+      printf("%d\n", operand1);
       break;
 
       default:
