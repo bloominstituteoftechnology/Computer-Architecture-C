@@ -42,11 +42,11 @@ void cpu_load(struct cpu *cpu, char *file_path)
     }
     else{
       cpu->ram[data_length] = (unsigned char) strtoul(line, NULL, 2);
-      printf("ram %d - %x\n", data_length, cpu->ram[data_length]);
+      // printf("ram %d - %x\n", data_length, cpu->ram[data_length]);
       data_length++;
     }
   }
-  printf("\n");
+  // printf("\n");
   fclose(fp);
 
 }
@@ -61,6 +61,30 @@ unsigned char cpu_pop(struct cpu *cpu){
   return cpu->ram[cpu->SP-1];
 }
 
+void cpu_jmp(struct cpu *cpu, unsigned char value){
+  cpu->PC = value;
+}
+
+void cpu_jeq(struct cpu *cpu, unsigned char value){
+  // printf("%d\n", (cpu->FL & 1));
+  if ((cpu->FL & 1) == 1){
+    cpu_jmp(cpu, value);
+  }
+  else{
+    cpu_jmp(cpu, cpu->PC+2);
+  }
+}  
+
+void cpu_jne(struct cpu *cpu, unsigned char value){
+  // printf("%d\n", (cpu->FL & 1));
+  if ((cpu->FL & 1) == 0){
+    cpu_jmp(cpu, value);
+  }
+  else{
+    cpu_jmp(cpu, cpu->PC+2);
+  }
+}  
+
 /**
  * ALU
  */
@@ -73,15 +97,26 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     // TODO: implement more ALU ops
     case ALU_ADD:
-      printf("ADD: reg[operandA]: %d\n", cpu->registers[regA]);      
-      printf("     reg[operandB]: %d\n", cpu->registers[regB]);
+      // printf("ADD: reg[operandA]: %d\n", cpu->registers[regA]);      
+      // printf("     reg[operandB]: %d\n", cpu->registers[regB]);
       cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
+    case ALU_CMP:
+      if (cpu->registers[regA] == cpu->registers[regB]){
+        cpu->FL = (cpu->FL | 0b00000001);
+      }
+      else if (cpu->registers[regA] > cpu->registers[regB]){
+        cpu->FL = (cpu->FL | 0b00000010);
+      }
+      else {
+        cpu->FL = (cpu->FL | 0b00000100);
+      }
       break;
   }
 }
 
 void print_state(struct cpu *cpu){
-  printf("PC: %u, IR: %x, SP: %x, R0: %x, R1: %x, R2: %x, stack-value: %x\n", cpu->PC, cpu->IR, cpu->SP, cpu->registers[0], cpu->registers[1], cpu->registers[2], cpu->ram[cpu->SP]);
+  printf("PC: %x, IR: %x, SP: %x, R0: %x, R1: %x, R2: %x, stack-value: %x\n", cpu->PC, cpu->IR, cpu->SP, cpu->registers[0], cpu->registers[1], cpu->registers[2], cpu->ram[cpu->SP]);
 }
 
 /**
@@ -96,7 +131,7 @@ void cpu_run(struct cpu *cpu)
   unsigned char num_operand;
   while (running) {
     cpu->IR = cpu->ram[cpu->PC];
-    print_state(cpu);
+    // print_state(cpu);
     num_operand = cpu->IR >> 6;
     if (num_operand == 2){
         operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
@@ -117,14 +152,14 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     switch(cpu->IR){
-      //Set register[operandA] to operandB
+      //LDI: Set register[operandA] to operandB
       case LDI:
         cpu->registers[operandA] = operandB;
         break;
       case PRN:
-        printf("PRN: %d\n", cpu->registers[operandA]);
+        printf("%d\n", cpu->registers[operandA]);
         break;
-      //exit cpu_run
+      //HLT: exit cpu_run
       case HLT:
         running = 0;
         break;
@@ -132,32 +167,55 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
-      //multiply two operands and store the product in resgister[operandA]
+      //MUL: multiply two operands and store the product in resgister[operandA]
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
-      //Push the value of operandA onto the stack
+      //CMP: compare the two operands and store the result in FL
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
+      //Push: store the value of operandA on top of stack
       case PUSH:        
         cpu_push(cpu, cpu->registers[operandA]);
         break;
-      //Pop a value off the stack and store it in register[operandA]
+      //POP: take the value at top of stack and store it in register[operandA]
       case POP:
         cpu->registers[operandA] = cpu_pop(cpu);
         break;
+      //CALL: move PC to the address of operandA and push the address of the next instruction to top of stack
       case CALL:
         cpu_push(cpu, cpu->PC+2);
         cpu->PC = cpu->registers[operandA];
         // printf("Call SP: %x\n", SP);
         break;
+      //RET: return PC from subroutine by moving PC to the address stored on top of stack
       case RET:
         cpu->PC = cpu_pop(cpu);        
         // printf("RET SP: %x\n", SP);
         break;
+      //ST: store value of operandB in the address stored in operandA
+      case ST:
+        cpu->registers[operandA] = operandB;
+        break;
+      //JMP: jump PC to the address stored in operandA
+      case JMP:
+        cpu_jmp(cpu, cpu->registers[operandA]);
+        break;
+      //JEQ: If `equal` flag is set (true), jump to the address stored in the given register.
+      case JEQ:
+        cpu_jeq(cpu, cpu->registers[operandA]);
+        break;
+      //JNE: If `E` flag is clear (false, 0), jump to the address stored in the given register.
+      case JNE:
+        cpu_jne(cpu, cpu->registers[operandA]);
+        break;
       default:
         break;
     }
-    if ( (cpu->IR != RET) || (cpu->IR != CALL) ){
-      printf("add operand\n");
+    // if the instruction does not reset the PC value(as depicted by the 5th digit from the right of IR), move the PC to the next instruction by skipping the operands
+    if ( ((cpu->IR >> 4) & 1) != 1){
+      // printf("add operand\n");
       cpu->PC = cpu->PC + num_operand +1;
     }
   }
@@ -172,6 +230,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
   cpu->SP = 0xF4;
+  cpu->FL = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers)); 
   memset(cpu->ram, 0, sizeof(cpu->ram)); 
   cpu->registers[7] = cpu->SP;
