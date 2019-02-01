@@ -170,6 +170,10 @@ void cpu_run(struct cpu *cpu)
       break;
 
       case JNE:
+      if(cpu->FL == 0b00000000){
+        cpu->PC = cpu->reg[operand1];
+        num_operands = 0;
+      }
       break;
 
       default:
