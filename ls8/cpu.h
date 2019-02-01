@@ -4,15 +4,22 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
+  unsigned char FL;
+  unsigned int SP;
   unsigned char PC;
   unsigned char *reg[8];
   unsigned char *ram[256];
-};
+}; 
+#define ADDR_PROGRAM_ENTRY 0x00 //when gets loaded
+#define ADDR_EMPTY_STACK 0xF4 //where sp is on the empty stack
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
 	// Add more here
+  ALU_ADD,
+  ALU_INC,
+  ALU_DEC
 };
 
 // Instructions
@@ -23,6 +30,13 @@ enum alu_op {
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
+#define INC  0b01100101
+#define PUSH 0b01000101 
+#define POP  0b01000110
+#define MUL  0b10100010
+#define ADD  0b10100000
+#define JMP  0b01010100 
+#define JEQ  0b01010101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
