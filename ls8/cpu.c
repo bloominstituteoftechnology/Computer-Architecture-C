@@ -163,6 +163,10 @@ void cpu_run(struct cpu *cpu)
       break;
 
       case JEQ:
+      if(cpu->FL == 0b00000001){
+        cpu->PC = cpu->reg[operand1];
+        num_operands = 0;
+      }
       break;
 
       case JNE:
@@ -183,7 +187,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu){
   cpu->PC = 0x00; 
   cpu->reg[SP] = 0xF4; 
-  cpu->FL = 0;
+  cpu->FL = 0x00;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
   // TODO: Initialize the PC and other special registers
