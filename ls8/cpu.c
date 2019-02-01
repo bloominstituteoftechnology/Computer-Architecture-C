@@ -102,11 +102,15 @@ unsigned char *ram = cpu->reg;
     ram[regA]--;
     break;
     case ALU_CMP:
+    cpu->FL = 0;
     if (ram[regA]==ram[regB]){
       //set the equal bit 
       cpu->FL =cpu ->FL | (1<<0);
     } else if (cpu->reg[regA < cpu->reg[regB]]){
       cpu->FL = cpu->FL|(1<<1);
+    }else{
+      //set 
+      cpu->FL = cpu->FL | (1<<2);
     }
     break;
 
@@ -169,12 +173,28 @@ void cpu_run(struct cpu *cpu)
       cpu->reg[operandA] = cpu_pop(cpu);
       break;
       case JEQ:
-      //implement
+      //implement If `equal` flag is set (true), jump to the address stored in the given register.
+      if(cpu->FL){
+        cpu->PC=cpu->reg[operandA&7];
+        continue;
+            
+      }
       break;
       case CMP: 
       //implement
+      alu(cpu,ALU_CMP,operandA,operandB);
       break; 
-
+      case JMP:
+      cpu->PC=cpu->reg[operandA&7];
+      num_operands=0;
+      break;
+      case JNE:
+      if(!cpu->FL){
+        cpu->PC=cpu->reg[operandA&7];
+        continue;
+            
+      }
+      break;
       default:
       fprintf(stderr,"PC%02x: unknown instruction %02x\n",instruction);
       exit(3);
