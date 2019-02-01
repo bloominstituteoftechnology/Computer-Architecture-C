@@ -77,6 +77,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->reg[regA] += cpu->reg[regB];
+      break;
+
+    // SPRINT
+    // case ALU_CMP:
+    //   if (cpu->reg[regA] == cpu->reg[regB]) {
+    //     cpu->FL = 1;
+    //   } 
+    //   if (cpu->reg[regA] > cpu->reg[regB]) {
+    //     cpu->FL = 2;
+    //   } 
+    //   if (cpu->reg[regA] < cpu->reg[regB]) {
+    //     cpu->FL = 4;
+    //   }
+    //   break;
   }
 }
 
@@ -109,6 +125,11 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
+      case HLT:
+        running = 0;
+        // cpu->PC += 1;
+        break;
+
       case LDI:
         cpu->reg[operandA] = operandB;
         // cpu->PC += 3;
@@ -121,6 +142,10 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
         break;
 
       case POP:
@@ -138,14 +163,32 @@ void cpu_run(struct cpu *cpu)
         cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + add_to_pc);
         break;
 
+      // SPRINT 
+      case CMP:
+        if (cpu->reg[operandA & 7] == cpu->reg[operandB & 7]) {
+          cpu->FL = 1; 
+        } else if (cpu->reg[operandA & 7] > cpu->reg[operandB & 7]) {
+          cpu->FL = 2;
+        } else {
+          cpu->FL = 4;
+        } 
+        break;
+
       case JMP:
         cpu->PC = cpu->reg[operandA & 7];
         add_to_pc = 0;
         break;
 
-      case HLT:
-        running = 0;
-        // cpu->PC += 1;
+      case JEQ:
+        if (cpu->FL == 1) {
+          cpu->PC = cpu->reg[operandA & 7];
+        }
+        break;
+
+       case JNE:
+        if (cpu->FL == 0) {
+          cpu->PC = cpu->reg[operandA & 7];
+        }
         break;
 
       default:
@@ -166,6 +209,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  cpu->FL = 0;
 
   // Zero registers and RAM
   memset(cpu->ram, 0, sizeof cpu->ram);
