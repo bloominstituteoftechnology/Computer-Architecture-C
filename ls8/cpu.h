@@ -11,6 +11,7 @@ struct cpu {
   // ram (array)
   unsigned char ram[256];
   unsigned char mystack;
+  unsigned int equal;
 };
 
 // ALU operations
@@ -35,6 +36,12 @@ enum alu_op {
 // Function declarations
 #define POP  0b01000110
 #define PUSH  0b01000101
+#define RET  0b00010001
+#define CALL 0b01010000
+#define JMP  0b01010100
+#define JEQ  0b01010101
+#define JNE  0b01010110
+#define CMP 0b10100111
 
 extern void cpu_load(struct cpu *cpu, char *myfile);
 extern void cpu_init(struct cpu *cpu);

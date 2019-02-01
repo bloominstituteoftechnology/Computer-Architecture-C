@@ -55,6 +55,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->registers[regA] += cpu->registers[regB];
     break;
+  /* case ALU_CMP: */
+  /*   cpu->next = cpu_ram_read(cpu, cpu->PC++); */
+  /*   if (cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB]){ */
+
+  /*   } */
   }
 }
 
@@ -75,7 +80,7 @@ char pop(struct cpu *cpu) {
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  while (running) {
+  while ((running = 1)) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char curr = cpu_ram_read(cpu, cpu->PC);
@@ -104,6 +109,35 @@ void cpu_run(struct cpu *cpu)
     case POP:
       cpu->registers[operandA] = pop(cpu);
       break;
+    /* case CALL:     */
+    /*   push(cpu, cpu->PC + 1); */
+    /*   cpu->PC = cpu->registers[operandA]-1; */
+    /*   printf("%i CALL\n", cpu->PC);   */
+    /*   break; */
+    /* case RET: */
+    /*   cpu->PC = cpu->registers[operandA]; */
+    /*   printf("%i RET\n", cpu->PC); */
+    /*   break; */
+    case JMP:
+      cpu->PC = cpu->registers[operandA];
+      break;
+    case CMP:
+      if (cpu->registers[operandA] == cpu->registers[operandB]){
+	cpu->equal = 1;
+      } else {
+	cpu->equal = 0;
+      }
+      break;
+    case JEQ:
+      if (cpu->equal) {
+	cpu->PC = cpu->registers[operandA] - 2;
+      }
+      break;
+    case JNE:
+      if (!cpu->equal) {
+	cpu->PC = cpu->registers[operandA] - 2;
+	break;
+      }
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
@@ -121,4 +155,5 @@ void cpu_init(struct cpu *cpu)
   cpu->registers[cpu->mystack] = 0xF4;
   memset(cpu->registers, 0, sizeof cpu->registers);
   memset(cpu->ram, 0, sizeof cpu->ram);
+  cpu->equal = 0;
 }
