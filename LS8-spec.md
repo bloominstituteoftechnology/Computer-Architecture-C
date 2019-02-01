@@ -107,13 +107,11 @@ and the `IRET`), further interrupts are disabled.
 
 See `IRET`, below, for returning from an interrupt.
 
-
 ### Interrupt numbers
 
 * 0: Timer interrupt. This interrupt triggers once per second.
 * 1: Keyboard interrupt. This interrupt triggers when a key is pressed.
   The value of the key pressed is stored in address `0xF4`.
-
 
 ## Power on State
 
@@ -125,6 +123,31 @@ When the LS-8 is booted, the following steps occur:
 * RAM is cleared to `0`.
 
 Subsequently, the program can be loaded into RAM starting at address `0x00`.
+
+## Execution Sequence
+
+1. The instruction pointed to by the `PC` is fetched from RAM, decoded, and
+   executed.
+2. If the instruction does _not_ set the `PC` itself, the `PC` is advanced to
+   point to the subsequent instruction.
+3. If the CPU is not halted by a `HLT` instruction, go to step 1.
+
+Some instructions set the PC directly. These are:
+
+* CALL
+* INT
+* IRET
+* JMP
+* JNE
+* JEQ
+* JGT
+* JGE
+* JLT
+* JLE
+* RET
+
+In these cases, the `PC` does not automatically advance to the next instruction,
+since it was set explicitly.
 
 ## Instruction Layout
 
