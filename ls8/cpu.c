@@ -177,6 +177,7 @@ void cpu_run(struct cpu *cpu)
 
       // Push
       case PUSH:
+      // "1" is at the bottom of the pile, not the top, hence -- 3,2,1 not 1,2,3
         cpu->reg[7]--;
         // clamp operand to 7 so it never gets bigger than the array
         cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA & 7]);
@@ -203,7 +204,7 @@ void cpu_run(struct cpu *cpu)
         break;
       
       default:
-        printf("%c :: Instruction Unknown...sorry", IR);
+        printf("%02x :: Instruction Unknown...sorry\n", IR);
         exit(3);
     }
     // moves the PC to the next instruction
