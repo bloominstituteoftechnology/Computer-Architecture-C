@@ -124,13 +124,18 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case POP:
-        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[7]);
-        cpu->reg[7]++;
+        cpu->reg[operandA & 7] = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
         break;
 
       case PUSH:
-        cpu->reg[7]--;
-        cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA & 7]);
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->reg[operandA & 7]);
+        break;
+
+      case CALL:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + add_to_pc);
         break;
 
       case JMP:

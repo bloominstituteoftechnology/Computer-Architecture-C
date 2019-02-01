@@ -1,6 +1,8 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define SP 7
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
@@ -31,6 +33,7 @@ enum alu_op {
 #define JMP  0b01010100
 #define PUSH 0b01000101
 #define POP  0b01000110
+#define CALL 0b01010000
 
 // Function declarations
 
