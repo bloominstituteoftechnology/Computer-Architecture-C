@@ -79,6 +79,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[regA]+=cpu->reg[regB];
     break;
 
+    case ALU_CMP:
+    cpu->FL = 0;
+
+    if(cpu->reg[regA] == cpu->reg[regB]){
+      cpu->FL = cpu->FL | (1 << 0);
+    } 
+    else if(cpu->reg[regA] < cpu->reg[regB]){
+      cpu->FL = cpu->FL | (1 << 1);
+    }else{
+      cpu->FL = cpu->FL | (1 << 2);
+    }
+    break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -98,7 +111,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operand1;
     unsigned char operand2;  
     // 2. Figure out how many operands this next instruction requires
-    unsigned int num_operands = instruction >> 6;
+    unsigned int num_operands = (instruction >> 6) + 1;
     // 3. Get the appropriate value(s) of the operands following this instruction
     if(num_operands == 2){
       operand1 = cpu_ram_read(cpu, cpu->PC+1);
@@ -133,19 +146,34 @@ void cpu_run(struct cpu *cpu)
       break;
 
       case PUSH:
-      cpu->push(cpu, cpu->reg[operand1]);
+      cpu_push(cpu, cpu->reg[operand1]);
       break;
 
       case POP:
       cpu->reg[operand1] = cpu_pop(cpu);
       break;
 
+      case CMP:
+      alu(cpu, ALU_CMP, operand1, operand2);
+      break;
+
+      case JMP:
+      cpu->PC = cpu->reg[operand1];
+      num_operands = 0;
+      break;
+
+      case JEQ:
+      break;
+
+      case JNE:
+      break;
+
       default:
       printf("Unknown Instruction\n");
-      exit(1);
+      exit(3);
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC += num_operands + 1;
+    cpu->PC += num_operands;
   }
 }
 
@@ -155,6 +183,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu){
   cpu->PC = 0x00; 
   cpu->reg[SP] = 0xF4; 
+  cpu->FL = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
   // TODO: Initialize the PC and other special registers
