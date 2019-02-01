@@ -8,6 +8,8 @@ struct cpu {
   unsigned int PC;
   // Stack Pointer
   unsigned int SP;
+  // Flags
+  unsigned char FL;
   // registers (array)
   unsigned char reg[8];
   // ram (array)
@@ -21,7 +23,8 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
 	// Add more here
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
 };
 
 // Instructions
@@ -37,6 +40,11 @@ enum alu_op {
 #define POP  0b01000110
 #define MUL  0b10100010
 #define JMP  0b01010100
+#define CMP  0b10100111
+#define JEQ  0b01010101
+#define JNE  0b01010110
+#define CALL 0b01010000
+#define RET  0b00010001
 
 // TODO: more instructions here. These can be used in cpu_run().
 

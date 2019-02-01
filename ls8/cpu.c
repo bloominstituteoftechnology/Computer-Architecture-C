@@ -51,36 +51,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   // TODO: Replace this with something less hard-coded
 
-  //// This wouldn't stop running....
-  // FILE *fp;
-  // // 1024 = char limit
-  // char line[1024];
-  // // index
-  // int address = ADDR_PROGRAM_ENTRY;
-
-  // // open the source file, r must be in "" not '', single = character, double = char pointer
-  // if ((fp = fopen(filename, "r")) == NULL) {
-  //   // error handling
-  //   fprintf(stderr, "Can NOT open file %s\n", filename);
-  //   exit(2);
-  // }
-  // // read all the lines and store them in RAM
-  // while (fgets(line, sizeof line, fp) !=NULL) {
-  //   // convert string to number(long int) = strol
-  //   char *endchar;
-  //   unsigned char byte = strtol(line, &endchar, 2);
-  //   // no numbers = don't read
-  //   // line is the first character, endchar is the first none/invalid character/the end
-  //   if (endchar == line) {
-  //     // which means there are no numbers
-  //     continue;
-  //   }
-  //   // write to the RAM, storage
-  //   cpu_ram_write(cpu, byte, address++);
-  // }
-  // fclose(fp);
-  //////////
-
   FILE *fp = fopen(filename, "r");
   char line[1024];
   unsigned char addr = 0x00; //memory init to 0
@@ -90,7 +60,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     exit(2); // <stdlib.h>
   }
   // while not = to null, read the lines from the file and store to memory
-  while (fgets(line, sizeof line, fp) != NULL) {
+  while (fgets(line, sizeof(line), fp) != NULL) {
     // a pointer to a pointer, so we can change the original pointer
     char *endpointer;
     // The strtoul() function converts a character string to an unsigned long integer value.
@@ -123,6 +93,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
       break;
     
+    // CMP, compare
+    case ALU_CMP:
+      if (cpu->reg[regA] == cpu->reg[regB]) {
+        // flag
+        cpu->FL = 0b00000001;
+      }
+      else if (cpu->reg[regA] > cpu->reg[regB]) {
+        cpu->FL = 0b00000010;
+      } else {
+        cpu->FL = 0b00000100;
+      }
+      break;
   }
 }
 
@@ -143,7 +125,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
 
-    // PC = index of current executing in struction in RAM array, +1,+2 are the next index after
+    // PC = index of current executing instruction in RAM array, +1,+2 are the next index after
     // & 0xff = ??? suppose to help with a bug
     IR = cpu_ram_read(cpu, cpu->PC);
     operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
@@ -195,6 +177,45 @@ void cpu_run(struct cpu *cpu)
         add_to_pc = 0;
         break;
 
+      // CMP
+      case CMP:
+        // will compare both values and change the flag accordingly
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
+
+      // JEQ
+      case JEQ:
+        // will check to see if the flag is true
+        if (cpu->FL == 0b00000001) {
+          // moves the counter next index/instruction
+          cpu->PC = cpu->reg[operandA];
+          cpu->PC -= 1;
+        }
+        break;
+      
+      // JNE
+      case JNE:
+        // will check to see if the flag is false
+        if (cpu->FL != 0b00000001) {
+          // moves the counter next index/instruction
+          cpu->PC = cpu->reg[operandA];
+          cpu->PC -= 1;
+        }
+        break;
+      
+      // Call
+      case CALL:
+        // the address of the instruction, after the call, is pushed to the stack
+        cpu_ram_write(cpu, cpu->reg[7], ++cpu->PC);
+        cpu->PC = cpu->reg[operandA];
+        break;
+      
+      // Return
+      case RET:
+      // returns a call back..boomerang
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[7]);
+        break;
+
       // Halt
       case HLT:
         // if running is false then break
@@ -224,6 +245,8 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // initialize the Stack Pointer = address of empty stack
   cpu->SP = ADDR_EMPTY_STACK;
+  // Flags
+  cpu->FL = 0;
   // zero registers and RAM, memeset = is used to fill a block of memory w/ a particular value: GeeksforGeeks
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->ram, 0, sizeof cpu->reg);
