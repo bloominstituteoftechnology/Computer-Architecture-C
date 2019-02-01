@@ -3,7 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#define DATA_LEN 6
+// #define DATA_LEN 6
+#define DATA_LEN 7
 // #define ADDR_EMPTY_STACK 0xF4
 
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
@@ -31,15 +32,15 @@ unsigned char cpu_pop(struct cpu *cpu)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *filename)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
   FILE *fp;
   char line[1024];
-  int address = 0;
-  // int address = ADDR_PROGRAM_ENTRY;
+  // int address = 0;
+  int address = ADDR_PROGRAM_ENTRY;
 
-  if ((fp = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Cannot Open File %s\n", filename);
+  if ((fp = fopen(argv[1], "r")) == NULL) {
+    fprintf(stderr, "Cannot Open File %s\n", argv[0]);
     exit(2);
   }
   while (fgets (line, sizeof line, fp) != NULL) {
@@ -55,10 +56,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 }
 
 
-
-/**
- * ALU handles math and logic operations
- */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
@@ -105,8 +102,13 @@ void cpu_run(struct cpu *cpu)
   while (running) {
   
     // 1. Get the value of the current instruction (in address PC).
+
+    // incompatible pointer to integer conversion initializing 'unsigned char'
+    // with an expression of type 'void *'
+
     unsigned char operandA = NULL;
     unsigned char operandB = NULL;
+
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     unsigned int num_operands = (instruction >> 6) + 1;
@@ -169,8 +171,8 @@ void cpu_run(struct cpu *cpu)
         break; 
         
       default:
-      fprintf(stderr, "PC %02x: unknown instructions %o2x\n", cpu->reg, instruction);
-      exit(3);
+      // fprintf(stderr, "PC %02x: unknown instructions %o2x\n", cpu->reg, instruction);
+      // exit(3);
         break;
     }
 

@@ -44,7 +44,7 @@ enum alu_op {
 #define JEQ 0b01010101
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu, char *filename);
+extern void cpu_load(struct cpu *cpu, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

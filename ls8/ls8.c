@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include "cpu.h"
 
-// going to need to pass in argv and maybe argc need to study the files more. 
-int main(int filename)
+int main(int argc, char *argv[])
 {
+  if (argc != 2)
+  {
+    return 1;
+  }
   struct cpu cpu;
 
   cpu_init(&cpu);
-  cpu_load(&cpu, filename);
+  cpu_load(&cpu, argv);
   cpu_run(&cpu);
 
   return 0;
