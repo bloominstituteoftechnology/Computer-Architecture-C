@@ -3,8 +3,6 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
   unsigned char PC;
   unsigned char SP;   // stack pointer
   unsigned char FL;
@@ -24,8 +22,6 @@ enum alu_op {
   ALU_CMP,
   ALU_INC,
   ALU_DEC,
-  // alu_add
-  // alu_cmp
 };
 
 // Instructions
@@ -43,9 +39,12 @@ enum alu_op {
 #define DIV  0b10100011
 #define INC  0b01100101
 #define CMP  0b10100111
+#define JMP 0b01010100
+#define JNE 0b01010110
+#define JEQ 0b01010101
 // Function declarations
 
-extern void cpu_load(char *filename, struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 

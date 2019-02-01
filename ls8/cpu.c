@@ -4,10 +4,12 @@
 #include <stdio.h>
 
 #define DATA_LEN 6
+// #define ADDR_EMPTY_STACK 0xF4
 
 void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 {
   cpu->ram[address] = value;
+  // return 0;
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -29,11 +31,12 @@ unsigned char cpu_pop(struct cpu *cpu)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(char *filename, struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
   FILE *fp;
   char line[1024];
-  int address = ADDR_PROGRAM_ENTRY;
+  int address = 0;
+  // int address = ADDR_PROGRAM_ENTRY;
 
   if ((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Cannot Open File %s\n", filename);
@@ -51,6 +54,8 @@ void cpu_load(char *filename, struct cpu *cpu)
   }
 }
 
+
+
 /**
  * ALU handles math and logic operations
  */
@@ -58,7 +63,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      cpu->reg[regA] == cpu->reg[regB];
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     case ALU_ADD:
@@ -96,6 +101,7 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+
   while (running) {
   
     // 1. Get the value of the current instruction (in address PC).
@@ -103,7 +109,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = NULL;
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
-    unsigned int num_operands = instruction >> 6;
+    unsigned int num_operands = (instruction >> 6) + 1;
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (num_operands == 2) {
       operandA = cpu_ram_read(cpu, (cpu->PC + 1)& 0xff);
@@ -145,6 +151,22 @@ void cpu_run(struct cpu *cpu)
       case CMP:
       alu(cpu, ALU_CMP, operandA, operandB);
         break;
+
+      case JMP:
+        cpu->PC = operandA; 
+        break;
+
+      case JNE:
+        if((cpu->FL & (1<<0)) == 0) {
+        cpu->PC = cpu->reg[operandA];
+        }
+        break;
+
+      case JEQ:
+          if((cpu->FL & (1<<0)) == 1) {
+          cpu->PC = cpu->reg[operandA];
+          }
+        break; 
         
       default:
       fprintf(stderr, "PC %02x: unknown instructions %o2x\n", cpu->reg, instruction);
@@ -172,13 +194,3 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
-
-
-// So cpu_ram_read() and cpu_ram_write() access values from and modifies values in the ram array.
-// Remember ram is going to be an array of numbers that is an attribute of the cpu struct.
-// Even though it will be an array of numbers you’ll want to use the `unsigned char` type in your array
-// because you’ll be working with relatively small numbers in this computer 
-// (because of it’s limited memory holding capbilities). `cpu_ram_write` modifies the array so it 
-// doesn’t need to return anything it just needs an index and a value to put into the array (edited) 
-// `cpu_ram_read` on the other hand just reads from the ram array so it just needs an index as input
-// so it knows which value to read and it returns the value in question as it’s output.
