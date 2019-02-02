@@ -157,25 +157,25 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_CMP, operandA, operandB);
         break;
 
-      // case JMP:
-      //   cpu->PC = operandA; 
-      //   printf("im getting %d\n", operandA);
-      //   // num_operands = 0;
-      //   break;
-
       case JMP:
-        cpu->PC = cpu->reg[operandA]-2;
-        num_operands = 0;
+        cpu->PC = operandA; 
+        printf("im getting %d\n", operandA);
+        // num_operands = 0;
         break;
 
+      // case JMP:
+      //   cpu->PC = cpu->reg[operandA]-2;
+      //   num_operands = 0;
+      //   break;
+
       case JNE:
-        if((cpu->FL & (1<<0)) == 2) {
-        cpu->PC = cpu->reg[operandA];
-        }
+          if((cpu->FL & (1<<0)) == 2) {
+          cpu->PC = cpu->reg[operandA];
+          }
         break;
 
       case JEQ:
-          if((cpu->FL & (1<<0)) != 0) {
+          if((cpu->FL & (1<<0)) == 1) {
           cpu->PC = cpu->reg[operandA];
           }
         break; 
@@ -203,10 +203,16 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
+  // cpu->FL = ADDR_PROGRAM_ENTRY;
   cpu->FL = 0;
   cpu->SP = ADDR_EMPTY_STACK;
+  // cpu->SP = 7;
   // cpu->reg[SP] = ADDR_EMPTY_STACK;
 
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
+
+// I KNOW WHAT I NEED TO DO I JUST DON'T KNOW HOW TO DO IT PLEASE SEND VIDS OR
+// A GUIDE OF SOME KIND WHERE I MAY FIGURE IT OUT OR SOME ADVICE WHERE I CAN FINISH IT 
+// THANK YOU ALEC
