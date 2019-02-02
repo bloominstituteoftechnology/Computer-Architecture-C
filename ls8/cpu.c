@@ -91,7 +91,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->FL = 1 << 2;
       }
     break;
-
     // TODO: implement more ALU ops
   }
 }
@@ -108,18 +107,18 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
-    unsigned char operand1;
-    unsigned char operand2;  
+    unsigned char operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    unsigned char operand2 = cpu_ram_read(cpu, (cpu->PC+2)& 0xff);  
     // 2. Figure out how many operands this next instruction requires
-    unsigned int num_operands = (instruction >> 6);
+    unsigned int num_operands = (instruction >> 6) + 1;
     // 3. Get the appropriate value(s) of the operands following this instruction
-    if(num_operands == 2){
-      operand1 = cpu_ram_read(cpu, cpu->PC+1);
-      operand2 = cpu_ram_read(cpu, cpu->PC+2);
-    }
-    else if(num_operands == 1){
-      operand1 = cpu_ram_read(cpu, cpu->PC+1);
-    }else{}
+    // if(num_operands == 2){
+    //   operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    //   operand2 = cpu_ram_read(cpu, (cpu->PC+2)& 0xff);
+    // }
+    // else if(num_operands == 1){
+    //   operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    // }else{}
     // 4. switch() over it to decide on a course of action.
     switch(instruction){
     // 5. Do whatever the instruction should do according to the spec.
@@ -159,20 +158,20 @@ void cpu_run(struct cpu *cpu)
 
       case JMP:
       cpu->PC = cpu->reg[operand1];
-      // num_operands = 0;
+      num_operands = 0; 
       break;
 
       case JEQ:
       if(cpu->FL == 0b00000001){
         cpu->PC = cpu->reg[operand1];
-        // num_operands = -1;
+        num_operands = 0;
       }
       break;
 
       case JNE:
       if(cpu->FL == 0b00000000){
         cpu->PC = cpu->reg[operand1];
-        // num_operands = ;
+        num_operands = 0;
       }
       break;
 
@@ -181,7 +180,7 @@ void cpu_run(struct cpu *cpu)
       exit(3);
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC += num_operands + 1;
+    cpu->PC += num_operands;
   }
 }
 
