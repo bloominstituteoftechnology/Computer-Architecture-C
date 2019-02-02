@@ -13,7 +13,7 @@ struct cpu {
 // #define SP 7
 
 #define ADDR_EMPTY_STACK 0xf4
-#define ADDR_PROGRAM_ENTRY 0X00
+// #define ADDR_PROGRAM_ENTRY 0X00
 
 // ALU operations
 enum alu_op {
