@@ -80,18 +80,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     break;
 
     case ALU_CMP:
-      cpu->FL = 0;
-
       if(cpu->reg[regA] == cpu->reg[regB]){
         cpu->FL = 1 << 0;
       } 
       else if(cpu->reg[regA] < cpu->reg[regB]){
         cpu->FL = 1 << 1;
-      }else{
+      }
+      else if(cpu->reg[regA] > cpu->reg[regB]){
         cpu->FL = 1 << 2;
+      }else{
+        cpu->FL = 0 << 4;
       }
     break;
-    // TODO: implement more ALU ops
+    // TODO: implement more A LU ops
   }
 }
 
@@ -169,7 +170,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
       case JNE:
-      if(cpu->FL == 0b00000000){
+      if(cpu->FL != 0b00000001){
         cpu->PC = cpu->reg[operand1];
         num_operands = 0;
       }
