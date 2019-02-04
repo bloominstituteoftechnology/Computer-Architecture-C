@@ -4,15 +4,15 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
+  // PC keeps track of where we are in the program we're executing 
   unsigned int PC;
   // Stack Pointer
   unsigned int SP;
   // Flags
   unsigned char FL;
-  // registers (array)
+  // registers (array), where we push operand values
   unsigned char reg[8];
-  // ram (array)
+  // ram (array) holds everything else
   unsigned char ram[256];
 };
 
