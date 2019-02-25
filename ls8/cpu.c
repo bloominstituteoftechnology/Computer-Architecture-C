@@ -53,6 +53,10 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    char instruction = cpu->pc;
+    char operandA = cpu_read_ram(cpu, (instruction + 1));
+    char operandB = cpu_read_ram(cpu, instruction + 2);
+
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -76,9 +80,14 @@ void cpu_init(struct cpu *cpu)
 /**
  * Read data from RAM
  */
-void cpu_ram_read(struct cpu *cpu)
+char *cpu_ram_read(struct cpu *cpu, int index)
 {
   //To Do: implement function to read from ram
+  //instruction = cpu->pc;
+
+  return cpu->ram[index];
+
+  //should not be void because it is returning something. should this return a pointer to a byte of memory?
 }
 
 /**

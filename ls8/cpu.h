@@ -5,14 +5,14 @@
 struct cpu
 {
   // TODO
-  // PC
+  // PC (program counter) also called IP (instruction pointer)
   unsigned char pc;
 
   // registers (array)
   char *registers;
 
   // ram (array)
-  char *ram;
+  char ram[8];
 };
 
 // ALU operations
@@ -37,5 +37,7 @@ enum alu_op
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern char *cpu_read_ram(struct cpu *cpu, int index);
+extern void cpu_write_ram(struct cpu *cpu);
 
 #endif
