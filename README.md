@@ -9,7 +9,7 @@
 ### Day 1: Get `print8.ls8` running
 - [X] Inventory what is here
 - [x] Implement `struct cpu` in `cpu.h`
-- [ ] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
+- [Maybe] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
 - [ ] Implement `cpu_init()`
 - [ ] Implement the core of `cpu_run()`
 - [ ] Implement the `HLT` instruction handler

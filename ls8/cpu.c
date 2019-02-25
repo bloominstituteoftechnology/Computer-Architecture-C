@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h> 
+#include <string.h> 
 
 #define DATA_LEN 6
 
@@ -63,11 +65,16 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // TODO: Initialize the PC and other special registers, use mem set
+  // https://www.geeksforgeeks.org/memset-c-example/
+  // At first, the PC, registers, and RAM should be cleared to zero.
+  memset(cpu->pc, 0, sizeof(cpu->pc));
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
 void cpu_ram_read(struct cpu *cpu, int position){
-  return cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
+  cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
 }
 
 void cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
