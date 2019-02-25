@@ -61,8 +61,24 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
-
 * Write a short 3-10-word description of what each file does.
+  * ls8
+    - cpu.c : load the binary bytes from a .ls8 source file into a RAM array
+    - cpu.h : holds all information about the CPU
+    - ls8.c : contains int main(void)
+    * examples
+      - there is are examples of each of the files from asm directory
+  * asm
+    - call.asm : call register
+    - interrupt.asm : there are 8 interrupts, 10 - 17 it occurs due to timer interrupt or keyboard interrupt
+    - keyboard.asm : does not interpret anything, a simple program to test the keyboard and echo to console
+    - mult.asm : instruction handled by ALU to multiply values in two registers
+    - print8.asm : expected to print 8
+    - printstr.asm : expected to print Hello, world!
+    - sctest.asm : code to test project
+    - stack.asm : stack tester
+    - stackoverflow.asm : testing if the stack overflows? stack overflow is if the program uses more memory space than the stack size, which can result in a program crash
+
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
