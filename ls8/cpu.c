@@ -26,6 +26,16 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded / step 8
 }
 
+void cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  return cpu->ram[address] = value;
+}
+
 /**
  * ALU
  */
@@ -44,6 +54,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  * DAY - 1 / Step 4 
  * Run the CPU
  */
+/*
+Meanings of the bits in the first byte of each instruction: `AABCDDDD`
+
+* `AA` Number of operands for this opcode, 0-2
+* `B` 1 if this is an ALU operation
+* `C` 1 if this instruction sets the PC
+* `DDDD` Instruction identifier
+
+The number of operands `AA` is useful to know because the total number of bytes in any
+instruction is the number of operands + 1 (for the opcode). This
+allows you to know how far to advance the `PC` with each instruction.
+*/
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction 
@@ -69,3 +91,4 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers 
 }
+
