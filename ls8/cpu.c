@@ -23,7 +23,7 @@ void cpu_load(struct cpu *cpu)
     cpu->ram[address++] = data[i];
   }
 
-  // TODO: Replace this with something less hard-coded
+  // TODO: Replace this with something less hard-coded / step 8
 }
 
 /**
@@ -41,12 +41,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
- * DAY - 1 
+ * DAY - 1 / Step 4 
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1; // True until we get a HLT instruction //In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
+//encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
 
   while (running) {
     // TODO
@@ -60,10 +61,10 @@ void cpu_run(struct cpu *cpu)
 }
 
 /**
- * DAY - 1 
+ * DAY - 1 / Step 3 
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // TODO: Initialize the PC and other special registers 
 }

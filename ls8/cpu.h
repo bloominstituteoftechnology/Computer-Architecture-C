@@ -3,8 +3,8 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
+  // DAY 1 -- TODO: Step 1
+  // PC (program counter)
   // registers (array)
   // ram (array)
 };
@@ -26,7 +26,7 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
-//DAY 1 - Add RAM functions cpu_ram_read and cpu_ram_write
+//DAY 1 - Add RAM functions cpu_ram_read(step 4 a few more details offered) and cpu_ram_write
 
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
