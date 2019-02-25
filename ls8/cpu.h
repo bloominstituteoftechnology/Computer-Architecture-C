@@ -6,11 +6,11 @@ typedef struct cpu
 {
   // TODO
   // PC
-  unsigned char *pc;
+  unsigned char pc;
   // registers (array)
-  unsigned char **registers[8];
+  unsigned char registers[8];
   // ram (array)
-  unsigned char **ram[256];
+  unsigned char ram[256];
 } cpu;
 
 // ALU operations
