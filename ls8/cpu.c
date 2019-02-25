@@ -65,7 +65,6 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
-    // TODO
     // 1. Get the value of the current instruction (in address PC). Store in Instruction Register or IR
     unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Determine how many operands this next instruction requires from bits 6-7 of instruction opcode
@@ -84,6 +83,18 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
     switch (instruction)
     {
+    case HLT:
+      // Halt the CPU (and exit the emulator).
+      running = 0;
+      break;
+    case LDI:
+      // Set the value of a register to an integer.
+      cpu->reg[operandA] = operandB;
+      break;
+    case PRN:
+      // Print numeric value stored in the given register.
+      printf("%d\n", cpu->reg[operandA]);
+      break;
     default:
       break;
     }
