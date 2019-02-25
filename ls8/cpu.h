@@ -3,10 +3,22 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+      // TODO
+      // The type for a single unsigned byte in C is : (unsigned char x;)
+
+      // PC = program counter...address of current instruction
+      unsigned char PC;
+      
+      // registers (array)
+      /* 8 registers
+          - R5 is reserved for interrupt mask
+          - R6 is reserved for interrupt status
+          - R7 is reserved for stack pointer
+      */
+      unsigned char reg[8];
+
+      // ram (array)
+      unsigned char ram[256]; //8-bit cpu .. 2^8 = 256 
 };
 
 // ALU operations
