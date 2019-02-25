@@ -1,4 +1,4 @@
-# Computer Architecture
+# Computer Architecture //Hunter Smith
 
 ## Project
 
