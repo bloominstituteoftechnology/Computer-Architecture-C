@@ -2,11 +2,16 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
+// The type for a single unsigned byte in C is:
 struct cpu {
   // DAY 1 -- TODO: Step 1
   // PC (program counter)
-  // registers (array)
-  // ram (array)
+  // registers (array) 
+    //holds the data that CPU is currently processing | PC / IR / MAR / MDR
+    //we'll execute code that stores the value 8 in a register
+  // ram (array) 
+    //holds program instruction and data that the program requires for execution 
+    //The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
 };
 
 // ALU operations
