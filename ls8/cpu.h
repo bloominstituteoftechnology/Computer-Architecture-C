@@ -7,9 +7,9 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
-  unsigned long pc;
-  unsigned long *registers;
-  unsigned long *ram;
+  unsigned int pc;
+  unsigned char reg[8]; // Set to 8 as it's the max
+  unsigned char ram[256]; // Set to 256 as it's the max
 };
 
 // ALU operations
