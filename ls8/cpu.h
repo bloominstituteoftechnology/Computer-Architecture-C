@@ -6,13 +6,16 @@
 struct cpu {
   // DAY 1 -- TODO: Step 1
   // PC (program counter)
-  // registers (array) 
+  unsigned int PC;
+  // registers (array)
+  unsigned char reg[8]; 
     //holds the data that CPU is currently processing | PC / IR / MAR / MDR
     //we'll execute code that stores the value 8 in a register
-  // ram (array) 
+  // ram (array)
+  unsigned char ram[256]; 
     //holds program instruction and data that the program requires for execution 
     //The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
-};
+}; 
 
 // ALU operations
 enum alu_op {
@@ -36,5 +39,7 @@ enum alu_op {
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
+extern void cpu_ram_read(struct cpu *cpu);
+extern void cpu_ram_write(struct cpu *cpu);
 
 #endif
