@@ -6,6 +6,7 @@
  */
 int main(void)
 {
+  printf("--init--\n");
   struct cpu cpu;
 
   cpu_init(&cpu);
