@@ -26,7 +26,7 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded / step 8
 }
 
-void cpu_ram_read(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
@@ -72,14 +72,19 @@ operandA = cpu_read_ram(cpu->pc + 1)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction 
-  //In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
-//encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
+  unsigned char IR; //store that result in `IR` ... This can just be a local
+  unsigned char operandA;//into variables `operandA` and `operandB` in case the instruction needs them
+  unsigned char operandB;
+ 
 
   while (running) {
     // TODO
-    // 1. Get the value of the current instruction (in address PC)./
-    // 2. Figure out how many operands this next instruction requires/
+    // 1. Get the value of the current instruction (in address PC)./ IR
+    IR = cpu_ram_read(cpu, cpu->PC);
+    // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+    operandA = cpu_ram_read(cpu, cpu->PC+1);
+    operandB = cpu_ram_read(cpu, cpu->PC+2);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
