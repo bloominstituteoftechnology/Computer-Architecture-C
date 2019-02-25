@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <ststring.h>
 
 #define DATA_LEN 6
 
