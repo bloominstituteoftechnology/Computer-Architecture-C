@@ -6,11 +6,13 @@ struct cpu
 {
   // TODO
   // PC
-  int *pc;
+  unsigned char PC;
   // registers (array)
-  unsigned char *registers;
+  // there are 8 registers
+  unsigned char registers[8];
   // ram (array)
-  unsigned char *ram;
+  // 256 bytes in here
+  unsigned char ram[256];
 };
 
 // ALU operations

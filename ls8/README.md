@@ -78,7 +78,9 @@ but you'll have to implement those three above instructions first!
 2. cpu.h
    - Where the C struct is defined
    - TODO:
-     - []
+     - [x] create cpu struct
+     - [] add more operations
+     - [] add more instructions
 3. ls8.c
    - Where the processor is initialized
 
