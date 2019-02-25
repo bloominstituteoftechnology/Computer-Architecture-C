@@ -4,9 +4,12 @@
 // Holds all information about the CPU
 struct cpu {
   // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // PC   `PC`: Program Counter, address of the currently executing instruction
+  unsigned char pc;
+  // registers (array)  -- only 8 slots
+  unsigned char registers[8];
+  // ram (array)  -- he said in lecture that it would only be 256 bytes i thinl
+  unsigned char ram[256]; //creates array with 256 open slots
 };
 
 // ALU operations
