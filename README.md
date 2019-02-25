@@ -10,7 +10,7 @@
 - [X] Inventory what is here
 - [x] Implement `struct cpu` in `cpu.h`
 - [Maybe] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
-- [ ] Implement `cpu_init()`
+- [Maybe] Implement `cpu_init()`
 - [ ] Implement the core of `cpu_run()`
 - [ ] Implement the `HLT` instruction handler
 - [ ] Add the `LDI` instruction

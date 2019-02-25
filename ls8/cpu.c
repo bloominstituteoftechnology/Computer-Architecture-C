@@ -48,8 +48,20 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  unsigned char IR = cpu->pc; //Instruction Register
   while (running) {
+    unsigned int num_of_operations;
+    operandA = cpu_ram_read(cpu, )
+    // Use Switch statement
+    // switch (IR)
+    // {
+    //   case /* constant-expression */:
+    //     /* code */
+    //     break;
+    
+    //   default:
+    //     break;
+    // }
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
@@ -73,10 +85,11 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
-void cpu_ram_read(struct cpu *cpu, int position){
-  cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
+unsigned char cpu_ram_read(struct cpu *cpu, int position){
+  return cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
   cpu->ram[position] = value;
+  return cpu->ram[position];
 } 
