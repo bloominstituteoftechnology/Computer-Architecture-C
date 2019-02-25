@@ -41,6 +41,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 }
 
 /**
+ * DAY - 1 
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -59,6 +60,7 @@ void cpu_run(struct cpu *cpu)
 }
 
 /**
+ * DAY - 1 
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)

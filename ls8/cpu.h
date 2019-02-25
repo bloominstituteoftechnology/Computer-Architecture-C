@@ -26,6 +26,7 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
+//DAY 1 - Add RAM functions cpu_ram_read and cpu_ram_write
 
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
