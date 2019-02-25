@@ -80,7 +80,7 @@ void cpu_init(struct cpu *cpu)
 /**
  * Read data from RAM
  */
-char *cpu_ram_read(struct cpu *cpu, int index)
+char *cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
   //To Do: implement function to read from ram
   //instruction = cpu->pc;
@@ -93,7 +93,8 @@ char *cpu_ram_read(struct cpu *cpu, int index)
 /**
  * Write data to RAM
  */
-void cpu_write_read(struct cpu *cpu)
+void cpu_write_read(struct cpu *cpu, unsigned char index, unsigned char *value)
 {
   //To Do: implement function to write to ram
+  cpu->ram[index] = value;
 }

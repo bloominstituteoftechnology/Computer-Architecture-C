@@ -2,18 +2,18 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-struct cpu
+typedef struct cpu
 {
   // TODO
   // PC (program counter) also called IP (instruction pointer)
   unsigned char pc;
 
   // registers (array)
-  char *registers;
+  char **registers[8];
 
   // ram (array)
-  char ram[8];
-};
+  char **ram[256];
+} cpu;
 
 // ALU operations
 enum alu_op
@@ -37,7 +37,7 @@ enum alu_op
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
-extern char *cpu_read_ram(struct cpu *cpu, int index);
-extern void cpu_write_ram(struct cpu *cpu);
+extern char *cpu_read_ram(struct cpu *cpu, unsigned char index);
+extern void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char *value);
 
 #endif
