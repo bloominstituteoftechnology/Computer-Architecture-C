@@ -1,7 +1,17 @@
 #include "cpu.h"
+#include <string.h>
+#include <stdio.h>
+
 
 #define DATA_LEN 6
 
+void cpu_ram_write( struct cpu *cpu, unsigned char value, unsigned char address){
+  cpu->ram[address] = value;
+}
+
+void cpu_ram_read(struct cpu *cpu, unsigned char address){
+  return cpu->ram[address];
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
