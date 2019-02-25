@@ -60,11 +60,29 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu -> PC);
+
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu -> PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu -> PC + 2);
+
     // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
+    switch(IR) {
+      case LDI:
+        // 5. Do whatever the instruction should do according to the spec.
+        cpu -> reg[operandA] = operandB;
+        // 6. Move the PC to the next instruction.
+        cpu -> PC += 3;
+        break;
+      case PRN:
+        printf("%d\n", cpu -> reg[operandA]);
+        cpu -> PC += 2;
+        break;
+      case HLT:
+        cpu -> PC += 1;
+        return 0;
+    }
   }
 }
 
