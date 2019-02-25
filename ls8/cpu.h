@@ -7,6 +7,9 @@ struct cpu {
   // PC
   // registers (array)
   // ram (array)
+  unsigned long pc;
+  unsigned long *registers;
+  unsigned long *ram;
 };
 
 // ALU operations
