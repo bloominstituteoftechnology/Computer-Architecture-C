@@ -66,6 +66,18 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+-- ls8
+      - cpu.h 
+          * Holds all information about the CPU
+          * (header-file for `cpu.c` where need to declare `struct cpu` and functions in `ls8.c` )
+      - cpu.c
+          * here need to implement the functions in `ls8.c`
+      - ls8.c
+          * main()
+          * cpu_init(&cpu);
+          * cpu_load(&cpu);
+          * cpu_run(&cpu);
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
