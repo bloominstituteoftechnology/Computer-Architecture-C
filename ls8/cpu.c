@@ -79,12 +79,10 @@ void cpu_run(struct cpu *cpu)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
       operandB = cpu_ram_read(cpu, cpu->PC + 2);
-      cpu->PC += 3;
     }
     else if (IR >= 50)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      cpu->PC += 2;
     }
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -92,9 +90,12 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       cpu_ram_write(cpu, operandA, operandB);
+      cpu->registers[operandA] = cpu->ram[operandA];
+      cpu->PC += 3;
       break;
     case PRN:
-      printf("%d\n", operandB);
+      printf("%d\n", cpu->registers[operandA]);
+      cpu->PC += 2;
       break;
     case HLT:
       exit(1);
