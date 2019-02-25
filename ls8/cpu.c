@@ -68,3 +68,13 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, 256 * sizeof(unsigned char));
   memset(cpu->reg, 0, 8 * sizeof(unsigned char));
 }
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
+{
+  return cpu->ram[mar];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+{
+  cpu->ram[mar] = mdr;
+}
