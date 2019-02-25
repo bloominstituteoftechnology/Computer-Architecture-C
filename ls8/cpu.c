@@ -65,6 +65,9 @@ Meanings of the bits in the first byte of each instruction: `AABCDDDD`
 The number of operands `AA` is useful to know because the total number of bytes in any
 instruction is the number of operands + 1 (for the opcode). This
 allows you to know how far to advance the `PC` with each instruction.
+
+operandA = cpu_read_ram(cpu->pc + 1)
+
 */
 void cpu_run(struct cpu *cpu)
 {
@@ -90,5 +93,12 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers 
+  // At first, the PC, registers, and RAM should be cleared to zero.
+  cpu->PC = 0;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  //(`memset()` might help you clear registers and RAM.)
+    // man pages -  void *memset(void *s, int c, size_t n);
+    // function fills the first n bytes of the memory area pointed to by s with the constant byte c.
 }
 
