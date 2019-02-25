@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -64,19 +65,48 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char IR;
+  unsigned char operandA;
+  unsigned char operandB;
+  while (running)
+  {
+    // TODO
+    // 1. Get the value of the current instruction (in address PC).
+    IR = cpu_ram_read(cpu, cpu->PC);
+    // 2. Figure out how many operands this next instruction requires
+    // 3. Get the appropriate value(s) of the operands following this instruction
+    if (IR >= 80)
+    {
+      operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      operandB = cpu_ram_read(cpu, cpu->PC + 2);
+      cpu->PC += 3;
+    }
+    else if (IR >= 50)
+    {
+      operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      cpu->PC += 2;
+    }
+    // 4. switch() over it to decide on a course of action.
+    // 5. Do whatever the instruction should do according to the spec.
+    switch (IR)
+    {
+    case LDI:
+      cpu_ram_write(cpu, operandA, operandB);
+      break;
+    case PRN:
+      printf("%d\n", operandB);
+      break;
+    case HLT:
+      exit(1);
+      break;
+    default:
+      break;
+    }
 
-  // while (running)
-  // {
-  // TODO
-  // 1. Get the value of the current instruction (in address PC).
-  unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-  // 2. Figure out how many operands this next instruction requires
-  // 3. Get the appropriate value(s) of the operands following this instruction
-  // 4. switch() over it to decide on a course of action.
-  // 5. Do whatever the instruction should do according to the spec.
-  // 6. Move the PC to the next instruction.
-  // }
-  printf("%c\n", IR);
+    // IR = cpu_ram_read(cpu, cpu->PC);
+    // 6. Move the PC to the next instruction.
+  }
+  // printf("%d\n", IR);
 }
 
 /**
