@@ -48,27 +48,41 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned char IR = cpu->pc; //Instruction Register
+  unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
   while (running) {
-    unsigned int num_of_operations;
-    operandA = cpu_ram_read(cpu, )
+    unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
+    unsigned int num_of_operations = IR>>6; // bitwise shift operator I found / get the last two numbers 
+    int operandA = cpu_ram_read(cpu, cpu->pc + 1); //next value
+    int operandB = cpu_ram_read(cpu, cpu->pc + 2); //next next value
     // Use Switch statement
-    // switch (IR)
-    // {
-    //   case /* constant-expression */:
-    //     /* code */
-    //     break;
+
+    //what is this "opcode they speak of lol what am i looking for"
+  //   the machine code value of the instruction (e.g. `10000010` for `LDI`), also
+  // known as the _opcode_
+
+  //LS8-spec.md -> Instruction set -> Glossary
+    switch (IR)
+    {
+      case 'LDI':/* Set the value of a register to an integer. */
+        break;
+      case 'NOP'://does nothing
+        break;
+      case 'HLT': //exits the program
+        running = 0;
+        break;
     
-    //   default:
-    //     break;
-    // }
+      default:
+        break;
+    }
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+      //Skipping everything that says it is run in alu
     // 6. Move the PC to the next instruction.
+    cpu->pc = operandA;
   }
 }
 
