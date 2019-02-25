@@ -1,6 +1,22 @@
+
 #include "cpu.h"
 
 #define DATA_LEN 6
+/*In `cpu.c`, add functions `cpu_ram_read()` and `cpu_ram_write()` that access the
+RAM inside the `struct cpu`.*/
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+      //To READ RAM which is an array of memory addresses so to access memory we need index value
+      return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) 
+{
+      //To WRITE IN RAM 
+         /* - need to access ram of particular index where to write
+            - and value -- data to be written */
+      cpu->ram[index] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
