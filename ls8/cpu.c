@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -66,10 +68,33 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     unsigned char curr = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
+    unsigned int operands = curr >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xFF);
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xFF);
     // 4. switch() over it to decide on a course of action.
+    switch (curr)
+    {
+    // HLT -- Halt the CPU and exit the emulator:
+    case HLT:
+      running = 0;
+      break;
+
+    case LDI:
+      cpu->registers[operandA] = operandB;
+      break;
+
+    case PRN:
+
+      printf("%d\n", cpu->registers[operandA]);
+      break;
+
+    default:
+      break;
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC = cpu->PC + operands + 1;
     // TODO: Initialize the PC and other special registers
   }
 }
