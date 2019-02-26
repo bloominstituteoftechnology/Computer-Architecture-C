@@ -28,6 +28,15 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+int cpu_ram_read(struct cpu *cpu, int position){
+  return cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
+}
+
+int cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
+  cpu->ram[position] = value;
+  return cpu->ram[position];
+} 
+
 /**
  * ALU
  */
@@ -48,7 +57,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
+  
   while (running) {
     unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
     unsigned int num_of_operations = IR>>6; // bitwise shift operator I found / get the last two numbers 
@@ -63,12 +72,16 @@ void cpu_run(struct cpu *cpu)
   //LS8-spec.md -> Instruction set -> Glossary
     switch (IR)
     {
-      case 'LDI':/* Set the value of a register to an integer. */
+      case LDI:/* Set the value of a register to an integer. */
+        cpu->registers[operandA] = operandB;
         break;
-      case 'NOP'://does nothing
-        break;
-      case 'HLT': //exits the program
+      // case NOP://does nothing
+      //   break;
+      case HLT: //exits the program
         running = 0;
+        break;
+      case PRN:
+        printf("PRN Says: %d \n", cpu->registers[operandA]);
         break;
     
       default:
@@ -82,7 +95,7 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
       //Skipping everything that says it is run in alu
     // 6. Move the PC to the next instruction.
-    cpu->pc = operandA;
+    cpu->pc += num_of_operations + 1;
   }
 }
 
@@ -94,16 +107,8 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers, use mem set
   // https://www.geeksforgeeks.org/memset-c-example/
   // At first, the PC, registers, and RAM should be cleared to zero.
-  memset(cpu->pc, 0, sizeof(cpu->pc));
+  cpu->pc = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, int position){
-  return cpu->ram[position]; // they didn't really specify what they wanted this to do so hopefully this works
-}
-
-unsigned char cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
-  cpu->ram[position] = value;
-  return cpu->ram[position];
-} 
