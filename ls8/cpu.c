@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -98,7 +99,8 @@ void cpu_run(struct cpu *cpu)
       printf("%d\n", cpu->reg[operandA]);
       break;
     default:
-      break;
+      printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
+      exit(1);
     }
     // 6. Move the PC to the next instruction.
     cpu->PC += num_operands + 1;
