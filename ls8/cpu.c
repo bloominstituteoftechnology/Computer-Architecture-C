@@ -59,15 +59,34 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA;
     unsigned char operandB;
 
-    if (IR & 0b10000000)
+    if (IR & 0x80)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
-
-      if (IR & 0b01000000)
-        operandB = cpu_ram_read(cpu, cpu->PC + 2);
+      operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    }
+    else if (IR & 0x40)
+    {
+      operandA = cpu_ram_read(cpu, cpu->PC + 1);
     }
 
     // 4. switch() over it to decide on a course of action.
+    switch (IR)
+    {
+    case HLT:
+      running = 0;
+      return;
+
+    case LDI:
+      cpu->registers[operandA] = operandB;
+      break;
+
+    case PRN:
+      printf(cpu->registers[operandA]);
+      break;
+
+    default:
+      printf("nope");
+    }
 
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
