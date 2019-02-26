@@ -9,10 +9,10 @@ typedef struct cpu
   unsigned char pc;
 
   // registers (array)
-  char **registers[8];
+  char registers[8];
 
   // ram (array)
-  char **ram[256];
+  char ram[256];
 } cpu;
 
 // ALU operations
@@ -37,7 +37,7 @@ enum alu_op
 extern void cpu_load(struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
-extern char *cpu_read_ram(struct cpu *cpu, unsigned char index);
-extern void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char *value);
+// extern char *cpu_read_ram(struct cpu *cpu, unsigned char index);
+// extern void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char *value);
 
 #endif
