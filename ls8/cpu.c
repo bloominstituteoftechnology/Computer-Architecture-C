@@ -40,6 +40,7 @@ void cpu_load(struct cpu *cpu, char *argv)
 
   fclose(ptr);
 
+  // Pevious hardcode
   // char data[DATA_LEN] = {
   //     // From print8.ls8
   //     0b10000010, // LDI R0,8
@@ -88,6 +89,7 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
+    int total;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
@@ -110,6 +112,12 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       running = 0;
       break;
+
+    case MUL:
+      total = cpu->registers[operandA] * cpu->registers[operandB];
+      cpu->registers[operandA] = total;
+      break;
+
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
       exit(1);
