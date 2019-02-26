@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "stdio.h"
+#include "string.h"
 
 #define DATA_LEN 6
 
@@ -42,6 +44,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char byte)
+{
+  cpu->ram[address] = byte;
+}
+
 /**
  * Run the CPU
  */
@@ -61,12 +73,12 @@ void cpu_run(struct cpu *cpu)
 
     if (IR & 0x80)
     {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      operandB = cpu_ram_read(cpu, cpu->PC + 2);
+      unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     }
     else if (IR & 0x40)
     {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     }
 
     // 4. switch() over it to decide on a course of action.
@@ -81,7 +93,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case PRN:
-      printf(cpu->registers[operandA]);
+      printf("&s", cpu->registers[operandA]);
       break;
 
     default:
@@ -101,14 +113,4 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
-}
-
-unsigned char *cpu_ram_read(struct cpu *cpu, int index)
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char *byte)
-{
-  cpu->ram[index] = byte;
 }
