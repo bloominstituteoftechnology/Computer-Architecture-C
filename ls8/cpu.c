@@ -66,9 +66,22 @@ void cpu_init(CPU *cpu)
 {
   // TODO: Initialize the PC and other special registers
   
+//  cpu->pc = 0;
+//  memset(cpu->ram, 0, sizeof(unsigned char)*256);
+//  memset(cpu->reg, 0, sizeof(unsigned char)*8);
+  
+  //Alternative to memset()
+  // Init registers
+  for (int index = 0; index < 7; index++) {
+    cpu->reg[i] = 0;
+  }
+  cpu->reg[7] = 0xF4;  // Spec says to set R7 to 0xF4
+  
+  // Init PC
   cpu->pc = 0;
-  memset(cpu->ram, 0, sizeof(unsigned char)*256);
-  memset(cpu->reg, 0, sizeof(unsigned char)*8);
+  
+  // Init Ram
+  memset(cpu->ram, 0, sizeof(cpu->ram));
   
 }
 
