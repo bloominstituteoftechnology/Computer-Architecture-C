@@ -83,6 +83,9 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       printf("LDI\n");
+
+    case HLT:
+      return;
     }
 
     cpu->pc += 1;
