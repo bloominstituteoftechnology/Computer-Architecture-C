@@ -75,14 +75,14 @@ void cpu_run(struct cpu *cpu)
 
     if (IR & 0x80)
     {
-      unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+      operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
       nextInstruction = 3;
     }
     else if (IR & 0x40)
     {
-      unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+      operandA = cpu_ram_read(cpu, cpu->PC + 1);
 
       nextInstruction = 2;
     }
@@ -100,7 +100,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case PRN:
-      printf("&s", cpu->registers[operandA]);
+      printf("%d\n", cpu->registers[operandA]);
       break;
 
     default:
