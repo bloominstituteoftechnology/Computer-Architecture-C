@@ -21,15 +21,18 @@ int main(int argc, char *argv[])
   int index = 0;
   FILE *f = fopen(argv[1], "r");
 
-  while ((ch = fgetc(f)) != EOF)
+  while (fgets(buffer, 10, f))
   {
-    fgets(buffer, 8, f);
-
-    data[index++] = buffer;
-    printf("%s\n", buffer);
+    //fgets(buffer, 10, f);
+    char *ptr;
+    printf("buffer: %s\n", buffer);
+    long instruction = strtol(buffer, &ptr, 2);
+    //data[index] = buffer;
+    printf("the number: %ld\n", instruction);
   }
   // *fgets(buffer, 256, f);
-  printf("%s", buffer);
+  printf("\n------\n%s", buffer);
+  //printf("data: %s\n", data[0]);
 
   struct cpu cpu;
 
