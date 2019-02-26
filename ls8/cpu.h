@@ -3,11 +3,15 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // TODO
   // PC
+  unsigned char pc;
   // registers (array)
+  unsigned char registers[8];
   // ram (array)
+  unsigned char ram[256];
 };
+
+
 
 // ALU operations
 enum alu_op {
