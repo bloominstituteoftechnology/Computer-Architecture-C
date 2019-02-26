@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -22,7 +23,9 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++)
   {
+    // printf("Data %u index %u\n", data[i], i); // <--debugging
     cpu->ram[address++] = data[i];
+    // printf("setting ram address %u to %u\n", address, data[i]); // <--debugging
   }
 
   // TODO: Replace this with something less hard-coded
@@ -54,8 +57,11 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char _IR = cpu->ram[cpu->pc];
+    // unsigned char _IR = cpu->ram[cpu->pc];
+    unsigned char _IR = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
+
+    // TODO: refactor with bitwise operations
     int _operands;
     if (_IR > 0b00111111 && _IR < 0b10000000)
     {
@@ -67,8 +73,12 @@ void cpu_run(struct cpu *cpu)
     }
     // 3. Get the appropriate value(s) of the operands
     // following this instruction
-    unsigned char operandA = cpu->ram[_IR + 1];
-    unsigned char operandB = cpu->ram[_IR + 2];
+    // unsigned char operandA = cpu->ram[_IR + 1];
+    // unsigned char operandB = cpu->ram[_IR + 2];
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+    printf("command %u operandA %u operandB %u\n", _IR, operandA, operandB); //<--debugging
+
     // 4. switch() over it to decide on a course of action.
     switch (_IR)
     {
@@ -110,6 +120,8 @@ void cpu_run(struct cpu *cpu)
 
     case HLT: // HLT //
       /*Halt the CPU (and exit the emulator).*/
+      printf("--done exiting--\n");
+      exit(0);
       break;
 
     case INC: // INC register //
@@ -173,6 +185,8 @@ void cpu_run(struct cpu *cpu)
 
     case LDI: // LDI register immediate //
       /*Set the value of a register to an integer.*/
+      printf("setting register %u to %u\n", operandA, operandB); // <-- debugging
+      cpu->registers[operandA] = operandB;
       break;
 
     case MOD: // MOD registerA registerB //
@@ -218,6 +232,7 @@ void cpu_run(struct cpu *cpu)
       /*Print numeric value stored in the given register.
       Print to the console the decimal integer value that 
       is stored in the given register.*/
+      printf("%u\n", cpu->registers[operandA]);
       break;
 
     case PUSH: // PUSH register //
