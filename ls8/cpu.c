@@ -4,6 +4,20 @@
 
 #define DATA_LEN 6
 
+/**  Read from the CPU's ram at the specifc location 
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pc)
+{
+  return cpu->ram[pc];
+}
+
+/**  Writes at index specified for the CPU's ram
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char pc, unsigned char num)
+{
+  cpu->ram[pc] = num;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -49,6 +63,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+
   int running = 1; // True until we get a HLT instruction
 
   while (running)
@@ -60,6 +75,17 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    unsigned char IR = cpu->ram[cpu->pc];
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+
+    switch (IR)
+    {
+    case LDI:
+      printf("LDI\n");
+    }
+
+    cpu->pc += 1;
   }
 }
 
@@ -72,18 +98,4 @@ void cpu_init(struct cpu *cpu)
   cpu->pc = 0;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
-}
-
-/**  Read from the CPU's ram at the specifc location 
- */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pc)
-{
-  return cpu->ram[pc];
-}
-
-/**  Writes at index specified for the CPU's ram
- */
-void cpu_ram_write(struct cpu *cpu, unsigned char pc, unsigned char num)
-{
-  cpu->ram[pc] = num;
 }
