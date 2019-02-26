@@ -85,9 +85,30 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     operandA = cpu_ram_read(cpu, cpu->PC+1);
     operandB = cpu_ram_read(cpu, cpu->PC+2);
-    // 4. switch() over it to decide on a course of action.
+    // 4. switch() over it to decide on a course of action. Cases - HTL / PRN / LDI
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB; 
+        cpu->PC += 3;
+        break;
+      
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->PC += 2;
+        break;
+
+      case HLT:
+        running = 0;
+        break;
+
+      default:
+        printf("unexpected instruction 0x%02x at 0x%02x\n", IR, cpu->PC);
+        exit(1);
+    }
+    
   }
 }
 
