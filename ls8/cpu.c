@@ -50,12 +50,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 // cpu_ram_read
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
+  // address == MAR
   return cpu->ram[address];
 }
 
 // cpu_ram_read
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
+  // address == MAR value == MDR (Memory Data Register)
   cpu->ram[address] = value;
 }
 
@@ -89,8 +91,8 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case LDI:
-      cpu_ram_write(cpu, operandA, operandB);
-      cpu->registers[operandA] = cpu->ram[operandA];
+      // cpu_ram_write(cpu, operandA, operandB);
+      cpu->registers[operandA] = operandB;
       cpu->PC += 3;
       break;
     case PRN:
@@ -98,9 +100,11 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
     case HLT:
-      exit(1);
+      running = 0;
       break;
     default:
+      printf("unexpected instruction 0x%02X at 0x%02X", IR, cpu->PC);
+      exit(1);
       break;
     }
 
@@ -116,7 +120,12 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+
+  // INIT REGISTERS
+  memset(cpu->registers, 0, 7);
+  cpu->registers[7] = 0xf4;
+  // INIT PC
   cpu->PC = 0;
+  // INIT RAM
   memset(cpu->ram, 0, sizeof(cpu->ram));
-  memset(cpu->registers, 0, sizeof(cpu->registers));
 }
