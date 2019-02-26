@@ -43,25 +43,6 @@ void cpu_load(struct cpu *cpu, char *file)
   }
 
   fclose(fptr);
-
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -97,15 +78,10 @@ void cpu_run(struct cpu *cpu)
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    if (IR >= 0b10000000)
-    {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      operandB = cpu_ram_read(cpu, cpu->PC + 2);
-    }
-    else if (IR >= 0b01000000)
-    {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    }
+
+    operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (IR)
@@ -118,6 +94,10 @@ void cpu_run(struct cpu *cpu)
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
       cpu->PC += 2;
+      break;
+    case MUL:
+      cpu->registers[operandA] = cpu->registers[0] * cpu->registers[1];
+      cpu->PC += 3;
       break;
     case HLT:
       running = 0;
