@@ -6,6 +6,22 @@
 #define DATA_LEN 6
 
 /**
+ * Reads memory data (MDR) from memory address (MAR) - helper function
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
+{
+  return cpu->ram[MAR];
+}
+
+/**
+ * Writes memory data (MDR) to memory address (MAR) - helper function
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
+{
+  cpu->ram[MAR] = MDR;
+}
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *filename)
@@ -59,33 +75,17 @@ void cpu_load(struct cpu *cpu, char *filename)
 }
 
 /**
- * ALU
+ * ALU handles MUL instruction
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
   }
-}
-
-/**
- * Reads memory data (MDR) from memory address (MAR) - cpu_run() helper function
- */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
-{
-  return cpu->ram[MAR];
-}
-
-/**
- * Writes memory data (MDR) to memory address (MAR) - cpu_run() helper function
- */
-void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
-{
-  cpu->ram[MAR] = MDR;
 }
 
 /**
@@ -115,12 +115,17 @@ void cpu_run(struct cpu *cpu)
       // 6. Move the PC to the next instruction.
       case LDI: //load "immediate", store a value in a register, or "set this register to this value".
       cpu->reg[operandA] = operandB; //Loads registerA with the value at the memory address stored in registerB.
-      cpu->PC += 3; //moves PC to PRN
+      cpu->PC += 3; //moves PC down 3 lines
+      break;
+
+      case MUL: //multiply the values in two registers together and store the result in registerA.
+      alu(cpu, ALU_MUL, operandA, operandB);
+      cpu->PC += 3; //moves PC down 3 lines
       break;
 
       case PRN: //a pseudo-instruction that prints the numeric value stored in a register.
       printf("%d\n", cpu->reg[operandA]); 
-      cpu->PC += 2; //moves PC to HLT
+      cpu->PC += 2; //moves PC down 2 lines
       break;
 
       case HLT: //halt the CPU and exit the emulator.
