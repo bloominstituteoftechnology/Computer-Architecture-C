@@ -119,6 +119,16 @@ void cpu_run(struct cpu *cpu)
                 alu(cpu, ALU_MUL, operandA, operandB);
                 cpu->PC +=3;
                 break;
+
+            case POP:
+                cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
+                cpu->PC +=2;
+                break;
+
+            case PUSH:
+                cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+                cpu->PC +=2;
+                break;
             
             case LDI:
                 cpu->reg[operandA] = operandB;

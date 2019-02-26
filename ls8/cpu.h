@@ -43,6 +43,11 @@ enum alu_op {
 #define MUL  0b10100010
 #define SUB  0b10100001
 #define DIV  0b10100011
+//for stack...
+#define POP  0b01000110
+#define PUSH 0b01000101
+
+
 
 
 
