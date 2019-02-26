@@ -71,3 +71,9 @@ void cpu_init(CPU *cpu)
   memset(cpu->reg, 0, sizeof(unsigned char)*8);
   
 }
+
+char read_cpu_ram(CPU *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+}
