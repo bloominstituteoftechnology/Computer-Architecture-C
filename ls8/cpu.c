@@ -1,5 +1,7 @@
 #include "cpu.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define DATA_LEN 6
 
 /**
@@ -53,9 +55,29 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu->ram[cpu->PC];
     // 2. Figure out how many operands this next instruction requires
+    unsigned char operand0 = cpu->ram[cpu->PC + 1];
+    unsigned char operand1 = cpu->ram[cpu->PC + 2];
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
+    switch (IR)
+    {
+    case LDI:
+      cpu->reg[operand0] = operand1;
+      cpu->PC += 3;
+      break;
+    case PRN:
+      printf("%u\n", cpu->reg[operand0]);
+      cpu->PC += 2;
+      break;
+    case HLT:
+      running = 0;
+      break;
+    default:
+      printf("command not recognized, double check input\n");
+      exit(1);
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }
