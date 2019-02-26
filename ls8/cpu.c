@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -72,22 +73,22 @@ void cpu_run(struct cpu *cpu)
     switch (_IR)
     {
 
-    case 0b10100000: // ADD registerA registerB // --> ALU
+    case ADD: // ADD registerA registerB // --> ALU
       /*Add the value in two registers and store the result 
       in registerA.*/
       break;
 
-    case 0b10101000: // AND registerA registerB // --> ALU
+    case AND: // AND registerA registerB // --> ALU
       /*Bitwise-AND the values in registerA and registerB, 
       then store the result in registerA.*/
       break;
 
-    case 0b01010000: // CALL register //
+    case CALL: // CALL register //
       /*Calls a subroutine (function) at the address stored 
       in the register.*/
       break;
 
-    case 0b10100111: // CMP registerA registerB //
+    case CMP: // CMP registerA registerB //
       /*Compare the values in two registers:
       equal, set the Equal E flag to 1, otherwise set it to 0.
       A is less than registerB, set the Less-than L flag to 1, 
@@ -96,32 +97,32 @@ void cpu_run(struct cpu *cpu)
       flag to otherwise set it to 0.*/
       break;
 
-    case 0b01100110: // DEC register // --> ALU
+    case DEC: // DEC register // --> ALU
       /*Decrement (subtract 1 from) the value in the given register.*/
       break;
 
-    case 0b10100011: // DIV registerA registerB // --> ALU
+    case DIV: // DIV registerA registerB // --> ALU
       /*Divide the value in the first register by the value 
       in the second, storing the result in registerA.
       If the value in the second register is 0, the system 
       should print an error message and halt.*/
       break;
 
-    case 0b00000001: // HLT //
+    case HLT: // HLT //
       /*Halt the CPU (and exit the emulator).*/
       break;
 
-    case 0b01100101: // INC register //
+    case INC: // INC register //
       /*Increment (add 1 to) the value in the given register.*/
       break;
 
-    case 0b01010010: // INT register //
+    case INT: // INT register //
       /* Issue the interrupt number stored in the given register.
       This will set the _n_th bit in the IS register to the value 
       in the given register. */
       break;
 
-    case 0b00010011: // IRET //
+    case IRET: // IRET //
       /*The following steps are executed:
       Registers R6-R0 are popped off the stack in that order.
       The FL register is popped off the stack.
@@ -129,52 +130,52 @@ void cpu_run(struct cpu *cpu)
       Interrupts are re-enabled*/
       break;
 
-    case 0b01010101: // JEQ register //
+    case JEQ: // JEQ register //
       /*If equal flag is set (true), jump to the address 
       stored in the given register.*/
       break;
 
-    case 0b01011010: // JGE register //
+    case JGE: // JGE register //
       /*If greater-than flag or equal flag is set (true), 
       jump to the address stored in the given register.*/
       break;
 
-    case 0b01010111: // JGT register //
+    case JGT: // JGT register //
       /*If greater-than flag is set (true), jump to the 
       address stored in the given register.*/
       break;
 
-    case 0b01011001: // JLE register //
+    case JLE: // JLE register //
       /*If less-than flag or equal flag is set (true), 
       jump to the address stored in the given register.*/
       break;
 
-    case 0b01011000: // JLT register //
+    case JLT: // JLT register //
       /*If less-than flag is set (true), jump to the address 
       stored in the given register.*/
       break;
 
-    case 0b01010100: // JMP register //
+    case JMP: // JMP register //
       /*Jump to the address stored in the given register.
       Set the PC to the address stored in the given register.*/
       break;
 
-    case 0b01010110: // JNE register //
+    case JNE: // JNE register //
       /*If E flag is clear (false, 0), jump to the address 
       stored in the given register.*/
       break;
 
-    case 0b10000011: // LD registerA registerB //
+    case LD: // LD registerA registerB //
       /*Loads registerA with the value 
       at the memory address stored in registerB.
       This opcode reads from memory.*/
       break;
 
-    case 0b10000010: // LDI register immediate //
+    case LDI: // LDI register immediate //
       /*Set the value of a register to an integer.*/
       break;
 
-    case 0b10100100: // MOD registerA registerB //
+    case MOD: // MOD registerA registerB //
       /*Divide the value in the first register by 
       the value in the second, storing the remainder 
       of the result in registerA.
@@ -182,77 +183,77 @@ void cpu_run(struct cpu *cpu)
       the system should print an error message and halt.*/
       break;
 
-    case 0b10100010: // MUL registerA registerB //
+    case MUL: // MUL registerA registerB //
       /*Multiply the values in two registers together 
       and store the result in registerA.*/
       break;
 
-    case 0b00000000: // NOP //
+    case NOP: // NOP //
       /*No operation. Do nothing for this instruction.*/
       break;
 
-    case 0b01101001: // NOT register //
+    case NOT: // NOT register //
       /*Perform a bitwise-NOT on the value in a register.*/
       break;
 
-    case 0b10101010: // OR registerA registerB //
+    case OR: // OR registerA registerB //
       /*Perform a bitwise-OR between the values in registerA 
       and registerB, storing the result in registerA.*/
       break;
 
-    case 0b01000110: // POP register //
+    case POP: // POP register //
       /*Pop the value at the top of the stack into the given register.
       Copy the value from the address pointed to by SP to the given 
       register.
       Increment SP.*/
       break;
 
-    case 0b01001000: // PRA register //
+    case PRA: // PRA register //
       /*Print alpha character value stored in the given register.
       Print to the console the ASCII character corresponding to the 
       value in the register.*/
       break;
 
-    case 0b01000111: // PRN register //
+    case PRN: // PRN register //
       /*Print numeric value stored in the given register.
       Print to the console the decimal integer value that 
       is stored in the given register.*/
       break;
 
-    case 0b01000101: // PUSH register //
+    case PUSH: // PUSH register //
       /*Push the value in the given register on the stack.
       Decrement the SP.
       Copy the value in the given register to the address 
       pointed to by SP.*/
       break;
 
-    case 0b00010001: // RET //
+    case RET: // RET //
       /*Return from subroutine.
       Pop the value from the top of the stack and store it in the PC.*/
       break;
 
-    case 0b10101100: // SHL //
+    case SHL: // SHL //
       /*This is an instruction handled by the ALU.
       Shift the value in registerA left by the number of bits 
       specified in registerB, filling the low bits with 0.*/
       break;
 
-    case 0b10101101: // SHR // --> ALU
+    case SHR: // SHR // --> ALU
       /*Shift the value in registerA right by the number of bits 
       specified in registerB, filling the high bits with 0.*/
       break;
 
-    case 0b10000100: // ST registerA registerB //
+    case ST: // ST registerA registerB //
       /*Store value in registerB in the address stored in registerA.
       This opcode writes to memory.*/
       break;
 
-    case 0b10100001: // SUB registerA registerB // --> ALU
+    case SUB: // SUB registerA registerB // --> ALU
       /*Subtract the value in the second register from the 
       first, storing the result in registerA.*/
       break;
 
-    case 0b10101011: // XOR registerA registerB //
+    case XOR: // XOR registerA registerB //
       /*Perform a bitwise-XOR between the values in registerA 
       and registerB, storing the result in registerA.*/
       break;
@@ -263,7 +264,7 @@ void cpu_run(struct cpu *cpu)
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    cpu->pc++;
+    cpu->pc = cpu->pc + _operands + 1;
   }
 }
 
@@ -283,7 +284,7 @@ unsigned char cpu_ram_read(cpu *cpu, int index)
   return cpu->ram[index];
 }
 
-void cpu_ram_write(cpu *cpu, int index, unsigned char *value)
+void cpu_ram_write(cpu *cpu, int index, unsigned char value)
 {
   cpu->ram[index] = value;
   return;
