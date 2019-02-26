@@ -5,27 +5,61 @@
 
 #define DATA_LEN 6
 
+// cpu_ram_read
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  // address == MAR
+  return cpu->ram[address];
+}
+
+// cpu_ram_write
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  // address == MAR value == MDR (Memory Data Register)
+  cpu->ram[address] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  FILE *fptr;
+  char line[1024];
+  unsigned char address = 0;
+  fptr = fopen(file, "r");
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  if (fptr == NULL)
   {
-    cpu->ram[address++] = data[i];
+    fprintf(stderr, "error opening %s\n", file);
+    exit(2);
   }
+
+  while (fgets(line, sizeof(line), fptr) != NULL)
+  {
+    unsigned char b;
+    b = strtoul(line, NULL, 2);
+    cpu_ram_write(cpu, address++, b);
+  }
+
+  fclose(fptr);
+
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -46,20 +80,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 */
-
-// cpu_ram_read
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  // address == MAR
-  return cpu->ram[address];
-}
-
-// cpu_ram_read
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-  // address == MAR value == MDR (Memory Data Register)
-  cpu->ram[address] = value;
-}
 
 /**
  * Run the CPU
