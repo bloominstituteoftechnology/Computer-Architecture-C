@@ -75,12 +75,12 @@ void cpu_run(struct cpu *cpu)
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    if (IR >= 80)
+    if (IR >= 0b10000000)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
       operandB = cpu_ram_read(cpu, cpu->PC + 2);
     }
-    else if (IR >= 50)
+    else if (IR >= 0b01000000)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
     }
