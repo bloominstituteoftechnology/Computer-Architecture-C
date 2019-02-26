@@ -96,7 +96,7 @@ void cpu_run(struct cpu *cpu)
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    cpu->PC = cpu->PC + number_of_operands + 1;
+    cpu->PC += number_of_operands + 1;
   }
 }
 
