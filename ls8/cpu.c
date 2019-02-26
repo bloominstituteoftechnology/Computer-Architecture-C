@@ -38,8 +38,8 @@ void cpu_load(struct cpu *cpu, char filename[])
   if(fptr){
    while(fgets(buffer,255,fptr)){
     if(buffer){
-      strncpy(cmdString,buffer,8);
-      unsigned char cmd = strtoul(cmdString, &ptr ,2);
+      //strncpy(cmdString,buffer,8);
+      unsigned char cmd = strtoul(buffer, &ptr ,2);
       cpu->ram[address++] = cmd;    
     }        
   }
