@@ -67,16 +67,21 @@ void cpu_run(struct cpu *cpu)
 
   while (running) {
     unsigned char instruction = cpu_ram_read(cpu, cpu->pc);
+    unsigned int operand = instruction >> 6;
+    //printf("\n%d",operand);
+
+    unsigned char operandA =  cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB =  cpu_ram_read(cpu, cpu->pc+2);
     switch (instruction)
     {
       case HLT:
         running = 0;
         break;
       case LDI:
-        cpu->registry[0] = instruction;
+        cpu->registry[operandA] = operandB;
         break;
       case PRN:
-        printf("%d \n", cpu->registry[0]);
+        printf("\n%d", cpu->registry[operandA]);
         break;
     
       default:
@@ -89,7 +94,7 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-  cpu->pc += 1;
+  cpu->pc += 1 + operand;
   }
   
 }
