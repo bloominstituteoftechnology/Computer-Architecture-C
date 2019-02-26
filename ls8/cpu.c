@@ -8,25 +8,54 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r"); //reads file
 
   int address = 0;
+  char line[218];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fp != NULL)
+  {
+    //read in its contents line by line, 
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      char *endptr;
+      unsigned char bistr = strtoul(line, &endptr, 2);
+
+      //ignore everything after a `#`, since that's a comment.
+      if (strcmp(endptr, "#") == 0)
+      {
+        continue;
+      }
+
+      //save appropriate data into RAM
+      cpu_ram_write(cpu, address++, bistr);
+    }
+  }
+  else
+  {
+    fprintf(stderr, "%s filename was not found!\n", filename);
   }
 
-  // TODO: Replace this with something less hard-coded
+  fclose(fp);
+
+  // //Hard-Coded Way:
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 }
 
 /**
