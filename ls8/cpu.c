@@ -10,7 +10,7 @@
  */
 
 // https://stackoverflow.com/questions/1658530/load-numbers-from-text-file-in-c
-void cpu_load(struct cpu *cpu, char **argv)//argv will come in from main according to step 8
+void cpu_load(struct cpu *cpu, char *argv[])//argv will come in from main according to step 8
 {
   // char data[DATA_LEN] = {
   //   // From print8.ls8
@@ -28,7 +28,7 @@ void cpu_load(struct cpu *cpu, char **argv)//argv will come in from main accordi
   //   cpu->ram[address++] = data[i];
   // }
   FILE *f;
-  f = fopen(argv[1], "r");
+  f = fopen(argv[1], "r"); //reads the second argument passed
   if(f == NULL){
     printf("File came back with null");
     exit(1);
@@ -46,6 +46,7 @@ void cpu_load(struct cpu *cpu, char **argv)//argv will come in from main accordi
       cpu->ram[address] = data;
       address++;
     }
+    fclose(f);
   }
   // TODO: Replace this with something less hard-coded
 }
@@ -62,16 +63,16 @@ int cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      // TODO
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
