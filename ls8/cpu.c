@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -15,25 +16,31 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char addr = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fp == NULL) {
+    fprintf(stderr, "error opening file %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  while (fgets(line, sizeof line, fp) != NULL) {
+    char *endptr = NULL;
+
+    unsigned char b = strtoul(line, &endptr, 2);
+
+    if (endptr == line) {
+      // we got no numbers
+      continue;
+    }
+
+    cpu_ram_write(cpu, addr++, b);
+  }
+
+  fclose(fp);
 }
 
 /**
@@ -44,6 +51,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu -> reg[regA] *= cpu -> reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -64,8 +72,14 @@ void cpu_run(struct cpu *cpu)
 
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char operandA = cpu_ram_read(cpu, cpu -> PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu -> PC + 2);
+    unsigned char operandA = cpu_ram_read(cpu, (cpu -> PC + 1) & 0xff);
+    unsigned char operandB = cpu_ram_read(cpu, (cpu -> PC + 2) & 0xff);
+
+    int add_to_pc = (IR >> 6) + 1;
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+    for(int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
 
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
@@ -82,7 +96,26 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         cpu -> PC += 1;
         return 0;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case POP:
+        cpu -> reg[operandA & SP] = cpu_ram_read(cpu, cpu -> reg[SP]);
+        cpu -> reg[SP]++;
+        break;
+      case PUSH:
+        cpu -> reg[SP]--;
+        cpu_ram_write(cpu, cpu -> reg[SP], cpu -> reg[operandA & SP]);
+        break;
+      case JMP:
+        cpu->PC = cpu->reg[operandA & SP];
+        add_to_pc = 0;
+        break;
+      default:
+        printf("unknown instruction %02x\n", IR);
     }
+    cpu -> PC += add_to_pc;
+    cpu -> PC &= 0xff;
   }
 }
 
