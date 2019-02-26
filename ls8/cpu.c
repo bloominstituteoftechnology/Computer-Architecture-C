@@ -1,21 +1,22 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**  Read from the CPU's ram at the specifc location 
  */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
 {
-  return cpu->ram[index];
+  return cpu->ram[MAR];
 }
 
 /**  Writes at index specified for the CPU's ram
  */
-void cpu_ram_write(struct cpu *cpu, unsigned char pc, unsigned char num)
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char num)
 {
-  cpu->ram[pc] = num;
+  cpu->ram[MAR] = num;
 }
 
 /**
@@ -48,6 +49,9 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  (void)cpu;
+  (void)regA;
+  (void)regB;
   switch (op)
   {
   case ALU_MUL:
@@ -75,7 +79,7 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    unsigned char IR = cpu->ram[cpu->pc];
+    unsigned char IR = cpu_ram_read(cpu, (cpu->pc));
     unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1));
     unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2));
 
@@ -90,8 +94,13 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       running = 0;
       break;
+    default:
+      printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
+      exit(1);
     }
-    cpu->pc++;
+
+    int opNum = (11000000 & IR) >> 6;
+    cpu->pc += (opNum + 1);
   }
 }
 
@@ -102,6 +111,7 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-  memset(cpu->registers, 0, 8);
-  memset(cpu->ram, 0, 256);
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  cpu->registers[7] = 0xF4;
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
