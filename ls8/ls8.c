@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
@@ -11,6 +12,11 @@ int main(int argc, char *argv[])
   (void)argv;
 
   struct cpu cpu;
+
+  if (argc < 2) {
+    printf("A filepath must be provided. \n");
+    exit(1);
+  }
 
   cpu_init(&cpu);
   cpu_load(&cpu, argv[1]);

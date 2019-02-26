@@ -10,13 +10,19 @@
  */
 void cpu_load(struct cpu *cpu, char *path)
 { 
+  char *ext = &path[strlen(path) - 4];
+  if (strcmp(ext, ".ls8") != 0){
+    printf("%s is not a valid input. Input must be a .ls8 source file.\n", path);
+    exit(1);
+  }
+
   FILE *src;
   int lines = 0;
   src = fopen(path,"r");
 
   if (src == NULL) {
     printf("File %s could not be opened.\n", path);
-    exit(1);
+    exit(2);
   } 
 
   for (char c = getc(src); c != EOF; c = getc(src)) {
@@ -98,15 +104,11 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void)cpu;
-  (void)regA;
-  (void)regB;
 
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu -> registers[regA] = cpu -> registers[regA] * cpu -> registers[regB];
       break;
-
     // TODO: implement more ALU ops
   }
 }
@@ -140,6 +142,10 @@ void cpu_run(struct cpu *cpu)
 
       case PRN:
       printf("%d\n", cpu->registers[op0]);
+      break;
+
+      case MUL:
+      alu(cpu, ALU_MUL, op0, op1);
       break;
       
       case HLT:
