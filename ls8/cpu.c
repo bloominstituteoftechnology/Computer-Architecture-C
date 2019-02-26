@@ -20,26 +20,42 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
+  // Access file
+  FILE *fp;
+  // Initialize buffer to read line by line
+  char line_buf[1024];
+  // Initialize starting address
   int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  // Check file exists
+  if ((fp = fopen(file, "r")) == NULL)
   {
-    cpu->ram[address++] = data[i];
+    fprintf(stderr, "File doesn't exist\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  // While line exists
+  while (fgets(line_buf, sizeof(line_buf), fp) != NULL)
+  {
+    // initialize pointer to store string part of line
+    char *ptr;
+    // initialize int to store number part of line
+    unsigned int ret;
+    // convert string to number
+    ret = strtol(line_buf, &ptr, 2);
+    // printf("Line: %s\n", line_buf);
+    // printf("The number part is %u\n", ret);
+    // printf("String part is %s \n", ptr);
+
+    // If string equal to line (ie. blank) go to next line
+    if (ptr == line_buf)
+    {
+      continue;
+    }
+    // store converted number in ram and increment address
+    cpu->ram[address++] = ret;
+  }
 }
 
 /**
@@ -47,6 +63,11 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  // TODO In place just to get rid of warnings.
+  // Need to change in future.
+  (void)cpu;
+  (void)regA;
+  (void)regB;
   switch (op)
   {
   case ALU_MUL:
