@@ -3,6 +3,19 @@
 #define DATA_LEN 6
 
 /**
+ * Reads from a CPU struct's RAM array
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+    return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+    cpu->ram[address] = value;
+}
+
+/**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
@@ -90,17 +103,4 @@ void cpu_init(struct cpu *cpu)
     memset(cpu->ram, 0, 8 * sizeof(unsigned char));
     memset(cpu->registers, 0, 256 * sizeof(unsigned char));
     cpu->registers[7] = 0xF4;
-}
-
-/**
- * Reads from a CPU struct's RAM array
- */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-    return cpu->ram[address];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-    cpu->ram[address] = value;
 }
