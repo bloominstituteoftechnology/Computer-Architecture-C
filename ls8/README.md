@@ -28,6 +28,25 @@ then prints it out:
 00000001 # HLT
 ```
 
+```instructor c pseudo code:
+int PC = 0;
+int R[8];
+
+int opcode = mem_read(PC);
+int operand0 = mem_read(PC + 1);
+int opreand1 = mem_read(PC + 2);
+
+if (opcode == 0b10000010) //LDI
+{
+  int reg_num = oprand0;
+  int value = opreand1;
+
+  R[reg_num] = value;
+  PC += 3'
+}
+
+exit(0);
+```
 The binary numeric value on the left in the `print8.ls8` code above is either:
 
 * the machine code value of the instruction (e.g. `10000010` for `LDI`), also
@@ -64,9 +83,10 @@ but you'll have to implement those three above instructions first!
 * Write a short 3-10-word description of what each file does.
   * ls8
     - cpu.c : where to write cpu functions
-      -> cpu_ram_read()
-      -> cpu_ram_write()
-      -> cpu_init()
+      -> cpu_ram_read() (implemented)
+      -> cpu_ram_write() (implemented)
+      -> cpu_init() (completed)
+      -> cpu_run() (completed)
     - cpu.h : holds all information about the CPU
       -> cpu struct
     - ls8.c : contains int main(void)
@@ -139,23 +159,23 @@ instruction for the next iteration of the loop in `cpu_run()`. The number of
 bytes an instruction uses can be determined from the two high bits (bits 6-7) of
 the instruction opcode. See the LS-8 spec for details.
 
-## Step 5: Implement the `HLT` instruction handler
+## Step 5: Implement the `HLT` instruction handler in cpu_run() switch
 
-Add the `HLT` instruction to `cpu.h`.
+Add the `HLT` instruction to `cpu.h`. <!-- refers to #define HLT  0b00000001 -->
 
 In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
 encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
 
 We can consider `HLT` to be similar to a `return` or `exit()` in that we stop whatever we are doing, wherever we are.
 
-## Step 6: Add the `LDI` instruction
+## Step 6: Add the `LDI` instruction in cpu_run() switch
 
 This instruction sets a specified register to a specified value.
 
 See the LS-8 spec for the details of what this instructions does and its opcode
 value.
 
-## Step 7: Add the `PRN` instruction
+## Step 7: Add the `PRN` instruction in cpu_run() switch
 
 This is a very similar process to adding `LDI`, but the handler is simpler. See
 the LS-8 spec.
