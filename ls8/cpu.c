@@ -8,7 +8,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char **argv)
 {
   char data[DATA_LEN] = {
       // From print8.ls8
