@@ -1,5 +1,6 @@
 #include<string.h>
 #include<stdio.h>
+#include<stdlib.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -22,25 +23,51 @@ void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+      /******  DAY-I ********/
+      // char data[DATA_LEN] = {
+      //   // From print8.ls8
+      //   0b10000010, // LDI R0,8
+      //   0b00000000,
+      //   0b00001000,
+      //   0b01000111, // PRN R0
+      //   0b00000000,
+      //   0b00000001  // HLT
+      // };
 
-  int address = 0;
+      // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+      // for (int i = 0; i < DATA_LEN; i++) {
+      //   cpu->ram[address++] = data[i];
+      // }
 
-  // TODO: Replace this with something less hard-coded
+      /******** DAY-II to process file code ********/
+      // TODO: Replace this with something less hard-coded
+      printf("IN CPU_LOAD... %s", filename);
+      FILE *file_pointer;
+      char line[1024]; //buffer
+      unsigned char line_number = 0;
+      char *pointer;
+
+      file_pointer = fopen(filename, "r");
+
+      if(file_pointer == NULL) {
+          fprintf(stderr, "Failed to open %s\n", filename);
+          exit(0);
+      }
+      else {
+          while(fgets(line, sizeof(line), file_pointer) != NULL) {
+                //You'll have to convert the binary strings to integer values to store in RAM. 
+                //The built-in `strtoul()` library function might help you here
+                //The strtoul() function converts the initial part of the string in nptr to an unsigned long int
+                //strtoul(const char *nptr, char **endptr, register int base)
+                unsigned char value = strtoul(line, &pointer, 2);
+                //write value in RAM
+                cpu_ram_write(cpu, line_number++, value);
+          }
+          fclose(file_pointer);
+      }
 }
 
 /**
@@ -50,10 +77,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
-      break;
+        // TODO
+        cpu->reg[regA] *= cpu->reg[regB];
+        break;
 
     // TODO: implement more ALU ops
+    case ALU_ADD:
+        cpu->reg[regA] += cpu->reg[regB];
+        break;
+    default:
+        break;
   }
 }
 
@@ -73,29 +106,36 @@ void cpu_run(struct cpu *cpu)
         // 3. Get the appropriate value(s) of the operands following this instruction
         unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1));
         unsigned char operandB = cpu_ram_read(cpu, (cpu->PC + 2));
-        
+        printf("command %u operandA %u operandB %u\n", IR, operandA, operandB);
         // 4. switch() over it to decide on a course of action.
         switch (IR)
         {
-            case 'ADD':
-              break;
+            case ADD:
+                alu(cpu, ALU_ADD, operandA, operandB);
+                cpu->PC +=3;
+                break;
+            
+            case MUL:
+                alu(cpu, ALU_MUL, operandA, operandB);
+                cpu->PC +=3;
+                break;
             
             case LDI:
-              cpu->reg[operandA] = operandB;
-              cpu->PC += 3;
-              break;
+                cpu->reg[operandA] = operandB;
+                cpu->PC += 3;
+                break;
           
             case PRN:
-              printf("%d\n", cpu->reg[operandA]);
-              cpu->PC += 2;
-              break;
+                printf("%d\n", cpu->reg[operandA]);
+                cpu->PC += 2;
+                break;
             
             case HLT:
-              running = 0;
-              break;
+                running = 0;
+                break;
             
             default:
-              break;
+                break;
         }
         // 5. Do whatever the instruction should do according to the spec.
         // 6. Move the PC to the next instruction.

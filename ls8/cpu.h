@@ -23,8 +23,11 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
-	// Add more here
+	  ALU_MUL,
+	  // Add more here
+    ALU_ADD,
+    ALU_SUB,
+    ALU_DIV
 };
 
 // Instructions
@@ -36,10 +39,16 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
+#define ADD  0b10100000
+#define MUL  0b10100010
+#define SUB  0b10100001
+#define DIV  0b10100011
+
+
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(char *filename, struct cpu *cpu);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
