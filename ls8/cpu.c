@@ -1,12 +1,45 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
+  //open file and assign space for it 
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char ram_address = 0x00; 
+
+  // check for file 
+  if (fp == NULL) {
+    fprintf(stderr, "can't open file\n");
+    exit(2);
+  }
+
+  // man page - fgets() reads in at most one less than size characters from stream and stores them into the buffer pointed to by s. 
+  // char *fgets(char *str, int n, FILE *stream)
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    char *end_ptr;
+    unsigned char value = strtoul(line, &end_ptr, 2); //convert binary strings
+
+    if (end_ptr == line) {
+      // no numbers, so...
+      continue;
+    }
+    // write ret to RAM
+    cpu_ram_write(cpu,ram_address++, value);
+  }
+
+  fclose(fp);
+}
+
+
+ /* 
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -24,7 +57,7 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded / step 8
-}
+}*/
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
