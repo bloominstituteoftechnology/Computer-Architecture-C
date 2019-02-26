@@ -36,6 +36,7 @@ void cpu_load(struct cpu *cpu, char *filename)
   }
 
   fclose(fp);
+
 }
 
 
@@ -59,24 +60,34 @@ void cpu_load(struct cpu *cpu, char *filename)
   // TODO: Replace this with something less hard-coded / step 8
 }*/
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
-  return cpu->ram[address];
+  return cpu->ram[mar];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
-  return cpu->ram[address] = value;
+  cpu->ram[mar] = mdr;
 }
 
 /**
  * ALU
+ * `MUL registerA registerB`
+
+Multiply the values in two registers together and store the result in registerA.
+
+Machine code:
+```
+10100010 00000aaa 00000bbb
+A2 0a 0b
+```
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      // TODO registerA = regA * regb +
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -87,21 +98,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  * DAY - 1 / Step 4 
  * Run the CPU
  */
-/*
-Meanings of the bits in the first byte of each instruction: `AABCDDDD`
 
-* `AA` Number of operands for this opcode, 0-2
-* `B` 1 if this is an ALU operation
-* `C` 1 if this instruction sets the PC
-* `DDDD` Instruction identifier
-
-The number of operands `AA` is useful to know because the total number of bytes in any
-instruction is the number of operands + 1 (for the opcode). This
-allows you to know how far to advance the `PC` with each instruction.
-
-operandA = cpu_read_ram(cpu->pc + 1)
-
-*/
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction 
@@ -116,32 +113,44 @@ void cpu_run(struct cpu *cpu)
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    operandA = cpu_ram_read(cpu, cpu->PC+1);
-    operandB = cpu_ram_read(cpu, cpu->PC+2);
-    // 4. switch() over it to decide on a course of action. Cases - HTL / PRN / LDI
+    operandA = cpu_ram_read(cpu, cpu->PC+1 & 0xff);
+    operandB = cpu_ram_read(cpu, cpu->PC+2 & 0xff);
+
+    int next_pc = (IR >> 6) + 1; // >> bitwise opperator, shifts right
+
+    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+
+    for (int i = 0; i < 8; i++) {
+      printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
+    // 4. switch() over it to decide on a course of action. Cases - HTL / PRN / LDI /MUL
     // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
     switch(IR)
     {
       case LDI:
         cpu->reg[operandA] = operandB; 
-        cpu->PC += 3;
         break;
       
       case PRN:
         printf("%d\n", cpu->reg[operandA]);
-        cpu->PC += 2;
         break;
 
       case HLT:
         running = 0;
+        break;
+      
+      case MUL: // FILL ME IN 
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
       default:
         printf("unexpected instruction 0x%02x at 0x%02x\n", IR, cpu->PC);
         exit(1);
     }
-    
+    // 6. Move the PC to the next instruction.
+    cpu->PC += next_pc;
   }
 }
 
@@ -161,3 +170,18 @@ void cpu_init(struct cpu *cpu)
     // function fills the first n bytes of the memory area pointed to by s with the constant byte c.
 }
 
+/*
+Meanings of the bits in the first byte of each instruction: `AABCDDDD`
+
+* `AA` Number of operands for this opcode, 0-2
+* `B` 1 if this is an ALU operation
+* `C` 1 if this instruction sets the PC
+* `DDDD` Instruction identifier
+
+The number of operands `AA` is useful to know because the total number of bytes in any
+instruction is the number of operands + 1 (for the opcode). This
+allows you to know how far to advance the `PC` with each instruction.
+
+operandA = cpu_read_ram(cpu->pc + 1)
+
+*/
