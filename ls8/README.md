@@ -63,8 +63,12 @@ but you'll have to implement those three above instructions first!
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
   * ls8
-    - cpu.c : load the binary bytes from a .ls8 source file into a RAM array
+    - cpu.c : where to write cpu functions
+      -> cpu_ram_read()
+      -> cpu_ram_write()
+      -> cpu_init()
     - cpu.h : holds all information about the CPU
+      -> cpu struct
     - ls8.c : contains int main(void)
     * examples
       - there is are examples of each of the files from asm directory

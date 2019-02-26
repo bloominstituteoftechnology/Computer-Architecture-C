@@ -2,23 +2,27 @@
 
 #define DATA_LEN 6
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
 
-// returns the value from the address
+/**
+ * Read value from address
+ */
 void cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
-// sets the value to the address
+/**
+ * Write value to address
+ */
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char *value)
 {
   cpu->ram[address] = *value;
   return 0;
 }
 
+/**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -77,5 +81,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  cpu->pc = 0; 
+  memset(cpu->ram, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
