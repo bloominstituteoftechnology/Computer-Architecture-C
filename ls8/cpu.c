@@ -82,6 +82,8 @@ void cpu_run(struct cpu *cpu)
     {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
     }
+
+    printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, instruction, operandA, operandB);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (instruction)
