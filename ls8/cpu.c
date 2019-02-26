@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -77,7 +78,7 @@ void cpu_run(struct cpu *cpu)
     // unsigned char operandB = cpu->ram[_IR + 2];
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
-    printf("command %u operandA %u operandB %u\n", _IR, operandA, operandB); //<--debugging
+    // printf("command %u operandA %u operandB %u\n", _IR, operandA, operandB); //<--debugging
 
     // 4. switch() over it to decide on a course of action.
     switch (_IR)
@@ -294,12 +295,12 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0b00000000, sizeof(cpu->registers));
 }
 
-unsigned char cpu_ram_read(cpu *cpu, int index)
+unsigned char cpu_ram_read(struct cpu *cpu, int index)
 {
   return cpu->ram[index];
 }
 
-void cpu_ram_write(cpu *cpu, int index, unsigned char value)
+void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 {
   cpu->ram[index] = value;
   return;
