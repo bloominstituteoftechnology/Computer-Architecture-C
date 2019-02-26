@@ -76,4 +76,8 @@ char read_cpu_ram(CPU *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
+
+void write_cpu_ram(CPU *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
 }
