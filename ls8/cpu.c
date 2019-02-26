@@ -10,7 +10,7 @@
  */
 
 // https://stackoverflow.com/questions/1658530/load-numbers-from-text-file-in-c
-void cpu_load(struct cpu *cpu, char file_name[])
+void cpu_load(struct cpu *cpu, char **argv)//argv will come in from main according to step 8
 {
   // char data[DATA_LEN] = {
   //   // From print8.ls8
@@ -28,13 +28,24 @@ void cpu_load(struct cpu *cpu, char file_name[])
   //   cpu->ram[address++] = data[i];
   // }
   FILE *f;
-  f = fopen(file_name, "r");
+  f = fopen(argv[1], "r");
   if(f == NULL){
     printf("File came back with null");
     exit(1);
   }else{
+    // int length = 0;
     int address = 0;
-    
+    char buf[256];
+    // char *fgets( char *buf, int n, FILE *fp );
+    // The functions fgets() reads up to n-1 characters from the input stream referenced by fp. 
+    // It copies the read string into the buffer buf, appending a null character to terminate the string.
+    while(fgets(buf, sizeof(buf), f) != NULL){
+      int data = strtoul(buf, NULL, 2); //converts to binary
+      // You'll have to convert the binary strings to integer values to store in RAM. The
+      // built-in `strtoul()` library function might help you here.
+      cpu->ram[address] = data;
+      address++;
+    }
   }
   // TODO: Replace this with something less hard-coded
 }
@@ -51,16 +62,16 @@ int cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
