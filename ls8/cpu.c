@@ -1,13 +1,35 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 #define DATA_LEN 6
+
+/**
+ * Read from RAM
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+    // address = MAR
+    return cpu->ram[address];
+}
+
+/**
+ * Write to RAM
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+    // value = MDR, address = MAR
+    cpu->ram[address] = value;
+}
+
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
+  char data[DATA_LEN] = { // make load to read file from command line
     // From print8.ls8
     0b10000010, // LDI R0, 8
     0b00000000,
@@ -29,9 +51,12 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB) // does math and operations
 {
-  switch (op) {
+    (void)cpu;
+    (void)regA;
+    (void)regB;
+    switch (op) {
     case ALU_MUL:
       // TODO
       break;
@@ -45,45 +70,51 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+    int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+    while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+        unsigned char ir = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
+        
     // 3. Get the appropriate value(s) of the operands following this instruction
+        unsigned char operand0 = cpu_ram_read(cpu, cpu->pc + 1); // register number
+        unsigned char operand1 = cpu_ram_read(cpu, cpu->pc + 2); // value
+        
+        printf("TRACE: %02X: %02X     %02X %02X\n", cpu->pc, ir, operand0, operand1);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
+          switch (ir) {
+              case LDI:
+                  cpu->registers[operand0] = operand1;
+                  cpu->pc += 3;
+                  break;
+              case PRN:
+                  printf("%d\n", cpu->registers[operand0]);
+                  // 6. Move the PC to the next instruction.
+                  cpu->pc += 2;
+                  break;
+              case HLT:
+                  running = 0;
+                  break;
+              default:
+                  printf("Unexpected instruction 0x%02X at 0%02X\n", ir, cpu->pc);
+                  exit(1);
+          }
   }
-}
+} // INC ... extract two bits (first two digits) from machine code number --> number of operands --> add to pc + 1
 
 /**
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-    memset(cpu->pc, 0, sizeof(unsigned char));
-    memset(cpu->registers, 0, 256 * sizeof(unsigned char));
-    memset(cpu->ram, 0, 8 * sizeof(unsigned char));
+    // Init registers
+    memset(cpu->registers, 0, 8); // Same as loop and cpu->reg[i]
+    cpu->registers[7] = 0xF4;
+    // Init PC
+    cpu->pc = 0;
+    // Init RAM
+    memset(cpu->ram, 0, sizeof(cpu->ram));
 }
-
-/**
- * Read from RAM
- */
-char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-    return cpu->ram[address];
-}
-
-/**
- * Write to RAM
- */
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-    cpu->ram[address] = value;
-}
-
-
-
