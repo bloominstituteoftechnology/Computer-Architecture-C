@@ -9,13 +9,12 @@ int main(int argc, char *argv[])
 {
   if (argc < 2)
   {
-    printf("Not enough arguments.\nEx: ./ls8 {file path}\n");
+    fprintf(stderr, "Not enough arguments.\nUsage: ./ls8 {file path from current directory}\n");
     exit(1);
   }
 
   FILE *fptr;
-  fptr = fopen(argv[1], "r");
-  if (!fptr)
+  if ((fptr = fopen(argv[1], "r")) == NULL)
   {
     printf("No such file.\n");
     exit(1);
