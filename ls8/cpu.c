@@ -115,12 +115,12 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       printf("Let's load %x into register %x\n", operandB, operandA);
       cpu->registers[operandA] = operandB;
-      cpu->pc = cpu->pc + 3;
+      //cpu->pc = cpu->pc + 3;
       break;
     case PRN:
       printf("Lets print %x\n", operandB);
       printf("%d!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->registers[operandA]);
-      cpu->pc = cpu->pc + 2;
+      //cpu->pc = cpu->pc + 2;
       break;
     case HLT:
       running = 0;
@@ -130,7 +130,10 @@ void cpu_run(struct cpu *cpu)
       exit(1);
     }
     // 6. Move the PC to the next instruction.
-    //cpu->pc += number_of_operands;
+    for (int i = 0; i <= number_of_operands; i++)
+    {
+      cpu->pc++;
+    }
   }
 }
 
