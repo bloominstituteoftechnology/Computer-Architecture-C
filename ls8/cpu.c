@@ -6,9 +6,9 @@
 
 /**  Read from the CPU's ram at the specifc location 
  */
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char pc)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
-  return cpu->ram[pc];
+  return cpu->ram[index];
 }
 
 /**  Writes at index specified for the CPU's ram
@@ -76,19 +76,22 @@ void cpu_run(struct cpu *cpu)
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
     unsigned char IR = cpu->ram[cpu->pc];
-    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1));
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2));
 
     switch (IR)
     {
     case LDI:
-      printf("LDI\n");
-
+      cpu->registers[operandA] = operandB;
+      break;
+    case PRN:
+      printf("%d\n", cpu->registers[operandA]);
+      break;
     case HLT:
-      return;
+      running = 0;
+      break;
     }
-
-    cpu->pc += 1;
+    cpu->pc++;
   }
 }
 
