@@ -85,7 +85,19 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+
+  // R0-R6 are cleared to 0
+  for (int i = 0; i < 6; i++)
+  {
+    cpu->reg[i] = 0;
+  }
+
+  // R7 is set to 0xF4
+  cpu->reg[7] = 0xF4;
+
+  // PC is cleared to 0
   cpu->PC = 0;
-  memset(cpu->reg, 0, sizeof(cpu->reg));
+
+  // RAM is cleared to 0
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
