@@ -85,18 +85,11 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     
-    int(*branchTable[100000]) (struct cpu *cpu, unsigned char, unsigned char);
-    branchTable[LDI] = handle_LDI;
-    branchTable[PRN] = handle_PRN;
-    branchTable[HLT] = handle_HLT;
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     unsigned int numop = IR >> 6;
 
-    branchTable[IR](cpu, operandA, operandB);
-  
-    /*
     switch(IR) {
       case(LDI):
         handle_LDI(cpu, operandA, operandB);
@@ -111,7 +104,7 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL,operandA, operandB);
         break;
     }
-    */
+    
     cpu->PC += numop + 1;
     
     
