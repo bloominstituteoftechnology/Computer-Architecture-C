@@ -25,24 +25,37 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char num)
 void cpu_load(struct cpu *cpu, char *argv)
 {
   FILE *ptr = fopen(argv, "r");
-
-  fclose(ptr);
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  char c[100];
+  long ret;
 
   int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  while (fgets(c, 100, ptr) != NULL)
   {
-    cpu->ram[address++] = data[i];
+    if (c[0] == '1' || c[0] == '0')
+    {
+      ret = strtoul(c, NULL, 2);
+      cpu->ram[address++] = ret;
+    }
   }
+
+  fclose(ptr);
+
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
