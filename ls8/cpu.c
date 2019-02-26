@@ -73,6 +73,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     // TODO
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -89,7 +90,6 @@ void cpu_run(struct cpu *cpu)
 
   while (running)
   {
-    int total;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
@@ -114,8 +114,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case MUL:
-      total = cpu->registers[operandA] * cpu->registers[operandB];
-      cpu->registers[operandA] = total;
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
     default:
