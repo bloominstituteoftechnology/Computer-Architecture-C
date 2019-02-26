@@ -22,8 +22,11 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char num)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *argv)
 {
+  FILE *ptr = fopen(argv, "r");
+
+  fclose(ptr);
   char data[DATA_LEN] = {
       // From print8.ls8
       0b10000010, // LDI R0,8
