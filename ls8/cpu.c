@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 
 #define DATA_LEN 6
@@ -6,23 +9,26 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char * argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *fp;
+  char *location = argv[1];
+  char temp[256];
+  fp = fopen(location, "r");
+  int counter = 0;
+  if(fp == NULL) {
+      perror("Error opening file");
+      exit(1);
+  } else {
+    while(fgets(temp, sizeof(temp), fp) != NULL) {
+      unsigned char data = strtol(temp, NULL, 2);
+      cpu_ram_write(cpu, data, counter);
+      counter += 1;
+    }
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+    
   }
+  
 
   // TODO: Replace this with something less hard-coded
 }
@@ -32,9 +38,13 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  if(cpu && regA && regB){
+    
+  }
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] = (int)cpu->registers[regA] * (int)cpu->registers[regB];
+      
       break;
 
     // TODO: implement more ALU ops
@@ -44,8 +54,8 @@ unsigned char cpu_ram_read(struct cpu *cpu, int index) {
   return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu) {
-
+void cpu_ram_write(struct cpu *cpu, char data, int index) {
+  cpu->ram[index] = data;
 }
 
 /**
@@ -66,10 +76,16 @@ void cpu_run(struct cpu *cpu)
       case(LDI):
         cpu->registers[operandA] = operandB;
         printf("%i INSIDE LDI\n", cpu->registers[operandA]);
+        break;
       case(PRN):
         printf("Numeric Value = %i\n", cpu->registers[operandA]);
+        break;
       case(HLT):
         running = 0;
+        break;
+      case(MUL):
+        alu(cpu, ALU_MUL,operandA, operandB);
+        break;
     }
     cpu->PC += numop + 1;
     
