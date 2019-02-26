@@ -51,6 +51,8 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = read_cpu_ram(cpu->pc);
+    
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -85,7 +87,7 @@ void cpu_init(CPU *cpu)
   
 }
 
-char read_cpu_ram(CPU *cpu, unsigned char address)
+unsigned char read_cpu_ram(CPU *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
