@@ -17,14 +17,14 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *file_name)
+void cpu_load(struct cpu *cpu, char *argv[])
 {
 
   int address = 0;
   FILE *fp;
   char line[1024];
 
-  if ((fp = fopen("./examples/print8.ls8", "r")) == NULL)
+  if ((fp = fopen(argv[1], "r")) == NULL)
   {
     fprintf(stderr, "Cannot open print8.ls8\n");
     exit(1);
@@ -92,6 +92,10 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       cpu->PC += 1;
       return 0;
+    case MUL:
+    alu(cpu, ALU_MUL, operandA, operandB);
+    cpu->PC += 3;
+    break;
     }
     cpu->PC += 1 + (int)(instruction >> 6);
   }
