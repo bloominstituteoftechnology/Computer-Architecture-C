@@ -1,30 +1,87 @@
 #include "cpu.h"
 #include <string.h> 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *path)
 { 
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  FILE *src;
+  int lines = 0;
+  src = fopen(path,"r");
+
+  if (src == NULL) {
+    printf("File %s could not be opened.\n", path);
+    exit(1);
+  } 
+
+  for (char c = getc(src); c != EOF; c = getc(src)) {
+    if (c == '\n') {
+      lines += 1;
+    }
+  }
+
+  fseek(src, 0L, SEEK_SET);
+
+  char data[lines + 1];
+  char line[255];
+  char *cut;
+  int count = 0;
+
+  while(fgets(line, sizeof(line), src) != NULL) {
+      if (line[0] == '0' || line[0] == '1') { 
+          data[count] = strtol(line, &cut, 2);
+          count += 1;
+      } else {
+          continue;
+      }
+  }
+
+  fclose(src);
+
+  // for (char c = getc(src); c != EOF; c = getc(src)) {
+  //   int wait = 0;
+  //   int line = 0;
+  //   char word[8];
+  //   char *meh;
+
+  // if (wait >= 0) {
+  //     if (c == '0' || c == '1') {
+  //       word[wait] = c;
+  //       wait += 1;
+  //       if (wait == 8) {
+  //         wait = -1;
+  //         data2[line] = strtoul(word, meh, 2);
+  //         line += 1;
+  //       }
+  //     } else {
+  //       wait = -1;
+  //     }
+
+  // } else if (c == '\n') {
+  //   wait = 0;
+  // }
+  // }
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
+  for (int i = 0; i < count + 1; i++) {
     cpu->ram[address++] = data[i];
   }
-
   // TODO: Replace this with something less hard-coded
 }
 
