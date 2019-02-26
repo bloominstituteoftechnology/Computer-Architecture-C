@@ -61,17 +61,13 @@ void cpu_load(struct cpu *cpu, char *file)
 /**
  * ALU
  */
+// TODO: Find better implementation of ALU
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  // TODO In place just to get rid of warnings.
-  // Need to change in future.
-  (void)cpu;
-  (void)regA;
-  (void)regB;
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->reg[regA] *= cpu->reg[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -116,6 +112,12 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       // Set the value of a register to an integer.
       cpu->reg[operandA] = operandB;
+      break;
+    case MUL:
+      // TODO: Find better implementation of ALU
+      // *This is an instruction handled by the ALU.*
+      // Multiply the values in two registers together and store the result in registerA.
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
     case PRN:
       // Print numeric value stored in the given register.
