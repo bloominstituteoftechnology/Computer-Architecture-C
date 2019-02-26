@@ -24,9 +24,7 @@ void cpu_load(struct cpu *cpu)
 
   for (int i = 0; i < DATA_LEN; i++)
   {
-    // printf("Data %u index %u\n", data[i], i); // <--debugging
     cpu->ram[address++] = data[i];
-    // printf("setting ram address %u to %u\n", address, data[i]); // <--debugging
   }
 
   // TODO: Replace this with something less hard-coded
@@ -74,11 +72,8 @@ void cpu_run(struct cpu *cpu)
     }
     // 3. Get the appropriate value(s) of the operands
     // following this instruction
-    // unsigned char operandA = cpu->ram[_IR + 1];
-    // unsigned char operandB = cpu->ram[_IR + 2];
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
-    // printf("command %u operandA %u operandB %u\n", _IR, operandA, operandB); //<--debugging
 
     // 4. switch() over it to decide on a course of action.
     switch (_IR)
@@ -186,7 +181,7 @@ void cpu_run(struct cpu *cpu)
 
     case LDI: // LDI register immediate //
       /*Set the value of a register to an integer.*/
-      printf("setting register %u to %u\n", operandA, operandB); // <-- debugging
+      // printf("setting register %u to %u\n", operandA, operandB); // <-- debugging
       cpu->registers[operandA] = operandB;
       break;
 
