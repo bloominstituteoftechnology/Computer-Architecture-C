@@ -145,6 +145,7 @@ void cpu_run(struct cpu *cpu)
                 break;
             
             default:
+                printf("UNEXPECTED INSTRUCTION 0x%2X at 0x%2X\n", IR, cpu->PC);
                 break;
         }
         // 5. Do whatever the instruction should do according to the spec.
