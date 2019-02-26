@@ -1,6 +1,6 @@
 #include "cpu.h"
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -71,17 +71,24 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA;
     unsigned char operandB;
 
+    int nextInstruction = 1;
+
     if (IR & 0x80)
     {
       unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
       unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+      nextInstruction = 3;
     }
     else if (IR & 0x40)
     {
       unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+
+      nextInstruction = 2;
     }
 
     // 4. switch() over it to decide on a course of action.
+    // 5. Do whatever the instruction should do according to the spec.
     switch (IR)
     {
     case HLT:
@@ -100,8 +107,8 @@ void cpu_run(struct cpu *cpu)
       printf("nope");
     }
 
-    // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC = cpu->PC + nextInstruction;
   }
 }
 
