@@ -11,12 +11,12 @@ void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
       // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
+      // 0b10000010, // LDI R0,8
+      // 0b00000000,
+      // 0b00001000,
+      // 0b01000111, // PRN R0
+      // 0b00000000,
+      // 0b00000001 // HLT
   };
 
   int address = 0;
@@ -99,13 +99,12 @@ void cpu_run(struct cpu *cpu)
       // no operands!
     }
 
-    else if (number_of_operands == 1)
+    if (number_of_operands == 1)
     {
       operandA = cpu_ram_read(cpu, cpu->pc + 1);
     }
-    else if (number_of_operands == 2)
+    if (number_of_operands == 2)
     {
-      operandA = cpu_ram_read(cpu, cpu->pc + 1);
       operandB = cpu_ram_read(cpu, cpu->pc + 2);
     }
     // 4. switch() over it to decide on a course of action.
@@ -115,12 +114,10 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       printf("Let's load %x into register %x\n", operandB, operandA);
       cpu->registers[operandA] = operandB;
-      //cpu->pc = cpu->pc + 3;
       break;
     case PRN:
       printf("Lets print %x\n", operandB);
       printf("%d!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->registers[operandA]);
-      //cpu->pc = cpu->pc + 2;
       break;
     case HLT:
       running = 0;
