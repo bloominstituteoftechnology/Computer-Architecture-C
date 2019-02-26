@@ -58,35 +58,60 @@ void cpu_ram_write(struct cpu *cpu, char data, int index) {
   cpu->ram[index] = data;
 }
 
+int handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->registers[operandA] = operandB;
+  printf("%i INSIDE LDI\n", cpu->registers[operandA]);
+  return 0;
+}
+
+int handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  printf("Numeric Value = %i\n", cpu->registers[operandA]);
+  return 0;
+}
+
+int handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  return 0;
+}
+
+
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    
+    int(*branchTable[100000]) (struct cpu *cpu, unsigned char, unsigned char);
+    branchTable[LDI] = handle_LDI;
+    branchTable[PRN] = handle_PRN;
+    branchTable[HLT] = handle_HLT;
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     unsigned int numop = IR >> 6;
+
+    branchTable[IR](cpu, operandA, operandB);
+  
+    /*
     switch(IR) {
       case(LDI):
-        cpu->registers[operandA] = operandB;
-        printf("%i INSIDE LDI\n", cpu->registers[operandA]);
+        handle_LDI(cpu, operandA, operandB);
         break;
       case(PRN):
-        printf("Numeric Value = %i\n", cpu->registers[operandA]);
+        handle_PRN(cpu, operandA, operandB);
         break;
       case(HLT):
-        running = 0;
+        running = handle_HLT(cpu, operandA, operandB);
         break;
       case(MUL):
         alu(cpu, ALU_MUL,operandA, operandB);
         break;
     }
+    */
     cpu->PC += numop + 1;
     
     
@@ -97,6 +122,8 @@ void cpu_run(struct cpu *cpu)
     // 6. Move the PC to the next instruction.
   }
 }
+
+
 
 /**
  * Initialize a CPU struct
