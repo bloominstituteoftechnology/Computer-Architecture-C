@@ -185,6 +185,7 @@ the console!*
 
 ## Step 8: Un-hardcode the machine code
 
+
 In `cpu.c`, the LS-8 programs you've been running so far have been hardcoded
 into the source. This isn't particularly user-friendly.
 
