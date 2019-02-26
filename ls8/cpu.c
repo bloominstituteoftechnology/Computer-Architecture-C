@@ -7,24 +7,12 @@
  */
 void cpu_load(struct cpu *cpu, int data[], int data_len)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
-
   int address = 0;
 
   for (int i = 0; i < data_len; i++)
   {
     cpu->ram[address++] = data[i];
   }
-
-  // TODO: Replace this with something less hard-coded
 }
 
 /**
@@ -83,6 +71,17 @@ void prn_instr(struct cpu *cpu)
 }
 
 /**
+ * Perform MUL Instruction
+ */
+void mul_instr(struct cpu *cpu)
+{
+   unsigned char operand_a = cpu_ram_read(cpu, cpu->pc + 1);
+   unsigned char operand_b = cpu_ram_read(cpu, cpu->pc + 2);
+   cpu->reg[operand_a] = cpu->reg[operand_a] * cpu->reg[operand_b];
+   cpu->pc += 3;
+}
+
+/**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -99,6 +98,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case PRN:
       prn_instr(cpu);
+      break;
+    case MUL:
+      mul_instr(cpu);
       break;
     case HLT:
       running = 0;
