@@ -21,7 +21,7 @@ enum alu_op {
 // Instructions
 
 // These use binary literals. If these aren't available with your compiler, hex
-// literals should be used.
+// literals should be used
 
 #define LDI  0b10000010
 #define HLT  0b00000001
