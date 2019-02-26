@@ -53,8 +53,20 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char _IR = cpu->registers[cpu->pc];
     // 2. Figure out how many operands this next instruction requires
+    int _operands;
+    if (_IR > 0b00111111 && _IR < 0b10000000)
+    {
+      _operands = 1;
+    }
+    if (_IR >= 0b10000000)
+    {
+      _operands = 2;
+    }
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu->ram[_IR + 1];
+    unsigned char operandB = cpu->ram[_IR + 2];
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
@@ -67,9 +79,9 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->pc = 00000000;
-  memset(cpu->ram, 00000000, sizeof(cpu->ram));
-  memser(cpu->registers, 00000000, sizeof(cpu->registers));
+  cpu->pc = 0b00000000;
+  memset(cpu->ram, 0b00000000, sizeof(cpu->ram));
+  memser(cpu->registers, 0b00000000, sizeof(cpu->registers));
 }
 
 unsigned char cpu_ram_read(cpu *cpu, int index)
