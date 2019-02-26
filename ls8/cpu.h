@@ -5,7 +5,7 @@
 typedef struct cpu {
   // TODO
   // PC
-  unsigned int pc;
+  unsigned char pc;
   // registers (array)
   unsigned char reg[8]; // there are 8 total: R0-R7
   // ram (array)
