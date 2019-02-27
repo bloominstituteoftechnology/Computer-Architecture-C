@@ -49,7 +49,12 @@ void cpu_load(struct cpu *cpu, char *pathToProgram)
       continue;
     }
     
-    unsigned char instruction = strtoul(line, NULL, 2) & 0xFF;
+    char *endPoint;
+    unsigned char instruction = strtoul(line, &endPoint, 2) & 0xFF;
+    
+    if (endPoint == line) {
+      continue;
+    }
     
 //    printf("Read a line: '0x%02X'\n", instruction);
     
