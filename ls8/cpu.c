@@ -217,6 +217,8 @@ void cpu_run(struct cpu *cpu)
       Copy the value from the address pointed to by SP to the given 
       register.
       Increment SP.*/
+      cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
+      cpu->registers[7]++;
       break;
 
     case PRA: // PRA register //
@@ -237,6 +239,9 @@ void cpu_run(struct cpu *cpu)
       Decrement the SP.
       Copy the value in the given register to the address 
       pointed to by SP.*/
+      cpu->registers[7]--;
+      cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
+
       break;
 
     case RET: // RET //
@@ -288,9 +293,11 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
-  cpu->pc = 0b00000000;
-  memset(cpu->ram, 0b00000000, sizeof(cpu->ram));
-  memset(cpu->registers, 0b00000000, sizeof(cpu->registers));
+  cpu->pc = 0;
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  // set stack pointer
+  cpu->registers[7] = 243;
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, int index)
