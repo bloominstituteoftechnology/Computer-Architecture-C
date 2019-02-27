@@ -3,73 +3,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
-
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
 void cpu_load(struct cpu *cpu, char *path)
 { 
+
+  // Check File Extension
   char *ext = &path[strlen(path) - 4];
   if (strcmp(ext, ".ls8") != 0){
     printf("%s is not a valid input. Input must be a .ls8 source file.\n", path);
     exit(1);
   }
 
+  // Open File Path
   FILE *src;
   int lines = 0;
   src = fopen(path,"r");
 
+  // Fail Check
   if (src == NULL) {
     printf("File %s could not be opened.\n", path);
     exit(2);
   } 
 
+  // Count Number of Lines
   for (char c = getc(src); c != EOF; c = getc(src)) {
     if (c == '\n') {
       lines += 1;
     }
   }
 
+  // Reset File Stream
   fseek(src, 0L, SEEK_SET);
 
+  // Variables for Reading File
   char data[lines + 1];
   char line[255];
   char *cut;
   int count = 0;
 
+  // Read File - strtol converts the binary only
   while(fgets(line, sizeof(line), src) != NULL) {
       if (line[0] == '0' || line[0] == '1') { 
           data[count] = strtol(line, &cut, 2);
           count += 1;
       } else {
-          continue;
+          continue; // Skip lines without instructions
       }
   }
 
+  // Close File
   fclose(src);
 
-  int address = 0;
-
-  for (int i = 0; i < count + 1; i++) {
-    cpu->ram[address++] = data[i];
+  // Initialize Instructions to RAM
+  for (int address = 0; address < count + 1; address++) {
+    cpu->ram[address] = data[address];
   }
 }
 
+// Read From CPU Ram
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
   return cpu->ram[address];
 }
 
+// Write To CPU Ram
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) {
   cpu->ram[address] = value;
 }
+
 
 /**
  * ALU
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-
   switch (op) {
     case ALU_MUL:
       cpu -> registers[regA] = cpu -> registers[regA] * cpu -> registers[regB];
@@ -105,10 +114,12 @@ void PUSH_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // P
     printf("Stack Overflow.");
     exit(4);
   }
-} 
+}
 
 
-
+/**
+ * Main Loop
+ */
 
 void cpu_run(struct cpu *cpu)
 {
@@ -157,6 +168,7 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
+ 
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
