@@ -4,8 +4,10 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
-
-// Implement cpu_ram_read
+////////////////////
+// Helper Functions
+////////////////////
+// cpu_ram_read
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -16,6 +18,27 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val)
 {
   cpu->ram[address] = val;
 };
+
+void push(struct cpu *cpu, unsigned char val)
+{
+  // Decrement stack pointer
+  cpu->SP--;
+  // Write to stack
+  cpu_ram_write(cpu, cpu->SP, val);
+}
+
+unsigned char pop(struct cpu *cpu)
+{
+  // Get value at stack pointer
+  unsigned char value = cpu_ram_read(cpu, cpu->SP);
+  // Increment stack pointer
+  cpu->SP++;
+  // return popped value
+  return value;
+}
+///////////////////////
+// Helper Functions End
+///////////////////////
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -119,9 +142,17 @@ void cpu_run(struct cpu *cpu)
       // Multiply the values in two registers together and store the result in registerA.
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
+    case POP:
+      // Pop the value at the top of the stack into the given register.
+      cpu->reg[operandA] = pop(cpu);
+      break;
     case PRN:
       // Print numeric value stored in the given register.
       printf("%d\n", cpu->reg[operandA]);
+      break;
+    case PUSH:
+      // Push the value in the given register on the stack.
+      push(cpu, cpu->reg[operandA]);
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
@@ -141,4 +172,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  // Empty stack starts at address F4
+  cpu->SP = 0xF4;
 }
