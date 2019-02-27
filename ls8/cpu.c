@@ -56,6 +56,7 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     // unsigned char _IR = cpu->ram[cpu->pc];
     unsigned char _IR = cpu_ram_read(cpu, cpu->pc);
+    unsigned char flag = 0;
     // 2. Figure out how many operands this next instruction requires
 
     // TODO: refactor with bitwise operations
@@ -92,6 +93,7 @@ void cpu_run(struct cpu *cpu)
     case CALL: // CALL register //
       /*Calls a subroutine (function) at the address stored 
       in the register.*/
+      flag = 1;
       break;
 
     case CMP: // CMP registerA registerB //
@@ -128,6 +130,7 @@ void cpu_run(struct cpu *cpu)
       /* Issue the interrupt number stored in the given register.
       This will set the _n_th bit in the IS register to the value 
       in the given register. */
+      flag = 1;
       break;
 
     case IRET: // IRET //
@@ -136,41 +139,49 @@ void cpu_run(struct cpu *cpu)
       The FL register is popped off the stack.
       The return address is popped off the stack and stored in PC.
       Interrupts are re-enabled*/
+      flag = 1;
       break;
 
     case JEQ: // JEQ register //
       /*If equal flag is set (true), jump to the address 
       stored in the given register.*/
+      flag = 1;
       break;
 
     case JGE: // JGE register //
       /*If greater-than flag or equal flag is set (true), 
       jump to the address stored in the given register.*/
+      flag = 1;
       break;
 
     case JGT: // JGT register //
       /*If greater-than flag is set (true), jump to the 
       address stored in the given register.*/
+      flag = 1;
       break;
 
     case JLE: // JLE register //
       /*If less-than flag or equal flag is set (true), 
       jump to the address stored in the given register.*/
+      flag = 1;
       break;
 
     case JLT: // JLT register //
       /*If less-than flag is set (true), jump to the address 
       stored in the given register.*/
+      flag = 1;
       break;
 
     case JMP: // JMP register //
       /*Jump to the address stored in the given register.
       Set the PC to the address stored in the given register.*/
+      flag = 1;
       break;
 
     case JNE: // JNE register //
       /*If E flag is clear (false, 0), jump to the address 
       stored in the given register.*/
+      flag = 1;
       break;
 
     case LD: // LD registerA registerB //
@@ -283,7 +294,10 @@ void cpu_run(struct cpu *cpu)
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    cpu->pc = cpu->pc + _operands + 1;
+    if (flag == 0)
+    {
+      cpu->pc = cpu->pc + _operands + 1;
+    }
   }
 }
 
