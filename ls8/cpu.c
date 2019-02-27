@@ -109,6 +109,14 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP++);
         break;
+      case CALL:
+        //Operanda will be the step to move to
+        cpu->ram[cpu->SP] = cpu->pc + 1 + operandA;
+        cpu->pc = cpu->registers[operandA];
+        continue;
+      case RET:
+        cpu->pc = cpu_ram_read(cpu, cpu->SP++);
+        continue;
       default:
         break;
     }

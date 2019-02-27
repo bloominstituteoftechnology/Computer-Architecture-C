@@ -30,6 +30,9 @@ enum alu_op {
 #define MUL 0b10100010
 #define PUSH 0B01000101
 #define POP  0B01000110
+// Subroutine Calls
+#define CALL 0b01010000
+#define RET 0b00010001
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
