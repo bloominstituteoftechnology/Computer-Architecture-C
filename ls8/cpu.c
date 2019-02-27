@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
@@ -13,6 +14,20 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
   cpu->ram[mar] = mdr;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+  cpu->ram[cpu->reg[SP]] = val;
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char ret = cpu->ram[cpu->reg[SP]];
+  cpu->reg[SP]++;
+
+  return ret;
 }
 
 /**
@@ -117,6 +132,12 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       alu(cpu, ALU_MUL, operand_a, operand_b); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+      break;
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operand_a]);
+      break;
+    case POP:
+      cpu->reg[operand_a] = cpu_pop(cpu);
       break;
     case HLT:
       running = 0;
