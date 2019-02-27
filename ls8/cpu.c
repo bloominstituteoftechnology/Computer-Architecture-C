@@ -147,10 +147,11 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[7]++;
       break;
     case CALL:
+    printf("lets CALL \n");
       //add the address of the instruction directly after the call to the stack
       //PUSH(cpu_read_ram(cpu, cpu->pc+number_of_operands+1)
       next_instruction = cpu_ram_read(cpu, cpu->pc + number_of_operands + 1);
-
+      printf("next instruction: %d\n", next_instruction);
       cpu->registers[7]--;
       cpu_write_ram(cpu, cpu->registers[7], next_instruction);
       //PC is set to the address stored in the given register
@@ -158,6 +159,7 @@ void cpu_run(struct cpu *cpu)
 
       break;
     case RET:
+    printf("i just want to RETurn");
       //POP the value from top of the stack:
       //copy the value from the address pointed to by SP to the given register
       cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
