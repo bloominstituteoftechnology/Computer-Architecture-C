@@ -23,6 +23,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char value)
 {
   //To Do: implement function to write to ram
+  printf("%d\n", value);
   cpu->ram[index] = value;
 }
 
@@ -76,6 +77,7 @@ void cpu_run(struct cpu *cpu)
   {
     unsigned char operandA;
     unsigned char operandB;
+    unsigned char next_instruction;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu->ram[cpu->pc];
@@ -143,9 +145,28 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
       //increment SP
       cpu->registers[7]++;
+      break;
+    case CALL:
+      //add the address of the instruction directly after the call to the stack
+      //PUSH(cpu_read_ram(cpu, cpu->pc+number_of_operands+1)
+      next_instruction = cpu_ram_read(cpu, cpu->pc + number_of_operands + 1);
+
+      cpu->registers[7]--;
+      cpu_write_ram(cpu, cpu->registers[7], next_instruction);
+      //PC is set to the address stored in the given register
+      cpu->pc = cpu_ram_read(cpu, operandA);
 
       break;
+    case RET:
+      //POP the value from top of the stack:
+      //copy the value from the address pointed to by SP to the given register
+      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+      //increment SP
+      cpu->registers[7]++;
 
+      //store it in PC:
+      cpu->pc = cpu->registers[operandA];
+      break;
     default:
       printf("something went wrong with IR : %d\n", IR);
       exit(1);
