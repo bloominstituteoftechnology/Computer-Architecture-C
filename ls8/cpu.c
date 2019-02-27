@@ -76,7 +76,7 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
-void cpu_init(CPU *cpu)
+void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   
@@ -86,7 +86,7 @@ void cpu_init(CPU *cpu)
   
   //Alternative to memset()
   // Init registers
-  for (int index = 0; index < 7; index++) {
+  for (int i = 0; i < 7; i++) {
     cpu->reg[i] = 0;
   }
   cpu->reg[7] = 0xF4;  // Spec says to set R7 to 0xF4
