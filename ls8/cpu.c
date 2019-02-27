@@ -5,6 +5,11 @@
 
 #define DATA_LEN 6
 
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -31,15 +36,16 @@ void cpu_load(struct cpu *cpu, char *pathToProgram)
   FILE *filePointer = fopen(pathToProgram, "r");
   
   if (filePointer == NULL) {
-    printf("Could not open program %s\n", pathToProgram);
-    exit(1);
+    printf("Could not open program: %s\n", pathToProgram);
+    exit(2);
   }
   
   int address = 0;
   char line[1000];
   
   while (fgets(line, 1000, filePointer) != NULL) {
-    if (strlen(line) == 1) {
+    
+    if (strlen(line) == 1) {  // 1 for the bracket that indicates the new line
       continue;
     }
     
@@ -47,8 +53,12 @@ void cpu_load(struct cpu *cpu, char *pathToProgram)
     
 //    printf("Read a line: '0x%02X'\n", instruction);
     
-    cpu->ram[address] = instruction;
-    address += 1;
+//    cpu->ram[address++] = instruction;
+//    cpu->ram[address] = instruction;
+//    address += 1;
+    
+    // Use out write to ram function instead
+    cpu_ram_write(cpu, address++, instruction);
   }
   
   fclose(filePointer);
@@ -74,10 +84,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   return cpu->ram[address];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-  cpu->ram[address] = value;
-}
 
 /**
  * Run the CPU
