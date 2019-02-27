@@ -9,7 +9,7 @@ int main(int argc, char **argv)
   struct cpu cpu;
   if (argc != 2)
   {
-    fprintf(stderr, "Wrong!");
+    fprintf(stderr, "Wrong!\n");
     return 1;
   }
 

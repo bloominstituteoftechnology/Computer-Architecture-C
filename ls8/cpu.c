@@ -37,8 +37,16 @@ void cpu_load(struct cpu *cpu, char *file)
 
   while (fgets(line, sizeof(line), fptr) != NULL)
   {
+    char *endptr;
     unsigned char binary_instruction;
-    binary_instruction = strtoul(line, NULL, 2);
+
+    binary_instruction = strtoul(line, &endptr, 2);
+
+    if (endptr == line)
+    {
+      continue;
+    }
+
     cpu_ram_write(cpu, address++, binary_instruction);
   }
 
@@ -51,10 +59,13 @@ void cpu_load(struct cpu *cpu, char *file)
 
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->registers[regA];
+  unsigned char valB = cpu->registers[regB];
+
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = valA * valB;
     break;
 
     // TODO: implement more ALU ops
@@ -87,17 +98,13 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
     case LDI:
-      // cpu_ram_write(cpu, operandA, operandB);
       cpu->registers[operandA] = operandB;
-      // cpu->PC += 3;
       break;
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
-      // cpu->PC += 2;
       break;
     case MUL:
-      cpu->registers[operandA] = cpu->registers[0] * cpu->registers[1];
-      // cpu->PC += 3;
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
     case HLT:
       running = 0;
