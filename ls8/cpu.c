@@ -17,31 +17,34 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *argv[])
+void cpu_load(struct cpu *cpu, char *filename)
 {
 
   int address = 0;
   FILE *fp;
+  //allocate space for each line
   char line[1024];
 
-  if ((fp = fopen(argv[1], "r")) == NULL)
+  if ((fp = fopen(filename, "r")) == NULL)
   {
-    fprintf(stderr, "Cannot open print8.ls8\n");
+    fprintf(stderr, "Cannot open file\n", filename);
     exit(1);
   }
+  //repeatedly read lines until end of file
   while (fgets(line, sizeof(line), fp) != NULL)
   {
+    //parse the line
     char *ptr;
-    unsigned char ret = strtol(line, &ptr, 2);
+    unsigned char ret = strtoul(line, &ptr, 2);
 
     if (ptr == line)
     {
       continue;
     }
-
-    cpu->ram[address++] = ret;
+    cpu_ram_write(cpu, address++, ret);
+    // cpu->ram[address++] = ret;
   }
-
+  fclose(fp);
   // TODO: Replace this with something less hard-coded
 }
 
@@ -50,14 +53,28 @@ void cpu_load(struct cpu *cpu, char *argv[])
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->reg[regA];
+  unsigned char valB = cpu->reg[regB];
   switch (op)
   {
   case ALU_MUL:
     // TODO
+    cpu->reg[regA] = valA * valB;
     break;
 
     // TODO: implement more ALU ops
   }
+}
+void cpu_push(struct cpu *cpu, unsigned char target)
+{
+  cpu->reg[7] -= 1;
+  cpu->ram[cpu->reg[7]] = target;
+}
+
+void cpu_pop(struct cpu *cpu, unsigned char target)
+{
+  cpu->reg[target] = cpu->ram[cpu->reg[7]];
+  cpu->reg[7] += 1;
 }
 
 /**
@@ -93,9 +110,17 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 1;
       return 0;
     case MUL:
-    alu(cpu, ALU_MUL, operandA, operandB);
-    cpu->PC += 3;
-    break;
+      alu(cpu, ALU_MUL, operandA, operandB);
+      cpu->PC += 3;
+      break;
+    case PUSH:
+      cpu_push(cpu, operandA);
+      cpu->PC += 2;
+      break;
+    case POP:
+      cpu_pop(cpu, operandA);
+      cpu->PC += 2;
+      break;
     }
     cpu->PC += 1 + (int)(instruction >> 6);
   }
@@ -112,4 +137,5 @@ void cpu_init(struct cpu *cpu)
   //initalize both ram and reg from cpu.h
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->reg, 0, sizeof(cpu->reg));
+  cpu->reg[7] = cpu->ram[0xf4];
 }

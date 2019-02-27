@@ -4,9 +4,14 @@
 /**
  * Main
  */
-int main(char *argv[])
+int main(int argc, char **argv)
 {
   struct cpu cpu;
+  if (argc != 2){
+    fprintf(stderr, "bad");
+    return 1;
+  }
+ char *filename = argv[1];
 
   cpu_init(&cpu);
   cpu_load(&cpu, argv);
