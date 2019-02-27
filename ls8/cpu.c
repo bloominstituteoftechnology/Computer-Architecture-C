@@ -32,35 +32,14 @@ void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char value)
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     // 0b10000010, // LDI R0,8
-  //     // 0b00000000,
-  //     // 0b00001000,
-  //     // 0b01000111, // PRN R0
-  //     // 0b00000000,
-  //     // 0b00000001 // HLT
-  // };
 
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
-
-  //load file
+  // set R7 to store the start of the RAM
 
   char buffer[256];
-  char data[256];
   int index = 0;
   FILE *f = fopen(file, "r");
-
   while (fgets(buffer, sizeof(buffer), f) != NULL)
   {
-    //fgets(buffer, 10, f);
     char *ptr;
     printf("buffer: %s\n", buffer);
     long instruction = strtol(buffer, &ptr, 2);
@@ -68,16 +47,9 @@ void cpu_load(struct cpu *cpu, char *file)
     {
       continue;
     }
-
-    //data[index] = buffer;
-    printf("the number: %ld\n", instruction);
-
     cpu_write_ram(cpu, index, instruction);
     index++;
   }
-  // *fgets(buffer, 256, f);
-  printf("\n------\n%s", buffer);
-  //printf("data: %s\n", data[0]);
 }
 
 /**
@@ -162,10 +134,25 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
       break;
 
+    case PUSH:
+      // decrement the SP (stack pointer)
+      //sp--;
+      //copy the value in given register to the addresss pointed to by SP
+      //SP = cpu->registers[operandA];
+      break;
+    case POP:
+      //copy the value from the address pointed to by SP to the given register
+      //cpu->registers[operandA] = SP;
+      //increment SP
+      //SP++;
+
+      break;
+
     default:
       printf("something went wrong with IR : %d\n", IR);
       exit(1);
     }
+
     // 6. Move the PC to the next instruction.
     for (int i = 0; i <= number_of_operands; i++)
     {
