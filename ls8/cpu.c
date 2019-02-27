@@ -12,39 +12,25 @@
 // https://stackoverflow.com/questions/1658530/load-numbers-from-text-file-in-c
 void cpu_load(struct cpu *cpu, char *argv[])//argv will come in from main according to step 8
 {
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
   FILE *f;
   f = fopen(argv[1], "r"); //reads the second argument passed
   if(f == NULL){
     printf("File came back with null");
     exit(1);
   }else{
-    // int length = 0;
+    printf("ARGV[1] => %s\n", argv[1]);
     int address = 0;
     char buf[256];
     // char *fgets( char *buf, int n, FILE *fp );
     // The functions fgets() reads up to n-1 characters from the input stream referenced by fp. 
     // It copies the read string into the buffer buf, appending a null character to terminate the string.
     while(fgets(buf, sizeof(buf), f) != NULL){
-      int data = strtoul(buf, NULL, 2); //converts to binary
+      unsigned long int data = strtoul(buf, NULL, 2); //converts to binary
+      printf("BUF VALUE -> %s", buf);
+      printf("DATA -> %ld\n", data);
       // You'll have to convert the binary strings to integer values to store in RAM. The
       // built-in `strtoul()` library function might help you here.
-      cpu->ram[address] = data;
-      address++;
+      cpu->ram[address++] = data;
     }
     fclose(f);
   }
@@ -69,7 +55,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       // Multiply the values in two registers together and store the result in registerA.
-      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB]; // sets registerA to registerA times registerB
+      cpu->registers[regA] *= cpu->registers[regB]; // sets registerA to registerA times registerB
       break;
 
     // TODO: implement more ALU ops
@@ -84,7 +70,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  
+  printf("RUNNING : ");
   while (running) {
     unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
     unsigned int num_of_operations = IR>>6; // bitwise shift operator I found / get the last two numbers 
@@ -101,6 +87,7 @@ void cpu_run(struct cpu *cpu)
     {
       case LDI:/* Set the value of a register to an integer. */
         cpu->registers[operandA] = operandB;
+        // cpu->pc += 3;
         break;
       // case NOP://does nothing
       //   break;
@@ -109,6 +96,11 @@ void cpu_run(struct cpu *cpu)
         break;
       case PRN:
         printf("PRN Says: %d \n", cpu->registers[operandA]);
+        // cpu->pc += 2;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        // cpu->pc += 3;
         break;
     
       default:
