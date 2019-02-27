@@ -61,10 +61,14 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->reg[regA];
+  unsigned char valB = cpu->reg[regB];
+
   switch (op)
   {
   case ALU_MUL:
     // TODO
+    cpu->reg[regA] = valA * valB;
     break;
 
     // TODO: implement more ALU ops
@@ -105,6 +109,11 @@ void cpu_run(struct cpu *cpu)
       printf("%d\n", cpu->reg[operand0]);
       // Move the PC to the next instruction.
       cpu->PC += 2;
+      break;
+    case MUL:
+      // Multiply operand0 by operand1
+      alu(cpu, ALU_MUL, operand0, operand1);
+      cpu->PC += 3;
       break;
     case HLT:
       // Set running to false to stop program
