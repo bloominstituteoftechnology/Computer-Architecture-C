@@ -1,18 +1,17 @@
 #ifndef _CPU_H_
 #define _CPU_H_
+#define SP 7  //The SP points at the value at the top of the stack (most recently pushed)
 
 // Holds all information about the CPU
-// The type for a single unsigned byte in C is:
 struct cpu {
-  // DAY 1 -- TODO: Step 1
-  // PC (program counter)
-  unsigned int PC;
-  // registers (array)
-  unsigned char reg[8]; 
+  
+  unsigned int PC;// PC (program counter)
+  
+  unsigned char reg[8]; // registers (array)
     //holds the data that CPU is currently processing | PC / IR / MAR / MDR
     //we'll execute code that stores the value 8 in a register
-  // ram (array)
-  unsigned char ram[256]; 
+ 
+  unsigned char ram[256];  // ram (array)
     //holds program instruction and data that the program requires for execution 
     //The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
 }; 
@@ -24,7 +23,7 @@ enum alu_op {
 };
 
 // Instructions
-
+// These can be used in cpu_run() as cases 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
@@ -32,10 +31,11 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL  0b10100010
-// TODO: more instructions here. These can be used in cpu_run().
+#define PUSH 0b01000101
+#define POP  0b01000110
+
 
 // Function declarations
-//DAY 1 - Add RAM functions cpu_ram_read(step 4 a few more details offered) and cpu_ram_write
 
 extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
