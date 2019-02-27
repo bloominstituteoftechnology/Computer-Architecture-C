@@ -8,25 +8,51 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *pathToProgram)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+//  char data[DATA_LEN] = {
+//    // From print8.ls8
+//    0b10000010, // LDI R0,8
+//    0b00000000,
+//    0b00001000,
+//    0b01000111, // PRN R0
+//    0b00000000,
+//    0b00000001  // HLT
+//  };
+//
+//  int address = 0;
+//
+//  for (int i = 0; i < DATA_LEN; i++) {
+//    cpu->ram[address++] = data[i];
+//  }
 
   // TODO: Replace this with something less hard-coded
+  
+  FILE *filePointer = fopen(pathToProgram, "r");
+  
+  if (filePointer == NULL) {
+    printf("Could not open program %s\n", pathToProgram);
+    exit(1);
+  }
+  
+  int address = 0;
+  char line[1000];
+  
+  while (fgets(line, 1000, filePointer) != NULL) {
+    if (strlen(line) == 1) {
+      continue;
+    }
+    
+    unsigned char instruction = strtoul(line, NULL, 2) & 0xFF;
+    
+//    printf("Read a line: '0x%02X'\n", instruction);
+    
+    cpu->ram[address] = instruction;
+    address += 1;
+  }
+  
+  fclose(filePointer);
+  
 }
 
 /**
