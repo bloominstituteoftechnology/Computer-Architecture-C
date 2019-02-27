@@ -347,6 +347,7 @@ Whether you do a `switch` or a branch table or anything else is up to you.
 
 ## Step 11: Implement System Stack
 
+
 All CPUs manage a _stack_ that can be used to store information temporarily.
 This stack resides in main memory and typically starts at the top of memory (at
 a high address) and grows _downward_ as things are pushed on. The LS-8 is no
