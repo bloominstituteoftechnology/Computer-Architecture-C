@@ -123,6 +123,19 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3; //moves PC down 3 lines
       break;
 
+      case PUSH: //Push the value in the given register on the stack.
+      // printf("--> %d\n", cpu->reg[7]);
+      cpu->reg[7]--; //register 7 (R7) == stack pointer (SP), 1. Decrement the SP
+      cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]); //2. Copy the value in the given register to the address pointed to by SP
+      cpu->PC += 2; 
+      break;
+
+      case POP: //Pop the value at the top of the stack into the given register.
+      cpu->reg[operandA] = cpu_ram_read(cpu, cpu->ram[7]); //1. Copy the value from the address pointed to by SP to the given register.
+      cpu->reg[7]++; //2. Increment SP.
+      cpu->PC += 2; 
+      break;
+
       case PRN: //a pseudo-instruction that prints the numeric value stored in a register.
       printf("%d\n", cpu->reg[operandA]); 
       cpu->PC += 2; //moves PC down 2 lines

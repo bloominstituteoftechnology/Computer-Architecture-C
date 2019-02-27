@@ -21,6 +21,8 @@ enum alu_op { //enum often used for group of constants
 // These instructions can be used in cpu_run().
 #define LDI  0b10000010
 #define MUL  0b10100010 
+#define PUSH 0b01000101 
+#define POP  0b01000110
 #define PRN  0b01000111
 #define HLT  0b00000001
 
