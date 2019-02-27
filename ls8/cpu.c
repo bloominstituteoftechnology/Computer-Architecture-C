@@ -75,7 +75,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu -> PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu -> PC + 2);
 
-    int num_of_op = IR >> 6;
+    unsigned int num_of_op = IR >> 6;
     //printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
     // 4. switch() over it to decide on a course of action.
@@ -101,6 +101,13 @@ void cpu_run(struct cpu *cpu)
         cpu -> SP -= 1;
         cpu -> ram[cpu -> SP] = cpu -> reg[operandA];
         break;
+      case CALL:
+        cpu -> ram[--cpu -> SP] = cpu -> PC + 1 + num_of_op;
+        cpu -> PC = cpu -> reg[operandA];
+        continue;
+      case RET:
+        cpu -> PC = cpu_ram_read(cpu, cpu -> SP++);
+        continue;
       case HLT:
         running = 0;
         break;
