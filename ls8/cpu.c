@@ -27,40 +27,29 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  // char data[DATA_LEN] = {
-  //     // From print8.ls8
-  //     0b10000010, // LDI R0,8
-  //     0b00000000,
-  //     0b00001000,
-  //     0b01000111, // PRN R0
-  //     0b00000000,
-  //     0b00000001 // HLT
-  // };
+  FILE *fp = fopen(filename, "r");
 
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++)
-  // {
-  //   printf("YOOO %d\n", data[i]);
-  //   cpu->ram[address++] = data[i];
-  // }
-
-  // TODO: Replace this with something less hard-coded
-  FILE *fp;
-  char line[1024]; // to hold individual lines in the file
-  char data[DATA_LEN];
-  int address = 0;
-
-  if ((fp = fopen(filename, "r")) == NULL)
+  if (fp == NULL)
   {
-    printf("Cannot open %s\n", filename);
+    fprintf(stderr, "ls8: error opening file:  %s\n", filename);
+    exit(2);
   }
+
+  char line[8192]; // to hold individual lines in the file
+  int address = 0;
 
   while (fgets(line, sizeof(line), fp) != NULL)
   {
-    unsigned char byte;
+    char *endptr; // to keep track of non-numbers in the file
     // converts str to number
-    byte = strtol(line, NULL, 2);
+    unsigned char byte = strtoul(line, &endptr, 2);
+
+    // prevents unnecessary lines being stored on ram
+    if (endptr == line)
+    {
+      continue;
+    }
+
     cpu->ram[address++] = byte;
   }
 
