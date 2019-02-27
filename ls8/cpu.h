@@ -10,6 +10,7 @@ struct cpu {
   unsigned char registers[8];
   // ram (array)  -- he said in lecture that it would only be 256 bytes i thinl
   unsigned char ram[256]; //creates array with 256 open slots
+  unsigned char SP; // Creates the stack pointer / references most recently pushed or address F4
 };
 
 // ALU operations
@@ -27,6 +28,8 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define MUL 0b10100010
+#define PUSH 0B01000101
+#define POP  0B01000110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

@@ -20,7 +20,7 @@
 - [ ] Un-hardcode the machine code
 - [x] Implement the `cpu_load` function to load an `.ls8` file given the filename passed in as an argument
         -This was like the hardest thing in the world for me.
-- [ ] Implement a Multiply instruction and Print the result (run `mult8.ls8`)
+- [x] Implement a Multiply instruction and Print the result (run `mult8.ls8`)
 - [ ] Implement the System Stack and be able to run the `stack.ls8` program
 
 ### Day 3: Get `call.ls8` running

@@ -313,6 +313,7 @@ exception to this.
 
 Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
   the beginning of the spec to see which register is the stack pointer. 
+  STACK POINTER -> R7 is reserved as the stack pointer (SP)
   
 * Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_. 
   -  Use the stack pointer to modify the correct block of memory. 

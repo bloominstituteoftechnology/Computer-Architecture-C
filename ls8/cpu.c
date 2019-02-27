@@ -26,8 +26,8 @@ void cpu_load(struct cpu *cpu, char *argv[])//argv will come in from main accord
     // It copies the read string into the buffer buf, appending a null character to terminate the string.
     while(fgets(buf, sizeof(buf), f) != NULL){
       unsigned long int data = strtoul(buf, NULL, 2); //converts to binary
-      printf("BUF VALUE -> %s", buf);
-      printf("DATA -> %ld\n", data);
+      // printf("BUF VALUE -> %s", buf);
+      // printf("DATA -> %ld\n", data);
       // You'll have to convert the binary strings to integer values to store in RAM. The
       // built-in `strtoul()` library function might help you here.
       cpu->ram[address++] = data;
@@ -102,7 +102,13 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         // cpu->pc += 3;
         break;
-    
+      case PUSH:
+        cpu->SP -= 1;
+        cpu->ram[cpu->SP] = cpu->registers[operandA];
+        break;
+      case POP:
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP + 1);
+        break;
       default:
         break;
     }
