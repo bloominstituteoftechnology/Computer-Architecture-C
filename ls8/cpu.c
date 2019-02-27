@@ -72,14 +72,11 @@ void cpu_run(struct cpu *cpu)
 
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char operandA = cpu_ram_read(cpu, (cpu -> PC + 1) & 0xff);
-    unsigned char operandB = cpu_ram_read(cpu, (cpu -> PC + 2) & 0xff);
+    unsigned char operandA = cpu_ram_read(cpu, cpu -> PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu -> PC + 2);
 
-    // int add_to_pc = (IR >> 6) + 1;
-    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
-    // for(int i = 0; i < 8; i++) {
-    //   printf(" %02X", cpu->reg[i]);
-    // }
+    int num_of_op = IR >> 6;
+    //printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
@@ -87,28 +84,23 @@ void cpu_run(struct cpu *cpu)
         // 5. Do whatever the instruction should do according to the spec.
         cpu -> reg[operandA] = operandB;
         // 6. Move the PC to the next instruction.
-        cpu -> PC += 3;
+        // cpu -> PC += 3;
         break;
       case PRN:
         printf("%d\n", cpu -> reg[operandA]);
-        cpu -> PC += 2;
+        // cpu -> PC += 2;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
-        cpu -> PC += 3;
+        // cpu -> PC += 3;
         break;
-      // case POP:
-      //   cpu -> reg[operandA & 7] = cpu_ram_read(cpu, cpu -> reg[SP]);
-      //   cpu -> reg[SP]++;
-      //   break;
-      // case PUSH:
-      //   cpu -> reg[SP]--;
-      //   cpu_ram_write(cpu, cpu -> reg[SP], cpu -> reg[operandA & 7]);
-      //   break;
-      // case JMP:
-      //   cpu->PC = cpu->reg[operandA & SP];
-      //   add_to_pc = 0;
-      //   break;
+      case POP:
+        cpu -> reg[operandA] = cpu_ram_read(cpu, cpu -> SP++);
+        break;
+      case PUSH:
+        cpu -> SP -= 1;
+        cpu -> ram[cpu -> SP] = cpu -> reg[operandA];
+        break;
       case HLT:
         running = 0;
         break;
@@ -116,8 +108,7 @@ void cpu_run(struct cpu *cpu)
         printf("unknown instruction 0x%02X at 0x%02X\n", IR, cpu -> PC);
         exit(1);
     }
-    // cpu -> PC += add_to_pc;
-    // cpu -> PC &= 0xff;
+    cpu -> PC += num_of_op + 1;
   }
 }
 
