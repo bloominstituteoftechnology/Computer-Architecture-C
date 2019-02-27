@@ -106,12 +106,12 @@ void cpu_run(struct cpu *cpu)
       break;
     case POP:
       // Copy the value from the address pointed to by `SP` to the given register.
-      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      // cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
       //  increment SP
       cpu->registers[7]++;
       break;
     case PUSH:
-      printf("SP: %d\n", cpu->registers[7]);
       // decrement the SP
       cpu->registers[7]--;
       // Copy the value in the given register to the address pointed to by`SP`.
