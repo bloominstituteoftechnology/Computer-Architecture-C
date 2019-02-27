@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -18,25 +20,32 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *path)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+    FILE *fileptr = fopen(path, "r");
+    
+    if (fileptr == NULL)
+    {
+        printf("Couldn't open program: %s\n", path);
+        exit(2);
+    }
 
-  int address = 0;
+    int address = 0;
+    char line[8000];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+    while (fgets(line, sizeof line, fileptr) != NULL)
+    {
+        char *endptr;
+        // & 0xFF gives you the last 8 bits of the ul (so it will always fit in an unsigned char)
+        unsigned char value = strtoul(line, &endptr, 2) & 0xFF;
+        if (endptr == line)
+        {
+            continue;
+        }
+        cpu_ram_write(cpu, address++, value);
+    }
 
-  // TODO: Replace this with something less hard-coded
+    fclose(fileptr);
 }
 
 /**
@@ -100,7 +109,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
     cpu->pc = 0;
-    memset(cpu->ram, 0, 8 * sizeof(unsigned char));
-    memset(cpu->registers, 0, 256 * sizeof(unsigned char));
+    memset(cpu->ram, 0, sizeof cpu->ram);
+    memset(cpu->registers, 0, sizeof cpu->registers);
     cpu->registers[7] = 0xF4;
 }
