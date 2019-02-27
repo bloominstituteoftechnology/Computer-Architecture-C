@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cpu.h"
+
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
@@ -20,6 +22,23 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 
   // write mdr in ram
   cpu->ram[mar] = mdr;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  // Decrement SP
+  cpu->reg[SP]--;
+  // Copy the value in the given register to the address pointed to by SP;
+  cpu_ram_write(cpu, cpu->reg[SP], val);
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  // Read last value from stack
+  unsigned char val = cpu_ram_read(cpu, cpu->reg[SP]);
+  // Increment SP
+  cpu->reg[SP]++;
+  return val;
 }
 
 /**
@@ -114,6 +133,15 @@ void cpu_run(struct cpu *cpu)
       // Multiply operand0 by operand1
       alu(cpu, ALU_MUL, operand0, operand1);
       cpu->PC += 3;
+      break;
+    case PUSH:
+      cpu_push(cpu, cpu->reg[operand0]);
+      cpu->PC += 2;
+      break;
+    case POP:
+      // Copy the value from the address pointed to by SP to the given register
+      cpu->reg[operand0] = cpu_pop(cpu);
+      cpu->PC += 2;
       break;
     case HLT:
       // Set running to false to stop program
