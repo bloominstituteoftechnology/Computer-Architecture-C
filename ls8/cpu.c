@@ -70,10 +70,11 @@ void cpu_load(struct cpu *cpu, char *directory)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->reg[regA] *= cpu->reg[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -122,11 +123,15 @@ void cpu_run(struct cpu *cpu)
       return;
 
     case LDI:
-      cpu->registers[operandA] = operandB;
+      cpu->reg[operandA] = operandB;
       break;
 
     case PRN:
-      printf("%d\n", cpu->registers[operandA]);
+      printf("%d\n", cpu->reg[operandA]);
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
     default:
@@ -144,6 +149,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
-  memset(cpu->registers, 0, 8);
+  memset(cpu->reg, 0, 8);
   memset(cpu->ram, 0, 256);
 }
