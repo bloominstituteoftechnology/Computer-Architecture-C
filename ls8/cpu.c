@@ -103,11 +103,11 @@ void cpu_run(struct cpu *cpu)
         // cpu->pc += 3;
         break;
       case PUSH:
-        cpu->SP -= 1;
+        cpu->SP -= 1; // Sets stack pointer value to the newly pushed variable // subtracts because stack goes down
         cpu->ram[cpu->SP] = cpu->registers[operandA];
         break;
       case POP:
-        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP + 1);
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP++);
         break;
       default:
         break;
