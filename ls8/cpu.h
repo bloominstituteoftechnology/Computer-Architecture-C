@@ -9,7 +9,7 @@ struct cpu {
 };
 
 // ALU operations
-enum alu_op {
+enum alu_op { //enum often used for group of constants
 	ALU_MUL
 	// Add more here
 };

@@ -26,10 +26,10 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
-  FILE *fp = fopen(filename, "r"); //reads file
+  FILE *fp = fopen(filename, "r"); //opens file
 
   int address = 0;
-  char line[218];
+  char line[8192];
 
   if (fp != NULL)
   {
@@ -37,24 +37,24 @@ void cpu_load(struct cpu *cpu, char *filename)
     while (fgets(line, sizeof(line), fp) != NULL)
     {
       char *endptr;
-      unsigned char bistr = strtoul(line, &endptr, 2);
+      unsigned char bistrValue = strtoul(line, &endptr, 2); // OR strtoul(line, NULL , 2);
 
       //ignore everything after a `#`, since that's a comment.
-      if (strcmp(endptr, "#") == 0)
+      if (endptr == line)
       {
         continue;
       }
-
+      
       //save appropriate data into RAM
-      cpu_ram_write(cpu, address++, bistr);
+      cpu_ram_write(cpu, address++, bistrValue); //OR cpu->ram[address++] = bistrValue;
     }
   }
   else
   {
-    fprintf(stderr, "%s filename was not found!\n", filename);
+    fprintf(stderr, "%s filename was not found.\n", filename);
   }
 
-  fclose(fp);
+  fclose(fp); //closes file
 
   // //Hard-Coded Way:
   // char data[DATA_LEN] = {
