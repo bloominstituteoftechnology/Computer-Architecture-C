@@ -67,18 +67,18 @@ void cpu_run(struct cpu *cpu)
     
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char operand0 = cpu_ram_read(cpu, cpu->pc + 1);
-    unsigned char operand1 = cpu_ram_read(cpu, cpu->pc + 2);
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
     
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (IR) {
       case LDI:
-        cpu->reg[operand0] = operand1;
+        cpu->reg[operandA] = operandB;
         cpu->pc += 3;
         break;
       case PRN:
-        printf("%d\n", cpu->reg[operand0]);
+        printf("%d\n", cpu->reg[operandA]);
         cpu->pc += 2;
         break;
       case HLT:
