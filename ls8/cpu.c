@@ -45,24 +45,6 @@ void cpu_load(struct cpu *cpu, char *directory)
   }
 
   fclose(file);
-
-  // FILE *file = fopen(directory, "r");
-  // char *line = NULL;
-  // size_t len = 0;
-  // ssize_t read;
-
-  // if (directory == NULL)
-  //   printf("program not found");
-  // return;
-
-  // while ((read = getline(&line, &len, file)) != -1)
-  // {
-  //   printf("Retrieved line of length %zu :\n", read);
-  //   printf("%s", line);
-  // }
-
-  // free(line);
-  // fclose(file);
 }
 
 /**
@@ -74,7 +56,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    cpu->reg[regA] *= cpu->reg[regB];
+    cpu->reg[regA] = (cpu->reg[regA] * cpu->reg[regB]) & 0xFF;
     break;
 
     // TODO: implement more ALU ops
@@ -134,6 +116,15 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
+    case PUSH:
+      cpu->ram[--cpu->reg[7]] = cpu->reg[operandA];
+      break;
+
+    case POP:
+      cpu->reg[operandA] = cpu->ram[cpu->reg[7]];
+      cpu->ram[cpu->reg[7]++] = 0x00; // clear memory?
+      break;
+
     default:
       printf("nope\n");
     }
@@ -151,4 +142,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->reg, 0, 8);
   memset(cpu->ram, 0, 256);
+
+  cpu->reg[7] = 0xF4;
 }
