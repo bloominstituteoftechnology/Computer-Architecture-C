@@ -8,15 +8,6 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-// void cpu_load(struct cpu *cpu, int data[], int data_len)
-// {
-//   int address = 0;
-
-//   for (int i = 0; i < data_len; i++)
-//   {
-//     cpu->ram[address++] = data[i];
-//   }
-// }
 void cpu_load(struct cpu *cpu, char *arg)
 {
   int address = 0;
@@ -30,17 +21,12 @@ void cpu_load(struct cpu *cpu, char *arg)
   }
   while (fgets(str, 256, f) != NULL)
   {
-    char *ptr;
-    ptr = strchr(str, '#');
-    if (ptr != NULL)
-    {
-      *ptr = '\0';
-    }
     int b = (int)strtol(str, NULL, 2);
     cpu->ram[address++] = b;
   }
   fclose(f);
 }
+
 /**
  * ALU
  */
