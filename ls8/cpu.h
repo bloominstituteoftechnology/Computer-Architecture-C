@@ -2,7 +2,7 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-typedef struct cpu {
+struct cpu {
   // TODO
   // PC
   unsigned char pc;
@@ -10,7 +10,7 @@ typedef struct cpu {
   unsigned char reg[8]; // there are 8 total: R0-R7
   // ram (array)
   unsigned char ram[256];  // total amount of storage for this project
-} CPU;
+};
 
 // ALU operations
 enum alu_op {
