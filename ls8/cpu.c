@@ -131,8 +131,7 @@ void cpu_run(struct cpu *cpu)
       printf("%d\n", cpu->reg[operand_a]);
       break;
     case MUL:
-      alu(cpu, ALU_MUL, operand_a, operand_b); // alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-      break;
+      alu(cpu, ALU_MUL, operand_a, operand_b);
     case PUSH:
       cpu_push(cpu, cpu->reg[operand_a]);
       break;
