@@ -23,7 +23,6 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char value)
 {
   //To Do: implement function to write to ram
-  printf("ram value: %d\n", value);
   cpu->ram[index] = value;
 }
 
@@ -41,7 +40,6 @@ void cpu_load(struct cpu *cpu, char *file)
   while (fgets(buffer, sizeof(buffer), f) != NULL)
   {
     char *ptr;
-    printf("buffer: %s\n", buffer);
     long instruction = strtol(buffer, &ptr, 2);
     if (ptr == buffer)
     {
@@ -88,13 +86,13 @@ void cpu_run(struct cpu *cpu)
     unsigned char masking_bit = 0b11000000;
     int number_of_operands = IR & masking_bit;
     number_of_operands = number_of_operands >> 6;
-    printf("\n----\nIR: %d\n", IR);
-    printf("masking bit: %d\n", masking_bit);
-    printf("number of operands: %02x\n", number_of_operands);
-    printf("LDI: %d\n", LDI);
-    printf("PRN: %d\n", PRN);
-    printf("HLT: %d\n", HLT);
-    printf("MUL : %d\n", MUL);
+    //printf("\n----\nIR: %d\n", IR);
+    // printf("masking bit: %d\n", masking_bit);
+    // printf("number of operands: %02x\n", number_of_operands);
+    // printf("LDI: %d\n", LDI);
+    // printf("PRN: %d\n", PRN);
+    // printf("HLT: %d\n", HLT);
+    // printf("MUL : %d\n", MUL);
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (number_of_operands == 0)
     {
@@ -115,11 +113,11 @@ void cpu_run(struct cpu *cpu)
     {
     // 5. Do whatever the instruction should do according to the spec.
     case LDI:
-      printf("Let's load %d into register %d\n", operandB, operandA);
+      //printf("Let's load %d into register %d\n", operandB, operandA);
       cpu->registers[operandA] = operandB;
       break;
     case PRN:
-      printf("Lets print dx\n", operandB);
+      //printf("Lets print %d\n", operandB);
       printf("%d\n", cpu->registers[operandA]);
       break;
     case HLT:
@@ -128,7 +126,7 @@ void cpu_run(struct cpu *cpu)
 
     case MUL:
       // to do: call ALU function
-      printf("Lets print multiplication of: %d\n", cpu->registers[operandA], cpu->registers[operandB]);
+      //printf("Lets print multiplication of: %d\n", cpu->registers[operandA], cpu->registers[operandB]);
       //printf("%d\n", cpu->registers[operandA] * cpu->registers[operandB]);
 
       cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
@@ -136,15 +134,15 @@ void cpu_run(struct cpu *cpu)
 
     case PUSH:
       // decrement the SP (stack pointer)
-      //sp--;
+      cpu->registers[7]--;
       //copy the value in given register to the addresss pointed to by SP
-      //SP = cpu->registers[operandA];
+      cpu_write_ram(cpu, cpu->registers[7], cpu->registers[operandA]);
       break;
     case POP:
       //copy the value from the address pointed to by SP to the given register
-      //cpu->registers[operandA] = SP;
+      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
       //increment SP
-      //SP++;
+      cpu->registers[7]++;
 
       break;
 
@@ -171,4 +169,5 @@ void cpu_init(struct cpu *cpu)
   cpu->pc = 0;
   memset(cpu->registers, 0, 1);
   memset(cpu->ram, 0, sizeof(char));
+  cpu->registers[7] = 0xf4;
 }
