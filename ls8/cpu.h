@@ -19,6 +19,9 @@ struct cpu {
 
       // ram (array)
       unsigned char ram[256]; //8-bit cpu .. 2^8 = 256 
+      //stack 
+      unsigned char SP;
+
 };
 
 // ALU operations

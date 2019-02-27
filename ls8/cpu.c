@@ -121,15 +121,16 @@ void cpu_run(struct cpu *cpu)
                 break;
 
             case POP:
-                cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[7]);
+                cpu->reg[operandA] = cpu_ram_read(cpu, cpu->SP++);
                 cpu->PC +=2;
                 break;
 
             case PUSH:
-                cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]);
+                cpu->SP -= 1;
+                cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);    
                 cpu->PC +=2;
                 break;
-            
+
             case LDI:
                 cpu->reg[operandA] = operandB;
                 cpu->PC += 3;
@@ -170,4 +171,6 @@ void cpu_init(struct cpu *cpu)
       //The C library function void *memset(void *str, int c, size_t n)
       memset(cpu->reg, 0, sizeof(cpu->reg));
       memset(cpu->ram, 0, sizeof(cpu->ram));
+      //stack;
+      cpu->SP = 244;
 }
