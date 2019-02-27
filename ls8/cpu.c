@@ -1,32 +1,42 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *directory)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // FILE *file = fopen(directory, "r");
+  // char buffer[8];
 
-  int address = 0;
+  // while (fgets(buffer, 8, file))
+  // {
+  //   printf("%s\n", buffer);
+  // }
 
-  for (int i = 0; i < DATA_LEN; i++)
+  // fclose(file);
+
+  FILE *file = fopen(directory, "r");
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t read;
+
+  if (directory == NULL)
+    printf("program not found");
+  return;
+
+  while ((read = getline(&line, &len, file)) != -1)
   {
-    cpu->ram[address++] = data[i];
+    printf("Retrieved line of length %zu :\n", read);
+    printf("%s", line);
   }
 
-  // TODO: Replace this with something less hard-coded
+  free(line);
+  fclose(file);
 }
 
 /**
@@ -104,7 +114,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     default:
-      printf("nope");
+      printf("nope\n");
     }
 
     // 6. Move the PC to the next instruction.
