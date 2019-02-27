@@ -89,10 +89,8 @@ void cpu_run(struct cpu *cpu)
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-
     operandA = cpu_ram_read(cpu, cpu->PC + 1);
     operandB = cpu_ram_read(cpu, cpu->PC + 2);
-
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (IR)
@@ -105,6 +103,19 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    case POP:
+      // Copy the value from the address pointed to by `SP` to the given register.
+      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      //  increment SP
+      cpu->registers[7]++;
+      break;
+    case PUSH:
+      printf("SP: %d\n", cpu->registers[7]);
+      // decrement the SP
+      cpu->registers[7]--;
+      // Copy the value in the given register to the address pointed to by`SP`.
+      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
       break;
     case HLT:
       running = 0;
