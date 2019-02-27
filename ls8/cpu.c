@@ -4,6 +4,10 @@
 #include <stdlib.h>
 
 #define DATA_LEN 6
+// Initilize int to keep track of length of program in RAM
+// Used to trigger stack overflow warning
+unsigned int loaded_ram_address = 0;
+
 ////////////////////
 // Helper Functions
 ////////////////////
@@ -23,18 +27,28 @@ void push(struct cpu *cpu, unsigned char val)
 {
   // Decrement stack pointer
   cpu->SP--;
+  if (cpu->SP <= loaded_ram_address)
+  {
+    fprintf(stderr, "Stack overflow.\n");
+    exit(4);
+  }
   // Write to stack
   cpu_ram_write(cpu, cpu->SP, val);
 }
 
-unsigned char pop(struct cpu *cpu)
+void pop(struct cpu *cpu, unsigned char reg)
 {
   // Get value at stack pointer
   unsigned char value = cpu_ram_read(cpu, cpu->SP);
   // Increment stack pointer
   cpu->SP++;
-  // return popped value
-  return value;
+  if (cpu->SP > 244)
+  {
+    fprintf(stderr, "Stack underflow.\n");
+    exit(4);
+  }
+  // assign value to given register
+  cpu->reg[reg] = value;
 }
 ///////////////////////
 // Helper Functions End
@@ -50,12 +64,12 @@ void cpu_load(struct cpu *cpu, char *file)
   // Initialize buffer to read line by line
   char line_buf[1024];
   // Initialize starting address
-  int address = 0;
+  loaded_ram_address = 0;
   // Check file exists
   if ((fp = fopen(file, "r")) == NULL)
   {
     fprintf(stderr, "File doesn't exist\n");
-    exit(1);
+    exit(2);
   }
 
   // While line exists
@@ -77,8 +91,10 @@ void cpu_load(struct cpu *cpu, char *file)
       continue;
     }
     // store converted number in ram and increment address
-    cpu->ram[address++] = ret;
+    cpu->ram[loaded_ram_address++] = ret;
   }
+  // Close file
+  fclose(fp);
 }
 
 /**
@@ -144,7 +160,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case POP:
       // Pop the value at the top of the stack into the given register.
-      cpu->reg[operandA] = pop(cpu);
+      pop(cpu, operandA);
       break;
     case PRN:
       // Print numeric value stored in the given register.
@@ -156,7 +172,7 @@ void cpu_run(struct cpu *cpu)
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
-      exit(1);
+      exit(3);
     }
     // 6. Move the PC to the next instruction.
     cpu->PC += num_operands + 1;
