@@ -63,12 +63,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     break;
 
     // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
   }
 }
 void cpu_push(struct cpu *cpu, unsigned char target)
 {
   cpu->reg[7] -= 1;
-  cpu->ram[cpu->reg[7]] = target;
+  cpu_ram_write(cpu, cpu->reg[7], cpu->reg[target]);
 }
 
 void cpu_pop(struct cpu *cpu, unsigned char target)
@@ -108,7 +111,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case HLT:
       cpu->PC += 1;
-      return 0;
+      running = 0;
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       cpu->PC += 3;
@@ -121,6 +124,27 @@ void cpu_run(struct cpu *cpu)
       cpu_pop(cpu, operandA);
       cpu->PC += 2;
       break;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+
+    case CALL:
+    cpu->reg[7] -= 1;
+    cpu_ram_write(cpu, cpu->reg[7], cpu->PC + 2);
+    cpu->PC = cpu->reg[operandA];
+    printf("CALL PC: %d\n", cpu->PC);
+    break;
+
+    case RET:
+    cpu->PC = cpu->ram[cpu->reg[7]];
+    cpu->reg[7] += 1;
+    printf("PC: %d\n", cpu->PC);
+    break;
+    }
+    if ((instruction >> 4 & 1) != 1){
+      cpu->PC += (instruction >> 6 & 3) + 1;
+      printf("PC: %d\n, cpu->PC");
     }
     cpu->PC += 1 + (int)(instruction >> 6);
   }
