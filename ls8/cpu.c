@@ -5,38 +5,64 @@
 
 #define DATA_LEN 6
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char byte)
+{
+  cpu->ram[address] = byte;
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void cpu_load(struct cpu *cpu, char *directory)
 {
-  // FILE *file = fopen(directory, "r");
-  // char buffer[8];
-
-  // while (fgets(buffer, 8, file))
-  // {
-  //   printf("%s\n", buffer);
-  // }
-
-  // fclose(file);
-
   FILE *file = fopen(directory, "r");
-  char *line = NULL;
-  size_t len = 0;
-  ssize_t read;
 
-  if (directory == NULL)
-    printf("program not found");
-  return;
-
-  while ((read = getline(&line, &len, file)) != -1)
+  if (file == NULL)
   {
-    printf("Retrieved line of length %zu :\n", read);
-    printf("%s", line);
+    printf("invalid file\n");
+    exit(2);
   }
 
-  free(line);
+  char line[8192];
+  int address = 0;
+
+  while (fgets(line, sizeof line, file) != NULL)
+  {
+    // printf("%s", line);
+    char *endptr;
+    unsigned char byte = strtoul(line, &endptr, 2);
+
+    if (endptr == line)
+    {
+      continue;
+    }
+    cpu_ram_write(cpu, address++, byte);
+  }
+
   fclose(file);
+
+  // FILE *file = fopen(directory, "r");
+  // char *line = NULL;
+  // size_t len = 0;
+  // ssize_t read;
+
+  // if (directory == NULL)
+  //   printf("program not found");
+  // return;
+
+  // while ((read = getline(&line, &len, file)) != -1)
+  // {
+  //   printf("Retrieved line of length %zu :\n", read);
+  //   printf("%s", line);
+  // }
+
+  // free(line);
+  // fclose(file);
 }
 
 /**
@@ -52,16 +78,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
     // TODO: implement more ALU ops
   }
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char byte)
-{
-  cpu->ram[address] = byte;
 }
 
 /**
