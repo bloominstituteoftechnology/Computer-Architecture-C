@@ -3,7 +3,21 @@
 #include <string.h>
 #include "cpu.h"
 
-// #define DATA_LEN 6
+/**
+ *  Reads from RAM
+ */
+char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+/**
+ * Writes to RAM
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
+{
+  cpu->ram[address] = value;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
@@ -22,7 +36,7 @@ void cpu_load(struct cpu *cpu, char *arg)
   while (fgets(str, 256, f) != NULL)
   {
     int b = (int)strtol(str, NULL, 2);
-    cpu->ram[address++] = b;
+    cpu_ram_write(cpu, b, address++);
   }
   fclose(f);
 }
@@ -41,22 +55,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
     break;
   }
-}
-
-/**
- *  Reads from RAM
- */
-char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
-
-/**
- * Writes to RAM
- */
-void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
-{
-  cpu->ram[address] = value;
 }
 
 /**
@@ -136,6 +134,16 @@ void add_instr(struct cpu *cpu)
 }
 
 /**
+ * Perform CALL Instruction
+ */
+void call_instr(struct cpu *cpu)
+{
+  unsigned char operand_a = cpu_ram_read(cpu, cpu->pc + 1);
+
+  cpu->pc = operand_a;
+}
+
+/**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -164,6 +172,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case ADD:
       add_instr(cpu);
+      break;
+    case CALL:
+      call_instr(cpu);
       break;
     case HLT:
       running = 0;
