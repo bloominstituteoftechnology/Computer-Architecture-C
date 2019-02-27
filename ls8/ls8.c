@@ -7,16 +7,16 @@
  */
 int main(int argc, char *argv[])
 {
-  if (argc < 2)
+  if (argc != 2)
   {
-    fprintf(stderr, "Not enough arguments.\nUsage: ./ls8 {file path from current directory}\n");
+    fprintf(stderr, "Wrong number of arguments.\nUsage: ./ls8 {file path from current directory}\n");
     exit(1);
   }
 
   FILE *fptr;
   if ((fptr = fopen(argv[1], "r")) == NULL)
   {
-    printf("No such file.\n");
+    fprintf(stderr, "Error opening file or no such file.\n");
     exit(1);
   }
   fclose(fptr);

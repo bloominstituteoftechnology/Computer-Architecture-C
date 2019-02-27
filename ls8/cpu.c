@@ -42,6 +42,16 @@ void handle_HLT()
   exit(0);
 }
 
+// ================= Stack functions ==================
+
+void handle_PUSH()
+{
+}
+
+unsigned char handle_POP()
+{
+}
+
 // ================== CPU functions ===================
 
 /**
@@ -51,16 +61,18 @@ void cpu_load(struct cpu *cpu, char *argv)
 {
   FILE *ptr = fopen(argv, "r");
   char c[100];
-  long ret;
+  unsigned char ret;
 
   int address = 0;
   while (fgets(c, 100, ptr) != NULL)
   {
-    if (c[0] == '1' || c[0] == '0')
+    char *endptr;
+    ret = strtoul(c, &endptr, 2);
+    if (endptr == c)
     {
-      ret = strtoul(c, NULL, 2);
-      cpu_ram_write(cpu, address++, ret);
+      continue;
     }
+    cpu_ram_write(cpu, address++, ret);
   }
 
   fclose(ptr);
