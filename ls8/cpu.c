@@ -30,13 +30,18 @@ void cpu_load(struct cpu *cpu, char *arg)
 
   if (f == NULL)
   {
-    printf("NULL");
+    printf("File not found!\n");
     exit(1);
   }
   while (fgets(str, 256, f) != NULL)
   {
-    int b = (int)strtol(str, NULL, 2);
-    cpu_ram_write(cpu, b, address++);
+    char *endptr;
+    unsigned char val = strtoul(str, &endptr, 2);
+    if (endptr == str)
+    {
+      continue;
+    }
+    cpu_ram_write(cpu, val, address++);
   }
   fclose(f);
 }
@@ -138,9 +143,29 @@ void add_instr(struct cpu *cpu)
  */
 void call_instr(struct cpu *cpu)
 {
+  // Register in which contains our subroutine location
   unsigned char operand_a = cpu_ram_read(cpu, cpu->pc + 1);
+  // Go into the register and grab the address for our subroutine
+  unsigned char routine_loc = cpu->reg[operand_a];
+  // Store the return location after subroutine completes
+  unsigned char return_loc = cpu->pc + 2;
+  // Decrement the count for the stack
+  cpu->reg[7]--;
+  // Add the return location to the stack
+  cpu->ram[cpu->reg[7]] = return_loc;
+  // Set the program counter equal to the location of the routine
+  cpu->pc = routine_loc;
+}
 
-  cpu->pc = operand_a;
+/**
+ * Perform RET Instruction
+ */
+void ret_instr(struct cpu *cpu)
+{
+  // Set the PC to the location stored at the top of the Stack
+  cpu->pc = cpu->ram[cpu->reg[7]];
+  // Increase the size of the stack
+  cpu->reg[7]++;
 }
 
 /**
@@ -175,6 +200,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case CALL:
       call_instr(cpu);
+      break;
+    case RET:
+      ret_instr(cpu);
       break;
     case HLT:
       running = 0;
