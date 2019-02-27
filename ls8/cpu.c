@@ -1,5 +1,7 @@
 #include "cpu.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define DATA_LEN 6
 
@@ -39,6 +41,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
     // TODO: implement more ALU ops
   }
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
 }
 
 /**
@@ -87,12 +99,12 @@ void cpu_init(CPU *cpu)
   
 }
 
-unsigned char read_cpu_ram(CPU *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
+//unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+//{
+//  return cpu->ram[address];
+//}
 
-void write_cpu_ram(CPU *cpu, unsigned char address, unsigned char value)
-{
-  cpu->ram[address] = value;
-}
+//void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+//{
+//  cpu->ram[address] = value;
+//}
