@@ -37,9 +37,9 @@ void cpu_load(struct cpu *cpu, char *file)
 
   while (fgets(line, sizeof(line), fptr) != NULL)
   {
-    unsigned char b;
-    b = strtoul(line, NULL, 2);
-    cpu_ram_write(cpu, address++, b);
+    unsigned char binary_instruction;
+    binary_instruction = strtoul(line, NULL, 2);
+    cpu_ram_write(cpu, address++, binary_instruction);
   }
 
   fclose(fptr);
@@ -48,7 +48,7 @@ void cpu_load(struct cpu *cpu, char *file)
 /**
  * ALU
  */
-/*
+
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op)
@@ -60,7 +60,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
-*/
 
 /**
  * Run the CPU
@@ -71,6 +70,7 @@ void cpu_run(struct cpu *cpu)
   unsigned char IR;
   unsigned char operandA;
   unsigned char operandB;
+
   while (running)
   {
     // TODO
@@ -89,15 +89,15 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       // cpu_ram_write(cpu, operandA, operandB);
       cpu->registers[operandA] = operandB;
-      cpu->PC += 3;
+      // cpu->PC += 3;
       break;
     case PRN:
       printf("%d\n", cpu->registers[operandA]);
-      cpu->PC += 2;
+      // cpu->PC += 2;
       break;
     case MUL:
       cpu->registers[operandA] = cpu->registers[0] * cpu->registers[1];
-      cpu->PC += 3;
+      // cpu->PC += 3;
       break;
     case HLT:
       running = 0;
@@ -108,10 +108,17 @@ void cpu_run(struct cpu *cpu)
       break;
     }
 
-    // IR = cpu_ram_read(cpu, cpu->PC);
     // 6. Move the PC to the next instruction.
+    // mask IR then shift it using the shift operator
+    if ((0b11000000 & IR) >> 6 == 1)
+    {
+      cpu->PC += 2;
+    }
+    else if ((0b11000000 & IR) >> 6 == 2)
+    {
+      cpu->PC += 3;
+    }
   }
-  // printf("%d\n", IR);
 }
 
 /**
