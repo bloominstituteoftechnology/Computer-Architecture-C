@@ -1,6 +1,6 @@
 #include "cpu.h"
-#define ADDR_EMPTY_STACK 0XF4
 #define DATA_LEN 6
+#define SP 7
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +16,20 @@ void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address)
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  cpu->reg[SP]--;
+  cpu_ram_write(cpu, val, cpu->reg[SP]);
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  unsigned char val = cpu_ram_read(cpu, cpu->reg[SP]);
+  cpu->reg[SP]++;
+
+  return val;
 }
 
 void cpu_load(struct cpu *cpu, char *filename)
@@ -52,16 +66,22 @@ void cpu_load(struct cpu *cpu, char *filename)
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  unsigned char *reg = cpu->reg;
+  unsigned char value_b = reg[regB];
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+  switch (op) {
+    case ALU_MUL:
+      // TODO
+      reg[regA] *= value_b;
+      break;
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+      break;
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -103,6 +123,28 @@ void cpu_run(struct cpu *cpu)
       case LDI:
         cpu->reg[operandA] = operandB;
         break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      case PUSH:
+        cpu_push(cpu, cpu->reg[operandA]);
+        break;
+      case POP:
+        cpu->reg[operandA] = cpu_pop(cpu);
+        break;
+      case CALL:
+        cpu->reg[SP]--;
+        cpu_ram_write(cpu, cpu->reg[SP], cpu->PC + operands);
+
+        cpu->PC = cpu->reg[operandA];
+        break;
+      case RET:
+        cpu->PC = cpu_ram_read(cpu, cpu->reg[SP]);
+        cpu->reg[SP]++;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
       default:
         break;
     }
@@ -121,6 +163,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = -1;
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->reg, 0, sizeof cpu->reg);
-  cpu->reg[7] = 0xF4;
+  cpu->reg[SP] = ADDR_EMPTY_STACK;
   cpu->E = 0;
 }
