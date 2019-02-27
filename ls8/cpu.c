@@ -86,15 +86,45 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void (*handlers[256])(struct cpu *cpu, unsigned char op0, unsigned char op1) = {0};
 
 void LDI_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { cpu->registers[op0] = op1; } // Set Register  
+void HLT_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { (void)cpu; (void)op0; (void)op1; exit(0); } // Halt
 void PRN_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { (void)op1; printf("%d\n", cpu->registers[op0]); } // Print
 void MUL_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { alu(cpu, ALU_MUL, op0, op1); } // Multiply
-void HLT_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { (void)cpu; (void)op0; (void)op1; exit(0); } // Halt
+
+void POP_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // Pop
+  (void)op1; 
+  cpu->registers[op0] = cpu_ram_read(cpu, cpu->registers[7]);
+  if (cpu->registers[7] != 0xF4) cpu->registers[7] += 1; 
+}
+
+void PUSH_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // Push
+  (void)op1;
+  if (cpu->registers[7] != 0x00) {
+    cpu->registers[7] -= 1; 
+    cpu_ram_write(cpu, cpu->registers[7],  cpu->registers[op0]); 
+  } else {
+    printf("Stack Overflow.");
+    exit(4);
+  }
+} 
+
+
+
 
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
+
+    // Registers For Debugging
+    // printf("\n%d\n", cpu->registers[0]);
+    // printf("%d\n", cpu->registers[1]);
+    // printf("%d\n", cpu->registers[2]);
+    // printf("%d\n", cpu->registers[3]);
+    // printf("%d\n", cpu->registers[4]);
+    // printf("%d\n", cpu->registers[5]);
+    // printf("%d\n", cpu->registers[6]);
+    // printf("%x\n", cpu->registers[7]);
 
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
@@ -108,9 +138,12 @@ void cpu_run(struct cpu *cpu)
 
     // 4. switch() over it to decide on a course of action.
     handlers[LDI] = LDI_handler;
+    handlers[HLT] = HLT_handler;
     handlers[PRN] = PRN_handler;
     handlers[MUL] = MUL_handler;
     handlers[HLT] = HLT_handler;
+    handlers[POP] = POP_handler;
+    handlers[PUSH] = PUSH_handler;
 
     // 5. Do whatever the instruction should do according to the spec.
     if (handlers[IR]) { handlers[IR](cpu, op0, op1); }
@@ -129,4 +162,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->registers, 0, 8);
   memset(cpu->ram, 0, 256);
+  cpu->registers[7] = 0xF4;
 }
