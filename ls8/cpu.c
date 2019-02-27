@@ -155,10 +155,10 @@ void cpu_run(struct cpu *cpu)
     // Subroutine instructions
     case CALL:
       handle_CALL(cpu);
-      break;
+      continue;
     case RET:
       handle_RET(cpu);
-      break;
+      continue;
 
     // ALU Instructions
     case MUL:
@@ -180,11 +180,8 @@ void cpu_run(struct cpu *cpu)
       exit(1);
     }
 
-    if (IR != CALL && IR != RET)
-    {
-      int opNum = (11000000 & IR) >> 6;
-      cpu->pc += (opNum + 1);
-    }
+    int opNum = (11000000 & IR) >> 6;
+    cpu->pc += (opNum + 1);
   }
 }
 
