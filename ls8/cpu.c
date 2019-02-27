@@ -15,7 +15,12 @@ void cpu_load(struct cpu *cpu, char *filename)
   int address = 0;
   while (fgets(line, sizeof(line), fp) != NULL)
   {
-    unsigned char val = strtoul(line, NULL, 2);
+    char *endpointer;
+    unsigned char val = strtoul(line, &endpointer, 2);
+    if (endpointer == line)
+    {
+      continue;
+    }
     cpu_ram_write(cpu, address++, val);
   }
   fclose(fp);
@@ -26,10 +31,12 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->registers[regA];
+  unsigned char valB = cpu->registers[regB];
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = valA * valB;
     break;
 
     // TODO: implement more ALU ops
@@ -65,6 +72,8 @@ void cpu_run(struct cpu *cpu)
     // following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+
+    // printf("TRACE %02X:%02X  %02X %02X\n", cpu->pc, _IR, operandA, operandB);
 
     // 4. switch() over it to decide on a course of action.
     switch (_IR)
@@ -184,9 +193,10 @@ void cpu_run(struct cpu *cpu)
       the system should print an error message and halt.*/
       break;
 
-    case MUL: // MUL registerA registerB //
+    case MUL: // MUL registerA registerB // --> ALU
       /*Multiply the values in two registers together 
       and store the result in registerA.*/
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
     case NOP: // NOP //
@@ -262,7 +272,7 @@ void cpu_run(struct cpu *cpu)
 
     /* you can have any number of case statements */
     default: /* Optional */
-      printf("unknown command $u\n", _IR);
+      printf("unknown command %u\n", _IR);
       exit(1);
       break;
     }
