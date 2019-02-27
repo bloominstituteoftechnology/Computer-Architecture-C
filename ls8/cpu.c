@@ -19,25 +19,22 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) 
 void cpu_load(struct cpu *cpu, char *filename)
 {
   FILE *fp = fopen(filename, "r");
-  char line[1024];
-  unsigned char addr = 0x00;
 
-  if (fp == NULL) {
-    fprintf(stderr, "error opening file %s\n", filename);
+  if(fp == NULL) {
+    fprintf(stderr, "ls8: error opening file: %s\n", filename);
     exit(2);
   }
+  char line[8192];
+  int address = 0;
 
   while (fgets(line, sizeof line, fp) != NULL) {
-    char *endptr = NULL;
-
-    unsigned char b = strtoul(line, &endptr, 2);
-
-    if (endptr == line) {
-      // we got no numbers
+    char *endptr;
+    unsigned char val = strtoul(line, &endptr, 2);
+    if(endptr == line) {
       continue;
     }
-
-    cpu_ram_write(cpu, addr++, b);
+    //cpu -> ram[address++] = val;
+    cpu_ram_write(cpu, address++, val);
   }
 
   fclose(fp);
@@ -48,10 +45,13 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu -> reg[regA];
+  unsigned char valB = cpu -> reg[regB];
+
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu -> reg[regA] *= cpu -> reg[regB];
+      cpu -> reg[regA] = valA * valB;
       break;
 
     // TODO: implement more ALU ops
@@ -75,11 +75,11 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, (cpu -> PC + 1) & 0xff);
     unsigned char operandB = cpu_ram_read(cpu, (cpu -> PC + 2) & 0xff);
 
-    int add_to_pc = (IR >> 6) + 1;
-    printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
-    for(int i = 0; i < 8; i++) {
-      printf(" %02X", cpu->reg[i]);
-    }
+    // int add_to_pc = (IR >> 6) + 1;
+    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+    // for(int i = 0; i < 8; i++) {
+    //   printf(" %02X", cpu->reg[i]);
+    // }
 
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
@@ -93,29 +93,31 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu -> reg[operandA]);
         cpu -> PC += 2;
         break;
-      case HLT:
-        cpu -> PC += 1;
-        return 0;
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        cpu -> PC += 3;
         break;
-      case POP:
-        cpu -> reg[operandA & SP] = cpu_ram_read(cpu, cpu -> reg[SP]);
-        cpu -> reg[SP]++;
-        break;
-      case PUSH:
-        cpu -> reg[SP]--;
-        cpu_ram_write(cpu, cpu -> reg[SP], cpu -> reg[operandA & SP]);
-        break;
-      case JMP:
-        cpu->PC = cpu->reg[operandA & SP];
-        add_to_pc = 0;
+      // case POP:
+      //   cpu -> reg[operandA & 7] = cpu_ram_read(cpu, cpu -> reg[SP]);
+      //   cpu -> reg[SP]++;
+      //   break;
+      // case PUSH:
+      //   cpu -> reg[SP]--;
+      //   cpu_ram_write(cpu, cpu -> reg[SP], cpu -> reg[operandA & 7]);
+      //   break;
+      // case JMP:
+      //   cpu->PC = cpu->reg[operandA & SP];
+      //   add_to_pc = 0;
+      //   break;
+      case HLT:
+        running = 0;
         break;
       default:
-        printf("unknown instruction %02x\n", IR);
+        printf("unknown instruction 0x%02X at 0x%02X\n", IR, cpu -> PC);
+        exit(1);
     }
-    cpu -> PC += add_to_pc;
-    cpu -> PC &= 0xff;
+    // cpu -> PC += add_to_pc;
+    // cpu -> PC &= 0xff;
   }
 }
 
