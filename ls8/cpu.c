@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -33,7 +34,7 @@ void cpu_load(struct cpu *cpu, char *path)
     int address = 0;
     char line[8000];
 
-    while (fgets(line, sizeof line, fileptr) != NULL)
+    while (fgets(line, sizeof(line), fileptr) != NULL)
     {
         char *endptr;
         // & 0xFF gives you the last 8 bits of the ul (so it will always fit in an unsigned char)
@@ -53,13 +54,17 @@ void cpu_load(struct cpu *cpu, char *path)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+    unsigned int a = cpu->registers[regA];
+    unsigned int b = cpu->registers[regB];
 
-    // TODO: implement more ALU ops
-  }
+    switch (op) {
+        case ALU_MUL: 
+            cpu->registers[regA] = a * b;
+            break;
+        case ALU_ADD:
+            cpu->registers[regA] = a + b;
+            break;
+    }
 }
 
 /**
@@ -93,6 +98,14 @@ void cpu_run(struct cpu *cpu)
                 printf("%d\n", cpu->registers[operandA]);
                 cpu->pc += 2;
                 break;
+            case MUL:
+                alu(cpu, ALU_MUL, operandA, operandB);
+                cpu->pc += 3;
+                break;
+            case ADD:
+                alu(cpu, ALU_ADD, operandA, operandB);
+                cpu->pc += 3;
+                break;
             case HLT:
                 // Halt the CPU (and exit the emulator)
                 running = 0;
@@ -109,7 +122,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
     cpu->pc = 0;
-    memset(cpu->ram, 0, sizeof cpu->ram);
-    memset(cpu->registers, 0, sizeof cpu->registers);
+    memset(cpu->ram, 0, sizeof(cpu->ram));
+    memset(cpu->registers, 0, sizeof(cpu->registers));
     cpu->registers[7] = 0xF4;
 }
