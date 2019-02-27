@@ -35,10 +35,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->reg[regA] = cpu->reg[regA] * cpu->reg[regB];
     break;
-
-    // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] = cpu->reg[regA] + cpu->reg[regB];
+    break;
   }
 }
 
@@ -89,7 +90,7 @@ void mul_instr(struct cpu *cpu)
 {
   unsigned char operand_a = cpu_ram_read(cpu, cpu->pc + 1);
   unsigned char operand_b = cpu_ram_read(cpu, cpu->pc + 2);
-  cpu->reg[operand_a] = cpu->reg[operand_a] * cpu->reg[operand_b];
+  alu(cpu, ALU_MUL, operand_a, operand_b);
   cpu->pc += 3;
 }
 
@@ -124,6 +125,17 @@ void pop_instr(struct cpu *cpu)
 }
 
 /**
+ * Perform ADD Instruction
+ */
+void add_instr(struct cpu *cpu)
+{
+  unsigned char operand_a = cpu_ram_read(cpu, cpu->pc + 1);
+  unsigned char operand_b = cpu_ram_read(cpu, cpu->pc + 2);
+  alu(cpu, ALU_ADD, operand_a, operand_b);
+  cpu->pc += 3;
+}
+
+/**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
@@ -149,6 +161,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case POP:
       pop_instr(cpu);
+      break;
+    case ADD:
+      add_instr(cpu);
       break;
     case HLT:
       running = 0;
