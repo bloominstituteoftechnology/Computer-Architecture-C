@@ -73,6 +73,16 @@ int handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB) 
   return 0;
 }
 
+int handle_PUSH(struct cpu *cpu, unsigned char operandA) {
+  cpu->registers[7]--;
+  *cpu->registers[7] = cpu->registers[operandA];
+}
+
+int handle_POP(struct cpu *cpu, unsigned char operandA) {
+  cpu->registers[operandA] = *cpu->registers[7];
+  cpu->registers[7]++;
+}
+
 
 /**
  * Run the CPU
@@ -103,6 +113,12 @@ void cpu_run(struct cpu *cpu)
       case(MUL):
         alu(cpu, ALU_MUL,operandA, operandB);
         break;
+      case(PUSH):
+        handle_PUSH(cpu, operandA);
+        break;
+      case(POP):
+        handle_POP(cpu, operandA);
+        break;
     }
     
     cpu->PC += numop + 1;
@@ -126,6 +142,7 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->registers[7] = &cpu->ram[255];
   // TODO: Initialize the PC and other special registers
 }
 
