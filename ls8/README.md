@@ -20,12 +20,12 @@ then prints it out:
 ```
 # print8.ls8: Print the number 8 on the screen
 
-10000010 # LDI R0,8
+10000010 # LDI R0,8  --> PC 0
 00000000
 00001000
-01000111 # PRN R0
+01000111 # PRN R0 --> PC 1
 00000000
-00000001 # HLT
+00000001 # HLT --> PC 2
 ```
 
 The binary numeric value on the left in the `print8.ls8` code above is either:
