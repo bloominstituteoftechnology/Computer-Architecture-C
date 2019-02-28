@@ -6,7 +6,7 @@ _Objective_: to gain a deeper understanding of how a CPU functions at a
 low level.
 
 We're going to write an emulator for the world-famous LambdaSchool-8 computer,
-otherwise known as LS-8! This is an 8-bit computer with 8-bpcit memory addressing,
+otherwise known as LS-8! This is an 8-bit computer with 8-bit memory addressing,
 which is about as simple as it gets.
 
 An 8 bit CPU is one that only has 8 wires available for addresses (specifying
