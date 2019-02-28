@@ -59,6 +59,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->reg[regA] = (cpu->reg[regA] * cpu->reg[regB]) & 0xFF;
     break;
 
+  case ALU_ADD:
+    cpu->reg[regA] = (cpu->reg[regA] + cpu->reg[regB]) & 0xFF;
+    break;
+
+  default:
+    printf("nope\n");
     // TODO: implement more ALU ops
   }
 }
@@ -116,14 +122,27 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+
     case PUSH:
       cpu->ram[--cpu->reg[7]] = cpu->reg[operandA];
       break;
 
     case POP:
-      cpu->reg[operandA] = cpu->ram[cpu->reg[7]];
-      cpu->ram[cpu->reg[7]++] = 0x00; // clear memory?
+      cpu->reg[operandA] = cpu->ram[cpu->reg[7]++];
+      // cpu->ram[cpu->reg[7]++] = 0x00; // clear memory necessary?
       break;
+
+    case CALL:
+      cpu->ram[--cpu->reg[7]] = cpu->PC + nextInstruction;
+      cpu->PC = cpu->reg[operandA];
+      continue;
+
+    case RET:
+      cpu->PC = cpu->ram[cpu->reg[7]++];
+      continue;
 
     default:
       printf("nope\n");
