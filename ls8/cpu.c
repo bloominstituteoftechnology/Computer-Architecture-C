@@ -120,14 +120,7 @@ void cpu_run(struct cpu *cpu)
       default:
         break;
     }
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    // 2. Figure out how many operands this next instruction requires
-    // 3. Get the appropriate value(s) of the operands following this instruction
-    // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-      //Skipping everything that says it is run in alu
-    // 6. Move the PC to the next instruction.
+    
     cpu->pc += num_of_operations + 1;
   }
 }
