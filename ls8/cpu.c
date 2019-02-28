@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 // ================== RAM functions ===================
 
@@ -14,9 +15,9 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
 
 /**  Writes at index specified for the CPU's ram
  */
-void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char num)
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 {
-  cpu->ram[MAR] = num;
+  cpu->ram[MAR] = MDR;
 }
 
 // ================== Instrcution Handlers ===================
@@ -42,13 +43,28 @@ void handle_HLT()
   exit(0);
 }
 
+void handle_ST(struct cpu *cpu)
+{
+  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  unsigned char MDR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 2))];
+  printf("A: %d, B:%d\n", MAR, MDR);
+  cpu_ram_write(cpu, MAR, MDR);
+}
+
+void handle_JMP(struct cpu *cpu)
+{
+  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  cpu->pc = MAR;
+}
+
+// ================= SubRoutine functions ==================
 void handle_CALL(struct cpu *cpu)
 {
   // Saves next PC at the correct spot
   cpu_ram_write(cpu, --cpu->registers[7], (cpu->pc + 2));
 
-  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  cpu->pc = cpu->registers[regA];
+  char unsigned regAVal = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  cpu->pc = regAVal;
 }
 
 void handle_RET(struct cpu *cpu)
@@ -57,20 +73,12 @@ void handle_RET(struct cpu *cpu)
   cpu->pc = newPc;
 }
 
-void handle_ST(struct cpu *cpu)
-{
-  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
-  printf("A: %d, B:%d\n", cpu->registers[regA], cpu->registers[regB]);
-  cpu_ram_write(cpu, cpu->registers[regA], cpu->registers[regB]);
-}
-
 // ================= Stack functions ==================
 
 void handle_PUSH(struct cpu *cpu)
 {
-  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[regA]);
+  char unsigned MDR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  cpu_ram_write(cpu, --cpu->registers[7], MDR);
 }
 
 void handle_POP(struct cpu *cpu)
@@ -119,11 +127,14 @@ void alu(struct cpu *cpu, enum alu_op op)
   switch (op)
   {
   case ALU_MUL:
-    // TODO
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
   case ALU_ADD:
     cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+    break;
+  case ALU_INC:
+    cpu->registers[regA]++;
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -146,52 +157,66 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    // struct timeval tv;
+    // struct itimerval itv;
+    // time_t second;
+
+    // gettimeofday(&tv, NULL);
+    // second = tv.tv_sec;
+    // printf("Time: %d\n", second);
+
     unsigned char IR = cpu_ram_read(cpu, (cpu->pc));
 
-    switch (IR)
+    // printf("ALU find IR: %d\n", (IR));
+    unsigned char ALUNUM = (0b00100000 & IR) >> 5;
+
+    if (ALUNUM == 1)
     {
-    case LDI:
-      handle_LDI(cpu);
-      break;
-    case PRN:
-      handle_PRN(cpu);
-      break;
-    case HLT:
-      handle_HLT();
-      break;
-    case ST:
-      handle_ST(cpu);
-      break;
+      alu(cpu, IR);
+    }
+    else
+    {
 
-    // Subroutine instructions
-    case CALL:
-      handle_CALL(cpu);
-      continue;
-    case RET:
-      handle_RET(cpu);
-      continue;
+      switch (IR)
+      {
+      case LDI:
+        handle_LDI(cpu);
+        break;
+      case PRN:
+        handle_PRN(cpu);
+        break;
+      case HLT:
+        handle_HLT();
+        break;
+      case ST:
+        handle_ST(cpu);
+        break;
+      case JMP:
+        handle_JMP(cpu);
+        continue;
 
-    // ALU Instructions
-    case MUL:
-      alu(cpu, ALU_MUL);
-      break;
-    case ADD:
-      alu(cpu, ALU_ADD);
-      break;
+      // Subroutine instructions
+      case CALL:
+        handle_CALL(cpu);
+        continue;
+      case RET:
+        handle_RET(cpu);
+        continue;
 
-    //  Stack Instructions
-    case PUSH:
-      handle_PUSH(cpu);
-      break;
-    case POP:
-      handle_POP(cpu);
-      break;
-    default:
-      printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
-      exit(1);
+      //  Stack Instructions
+      case PUSH:
+        handle_PUSH(cpu);
+        break;
+      case POP:
+        handle_POP(cpu);
+        break;
+      default:
+        printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
+        exit(1);
+      }
     }
 
-    int opNum = (11000000 & IR) >> 6;
+    int opNum = (0b11000000 & IR) >> 6;
     cpu->pc += (opNum + 1);
   }
 }
