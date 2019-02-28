@@ -57,6 +57,14 @@ void handle_RET(struct cpu *cpu)
   cpu->pc = newPc;
 }
 
+void handle_ST(struct cpu *cpu)
+{
+  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
+  printf("A: %d, B:%d\n", cpu->registers[regA], cpu->registers[regB]);
+  cpu_ram_write(cpu, cpu->registers[regA], cpu->registers[regB]);
+}
+
 // ================= Stack functions ==================
 
 void handle_PUSH(struct cpu *cpu)
@@ -150,6 +158,9 @@ void cpu_run(struct cpu *cpu)
       break;
     case HLT:
       handle_HLT();
+      break;
+    case ST:
+      handle_ST(cpu);
       break;
 
     // Subroutine instructions
