@@ -13,18 +13,20 @@ unsigned int loaded_ram_address = 0;
 ////////////////////
 // Helper Functions
 ////////////////////
-// cpu_ram_read
+
+// Return value at RAM address
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
-// Implement cpu_ram_write
+// Write value at RAM address
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val)
 {
   cpu->ram[address] = val;
 };
 
+// Push value to top of stack
 void push(struct cpu *cpu, unsigned char val)
 {
   // Decrement stack pointer
@@ -38,6 +40,7 @@ void push(struct cpu *cpu, unsigned char val)
   cpu_ram_write(cpu, cpu->reg[SP_REG], val);
 }
 
+// Return value at top of stack
 unsigned char pop(struct cpu *cpu)
 {
   // Get value at stack pointer
@@ -52,6 +55,7 @@ unsigned char pop(struct cpu *cpu)
   // return value
   return value;
 }
+
 ///////////////////////
 // Helper Functions End
 ///////////////////////
@@ -99,16 +103,17 @@ void cpu_load(struct cpu *cpu, char *file)
 /**
  * ALU
  */
-// TODO: Find better implementation of ALU
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op)
   {
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
   case ALU_MUL:
     cpu->reg[regA] *= cpu->reg[regB];
     break;
-  case ALU_ADD:
-    cpu->reg[regA] += cpu->reg[regB];
+  default:
     break;
   }
 }
@@ -129,15 +134,8 @@ void cpu_run(struct cpu *cpu)
     // 2. Determine how many operands this next instruction requires from bits 6-7 of instruction opcode
     unsigned int num_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
-    if (num_operands == 2)
-    {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-      operandB = cpu_ram_read(cpu, cpu->PC + 2);
-    }
-    else if (num_operands == 1)
-    {
-      operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    }
+    operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
     // printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, instruction, operandA, operandB);
 
