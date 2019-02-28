@@ -1,27 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
+#define SP 7
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address){
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char value, unsigned char address){
+  cpu->ram[address] = value;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val){
+  cpu->reg[SP]--;
+  cpu_ram_write(cpu, val, cpu->reg[SP]);
+}
+
+unsigned char cpu_pop(struct cpu *cpu){
+  unsigned char ret = cpu_ram_read(cpu, cpu->reg[SP]);
+  cpu->reg[SP]++;
+  return ret;
+}
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
-{
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+void cpu_load(struct cpu *cpu, char *file){
+  FILE *fp = fopen(file, "r");
+  char line[1024];
+  unsigned char address = 0x00;
+  
+  while(fgets(line, sizeof(line), fp) != NULL){
+    //printf("%s", line);
+    
+    char *ptr;
+    unsigned char ret = strtol(line, &ptr, 2);
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+    if(ptr == line){
+      continue;
+    }
+    //printf("%02X\n", ret);
+    cpu_ram_write(cpu, ret, address++);
   }
+  fclose(fp);
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -33,12 +72,30 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA]*=cpu->reg[regB];
       break;
+    
+    case ALU_ADD:
+    cpu->reg[regA]+=cpu->reg[regB];
+    break;
 
-    // TODO: implement more ALU ops
+    case ALU_CMP:
+      if(cpu->reg[regA] == cpu->reg[regB]){
+        cpu->FL = 1 << 0;
+      } 
+      else if(cpu->reg[regA] < cpu->reg[regB]){
+        cpu->FL = 1 << 1;
+      }
+      else if(cpu->reg[regA] > cpu->reg[regB]){
+        cpu->FL = 1 << 2;
+      }else{
+        cpu->FL = 0 << 4;
+      }
+    break;
+    // TODO: implement more A LU ops
   }
 }
+
 
 /**
  * Run the CPU
@@ -50,18 +107,93 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
+    unsigned char operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    unsigned char operand2 = cpu_ram_read(cpu, (cpu->PC+2)& 0xff);  
     // 2. Figure out how many operands this next instruction requires
+    unsigned int num_operands = (instruction >> 6) + 1;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    // if(num_operands == 2){
+    //   operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    //   operand2 = cpu_ram_read(cpu, (cpu->PC+2)& 0xff);
+    // }
+    // else if(num_operands == 1){
+    //   operand1 = cpu_ram_read(cpu, (cpu->PC+1)& 0xff);
+    // }else{}
     // 4. switch() over it to decide on a course of action.
+    switch(instruction){
     // 5. Do whatever the instruction should do according to the spec.
+      case HLT:
+      running = 0;
+      break;
+
+      case LDI:
+      cpu->reg[operand1] = operand2;
+      break;
+
+      case PRN:
+      printf("%d\n", cpu->reg[operand1]);
+      break;
+
+      case MUL:
+      alu(cpu, ALU_MUL, operand1, operand2);
+      printf("%d\n", operand1);
+      break;
+
+      case ADD:
+      alu(cpu, ALU_ADD, operand1, operand2);
+      printf("%d\n", operand1);
+      break;
+
+      case PUSH:
+      cpu_push(cpu, cpu->reg[operand1]);
+      break;
+
+      case POP:
+      cpu->reg[operand1] = cpu_pop(cpu);
+      break;
+
+      case CMP:
+      alu(cpu, ALU_CMP, operand1, operand2);
+      break;
+
+      case JMP:
+      cpu->PC = cpu->reg[operand1];
+      num_operands = 0; 
+      break;
+
+      case JEQ:
+      if(cpu->FL == 0b00000001){
+        cpu->PC = cpu->reg[operand1];
+        num_operands = 0;
+      }
+      break;
+
+      case JNE:
+      if(cpu->FL != 0b00000001){
+        cpu->PC = cpu->reg[operand1];
+        num_operands = 0;
+      }
+      break;
+
+      default:
+      printf("Unknown Instruction\n");
+      exit(3);
+    }
     // 6. Move the PC to the next instruction.
+    cpu->PC += num_operands;
   }
 }
 
 /**
  * Initialize a CPU struct
  */
-void cpu_init(struct cpu *cpu)
-{
+void cpu_init(struct cpu *cpu){
+  cpu->PC = 0x00; 
+  cpu->reg[SP] = 0xF4; 
+  cpu->FL = 0x00;
+  memset(cpu->reg, 0, sizeof(cpu->reg));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
   // TODO: Initialize the PC and other special registers
 }
+
