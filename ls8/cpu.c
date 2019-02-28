@@ -86,11 +86,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
     cpu->reg[regA] = valA * valB;
     break;
-
-    // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] = valA + valB;
+    break;
   }
 }
 
@@ -134,6 +134,10 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operand0, operand1);
       cpu->PC += 3;
       break;
+    case ADD:
+      alu(cpu, ALU_ADD, operand0, operand1);
+      cpu->PC += 3;
+      break;
     case PUSH:
       cpu_push(cpu, cpu->reg[operand0]);
       cpu->PC += 2;
@@ -142,6 +146,16 @@ void cpu_run(struct cpu *cpu)
       // Copy the value from the address pointed to by SP to the given register
       cpu->reg[operand0] = cpu_pop(cpu);
       cpu->PC += 2;
+      break;
+    case CALL:
+      // Address of instruction is pushed to the stack
+      cpu_push(cpu, (cpu->PC + 2));
+      // The PC is set to the address stored in operand0
+      cpu->PC = cpu->reg[operand0];
+      break;
+    case RET:
+      // Pop the value from the top of the stack and store it in the PC
+      cpu->PC = cpu_pop(cpu);
       break;
     case HLT:
       // Set running to false to stop program
