@@ -22,7 +22,7 @@ void cpu_push(struct cpu *cpu, unsigned char val)
   cpu->ram[cpu->reg[SP]] = val;
 }
 
-unsigned char cpu_pop(struct cpu *cpu)
+unsigned char cpu_sp(struct cpu *cpu)
 {
   unsigned char ret = cpu->ram[cpu->reg[SP]];
   cpu->reg[SP]++;
@@ -123,7 +123,7 @@ void cpu_run(struct cpu *cpu)
       cpu_push(cpu, cpu->reg[operand_a]);
       break;
     case POP:
-      cpu->reg[operand_a] = cpu_pop(cpu);
+      cpu->reg[operand_a] = cpu_sp(cpu);
       break;
     case HLT:
       running = 0;
