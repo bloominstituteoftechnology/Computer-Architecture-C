@@ -39,9 +39,12 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->reg[regA];
+  unsigned char valB = cpu->reg[regB];
   switch (op)
   {
   case ALU_MUL:
+    cpu->reg[regA] = valA * valB;
     // TODO
     break;
 
@@ -79,6 +82,11 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       running = 0;
       break;
+    case MUL:
+      alu(cpu, ALU_MUL, operand0, operand1);
+      cpu->PC += 3;
+      break;
+
     default:
       printf("command not recognized, double check input\n");
       exit(1);
