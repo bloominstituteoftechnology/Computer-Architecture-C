@@ -85,8 +85,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
         cpu->reg[regA] += cpu->reg[regB];
         break;
+    
+    case ALU_SUB:
+            cpu->reg[regA] -= cpu->reg[regB];
+            break;
+
+    case ALU_DIV:
+            cpu->reg[regA] /= cpu->reg[regB];
+            break;
+
     default:
-        break;
+            break;
   }
 }
 
@@ -101,7 +110,9 @@ void cpu_run(struct cpu *cpu)
         // TODO
         // 1. Get the value of the current instruction (in address PC).
         unsigned char IR = cpu_ram_read(cpu, cpu->PC); //Instruction Register
-        
+        //unsigned char IR = cpu_ram_read(cpu, cpu->PC + 1); //for CALL.......
+
+
         // 2. Figure out how many operands this next instruction requires
         // 3. Get the appropriate value(s) of the operands following this instruction
         unsigned char operandA = cpu_ram_read(cpu, (cpu->PC + 1));
@@ -130,6 +141,27 @@ void cpu_run(struct cpu *cpu)
                 cpu_ram_write(cpu, cpu->SP, cpu->reg[operandA]);    
                 cpu->PC +=2;
                 break;
+            
+            case CALL: //Calls a subroutine (function) at the address stored in the register.
+                    cpu->SP -= 1;
+                    cpu_ram_write(cpu, cpu->SP, cpu->PC += 2);
+                    cpu->PC = cpu->reg[operandA];
+                    break;
+
+            case RET: //Return from subroutine.
+                      //Pop the value from the top of the stack and store it in the `PC`.
+                    cpu->PC = cpu_ram_read(cpu, cpu->SP++);
+                    break;
+
+            case DIV:
+                    alu(cpu, ALU_DIV, operandA, operandB);
+                    cpu->PC += 3;
+                    break;
+                
+            case SUB:
+                    alu(cpu, ALU_SUB, operandA, operandB);
+                    cpu->PC += 3;
+                    break;
 
             case LDI:
                 cpu->reg[operandA] = operandB;
@@ -172,5 +204,5 @@ void cpu_init(struct cpu *cpu)
       memset(cpu->reg, 0, sizeof(cpu->reg));
       memset(cpu->ram, 0, sizeof(cpu->ram));
       //stack;
-      cpu->SP = 244;
+      cpu->SP = 254;
 }

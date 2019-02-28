@@ -50,9 +50,10 @@ enum alu_op {
 #define POP  0b01000110
 #define PUSH 0b01000101
 
-
-
-
+//CALL 01010000 00000rrr
+//RET  0001 0001
+#define CALL 0b01010000 //01010000
+#define RET  0b00010001
 
 // Function declarations
 
