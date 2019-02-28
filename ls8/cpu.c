@@ -46,6 +46,15 @@ int cpu_ram_write(struct cpu *cpu, unsigned int position, unsigned char value){
   return cpu->ram[position];
 } 
 
+void push(struct cpu *cpu, unsigned char operandA){
+  cpu->SP -= 1;
+  cpu->ram[cpu->SP] = cpu->registers[operandA];   
+}
+
+unsigned char pop(struct cpu *cpu){
+  return cpu_ram_read(cpu, cpu->SP++);
+}
+
 /**
  * ALU
  */
@@ -55,6 +64,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       // TODO
       // Multiply the values in two registers together and store the result in registerA.
+      printf("\nMULTIPLY CALLED\n");
       cpu->registers[regA] *= cpu->registers[regB]; // sets registerA to registerA times registerB
       break;
 
@@ -88,40 +98,60 @@ void cpu_run(struct cpu *cpu)
       case LDI:/* Set the value of a register to an integer. */
         cpu->registers[operandA] = operandB;
         // cpu->pc += 3;
+        cpu->pc += num_of_operations + 1;
         break;
+
       // case NOP://does nothing
       //   break;
       case HLT: //exits the program
         running = 0;
         break;
+
       case PRN:
         printf("PRN Says: %d \n", cpu->registers[operandA]);
         // cpu->pc += 2;
+        cpu->pc += num_of_operations + 1;
         break;
+
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
         // cpu->pc += 3;
+        cpu->pc += num_of_operations + 1;
         break;
+
       case PUSH:
-        cpu->SP -= 1; // Sets stack pointer value to the newly pushed variable // subtracts because stack goes down
-        cpu->ram[cpu->SP] = cpu->registers[operandA];
+        push(cpu, operandA);
+        cpu->pc += num_of_operations + 1;
         break;
+
       case POP:
-        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP++);
+        cpu->registers[operandA] = pop(cpu);
+        cpu->pc += num_of_operations + 1;
         break;
+
       case CALL:
-        //Operanda will be the step to move to
-        cpu->ram[cpu->SP] = cpu->pc + 1 + operandA;
+        printf("\nCALL Called\n");
+        //The address of the ***instruction*** _directly after_ `CALL` is
+        //pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+        push(cpu, cpu->pc + 2);
+
+        //  The PC is set to the address stored in the given register. 
+        //  We jump to that location in RAM and execute the first instruction in the subroutine. 
+        //  The PC can move forward or backwards from its current location.
         cpu->pc = cpu->registers[operandA];
-        continue;
+        break;
+
       case RET:
-        cpu->pc = cpu_ram_read(cpu, cpu->SP++);
-        continue;
+        printf("\nRET Called\n");
+        // Pop the value from the top of the stack and store it in the `PC`.
+        cpu->pc = pop(cpu); 
+        break; 
+
       default:
         break;
     }
     
-    cpu->pc += num_of_operations + 1;
+    // cpu->pc += num_of_operations + 1;
   }
 }
 
