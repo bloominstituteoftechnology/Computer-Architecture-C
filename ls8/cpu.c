@@ -120,7 +120,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case CALL:
       cpu->registers[7]--;
-      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      cpu_ram_write(cpu, cpu->registers[7], cpu->PC + 2);
       cpu->PC = cpu->registers[operandA];
       break;
     case RET:
