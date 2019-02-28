@@ -44,7 +44,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       cpu->registers[regA] = (int)cpu->registers[regA] * (int)cpu->registers[regB];
-      
+      break;
+    case ALU_ADD:
+      cpu->registers[regA] = (int)cpu->registers[regA] + (int)cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -58,31 +60,30 @@ void cpu_ram_write(struct cpu *cpu, char data, int index) {
   cpu->ram[index] = data;
 }
 
-int handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+void handle_LDI(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
   cpu->registers[operandA] = operandB;
   printf("%i INSIDE LDI\n", cpu->registers[operandA]);
-  return 0;
 }
 
-int handle_PRN(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+void handle_PRN(struct cpu *cpu, unsigned char operandA) {
   printf("Numeric Value = %i\n", cpu->registers[operandA]);
+  
+}
+
+int handle_HLT() {
   return 0;
 }
 
-int handle_HLT(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
-  return 0;
-}
-
-int handle_PUSH(struct cpu *cpu, unsigned char operandA) {
+void handle_PUSH(struct cpu *cpu, unsigned char operandA) {
   cpu->registers[7]--;
-  *cpu->registers[7] = cpu->registers[operandA];
+  *cpu->registers[7] = cpu->ram[operandA];
+  
 }
 
-int handle_POP(struct cpu *cpu, unsigned char operandA) {
-  cpu->registers[operandA] = *cpu->registers[7];
+void handle_POP(struct cpu *cpu, unsigned char operandA) {
+  cpu->registers[operandA] = cpu->ram[(int)cpu->registers[7]];
   cpu->registers[7]++;
 }
-
 
 /**
  * Run the CPU
@@ -99,16 +100,18 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     unsigned int numop = IR >> 6;
-
+    unsigned int test;
+    
+    cpu->PC += numop + 1;
     switch(IR) {
       case(LDI):
         handle_LDI(cpu, operandA, operandB);
         break;
       case(PRN):
-        handle_PRN(cpu, operandA, operandB);
+        handle_PRN(cpu, operandA);
         break;
       case(HLT):
-        running = handle_HLT(cpu, operandA, operandB);
+        running = handle_HLT();
         break;
       case(MUL):
         alu(cpu, ALU_MUL,operandA, operandB);
@@ -119,9 +122,23 @@ void cpu_run(struct cpu *cpu)
       case(POP):
         handle_POP(cpu, operandA);
         break;
+      case(CALL):
+        cpu->registers[7]--;
+        cpu->registers[7] = cpu->PC;
+        cpu->PC = cpu->registers[operandA];
+        break;
+      case(RET):    
+        test = (int)cpu->registers[7];
+        cpu->PC = test; 
+        cpu->registers[7]++;
+        break;
+      case(ADD):
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
     }
     
-    cpu->PC += numop + 1;
+    
+    
     
     
     // 2. Figure out how many operands this next instruction requires
@@ -137,12 +154,46 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
+
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->FL= 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
   cpu->registers[7] = &cpu->ram[255];
   // TODO: Initialize the PC and other special registers
 }
 
+/*
+### CALL register
+
+`CALL register`
+
+Calls a subroutine (function) at the address stored in the register.
+
+1. The address of the ***instruction*** _directly after_ `CALL` is
+   pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+
+Machine code:
+```
+01010000 00000rrr
+50 0r
+```
+
+
+### RET
+
+`RET`
+
+Return from subroutine.
+
+Pop the value from the top of the stack and store it in the `PC`.
+
+Machine Code:
+```
+00010001
+11
+```
+*/
