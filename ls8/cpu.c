@@ -93,6 +93,17 @@ void cpu_run(struct cpu *cpu)
     case CALL: // CALL register //
       /*Calls a subroutine (function) at the address stored 
       in the register.*/
+      /*The address of the instruction directly after CALL is 
+      pushed onto the stack. This allows us to return to where 
+      we left off when the subroutine finishes executing.*/
+      cpu->registers[7]--;
+      cpu->ram[cpu->registers[7]] = cpu->pc + 1;
+
+      /*The PC is set to the address stored in the given register. 
+      We jump to that location in RAM and execute the first 
+      instruction in the subroutine. The PC can move forward 
+      or backwards from its current location.*/
+      cpu->pc = cpu->registers[operandA];
       flag = 1;
       break;
 
@@ -252,12 +263,14 @@ void cpu_run(struct cpu *cpu)
       pointed to by SP.*/
       cpu->registers[7]--;
       cpu->ram[cpu->registers[7]] = cpu->registers[operandA];
-
       break;
 
     case RET: // RET //
       /*Return from subroutine.
       Pop the value from the top of the stack and store it in the PC.*/
+      cpu->pc = cpu->ram[cpu->registers[7]];
+      cpu->registers[7]++;
+      flag = 1;
       break;
 
     case SHL: // SHL //
