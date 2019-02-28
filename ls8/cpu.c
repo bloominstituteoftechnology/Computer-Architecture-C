@@ -87,6 +87,21 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
 
+    case POP:
+      printf("executing pop...");
+      cpu->reg[operand0] = cpu->ram[cpu->reg[7]];
+      cpu->reg[7]++;
+      cpu->PC += 2;
+
+      break;
+    case PUSH:
+      printf("executing push...");
+      cpu->reg[7]--;
+      cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operand0]);
+      cpu->PC += 2;
+
+      break;
+
     default:
       printf("command not recognized, double check input\n");
       exit(1);
