@@ -43,6 +43,8 @@ void handle_HLT()
   exit(0);
 }
 
+// ST function: Store value in registerB in the address stored in registerA
+// This opcode writes to memory
 void handle_ST(struct cpu *cpu)
 {
   unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
@@ -51,10 +53,17 @@ void handle_ST(struct cpu *cpu)
   cpu_ram_write(cpu, MAR, MDR);
 }
 
+//  JMP function: Jump to the address stored in the given register
 void handle_JMP(struct cpu *cpu)
 {
   unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
   cpu->pc = MAR;
+}
+
+void handle_PRA(struct cpu *cpu)
+{
+  unsigned char regA = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  printf("%c\n", regA);
 }
 
 // ================= SubRoutine functions ==================
@@ -147,6 +156,7 @@ void cpu_run(struct cpu *cpu)
 {
 
   int running = 1; // True until we get a HLT instruction
+  time_t timePast = 0;
 
   while (running)
   {
@@ -157,13 +167,39 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    // struct timeval tv;
-    // struct itimerval itv;
-    // time_t second;
+    struct timeval tv;
+    time_t second;
 
-    // gettimeofday(&tv, NULL);
-    // second = tv.tv_sec;
-    // printf("Time: %d\n", second);
+    gettimeofday(&tv, NULL);
+    second = tv.tv_sec;
+    if (second != timePast)
+    {
+      cpu->registers[6] = 0b00000001;
+      timePast = second;
+      printf("Time: %ld\n", second);
+    }
+
+    unsigned char interrupts = cpu->registers[5] & cpu->registers[6];
+    if (interrupts)
+    {
+      for (int i = 0; i < 8; i++)
+      {
+        int interrupt_happened = ((interrupts >> i) & 1) == 1;
+        if (interrupt_happened)
+        {
+          cpu->registers[6] = 0;
+
+          cpu_ram_write(cpu, cpu->registers[7]--, cpu->pc);
+          cpu_ram_write(cpu, cpu->registers[7]--, cpu->fl);
+          for (int i = 0; i < 7; i++)
+          {
+            cpu_ram_write(cpu, cpu->registers[7]--, cpu->registers[i]);
+          }
+          cpu->pc = cpu->ram[0xF8 + i];
+          break;
+        }
+      }
+    }
 
     unsigned char IR = cpu_ram_read(cpu, (cpu->pc));
 
@@ -194,6 +230,9 @@ void cpu_run(struct cpu *cpu)
       case JMP:
         handle_JMP(cpu);
         continue;
+      case PRA:
+        handle_PRA(cpu);
+        break;
 
       // Subroutine instructions
       case CALL:
