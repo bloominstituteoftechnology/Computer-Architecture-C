@@ -67,6 +67,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_MUL:
     cpu->registers[regA] = valA * valB;
     break;
+  case ALU_ADD:
+    cpu->registers[regA] = valA + valB;
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -104,31 +107,38 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
     case POP:
-      // Copy the value from the address pointed to by `SP` to the given register.
-      // cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
       cpu->registers[operandA] = cpu->ram[cpu->registers[7]];
-      //  increment SP
       cpu->registers[7]++;
       break;
     case PUSH:
-      // decrement the SP
       cpu->registers[7]--;
-      // Copy the value in the given register to the address pointed to by`SP`.
       cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      break;
+    case CALL:
+      cpu->registers[7]--;
+      cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operandA]);
+      cpu->PC = cpu->registers[operandA];
+      break;
+    case RET:
+      cpu->PC = cpu->ram[cpu->registers[7]];
+      cpu->registers[7]++;
       break;
     case HLT:
       running = 0;
       break;
     default:
-      printf("unexpected instruction 0x%02X at 0x%02X", IR, cpu->PC);
+      printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->PC);
       exit(1);
       break;
     }
 
     // 6. Move the PC to the next instruction.
     // mask IR then shift it using the shift operator
-    if ((0b11000000 & IR) >> 6 == 1)
+    if ((0b11000000 & IR) >> 6 == 1 && IR != CALL && IR != RET)
     {
       cpu->PC += 2;
     }
