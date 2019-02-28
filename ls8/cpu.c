@@ -94,7 +94,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
+  unsigned char SP = cpu->reg[7]; //R7 is reserved as the stack pointer (SP)
+  
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -124,15 +125,14 @@ void cpu_run(struct cpu *cpu)
       break;
 
       case PUSH: //Push the value in the given register on the stack.
-      // printf("--> %d\n", cpu->reg[7]);
-      cpu->reg[7]--; //register 7 (R7) == stack pointer (SP), 1. Decrement the SP
-      cpu_ram_write(cpu, cpu->reg[7], cpu->reg[operandA]); //2. Copy the value in the given register to the address pointed to by SP
+      SP--; // 1. Decrement the SP
+      cpu_ram_write(cpu, SP, cpu->reg[operandA]); //2. Copy the value in the given register to the address pointed to by SP
       cpu->PC += 2; 
       break;
 
       case POP: //Pop the value at the top of the stack into the given register.
-      cpu->reg[operandA] = cpu_ram_read(cpu, cpu->ram[7]); //1. Copy the value from the address pointed to by SP to the given register.
-      cpu->reg[7]++; //2. Increment SP.
+      cpu->reg[operandA] = cpu_ram_read(cpu, SP); //1. Copy the value from the address pointed to by SP to the given register.
+      SP++; //2. Increment SP.
       cpu->PC += 2; 
       break;
 
@@ -149,7 +149,6 @@ void cpu_run(struct cpu *cpu)
         printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->PC);
         exit(1);
     }
-    
   }
 }
 
@@ -158,7 +157,8 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  cpu->PC = 0; 
-  memset(cpu->ram, 0, sizeof(cpu->reg));
-  memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->PC = 0; //PC and FL registers are cleared to 0.
+  memset(cpu->ram, 0, sizeof(cpu->reg)); //R0-R6 are cleared to 0
+  memset(cpu->ram, 0, sizeof(cpu->ram)); //RAM is cleared to 0
+  cpu->reg[7] = 0xF4; //R7 is set to 0xF4.
 }
