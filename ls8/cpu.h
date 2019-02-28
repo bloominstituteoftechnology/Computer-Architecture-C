@@ -6,8 +6,6 @@ struct cpu
 {
   // PC
   unsigned int PC;
-  // Stack Pointer;
-  unsigned int SP;
   // registers (array)
   unsigned char reg[8];
   // ram (array)

@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Define which register to store Stack Pointer
+#define SP_REG 7
+
 // Initilize int to keep track of length of program in RAM
 // Used to trigger stack overflow warning
 unsigned int loaded_ram_address = 0;
@@ -25,23 +28,23 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val)
 void push(struct cpu *cpu, unsigned char val)
 {
   // Decrement stack pointer
-  cpu->SP--;
-  if (cpu->SP <= loaded_ram_address)
+  cpu->reg[SP_REG]--;
+  if (cpu->reg[SP_REG] <= loaded_ram_address)
   {
     fprintf(stderr, "Stack overflow.\n");
     exit(4);
   }
   // Write to stack
-  cpu_ram_write(cpu, cpu->SP, val);
+  cpu_ram_write(cpu, cpu->reg[SP_REG], val);
 }
 
 unsigned char pop(struct cpu *cpu)
 {
   // Get value at stack pointer
-  unsigned char value = cpu_ram_read(cpu, cpu->SP);
+  unsigned char value = cpu_ram_read(cpu, cpu->reg[SP_REG]);
   // Increment stack pointer
-  cpu->SP++;
-  if (cpu->SP > 244)
+  cpu->reg[SP_REG]++;
+  if (cpu->reg[SP_REG] > 244)
   {
     fprintf(stderr, "Stack underflow.\n");
     exit(4);
@@ -212,5 +215,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
   // Empty stack starts at address F4
-  cpu->SP = 0xF4;
+  cpu->reg[SP_REG] = 0xF4;
 }
