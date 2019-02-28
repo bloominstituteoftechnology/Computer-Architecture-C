@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
 // Initilize int to keep track of length of program in RAM
 // Used to trigger stack overflow warning
 unsigned int loaded_ram_address = 0;
@@ -81,9 +80,6 @@ void cpu_load(struct cpu *cpu, char *file)
     unsigned int ret;
     // convert string to number
     ret = strtol(line_buf, &ptr, 2);
-    // printf("Line: %s\n", line_buf);
-    // printf("The number part is %u\n", ret);
-    // printf("String part is %s \n", ptr);
 
     // If string equal to line (ie. blank) go to next line
     if (ptr == line_buf)
@@ -147,6 +143,8 @@ void cpu_run(struct cpu *cpu)
     switch (instruction)
     {
     case ADD:
+      // *This is an instruction handled by the ALU.*
+      // Add the value in two registers and store the result in registerA.
       alu(cpu, ALU_ADD, operandA, operandB);
       break;
     case CALL:
@@ -170,7 +168,6 @@ void cpu_run(struct cpu *cpu)
       cpu->reg[operandA] = operandB;
       break;
     case MUL:
-      // TODO: Find better implementation of ALU
       // *This is an instruction handled by the ALU.*
       // Multiply the values in two registers together and store the result in registerA.
       alu(cpu, ALU_MUL, operandA, operandB);
@@ -196,7 +193,7 @@ void cpu_run(struct cpu *cpu)
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
       exit(3);
     }
-    // 6. Move the PC to the next instruction.
+    // 6. Check to see if instruction sets PC. Move the PC to the next instruction if needed.
     int PC_set = instruction >> 4 & 0x01;
     if (PC_set == 0)
     {
