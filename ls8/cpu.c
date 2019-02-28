@@ -53,8 +53,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       // TODO
       cpu -> reg[regA] = valA * valB;
       break;
-
-    // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu -> reg[regA] = valA + valB;
+      break;
   }
 }
 
@@ -76,7 +77,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu -> PC + 2);
 
     unsigned int num_of_op = IR >> 6;
-    //printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
+    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
 
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
@@ -101,13 +102,19 @@ void cpu_run(struct cpu *cpu)
         cpu -> SP -= 1;
         cpu -> ram[cpu -> SP] = cpu -> reg[operandA];
         break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
       case CALL:
         cpu -> ram[--cpu -> SP] = cpu -> PC + 1 + num_of_op;
         cpu -> PC = cpu -> reg[operandA];
-        continue;
+        break;
+      case JMP:
+        cpu -> PC = cpu -> reg[operandA];
+        break;
       case RET:
         cpu -> PC = cpu_ram_read(cpu, cpu -> SP++);
-        continue;
+        break;
       case HLT:
         running = 0;
         break;
@@ -115,7 +122,10 @@ void cpu_run(struct cpu *cpu)
         printf("unknown instruction 0x%02X at 0x%02X\n", IR, cpu -> PC);
         exit(1);
     }
-    cpu -> PC += num_of_op + 1;
+    int set = IR >> 4 & 0x01;
+    if(set == 0) {
+      cpu -> PC += num_of_op + 1;
+    }
   }
 }
 
