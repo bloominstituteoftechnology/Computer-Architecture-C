@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 // Define which register to store Stack Pointer
 #define SP_REG 7
@@ -56,6 +57,12 @@ unsigned char pop(struct cpu *cpu)
   }
   // return value
   return value;
+}
+
+void handle_interrupt(struct cpu *cpu)
+{
+  printf("Start handle_interrupt\n");
+  cpu->reg[IS_REG] = 0;
 }
 
 ///////////////////////
@@ -128,6 +135,9 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char operandA;
   unsigned char operandB;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  unsigned int prev_sec = tv.tv_sec;
 
   while (running)
   {
@@ -138,6 +148,15 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     operandA = cpu_ram_read(cpu, cpu->PC + 1);
     operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    // Check for time interrupt
+    gettimeofday(&tv, NULL);
+    // printf("tv: %ld  prev_sec: %u\n", tv.tv_sec, prev_sec);
+    if (tv.tv_sec != prev_sec)
+    {
+      cpu->reg[IS_REG] |= 0x01;
+    }
+    prev_sec = tv.tv_sec;
 
     // printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, instruction, operandA, operandB);
 
@@ -205,6 +224,12 @@ void cpu_run(struct cpu *cpu)
     if (PC_set == 0)
     {
       cpu->PC += num_operands + 1;
+    }
+    // 7. Check for interrupt
+    if (cpu->reg[IS_REG] != 0)
+    {
+      printf("reg[IS_REG]: %d\n", cpu->reg[IS_REG]);
+      handle_interrupt(cpu);
     }
   }
 }
