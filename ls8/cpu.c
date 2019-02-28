@@ -5,6 +5,10 @@
 
 // Define which register to store Stack Pointer
 #define SP_REG 7
+// Define which register handles interrupt status
+#define IS_REG 6
+// Define which register handles interrupt mask
+#define IM_REG 5
 
 // Initilize int to keep track of length of program in RAM
 // Used to trigger stack overflow warning
@@ -29,9 +33,8 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val)
 // Push value to top of stack
 void push(struct cpu *cpu, unsigned char val)
 {
-  // Decrement stack pointer
-  cpu->reg[SP_REG]--;
-  if (cpu->reg[SP_REG] <= loaded_ram_address)
+  // Decrement stack pointer and check for overflow
+  if (cpu->reg[SP_REG]-- <= loaded_ram_address)
   {
     fprintf(stderr, "Stack overflow.\n");
     exit(4);
@@ -43,10 +46,9 @@ void push(struct cpu *cpu, unsigned char val)
 // Return value at top of stack
 unsigned char pop(struct cpu *cpu)
 {
-  // Get value at stack pointer
-  unsigned char value = cpu_ram_read(cpu, cpu->reg[SP_REG]);
-  // Increment stack pointer
-  cpu->reg[SP_REG]++;
+  // Get value at stack pointer and increment
+  unsigned char value = cpu_ram_read(cpu, cpu->reg[SP_REG]++);
+  // Check if stack is empty
   if (cpu->reg[SP_REG] > 244)
   {
     fprintf(stderr, "Stack underflow.\n");
@@ -189,6 +191,10 @@ void cpu_run(struct cpu *cpu)
       // Return from subroutine.
       // Pop the value from the top of the stack and store it in the `PC`.
       cpu->PC = pop(cpu);
+      break;
+    case ST:
+      // Store value in registerB in the address stored in registerA.
+      cpu_ram_write(cpu, cpu->reg[operandB], cpu->reg[operandA]);
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
