@@ -78,6 +78,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA;
     unsigned char operandB;
     unsigned char next_instruction;
+    unsigned int tmp;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu->ram[cpu->pc];
@@ -147,27 +148,29 @@ void cpu_run(struct cpu *cpu)
       cpu->registers[7]++;
       break;
     case CALL:
-    printf("lets CALL \n");
+      printf("lets CALL \n");
       //add the address of the instruction directly after the call to the stack
       //PUSH(cpu_read_ram(cpu, cpu->pc+number_of_operands+1)
       next_instruction = cpu_ram_read(cpu, cpu->pc + number_of_operands + 1);
       printf("next instruction: %d\n", next_instruction);
       cpu->registers[7]--;
-      cpu_write_ram(cpu, cpu->registers[7], next_instruction);
+      //cpu_write_ram(cpu, cpu->registers[7], next_instruction);
+      cpu_write_ram(cpu, cpu->registers[7], cpu->pc);
       //PC is set to the address stored in the given register
       cpu->pc = cpu_ram_read(cpu, operandA);
 
       break;
     case RET:
-    printf("i just want to RETurn");
+      printf("i just want to RETurn");
       //POP the value from top of the stack:
       //copy the value from the address pointed to by SP to the given register
       cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
-      //increment SP
-      cpu->registers[7]++;
 
       //store it in PC:
       cpu->pc = cpu->registers[operandA];
+
+      //increment SP
+      cpu->registers[7]++;
       break;
     default:
       printf("something went wrong with IR : %d\n", IR);
