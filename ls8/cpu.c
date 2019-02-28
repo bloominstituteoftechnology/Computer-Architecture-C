@@ -36,7 +36,7 @@ void push(struct cpu *cpu, unsigned char val)
   cpu_ram_write(cpu, cpu->SP, val);
 }
 
-void pop(struct cpu *cpu, unsigned char reg)
+unsigned char pop(struct cpu *cpu)
 {
   // Get value at stack pointer
   unsigned char value = cpu_ram_read(cpu, cpu->SP);
@@ -47,8 +47,8 @@ void pop(struct cpu *cpu, unsigned char reg)
     fprintf(stderr, "Stack underflow.\n");
     exit(4);
   }
-  // assign value to given register
-  cpu->reg[reg] = value;
+  // return value
+  return value;
 }
 ///////////////////////
 // Helper Functions End
@@ -108,8 +108,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_MUL:
     cpu->reg[regA] *= cpu->reg[regB];
     break;
-
-    // TODO: implement more ALU ops
+  case ALU_ADD:
+    cpu->reg[regA] += cpu->reg[regB];
+    break;
   }
 }
 
@@ -139,14 +140,30 @@ void cpu_run(struct cpu *cpu)
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
     }
 
-    printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, instruction, operandA, operandB);
+    // printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, instruction, operandA, operandB);
+
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (instruction)
     {
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+    case CALL:
+      // Calls a subroutine (function) at the address stored in the register.
+      // 1. Store address of next instruction after CALL on stack
+      push(cpu, (cpu->PC + num_operands + 1));
+      // 2. PC is set to address stored in given register
+      cpu->PC = cpu->reg[operandA];
+      break;
     case HLT:
       // Halt the CPU (and exit the emulator).
       running = 0;
+      break;
+    case JMP:
+      // Jump to the address stored in the given register.
+      // Set the `PC` to the address stored in the given register.
+      cpu->PC = cpu->reg[operandA];
       break;
     case LDI:
       // Set the value of a register to an integer.
@@ -160,7 +177,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case POP:
       // Pop the value at the top of the stack into the given register.
-      pop(cpu, operandA);
+      cpu->reg[operandA] = pop(cpu);
       break;
     case PRN:
       // Print numeric value stored in the given register.
@@ -170,12 +187,21 @@ void cpu_run(struct cpu *cpu)
       // Push the value in the given register on the stack.
       push(cpu, cpu->reg[operandA]);
       break;
+    case RET:
+      // Return from subroutine.
+      // Pop the value from the top of the stack and store it in the `PC`.
+      cpu->PC = pop(cpu);
+      break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
       exit(3);
     }
     // 6. Move the PC to the next instruction.
-    cpu->PC += num_operands + 1;
+    int PC_set = instruction >> 4 & 0x01;
+    if (PC_set == 0)
+    {
+      cpu->PC += num_operands + 1;
+    }
   }
 }
 

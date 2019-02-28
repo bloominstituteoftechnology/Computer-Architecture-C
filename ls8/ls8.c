@@ -7,7 +7,7 @@
  */
 int main(int argc, char *argv[])
 {
-  if (argc < 2)
+  if (argc != 2)
   {
     fprintf(stderr, "Need two arguments\n");
     exit(1);
