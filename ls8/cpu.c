@@ -283,6 +283,19 @@ void cpu_run(struct cpu *cpu)
       // Set the `PC` to the address stored in the given register.
       cpu->PC = cpu->reg[operandA];
       break;
+    case JNE:
+      //If `E` flag is clear (false, 0), jump to the address stored in the given register.
+      // Bitwise & last bit. If not set then jump.
+      if ((cpu->FL & 0b00000001) == 0)
+      {
+        cpu->PC = cpu->reg[operandA];
+      }
+      // Else manually increment PC if it isn't set
+      else
+      {
+        cpu->PC += num_operands + 1;
+      }
+      break;
     case LD:
       // Loads registerA with the value at the memory address stored in registerB.
       cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[operandB]);
@@ -350,4 +363,6 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
   // Empty stack starts at address F4
   cpu->reg[SP_REG] = 0xF4;
+  // Initialize FL
+  cpu->FL = 0;
 }
