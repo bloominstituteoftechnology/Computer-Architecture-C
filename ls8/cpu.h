@@ -14,13 +14,19 @@ struct cpu {
   unsigned char ram[256];  // ram (array)
     //holds program instruction and data that the program requires for execution 
     //The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
+  
+  // ------- SPRINT ---------
+  unsigned int FL; //The flags register `FL` 
+  //holds the current flags status. These flags can change based on the operands given to the `CMP` opcode.
+  
 }; 
 
 // ALU operations
 enum alu_op {
 	ALU_MUL,
-  ALU_ADD
-	// Add more here
+  ALU_ADD,
+	// ------- SPRINT ---------
+  ALU_CMP
 };
 
 // Instructions
@@ -37,6 +43,12 @@ enum alu_op {
 #define CALL 0b01010000
 #define RET  0b00010001
 #define ADD  0b10100000
+
+// ------- SPRINT ---------
+#define CMP  0b10100111
+#define JMP  0b01010100
+#define JEQ  0b01010101
+#define JNE  0b01010110
 
 
 // Function declarations

@@ -61,6 +61,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD: //`ADD registerA registerB`
       cpu->reg[regA] += cpu->reg[regB];
       break;
+    // ------- SPRINT ---------
+    case ALU_CMP: 
+      // FILL ME IN 
+      break;
 
     // TODO: implement more ALU ops
   }
@@ -116,7 +120,25 @@ void cpu_run(struct cpu *cpu)
       case ADD:  
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
+      // ------- SPRINT ---------
+
+      case CMP:  
+        // FILL ME IN
+        break;
+
+      case JMP:  
+        // FILL ME IN
+        break;
+
+      case JEQ:  
+        // FILL ME IN
+        break;
       
+      case JNE:  
+        // FILL ME IN
+        break;
+
+      // ------- SPRINT END ---------
       case PUSH:
         cpu->reg[SP]--; //Decrement the `SP`.
         cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; //Copy the value in given register to the address pointed to by `SP`.
@@ -162,7 +184,7 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->PC += next_pc;
     }
-    
+
 
   }
 }
@@ -178,6 +200,7 @@ void cpu_init(struct cpu *cpu)
   cpu->reg[SP] = 0xF4; // The SP points at address `F4` if the stack is empty.
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->FL = 0;
     // man pages -  void *memset(void *s, int c, size_t n);
     // function fills the first n bytes of the memory area pointed to by s with the constant byte c.
 }
