@@ -39,6 +39,7 @@ enum alu_op
 #define ST 0b10000100
 #define JMP 0b01010100
 #define PRA 0b01001000
+#define IRET 0b00010011
 
 // TODO: more instructions here. These can be used in cpu_run().
 

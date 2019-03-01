@@ -66,6 +66,17 @@ void handle_PRA(struct cpu *cpu)
   printf("%c\n", regA);
 }
 
+void handle_IRET(struct cpu *cpu)
+{
+  for (int i = 6; i >= 0; i--)
+  {
+    cpu->registers[i] = cpu_ram_read(cpu, cpu->registers[7]++);
+  }
+  cpu->fl = cpu_ram_read(cpu, cpu->registers[7]++);
+  cpu->pc = cpu_ram_read(cpu, cpu->registers[7]++);
+  cpu->registers[5] = 1;
+}
+
 // ================= SubRoutine functions ==================
 void handle_CALL(struct cpu *cpu)
 {
@@ -176,7 +187,6 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->registers[6] = 0b00000001;
       timePast = second;
-      printf("Time: %ld\n", second);
     }
 
     unsigned char interrupts = cpu->registers[5] & cpu->registers[6];
@@ -189,13 +199,14 @@ void cpu_run(struct cpu *cpu)
         {
           cpu->registers[6] = 0;
 
-          cpu_ram_write(cpu, cpu->registers[7]--, cpu->pc);
-          cpu_ram_write(cpu, cpu->registers[7]--, cpu->fl);
+          cpu_ram_write(cpu, --cpu->registers[7], cpu->pc);
+          cpu_ram_write(cpu, --cpu->registers[7], cpu->fl);
           for (int i = 0; i < 7; i++)
           {
-            cpu_ram_write(cpu, cpu->registers[7]--, cpu->registers[i]);
+            cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[i]);
           }
           cpu->pc = cpu->ram[0xF8 + i];
+          cpu->registers[5] = 0;
           break;
         }
       }
@@ -233,6 +244,10 @@ void cpu_run(struct cpu *cpu)
       case PRA:
         handle_PRA(cpu);
         break;
+
+      case IRET:
+        handle_IRET(cpu);
+        continue;
 
       // Subroutine instructions
       case CALL:
