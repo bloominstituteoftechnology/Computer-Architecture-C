@@ -59,10 +59,48 @@ unsigned char pop(struct cpu *cpu)
   return value;
 }
 
-void handle_interrupt(struct cpu *cpu)
+void handle_interrupt(struct cpu *cpu, int interrupt_flag)
 {
   printf("Start handle_interrupt\n");
-  cpu->reg[IS_REG] = 0;
+  // 1. The IM register is bitwise AND-ed with the IS register and the results stored as `maskedInterrupts`.
+  unsigned int maskedInterrupts = cpu->reg[IS_REG] & cpu->reg[IM_REG];
+  unsigned int check_bit = 0x01;
+  // 2. Each bit of `maskedInterrupts` is checked, starting from 0 and going up to the 7th bit, one for each interrupt.
+  for (int i = 0; i < 8; i++)
+  {
+    printf("Check_bit: %u\n", check_bit);
+    // If interrupt found
+    if (maskedInterrupts & check_bit)
+    {
+      // 1. Change interrupt flag - disabling interrupts until IRET
+      interrupt_flag = 1;
+      printf("Interrupt found at bit %u\n", i);
+      // 2. Clear bit in the IS register
+      cpu->reg[IS_REG] = cpu->reg[IS_REG] ^ check_bit;
+      printf("Cleared IS: %u\n", cpu->reg[IS_REG]);
+      // 3. Push PC on stack
+      push(cpu, cpu->PC);
+      // 4. Push FL register
+      // push(cpu, cpu->FL);
+      // 5. Push registers 0-6 in order
+      for (int j = 0; j < 7; j++) {
+        push(cpu, cpu->reg[j]);
+      }
+      // 6. The address (_vector_ in interrupt terminology) of the appropriate handler is looked up from the interrupt vector table.
+      unsigned int vector = 0b11111000 | i;
+      printf("Vector address: %u\n", vector);
+      // 7. Set the PC is set to the handler address.
+      printf("handler address: %d\n", cpu_ram_read(cpu, vector));
+      cpu->PC = cpu_ram_read(cpu, vector);
+      // break for loop at bit handling first interrupt
+      break;
+    }
+    // else shift bit to check next one
+    check_bit = check_bit << 1;
+  }
+  printf("interrupt_flag inside handler: %d\n", interrupt_flag);
+  printf("End handle_interrupt\n\n");
+  // return to cpu_run
 }
 
 ///////////////////////
@@ -138,6 +176,7 @@ void cpu_run(struct cpu *cpu)
   struct timeval tv;
   gettimeofday(&tv, NULL);
   unsigned int prev_sec = tv.tv_sec;
+  int interrupt_flag = 0;
 
   while (running)
   {
@@ -213,7 +252,7 @@ void cpu_run(struct cpu *cpu)
       break;
     case ST:
       // Store value in registerB in the address stored in registerA.
-      cpu_ram_write(cpu, cpu->reg[operandB], cpu->reg[operandA]);
+      cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
@@ -226,10 +265,10 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += num_operands + 1;
     }
     // 7. Check for interrupt
-    if (cpu->reg[IS_REG] != 0)
+    
+    if ((cpu->reg[IS_REG] != 0) && interrupt_flag == 0)
     {
-      printf("reg[IS_REG]: %d\n", cpu->reg[IS_REG]);
-      handle_interrupt(cpu);
+      handle_interrupt(cpu, interrupt_flag);
     }
   }
 }
