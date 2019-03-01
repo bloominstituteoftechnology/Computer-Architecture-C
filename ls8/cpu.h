@@ -35,6 +35,7 @@ enum alu_op
   // Shifts operations
   ALU_SHL = 0b10101100,
   ALU_SHR = 0b10101101,
+  ALU_ADDI = 0b11101000
 };
 
 // Instructions

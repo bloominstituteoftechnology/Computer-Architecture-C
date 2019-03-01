@@ -7,6 +7,8 @@ LDI R3, 2
 SHR R0, R1
 SHR R2, R3
 
+ADDI R0, R1, 8
+
 PRN R0
 PRN R2
 

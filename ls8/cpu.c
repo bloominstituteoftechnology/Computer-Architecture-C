@@ -194,6 +194,7 @@ void alu(struct cpu *cpu, enum alu_op op)
 {
   unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
   unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
+  unsigned char addiVal = cpu_ram_read(cpu, (cpu->pc + 3));
   switch (op)
   {
   case ALU_MUL:
@@ -237,6 +238,9 @@ void alu(struct cpu *cpu, enum alu_op op)
     break;
   case ALU_SHR:
     cpu->registers[regA] = cpu->registers[regA] << cpu->registers[regB];
+    break;
+  case ALU_ADDI:
+    cpu->registers[regA] = cpu->registers[regB] + cpu->registers[addiVal];
     break;
 
     // TODO: implement more ALU ops
