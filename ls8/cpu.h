@@ -42,7 +42,7 @@ enum alu_op
 #define INT 0b01010010
 #define IRET 0b00010011
 #define JEQ 0b01010101
-#define JGE
+#define JGE 0b01011010
 #define JGT
 #define JLE
 #define JLT

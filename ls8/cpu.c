@@ -10,6 +10,10 @@
 #define IS_REG 6
 // Define which register handles interrupt mask
 #define IM_REG 5
+// Define which bit is LGE. Helps when comparing Flag register
+#define LESS 0b00000100
+#define GREATER 0b00000010
+#define EQUAL 0b00000001
 
 // Initilize int to keep track of length of program in RAM
 // Used to trigger stack overflow warning
@@ -172,17 +176,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // if A less than B set flag L 00000100 = 4
     if (cpu->reg[regA] < cpu->reg[regB])
     {
-      cpu->FL = cpu->FL | 4;
+      cpu->FL = cpu->FL | LESS;
     }
     // if A greater than B set flag G 00000010 = 2
     else if (cpu->reg[regA] > cpu->reg[regB])
     {
-      cpu->FL = cpu->FL | 2;
+      cpu->FL = cpu->FL | GREATER;
     }
     // else if equal set flag E 00000001 = 1
     else
     {
-      cpu->FL = cpu->FL | 1;
+      cpu->FL = cpu->FL | EQUAL;
     }
     break;
   case ALU_DEC:
@@ -299,7 +303,19 @@ void cpu_run(struct cpu *cpu)
       break;
     case JEQ:
       // If `equal` flag is set (true), jump to the address stored in the given register.
-      if (cpu->FL & 1)
+      if (cpu->FL & EQUAL)
+      {
+        cpu->PC = cpu->reg[operandA];
+      }
+      // Else manually increment PC if it isn't set
+      else
+      {
+        cpu->PC += num_operands + 1;
+      }
+      break;
+    case JGE:
+      // If `greater-than` flag or `equal` flag is set (true), jump to the address stored in the given register.
+      if (cpu->FL & (GREATER | EQUAL))
       {
         cpu->PC = cpu->reg[operandA];
       }
@@ -317,7 +333,7 @@ void cpu_run(struct cpu *cpu)
     case JNE:
       //If `E` flag is clear (false, 0), jump to the address stored in the given register.
       // Bitwise & last bit. If not set then jump.
-      if ((cpu->FL & 0b00000001) == 0)
+      if ((cpu->FL & EQUAL) == 0)
       {
         cpu->PC = cpu->reg[operandA];
       }
