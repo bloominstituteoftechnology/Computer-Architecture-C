@@ -91,65 +91,72 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction 
-  unsigned char IR; //store that result in `IR` ... This can just be a local
-  unsigned char operandA;//into variables `operandA` and `operandB` in case the instruction needs them
+  unsigned char IR; 
+  unsigned char operandA;
   unsigned char operandB;
  
 
   while (running) {
-
-    IR = cpu_ram_read(cpu, cpu->PC); // 1. Get the value of the current instruction (in address PC)./ IR
     
-    operandA = cpu_ram_read(cpu, cpu->PC+1 & 0xff); // 3. Get the appropriate value(s) of the operands following this instruction
-    operandB = cpu_ram_read(cpu, cpu->PC+2 & 0xff);
+    IR = cpu_ram_read(cpu, cpu->PC); //Get the value of the current instruction (in address PC).
+   
+    int next_pc = (IR >> 6); 
+
+    // 2. Figure out how many operands this next instruction requires
+    if (next_pc == 2) { 
+      // 3. Get the appropriate value(s) of the operands following this instruction
+      operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+      operandB = cpu_ram_read(cpu, (cpu->PC+2) & 0xff);
+    } else if (next_pc == 1) {
+      // 3. Get the appropriate value(s) of the operands following this instruction
+      operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
+    } 
 
 
-
-    int next_pc = (IR >> 6) + 1; // >> bitwise opperator, shifts right
-
-    // printf("TRACE: %02X | %02X %02X %02X |", cpu->PC, IR, operandA, operandB);
-
-    //for (int i = 0; i < 8; i++) {
-     // printf(" %02X", cpu->reg[i]);
-   // }
-
-    //printf("\n");
-
-    
-    switch(IR) // 4. switch() over it to decide on a course of action. Cases - HTL / PRN / LDI /MUL
+    switch(IR) 
     {
-      // 5. Do whatever the instruction should do according to the spec.
-      case LDI:
+      case LDI: //set value to integer
         cpu->reg[operandA] = operandB; 
         break;
       
-      case PRN:
+      case PRN: //Print numeric value 
         printf("%d\n", cpu->reg[operandA & SP]);
         break;
       
-      case MUL:  
+      case MUL:  //multiply 
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
       
-      case ADD:  
+      case ADD: //addition 
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
+
       // ------- SPRINT ---------
 
-      case CMP:  
+      case CMP:  // compare registers A and B
         alu(cpu, ALU_CMP, operandA, operandB);
         break;
 
       case JMP:  
-        // FILL ME IN
+      //Jump to the address stored in the given register.
+        cpu->PC = cpu->reg[operandA];
+        next_pc = -1;
         break;
 
       case JEQ:  
-        // FILL ME IN
+        // If `equal` flag, jump to the address stored in the given register.
+        if (cpu->FL == 1) {
+          cpu->PC = cpu->reg[operandA];//SP - stack pointer
+          next_pc = -1;
+        }
         break;
       
       case JNE:  
-        // FILL ME IN
+        //If not `E` flag, jump to the address stored in the given register.
+        if (cpu->FL == 0) {
+          cpu->PC = cpu->reg[operandA];
+          next_pc = -1;
+        }
         break;
 
       // ------- SPRINT END ---------
@@ -164,18 +171,11 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case CALL:
-      /*Calls a subroutine (function) at the address stored in the register.
-
-      1. The address of the ***instruction*** _directly after_ `CALL` is
-        pushed onto the stack. This allows us to return to where we 
-        left off when the subroutine finishes executing.
-      2. The PC is set to the address stored in the given register. 
-        We jump to that location in RAM and execute the first instruction in the subroutine.
-        The PC can move forward or backwards from its current location.*/
-       
+      /*Calls a subroutine (function) at the address stored in the register.*/
         cpu->reg[SP]--;
         cpu->ram[cpu->reg[SP]] = cpu->PC + 2;
         cpu->PC = cpu->reg[operandA];
+        next_pc = -1;
         break;
  
       case RET:
@@ -192,14 +192,7 @@ void cpu_run(struct cpu *cpu)
         exit(1);
     }
     // 6. Move the PC to the next instruction.
-    //cpu->PC += next_pc;
-    int set_pc = IR >> 4 & 0x01;
-    if (set_pc == 0)
-    {
-      cpu->PC += next_pc;
-    }
-
-
+    cpu->PC = cpu->PC + next_pc + 1;
   }
 }
    
@@ -212,9 +205,10 @@ void cpu_init(struct cpu *cpu)
   // At first, the PC, registers, and RAM should be cleared to zero.
   cpu->PC = 0;
   cpu->reg[SP] = 0xF4; // The SP points at address `F4` if the stack is empty.
+  cpu->FL = 4;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
-  cpu->FL = 0;
+  
     // man pages -  void *memset(void *s, int c, size_t n);
     // function fills the first n bytes of the memory area pointed to by s with the constant byte c.
 }
