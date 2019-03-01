@@ -44,8 +44,8 @@ enum alu_op
 #define JEQ 0b01010101
 #define JGE 0b01011010
 #define JGT 0b01010111
-#define JLE
-#define JLT
+#define JLE 0b01011001
+#define JLT 0b01011000
 #define JMP 0b01010100
 #define JNE 0b01010110
 #define LD 0b10000011
