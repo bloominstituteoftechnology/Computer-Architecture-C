@@ -72,20 +72,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       //printf("%d is equal to %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[6] = 0b00000001;
     }
-    else if (cpu->registers[regA] < cpu->registers[regB])
-    {
-      //printf("%d is less than %d\n", cpu->registers[regA], cpu->registers[regB]);
-      cpu->registers[6] = 0b00000100;
-    }
-    else if (cpu->registers[regA] > cpu->registers[regB])
-    {
-      //printf("%d is greater than %d\n", cpu->registers[regA], cpu->registers[regB]);
-      cpu->registers[6] = 0b00000010;
-    }
     else
     {
       cpu->registers[6] = 0b00000000;
     }
+
+    //printf("set EQUAL flag to: %d\n", cpu->registers[6]);
     break;
 
     // TODO: implement more ALU ops
@@ -228,7 +220,7 @@ void cpu_run(struct cpu *cpu)
     case JNE:
       if (cpu->registers[6] == 0b00000000)
       {
-        // printf("JNE, EUQAL flag is set to: %d\n", cpu->registers[6]);
+        //printf("JNE, EUQAL flag is set to: %d\n", cpu->registers[6]);
         // printf("JNE, jumped to address %d, with address %d\n", operandA, cpu->registers[operandA]);
         handle_JMP(cpu, operandA);
         jump = 1;
