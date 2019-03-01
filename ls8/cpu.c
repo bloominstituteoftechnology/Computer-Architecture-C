@@ -170,6 +170,18 @@ void alu(struct cpu *cpu, enum alu_op op)
     cpu->registers[regA]++;
     break;
   case ALU_CMP:
+    if (cpu->registers[regA] == cpu->registers[regB])
+    {
+      cpu->fl = 0b00000001;
+    }
+    if (cpu->registers[regA] > cpu->registers[regB])
+    {
+      cpu->fl = 0b00000010;
+    }
+    else
+    {
+      cpu->fl = 0b00000100;
+    }
     break;
 
     // TODO: implement more ALU ops
