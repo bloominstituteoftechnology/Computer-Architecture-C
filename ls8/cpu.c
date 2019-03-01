@@ -62,6 +62,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
+  case CMP:
+    //add compare code from Sprint Challenge
+    break
+
     // TODO: implement more ALU ops
   }
 }
