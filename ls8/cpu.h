@@ -23,6 +23,7 @@ enum alu_op
   ALU_DEC,
   ALU_DIV,
   ALU_INC,
+  ALU_MOD,
   ALU_MUL
 };
 
@@ -50,7 +51,7 @@ enum alu_op
 #define JNE 0b01010110
 #define LD 0b10000011
 #define LDI 0b10000010
-#define MOD
+#define MOD 0b10100100
 #define MUL 0b10100010
 #define NOP
 #define NOT

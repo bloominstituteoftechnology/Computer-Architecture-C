@@ -201,6 +201,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // Increment (add 1 to) the value in the given register.
     cpu->reg[regA]++;
     break;
+  case ALU_MOD:
+    // Divide the value in the first register by the value in the second, storing the _remainder_ of the result in registerA.
+    cpu->reg[regA] %= cpu->reg[regB];
+    break;
   case ALU_MUL:
     // Multiply the values in two registers together and store the result in registerA.
     cpu->reg[regA] *= cpu->reg[regB];
@@ -386,6 +390,19 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       // Set the value of a register to an integer.
       cpu->reg[operandA] = operandB;
+      break;
+    case MOD:
+      // *This is an instruction handled by the ALU.*
+      // If the value in the second register is 0, the system should print an error message and halt.
+      if (cpu->reg[operandB] == 0)
+      {
+        printf("Can not mod by 0\n");
+        running = 0;
+      }
+      else
+      {
+        alu(cpu, ALU_MOD, operandA, operandB);
+      }
       break;
     case MUL:
       // *This is an instruction handled by the ALU.*
