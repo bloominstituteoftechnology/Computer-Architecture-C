@@ -213,6 +213,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // Perform a bitwise-NOT on the value in a register.
     cpu->reg[regA] = ~cpu->reg[regA];
     break;
+  case ALU_OR:
+    // Perform a bitwise-OR between the values in registerA and registerB, storing the result in registerA.
+    cpu->reg[regA] |= cpu->reg[regB];
+  case ALU_SHL:
+    // Shift the value in registerA left by the number of bits specified in registerB, filling the low bits with 0.
+    cpu->reg[regA] = cpu->reg[regA] << cpu->reg[regB];
+    break;
+  case ALU_SHR:
+    // Shift the value in registerA right by the number of bits specified in registerB, filling the high bits with 0.
+    cpu->reg[regA] = cpu->reg[regA] >> cpu->reg[regB];
+    break;
   default:
     break;
   }
@@ -419,6 +430,10 @@ void cpu_run(struct cpu *cpu)
       // *This is an instruction handled by the ALU.*
       alu(cpu, ALU_NOT, operandA, operandB);
       break;
+    case OR:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_OR, operandA, operandB);
+      break;
     case POP:
       // Pop the value at the top of the stack into the given register.
       cpu->reg[operandA] = pop(cpu);
@@ -439,6 +454,14 @@ void cpu_run(struct cpu *cpu)
       // Return from subroutine.
       // Pop the value from the top of the stack and store it in the `PC`.
       cpu->PC = pop(cpu);
+      break;
+    case SHL:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_SHL, operandA, operandB);
+      break;
+    case SHR:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_SHR, operandA, operandB);
       break;
     case ST:
       // Store value in registerB in the address stored in registerA.

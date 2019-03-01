@@ -25,7 +25,10 @@ enum alu_op
   ALU_INC,
   ALU_MOD,
   ALU_MUL,
-  ALU_NOT
+  ALU_NOT,
+  ALU_OR,
+  ALU_SHL,
+  ALU_SHR
 };
 
 // Instructions
@@ -56,14 +59,14 @@ enum alu_op
 #define MUL 0b10100010
 #define NOP 0b00000000
 #define NOT 0b01101001
-#define OR
+#define OR 0b10101010
 #define POP 0b01000110
 #define PRA 0b01001000
 #define PRN 0b01000111
 #define PUSH 0b01000101
 #define RET 0b00010001
-#define SHL
-#define SHR
+#define SHL 0b10101100
+#define SHR 0b10101101
 #define ST 0b10000100
 #define SUB
 #define XOR
