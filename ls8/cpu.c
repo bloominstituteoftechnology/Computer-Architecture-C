@@ -23,7 +23,7 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 void cpu_write_ram(struct cpu *cpu, unsigned char index, unsigned char value)
 {
   //To Do: implement function to write to ram
-  printf("%d\n", value);
+  //printf("%d\n", value);
   cpu->ram[index] = value;
 }
 
@@ -59,7 +59,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -132,7 +132,8 @@ void cpu_run(struct cpu *cpu)
       //printf("Lets print multiplication of: %d\n", cpu->registers[operandA], cpu->registers[operandB]);
       //printf("%d\n", cpu->registers[operandA] * cpu->registers[operandB]);
 
-      cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+      //cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+      alu(cpu, ALU_MUL, operandA, operandB);
       break;
 
     case PUSH:
@@ -157,7 +158,7 @@ void cpu_run(struct cpu *cpu)
       //cpu_write_ram(cpu, cpu->registers[7], next_instruction);
       cpu_write_ram(cpu, cpu->registers[7], cpu->pc);
       //PC is set to the address stored in the given register
-      cpu->pc = cpu_ram_read(cpu, operandA);
+      cpu->pc = cpu->registers[operandA];
 
       break;
     case RET:
