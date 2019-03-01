@@ -38,6 +38,9 @@ enum alu_op
 #define RET 0b00010001
 #define CMP 0b10100111
 
+//Stack set to register 7 (cpu->registers[7])
+//Flags set to register 6 (cpu->registers[6])
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

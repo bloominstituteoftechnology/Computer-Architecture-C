@@ -64,7 +64,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
   case CMP:
     //add compare code from Sprint Challenge
-    break
+    //equal: 0b00000001
+    //less than: 0b00000100
+    //greater than: 0b00000010
+    if (cpu->registers[regA] == cpu->registers[regB])
+    {
+      cpu->registers[6] = 0b00000001;
+    }
+    else if (cpu->registers[regA] < cpu->registers[regB])
+    {
+      cpu->registers[6] = 0b00000100;
+    }
+    else if (cpu->registers[regA] > cpu->registers[regB])
+    {
+      cpu->registers[6] = 0b00000010;
+    }
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -177,6 +192,10 @@ void cpu_run(struct cpu *cpu)
       //increment SP
       cpu->registers[7]++;
       break;
+
+    case CMP:
+      alu(cpu, CMP, operandA, operandB);
+      break;
     default:
       printf("something went wrong with IR : %d\n", IR);
       exit(1);
@@ -201,4 +220,5 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->registers, 0, 1);
   memset(cpu->ram, 0, sizeof(char));
   cpu->registers[7] = 0xf4;
+  cpu->registers[6] = 0;
 }
