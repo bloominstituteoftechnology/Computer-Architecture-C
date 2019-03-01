@@ -179,6 +179,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->FL = cpu->FL | 1;
     }
     break;
+  case ALU_DEC:
+    cpu->reg[regA]--;
+    break;
   case ALU_INC:
     cpu->reg[regA]++;
     break;
@@ -244,6 +247,11 @@ void cpu_run(struct cpu *cpu)
       // *This is an instruction handled by the ALU.*
       // Compare the values in two registers.
       alu(cpu, ALU_CMP, operandA, operandB);
+      break;
+    case DEC:
+      // *This is an instruction handled by the ALU.*
+      // Decrement (subtract 1 from) the value in the given register.
+      alu(cpu, ALU_INC, operandA, operandB);
       break;
     case HLT:
       // Halt the CPU (and exit the emulator).
