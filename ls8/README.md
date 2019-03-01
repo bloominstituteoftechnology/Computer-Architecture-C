@@ -30,21 +30,21 @@ then prints it out:
 
 The binary numeric value on the left in the `print8.ls8` code above is either:
 
-* the machine code value of the instruction (e.g. `10000010` for `LDI`), also
+- the machine code value of the instruction (e.g. `10000010` for `LDI`), also
   known as the _opcode_
 
 or
 
-* one of the opcode's arguments (e.g. `00000000` for `R0` or `00001000` for the
+- one of the opcode's arguments (e.g. `00000000` for `R0` or `00001000` for the
   value `8`), also known as the _operands_.
 
 This code above requires the implementation of three instructions:
 
-* `LDI`: load "immediate", store a value in a register, or "set this register to
+- `LDI`: load "immediate", store a value in a register, or "set this register to
   this value".
-* `PRN`: a pseudo-instruction that prints the numeric value stored in a
+- `PRN`: a pseudo-instruction that prints the numeric value stored in a
   register.
-* `HLT`: halt the CPU and exit the emulator.
+- `HLT`: halt the CPU and exit the emulator.
 
 See [the LS-8 spec](../LS8-spec.md) for more details.
 
@@ -60,11 +60,11 @@ but you'll have to implement those three above instructions first!
 
 ## Step 0: IMPORTANT: inventory what is here!
 
-* Make a list of files here.
-* Write a short 3-10-word description of what each file does.
-* Note what has been implemented, and what hasn't.
-* Read this whole file.
-* Skim the spec.
+- Make a list of files here.
+- Write a short 3-10-word description of what each file does.
+- Note what has been implemented, and what hasn't.
+- Read this whole file.
+- Skim the spec.
 
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
@@ -123,7 +123,7 @@ the instruction opcode. See the LS-8 spec for details.
 Add the `HLT` instruction to `cpu.h`.
 
 In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
-encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
+encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded.
 
 We can consider `HLT` to be similar to a `return` or `exit()` in that we stop whatever we are doing, wherever we are.
 
@@ -139,8 +139,8 @@ value.
 This is a very similar process to adding `LDI`, but the handler is simpler. See
 the LS-8 spec.
 
-*At this point, you should be able to run the program and have it print `8` to
-the console!*
+_At this point, you should be able to run the program and have it print `8` to
+the console!_
 
 ## Step 8: Un-hardcode the machine code
 
@@ -178,7 +178,7 @@ so you can look in `argv[1]` for the name of the file to load.
 > Bonus: check to make sure the user has put a command line argument where you
 > expect, and print an error and exit if they didn't.
 
-In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
+In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM.
 
 As you process lines from the file, you should be on the lookout for blank lines
 (ignore them), and you should ignore everything after a `#`, since that's a
@@ -217,10 +217,8 @@ One you run it with `./ls8 examples/mult.ls8`, you should see:
 Check the LS-8 spec for what the `MUL` instruction does.
 
 > Note: `MUL` is the responsiblity of the ALU, so it would be
-nice if your code eventually called the `alu()` function with appropriate
-arguments to get the work done.
-> 
-
+> nice if your code eventually called the `alu()` function with appropriate
+> arguments to get the work done.
 
 ## Step 10: Beautify your `cpu_run()` loop, if needed
 
@@ -312,10 +310,10 @@ a high address) and grows _downward_ as things are pushed on. The LS-8 is no
 exception to this.
 
 Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
-  the beginning of the spec to see which register is the stack pointer. 
-  
-* Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_. 
-  -  Use the stack pointer to modify the correct block of memory. 
+the beginning of the spec to see which register is the stack pointer.
+
+- Values themselves should be saved in the **_portion of RAM_** _that is allocated for the stack_.
+  - Use the stack pointer to modify the correct block of memory.
   - Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
 
 If you run `./ls8 examples/stack.ls8` you should see the output:
@@ -333,24 +331,23 @@ enable you to jump to any address with the `CALL` instruction, and then return
 back to where you called from with the `RET` instruction. This enables you to
 create reusable functions.
 
-Subroutines have many similarities to functions in higher-level languages. Just as a function in C, JavaScript or Python will jump from the function call, to its definition, and then return back to the line of code following the call, subroutines will also allow us to execute instructions non-sequentially. 
+Subroutines have many similarities to functions in higher-level languages. Just as a function in C, JavaScript or Python will jump from the function call, to its definition, and then return back to the line of code following the call, subroutines will also allow us to execute instructions non-sequentially.
 
 The stack is used to hold the return address used by `RET`, so you **must** implement the
 stack in step 11, first. Then, add subroutine instructions `CALL` and `RET`.
 
-* For `CALL`, you will likely have to modify your handler call in `cpu_run()`. The
-problem is that some instructions want to execute and move to the next
-instruction like normal, but others, like `CALL` and `JMP` want to go to a
-specific address.
+- For `CALL`, you will likely have to modify your handler call in `cpu_run()`. The
+  problem is that some instructions want to execute and move to the next
+  instruction like normal, but others, like `CALL` and `JMP` want to go to a
+  specific address.
 
-  > Note: `CALL` is very similar to the `JMP` instruction. However, there is one key difference between them. Can you find it in the specs? 
-  > 
+  > Note: `CALL` is very similar to the `JMP` instruction. However, there is one key difference between them. Can you find it in the specs?
 
-  * In **any** case where the instruction handler sets the `PC` directly, you
-_don't_ want to advance the PC to the next instruction. So you'll have to set up
-a special case for those types of instructions. This can be a flag you
-explicitly set per-instruction... but can also be computed from the value in
-`IR`. Check out the spec for more.
+  - In **any** case where the instruction handler sets the `PC` directly, you
+    _don't_ want to advance the PC to the next instruction. So you'll have to set up
+    a special case for those types of instructions. This can be a flag you
+    explicitly set per-instruction... but can also be computed from the value in
+    `IR`. Check out the spec for more.
 
 If you run `./ls8 examples/call.ls8` you should see the output:
 
@@ -430,7 +427,6 @@ that fires once per second.
 00010011 # IRET
 ```
 
-
 The assembly program is interested in getting timer interrupts, so it sets the
 IM register to `00000001` with `LDI R5,1`.
 
@@ -461,7 +457,6 @@ for (int i = 0; i < 8; i++) {
 executing the current instruction as per usual.)
 
 If `interrupt_happened`, check the LS-8 spec for details on what to do.
-
 
 ## Stretch Goal: Keyboard Interrupts
 
