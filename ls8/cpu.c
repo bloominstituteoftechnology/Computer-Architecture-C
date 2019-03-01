@@ -62,22 +62,29 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
-  case CMP:
+  case ALU_CMP:
     //add compare code from Sprint Challenge
     //equal: 0b00000001
     //less than: 0b00000100
     //greater than: 0b00000010
     if (cpu->registers[regA] == cpu->registers[regB])
     {
+      //printf("%d is equal to %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[6] = 0b00000001;
     }
     else if (cpu->registers[regA] < cpu->registers[regB])
     {
+      //printf("%d is less than %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[6] = 0b00000100;
     }
     else if (cpu->registers[regA] > cpu->registers[regB])
     {
+      //printf("%d is greater than %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[6] = 0b00000010;
+    }
+    else
+    {
+      cpu->registers[6] = 0b00000000;
     }
     break;
 
@@ -85,6 +92,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void handle_JMP(struct cpu *cpu, unsigned char regA)
+{
+  cpu->pc = cpu->registers[regA];
+}
 /**
  * Run the CPU
  */
@@ -97,7 +108,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA;
     unsigned char operandB;
     unsigned char next_instruction;
-    unsigned int tmp;
+    unsigned int jump = 0;
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu->ram[cpu->pc];
@@ -110,7 +121,7 @@ void cpu_run(struct cpu *cpu)
     number_of_operands = number_of_operands >> 6;
     //printf("\n----\nIR: %d\n", IR);
     // printf("masking bit: %d\n", masking_bit);
-    // printf("number of operands: %02x\n", number_of_operands);
+    //printf("number of operands: %02x\n", number_of_operands);
     // printf("LDI: %d\n", LDI);
     // printf("PRN: %d\n", PRN);
     // printf("HLT: %d\n", HLT);
@@ -172,7 +183,7 @@ void cpu_run(struct cpu *cpu)
       //add the address of the instruction directly after the call to the stack
       //PUSH(cpu_read_ram(cpu, cpu->pc+number_of_operands+1)
       next_instruction = cpu_ram_read(cpu, cpu->pc + number_of_operands + 1);
-      printf("next instruction: %d\n", next_instruction);
+      //printf("next instruction: %d\n", next_instruction);
       cpu->registers[7]--;
       //cpu_write_ram(cpu, cpu->registers[7], next_instruction);
       cpu_write_ram(cpu, cpu->registers[7], cpu->pc);
@@ -194,29 +205,49 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case CMP:
-      alu(cpu, CMP, operandA, operandB);
+      alu(cpu, ALU_CMP, operandA, operandB);
       break;
 
     case JMP:
       // am i updating the PC twice? here and after the SWITCH statement?
-      cpu->pc = cpu->registers[operandA];
+      //printf("JMP, tried to jump to address %d\n", operandA);
+      handle_JMP(cpu, operandA);
+      jump = 1;
       break;
 
     case JEQ:
       if (cpu->registers[6] == 0b00000001)
       {
-        cpu->pc = cpu->registers[operandA];
+        // printf("JEQ, EUQAL flag is set to: %d\n", cpu->registers[6]);
+        // printf("JEQ, jumped to register %d, with address %d\n", operandA, cpu->registers[operandA]);
+        handle_JMP(cpu, operandA);
+        jump = 1;
       }
       break;
+
+    case JNE:
+      if (cpu->registers[6] == 0b00000000)
+      {
+        // printf("JNE, EUQAL flag is set to: %d\n", cpu->registers[6]);
+        // printf("JNE, jumped to address %d, with address %d\n", operandA, cpu->registers[operandA]);
+        handle_JMP(cpu, operandA);
+        jump = 1;
+      }
+      break;
+
     default:
       printf("something went wrong with IR : %d\n", IR);
       exit(1);
     }
 
     // 6. Move the PC to the next instruction.
-    for (int i = 0; i <= number_of_operands; i++)
+    if (jump == 0)
     {
-      cpu->pc++;
+      for (int i = 0; i <= number_of_operands; i++)
+      {
+        cpu->pc++;
+      }
+      //printf("updated PC by %d to %d\n", number_of_operands + 1, cpu->pc);
     }
   }
 }

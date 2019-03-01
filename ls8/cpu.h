@@ -19,7 +19,7 @@ typedef struct cpu
 enum alu_op
 {
   ALU_MUL,
-  CMP
+  ALU_CMP
   // Add more here
 };
 
@@ -39,6 +39,7 @@ enum alu_op
 #define CMP 0b10100111
 #define JMP 0b01010100
 #define JEQ 0b01010101
+#define JNE 0b01010110
 
 //Stack set to register 7 (cpu->registers[7])
 //Flags set to register 6 (cpu->registers[6])
