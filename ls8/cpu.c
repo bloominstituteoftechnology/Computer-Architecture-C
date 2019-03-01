@@ -69,15 +69,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     //greater than: 0b00000010
     if (cpu->registers[regA] == cpu->registers[regB])
     {
-      //printf("%d is equal to %d\n", cpu->registers[regA], cpu->registers[regB]);
       cpu->registers[6] = 0b00000001;
     }
     else
     {
       cpu->registers[6] = 0b00000000;
     }
-
-    //printf("set EQUAL flag to: %d\n", cpu->registers[6]);
     break;
 
     // TODO: implement more ALU ops
@@ -111,13 +108,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char masking_bit = 0b11000000;
     int number_of_operands = IR & masking_bit;
     number_of_operands = number_of_operands >> 6;
-    //printf("\n----\nIR: %d\n", IR);
-    // printf("masking bit: %d\n", masking_bit);
-    //printf("number of operands: %02x\n", number_of_operands);
-    // printf("LDI: %d\n", LDI);
-    // printf("PRN: %d\n", PRN);
-    // printf("HLT: %d\n", HLT);
-    // printf("MUL : %d\n", MUL);
+
     // 3. Get the appropriate value(s) of the operands following this instruction
     if (number_of_operands == 0)
     {
@@ -151,9 +142,6 @@ void cpu_run(struct cpu *cpu)
 
     case MUL:
       // to do: call ALU function
-      //printf("Lets print multiplication of: %d\n", cpu->registers[operandA], cpu->registers[operandB]);
-      //printf("%d\n", cpu->registers[operandA] * cpu->registers[operandB]);
-
       //cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
@@ -210,8 +198,6 @@ void cpu_run(struct cpu *cpu)
     case JEQ:
       if (cpu->registers[6] == 0b00000001)
       {
-        // printf("JEQ, EUQAL flag is set to: %d\n", cpu->registers[6]);
-        // printf("JEQ, jumped to register %d, with address %d\n", operandA, cpu->registers[operandA]);
         handle_JMP(cpu, operandA);
         jump = 1;
       }
@@ -220,8 +206,6 @@ void cpu_run(struct cpu *cpu)
     case JNE:
       if (cpu->registers[6] == 0b00000000)
       {
-        //printf("JNE, EUQAL flag is set to: %d\n", cpu->registers[6]);
-        // printf("JNE, jumped to address %d, with address %d\n", operandA, cpu->registers[operandA]);
         handle_JMP(cpu, operandA);
         jump = 1;
       }
@@ -232,7 +216,7 @@ void cpu_run(struct cpu *cpu)
       exit(1);
     }
 
-    // 6. Move the PC to the next instruction.
+    // 6. Move the PC to the next instruction, if not JUMPED.
     if (jump == 0)
     {
       for (int i = 0; i <= number_of_operands; i++)
