@@ -61,36 +61,31 @@ unsigned char pop(struct cpu *cpu)
 
 void handle_interrupt(struct cpu *cpu, int interrupt_flag)
 {
-  printf("Start handle_interrupt\n");
   // 1. The IM register is bitwise AND-ed with the IS register and the results stored as `maskedInterrupts`.
   unsigned int maskedInterrupts = cpu->reg[IS_REG] & cpu->reg[IM_REG];
   unsigned int check_bit = 0x01;
   // 2. Each bit of `maskedInterrupts` is checked, starting from 0 and going up to the 7th bit, one for each interrupt.
   for (int i = 0; i < 8; i++)
   {
-    printf("Check_bit: %u\n", check_bit);
     // If interrupt found
     if (maskedInterrupts & check_bit)
     {
       // 1. Change interrupt flag - disabling interrupts until IRET
       interrupt_flag = 1;
-      printf("Interrupt found at bit %u\n", i);
       // 2. Clear bit in the IS register
       cpu->reg[IS_REG] = cpu->reg[IS_REG] ^ check_bit;
-      printf("Cleared IS: %u\n", cpu->reg[IS_REG]);
       // 3. Push PC on stack
       push(cpu, cpu->PC);
       // 4. Push FL register
       // push(cpu, cpu->FL);
       // 5. Push registers 0-6 in order
-      for (int j = 0; j < 7; j++) {
+      for (int j = 0; j < 7; j++)
+      {
         push(cpu, cpu->reg[j]);
       }
       // 6. The address (_vector_ in interrupt terminology) of the appropriate handler is looked up from the interrupt vector table.
       unsigned int vector = 0b11111000 | i;
-      printf("Vector address: %u\n", vector);
       // 7. Set the PC is set to the handler address.
-      printf("handler address: %d\n", cpu_ram_read(cpu, vector));
       cpu->PC = cpu_ram_read(cpu, vector);
       // break for loop at bit handling first interrupt
       break;
@@ -98,11 +93,19 @@ void handle_interrupt(struct cpu *cpu, int interrupt_flag)
     // else shift bit to check next one
     check_bit = check_bit << 1;
   }
-  printf("interrupt_flag inside handler: %d\n", interrupt_flag);
-  printf("End handle_interrupt\n\n");
   // return to cpu_run
 }
 
+void handle_IRET(struct cpu *cpu, int interrupt_flag)
+{
+  for (int i = 6; i >= 0; i--)
+  {
+    cpu->reg[i] = pop(cpu);
+  }
+  // cpu->FL = pop(cpu);
+  cpu->PC = pop(cpu);
+  interrupt_flag = 0;
+}
 ///////////////////////
 // Helper Functions End
 ///////////////////////
@@ -219,6 +222,10 @@ void cpu_run(struct cpu *cpu)
       // Halt the CPU (and exit the emulator).
       running = 0;
       break;
+    case IRET:
+      // Return from an interrupt handler.
+      handle_IRET(cpu, interrupt_flag);
+      break;
     case JMP:
       // Jump to the address stored in the given register.
       // Set the `PC` to the address stored in the given register.
@@ -236,6 +243,10 @@ void cpu_run(struct cpu *cpu)
     case POP:
       // Pop the value at the top of the stack into the given register.
       cpu->reg[operandA] = pop(cpu);
+      break;
+    case PRA:
+      // Print alpha character value stored in the given register.
+      printf("%c\n", cpu->reg[operandA]);
       break;
     case PRN:
       // Print numeric value stored in the given register.
@@ -264,8 +275,7 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->PC += num_operands + 1;
     }
-    // 7. Check for interrupt
-    
+    // 7. Check for interrupt and check if not already handling an interrupt
     if ((cpu->reg[IS_REG] != 0) && interrupt_flag == 0)
     {
       handle_interrupt(cpu, interrupt_flag);
