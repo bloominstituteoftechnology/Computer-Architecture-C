@@ -224,6 +224,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // Shift the value in registerA right by the number of bits specified in registerB, filling the high bits with 0.
     cpu->reg[regA] = cpu->reg[regA] >> cpu->reg[regB];
     break;
+  case ALU_SUB:
+    // Subtract the value in the second register from the first, storing the result in registerA.
+    cpu->reg[regA] -= cpu->reg[regB];
+    break;
+  case ALU_XOR:
+    //Perform a bitwise-XOR between the values in registerA and registerB, storing the result in registerA.
+    cpu->reg[regA] = cpu->reg[regA] ^ cpu->reg[regB];
+    break;
   default:
     break;
   }
@@ -466,6 +474,14 @@ void cpu_run(struct cpu *cpu)
     case ST:
       // Store value in registerB in the address stored in registerA.
       cpu_ram_write(cpu, cpu->reg[operandA], cpu->reg[operandB]);
+      break;
+    case SUB:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_SUB, operandA, operandB);
+      break;
+    case XOR:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_XOR, operandA, operandB);
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
