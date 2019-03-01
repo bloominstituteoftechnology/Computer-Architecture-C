@@ -211,6 +211,15 @@ void alu(struct cpu *cpu, enum alu_op op)
   case ALU_ADD:
     cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
     break;
+  case ALU_SUB:
+    cpu->registers[regA] = cpu->registers[regA] - cpu->registers[regB];
+    break;
+  case ALU_MOD:
+    cpu->registers[regA] = cpu->registers[regA] % cpu->registers[regB];
+    break;
+  case ALU_DIV:
+    cpu->registers[regA] = cpu->registers[regA] / cpu->registers[regB];
+    break;
   case ALU_INC:
     cpu->registers[regA]++;
     break;
