@@ -65,7 +65,18 @@ void handle_PRA(struct cpu *cpu)
   printf("%c\n", regA);
 }
 
-// ================= Handle functions ==================
+// JEQ function: If equal flag is set (true), jump to the address stored in the given register
+void handle_JEQ(struct cpu *cpu)
+{
+  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  if (cpu->fl)
+  {
+    printf("hi\n");
+    cpu->pc = MAR;
+  }
+}
+
+// ================= Interrupt Handle functions ==================
 void handle_interupt(struct cpu *cpu, int location)
 {
   cpu->registers[6] = 0;
@@ -263,11 +274,12 @@ void cpu_run(struct cpu *cpu)
       case PRA:
         handle_PRA(cpu);
         break;
-
       case IRET:
         handle_IRET(cpu);
         continue;
-
+      case JEQ:
+        handle_JEQ(cpu);
+        continue;
       // Subroutine instructions
       case CALL:
         handle_CALL(cpu);
