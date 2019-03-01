@@ -158,6 +158,9 @@ void cpu_run(struct cpu *cpu)
       case CMP:
         alu(cpu, CMP, operandA, operandB);
         cpu->pc += num_of_operations + 1;
+
+      case JNE:
+        break;
       default:
         break;
     }
