@@ -108,7 +108,7 @@ void push(struct cpu *cpu, unsigned char registerOfValueToPush)
   cpu_ram_write(cpu, cpu->reg[7], valueToPush);
   
   // Move the PC to the next instruction.
-  // This line is in the switch for consistency
+  cpu->pc += 2;
 }
 
 void pop(struct cpu *cpu, unsigned char registerToPopValueTo)
@@ -127,7 +127,32 @@ void pop(struct cpu *cpu, unsigned char registerToPopValueTo)
   cpu->reg[7]++;
   
   // Move the PC to the next instruction.
-  // This line is in the switch for consistency
+  cpu->pc += 2;
+}
+
+void call(struct cpu *cpu, unsigned char registerOfAddressToJumpTo)
+{
+  unsigned char addressToJumpTo = cpu->reg[registerOfAddressToJumpTo];
+  
+  unsigned char nextInstructionToExecute = cpu->pc + 2;
+  
+  // make room on the stack to store the address
+  cpu->reg[7]--;  // stack grows down
+  
+  cpu_ram_write(cpu, cpu->reg[7], nextInstructionToExecute);
+  
+  cpu->pc = addressToJumpTo;
+}
+
+void ret(struct cpu *cpu)
+{
+  // get the return address out of the stack
+  unsigned char addressToReturnTo = cpu_ram_read(cpu, cpu->reg[7]);
+  
+  // increment size of stack, because we pop out of it
+  cpu->reg[7]++;
+  
+  cpu->pc = addressToReturnTo;
 }
 
 /**
@@ -169,11 +194,15 @@ void cpu_run(struct cpu *cpu)
         break;
       case PUSH:
         push(cpu, operandA);
-        cpu->pc += 2;
         break;
       case POP:
         pop(cpu, operandA);
-        cpu->pc += 2;
+        break;
+      case CALL:
+        call(cpu, operandA);
+        break;
+      case RET:
+        ret(cpu);
         break;
       case HLT:
         running = 0;
