@@ -11,6 +11,7 @@ struct cpu {
   // ram (array)  -- he said in lecture that it would only be 256 bytes i thinl
   unsigned char ram[256]; //creates array with 256 open slots
   unsigned char SP; // Creates the stack pointer / references most recently pushed or address F4
+  unsigned int E; // For the CMP command
 };
 
 // ALU operations
@@ -33,6 +34,7 @@ enum alu_op {
 // Subroutine Calls
 #define CALL 0b01010000
 #define RET 0b00010001
+#define CMP  0b10100111
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
