@@ -169,6 +169,8 @@ void alu(struct cpu *cpu, enum alu_op op)
   case ALU_INC:
     cpu->registers[regA]++;
     break;
+  case ALU_CMP:
+    break;
 
     // TODO: implement more ALU ops
   }

@@ -21,7 +21,8 @@ enum alu_op
   ALU_MUL = 0b10100010,
   // Add more here
   ALU_ADD = 0b10100000,
-  ALU_INC = 0b01100101
+  ALU_INC = 0b01100101,
+  ALU_CMP = 0b10100111
 };
 
 // Instructions
