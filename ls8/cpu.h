@@ -37,6 +37,7 @@ enum alu_op {
 #define CMP  0b10100111
 #define JNE  0b01010110 
 #define JMP 0b01010100
+#define JEQ 0b01010101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
