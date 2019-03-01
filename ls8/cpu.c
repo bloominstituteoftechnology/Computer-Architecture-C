@@ -84,6 +84,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu -> registers[regA] = cpu -> registers[regA] * cpu -> registers[regB];
       break;
+    case ALU_ADD:
+      cpu -> registers[regA] = cpu -> registers[regA] + cpu -> registers[regB];
+      break;
     // TODO: implement more ALU ops
   }
 }
@@ -100,6 +103,9 @@ void (*handlers[256])(struct cpu *cpu, unsigned char op0, unsigned char op1) = {
 void LDI_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { cpu->registers[op0] = op1; } // Set Register  
 void HLT_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { (void)cpu; (void)op0; (void)op1; exit(0); } // Halt
 void PRN_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { (void)op1; printf("%d\n", cpu->registers[op0]); } // Print
+
+// ALU Instructions
+void ADD_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { alu(cpu, ALU_ADD, op0, op1); } // Add
 void MUL_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { alu(cpu, ALU_MUL, op0, op1); } // Multiply
 
 // Stack Instructions
@@ -123,14 +129,15 @@ void PUSH_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // P
 // PC Explicit Instructions
 void CALL_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // Call
   (void)op1;
-  PUSH_handler(cpu, cpu->PC + 2, op1);
+  cpu->registers[7] -= 1; 
+  cpu_ram_write(cpu, cpu->registers[7], cpu->PC + 2); 
   cpu->PC = cpu->registers[op0];
 }
 
 void RET_handler (struct cpu *cpu, unsigned char op0, unsigned char op1) { // Return
   (void)op1; (void)op0;
-  POP_handler(cpu, 0, op1);
-  cpu->PC = cpu->registers[0];
+  cpu->PC = cpu_ram_read(cpu, cpu->registers[7]);
+  if (cpu->registers[7] != 0xF4) cpu->registers[7] += 1;
 }
 
 
@@ -146,6 +153,7 @@ void cpu_run(struct cpu *cpu)
   handlers[HLT] = HLT_handler;
   handlers[PRN] = PRN_handler;
   handlers[MUL] = MUL_handler;
+  handlers[ADD] = ADD_handler;
   handlers[HLT] = HLT_handler;
   handlers[POP] = POP_handler;
   handlers[PUSH] = PUSH_handler;
@@ -181,7 +189,7 @@ void cpu_run(struct cpu *cpu)
     else { printf("Unkown Instruction: 0x%02x\n", IR); running = 0;}
 
     // Move the PC to the next instruction, if instruction is not explicit.
-    if ((IR & 0x10) != 0x10) { cpu->PC += (ops + 1);} 
+    if ((IR & 0x10) != 0x10) { cpu->PC += (ops + 1); } 
     
   }
 }

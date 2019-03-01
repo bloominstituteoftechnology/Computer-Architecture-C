@@ -17,7 +17,8 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_ADD
 	// Add more here
 };
 
@@ -26,15 +27,20 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
+// General Instructions
 #define LDI   0b10000010
 #define HLT   0b00000001
 #define PRN   0b01000111
-#define MUL   0b10100010
+
+// ALU Instructions
 #define ADD   0b10100000
+#define MUL   0b10100010
+
+// Stack Instructions
 #define POP   0b01000110
 #define PUSH  0b01000101
 
-// Explicit Instructions (assign PC directly)
+// PC Explicit Instructions (assign PC directly)
 #define CALL  0b01010000
 #define INT   0b01010010
 #define IRET  0b00010011
