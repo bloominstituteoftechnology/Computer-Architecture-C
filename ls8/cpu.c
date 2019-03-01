@@ -196,6 +196,18 @@ void cpu_run(struct cpu *cpu)
     case CMP:
       alu(cpu, CMP, operandA, operandB);
       break;
+
+    case JMP:
+      // am i updating the PC twice? here and after the SWITCH statement?
+      cpu->pc = cpu->registers[operandA];
+      break;
+
+    case JEQ:
+      if (cpu->registers[6] == 0b00000001)
+      {
+        cpu->pc = cpu->registers[operandA];
+      }
+      break;
     default:
       printf("something went wrong with IR : %d\n", IR);
       exit(1);

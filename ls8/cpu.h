@@ -37,6 +37,8 @@ enum alu_op
 #define CALL 0b01010000
 #define RET 0b00010001
 #define CMP 0b10100111
+#define JMP 0b01010100
+#define JEQ 0b01010101
 
 //Stack set to register 7 (cpu->registers[7])
 //Flags set to register 6 (cpu->registers[6])
