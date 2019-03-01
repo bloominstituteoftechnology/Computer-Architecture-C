@@ -7,6 +7,7 @@
 
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
+  // Write value to this location in ram
   cpu->ram[address] = value;
 }
 
@@ -93,6 +94,41 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
   return cpu->ram[address];
 }
 
+void push(struct cpu *cpu, unsigned char registerOfValueToPush)
+{
+  // R7 is the stack pointer
+  // Decrement the 'SP'
+  // Copy the value in the given register to the address pointed to by `SP`
+  
+  // Decrement the size of the stack
+  cpu->reg[7]--;
+  
+  unsigned char valueToPush = cpu->reg[registerOfValueToPush];
+  
+  cpu_ram_write(cpu, cpu->reg[7], valueToPush);
+  
+  // Move the PC to the next instruction.
+  // This line is in the switch for consistency
+}
+
+void pop(struct cpu *cpu, unsigned char registerToPopValueTo)
+{
+  // Copy the value from the address pointed to by `SP` to the given register.
+  // Increment `SP`
+  
+  // Get address out of register 7
+  unsigned char stackPointerAddress = cpu->reg[7]; 
+  // Get the value out of that address
+  unsigned char valueToPop = cpu_ram_read(cpu, stackPointerAddress);
+  
+  cpu->reg[registerToPopValueTo] = valueToPop;
+  
+  // Increment the size of the stack
+  cpu->reg[7]++;
+  
+  // Move the PC to the next instruction.
+  // This line is in the switch for consistency
+}
 
 /**
  * Run the CPU
@@ -113,6 +149,7 @@ void cpu_run(struct cpu *cpu)
     
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    // 6. Move the PC to the next instruction.
     switch (IR) {
       case LDI:
         cpu->reg[operandA] = operandB;
@@ -130,6 +167,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->pc += 3;
         break;
+      case PUSH:
+        push(cpu, operandA);
+        cpu->pc += 2;
+        break;
+      case POP:
+        pop(cpu, operandA);
+        cpu->pc += 2;
+        break;
       case HLT:
         running = 0;
         break;
@@ -137,8 +182,6 @@ void cpu_run(struct cpu *cpu)
         printf("Unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
         exit(1);
     }
-    
-    // 6. Move the PC to the next instruction.
   }
 }
 
