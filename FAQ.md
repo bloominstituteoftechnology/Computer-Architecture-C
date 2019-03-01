@@ -125,6 +125,16 @@ arbitrary nesting level. Indeed, it is what allows for recursion at all.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Is the flags <tt>FL</tt> register one of the <tt>Rx</tt> registers, or is it a special register?</b></summary><p>
+
+It's a special purpose register that can be added separately to the `struct cpu`
+similar to how `PC` works.
+
+</p></details></p>
+
+
 <!--
 
 TODO:
