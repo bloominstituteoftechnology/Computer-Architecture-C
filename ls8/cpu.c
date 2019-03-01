@@ -189,6 +189,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // Decrement (subtract 1 from) the value in the given register.
     cpu->reg[regA]--;
     break;
+  case ALU_DIV:
+    // Divide the value in the first register by the value in the second, storing the result in registerA.
+    cpu->reg[regA] /= cpu->reg[regB];
+    break;
   case ALU_INC:
     // Increment (add 1 to) the value in the given register.
     cpu->reg[regA]++;
@@ -261,7 +265,20 @@ void cpu_run(struct cpu *cpu)
       break;
     case DEC:
       // *This is an instruction handled by the ALU.*
-      alu(cpu, ALU_INC, operandA, operandB);
+      alu(cpu, ALU_DEC, operandA, operandB);
+      break;
+    case DIV:
+      // *This is an instruction handled by the ALU.*
+      // If the value in the second register is 0, the system should print an error message and halt.
+      if (cpu->reg[operandB] == 0)
+      {
+        printf("Can not divide by 0\n");
+        running = 0;
+      }
+      else
+      {
+        alu(cpu, ALU_DIV, operandA, operandB);
+      }
       break;
     case HLT:
       // Halt the CPU (and exit the emulator).

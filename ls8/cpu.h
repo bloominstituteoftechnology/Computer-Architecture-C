@@ -21,6 +21,7 @@ enum alu_op
   ALU_AND,
   ALU_CMP,
   ALU_DEC,
+  ALU_DIV,
   ALU_INC,
   ALU_MUL
 };
@@ -35,7 +36,7 @@ enum alu_op
 #define CALL 0b01010000
 #define CMP 0b10100111
 #define DEC 0b01100110
-#define DIV
+#define DIV 0b10100011
 #define HLT 0b00000001
 #define INC 0b01100101
 #define INT
