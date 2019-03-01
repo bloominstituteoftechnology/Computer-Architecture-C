@@ -267,6 +267,10 @@ void cpu_run(struct cpu *cpu)
       // Set the `PC` to the address stored in the given register.
       cpu->PC = cpu->reg[operandA];
       break;
+    case LD:
+      // Loads registerA with the value at the memory address stored in registerB.
+      cpu->reg[operandA] = cpu_ram_read(cpu, cpu->reg[operandB]);
+      break;
     case LDI:
       // Set the value of a register to an integer.
       cpu->reg[operandA] = operandB;

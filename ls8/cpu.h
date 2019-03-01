@@ -36,7 +36,7 @@ enum alu_op
 #define IRET 0b00010011
 #define JEQ 0b01010101
 #define JMP 0b01010100
-#define LD
+#define LD 0b10000011
 #define LDI 0b10000010
 #define MUL 0b10100010
 #define POP 0b01000110
