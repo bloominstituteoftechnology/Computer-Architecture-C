@@ -223,6 +223,9 @@ void alu(struct cpu *cpu, enum alu_op op)
   case ALU_INC:
     cpu->registers[regA]++;
     break;
+  case ALU_DEC:
+    cpu->registers[regA]--;
+    break;
   case ALU_CMP:
     handle_CMP(cpu, regA, regB);
     break;
@@ -231,6 +234,18 @@ void alu(struct cpu *cpu, enum alu_op op)
     break;
   case ALU_AND:
     cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB];
+    break;
+  case ALU_OR:
+    cpu->registers[regA] = cpu->registers[regA] | cpu->registers[regB];
+    break;
+  case ALU_XOR:
+    cpu->registers[regA] = cpu->registers[regA] ^ cpu->registers[regB];
+    break;
+  case ALU_SHL:
+    cpu->registers[regA] = cpu->registers[regA] >> cpu->registers[regB];
+    break;
+  case ALU_SHR:
+    cpu->registers[regA] = cpu->registers[regA] << cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
