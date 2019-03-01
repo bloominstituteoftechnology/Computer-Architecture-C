@@ -18,6 +18,7 @@ struct cpu
 enum alu_op
 {
   ALU_ADD,
+  ALU_AND,
   ALU_CMP,
   ALU_DEC,
   ALU_INC,
@@ -30,24 +31,39 @@ enum alu_op
 // literals should be used.
 
 #define ADD 0b10100000
+#define AND 0b10101000
 #define CALL 0b01010000
 #define CMP 0b10100111
 #define DEC 0b01100110
+#define DIV
 #define HLT 0b00000001
 #define INC 0b01100101
+#define INT
 #define IRET 0b00010011
 #define JEQ 0b01010101
+#define JGE
+#define JGT
+#define JLE
+#define JLT
 #define JMP 0b01010100
 #define JNE 0b01010110
 #define LD 0b10000011
 #define LDI 0b10000010
+#define MOD
 #define MUL 0b10100010
+#define NOP
+#define NOT
+#define OR
 #define POP 0b01000110
 #define PRA 0b01001000
 #define PRN 0b01000111
 #define PUSH 0b01000101
 #define RET 0b00010001
+#define SHL
+#define SHR
 #define ST 0b10000100
+#define SUB
+#define XOR
 
 // Function declarations
 

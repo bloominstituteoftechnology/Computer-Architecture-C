@@ -158,9 +158,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_ADD:
+    // Add the value in two registers and store the result in registerA.
     cpu->reg[regA] += cpu->reg[regB];
     break;
+  case ALU_AND:
+    //Bitwise-AND the values in registerA and registerB, then store the result in registerA.
+    cpu->reg[regA] = cpu->reg[regA] & cpu->reg[regB];
+    break;
   case ALU_CMP:
+    // Compare the values in two registers.
     // Set FL to 0
     cpu->FL = cpu->FL & 0x00;
     // if A less than B set flag L 00000100 = 4
@@ -180,12 +186,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     }
     break;
   case ALU_DEC:
+    // Decrement (subtract 1 from) the value in the given register.
     cpu->reg[regA]--;
     break;
   case ALU_INC:
+    // Increment (add 1 to) the value in the given register.
     cpu->reg[regA]++;
     break;
   case ALU_MUL:
+    // Multiply the values in two registers together and store the result in registerA.
     cpu->reg[regA] *= cpu->reg[regB];
     break;
   default:
@@ -233,8 +242,11 @@ void cpu_run(struct cpu *cpu)
     {
     case ADD:
       // *This is an instruction handled by the ALU.*
-      // Add the value in two registers and store the result in registerA.
       alu(cpu, ALU_ADD, operandA, operandB);
+      break;
+    case AND:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_AND, operandA, operandB);
       break;
     case CALL:
       // Calls a subroutine (function) at the address stored in the register.
@@ -245,12 +257,10 @@ void cpu_run(struct cpu *cpu)
       break;
     case CMP:
       // *This is an instruction handled by the ALU.*
-      // Compare the values in two registers.
       alu(cpu, ALU_CMP, operandA, operandB);
       break;
     case DEC:
       // *This is an instruction handled by the ALU.*
-      // Decrement (subtract 1 from) the value in the given register.
       alu(cpu, ALU_INC, operandA, operandB);
       break;
     case HLT:
@@ -259,7 +269,6 @@ void cpu_run(struct cpu *cpu)
       break;
     case INC:
       // *This is an instruction handled by the ALU.*
-      // Increment (add 1 to) the value in the given register.
       alu(cpu, ALU_INC, operandA, operandB);
       break;
     case IRET:
@@ -306,7 +315,6 @@ void cpu_run(struct cpu *cpu)
       break;
     case MUL:
       // *This is an instruction handled by the ALU.*
-      // Multiply the values in two registers together and store the result in registerA.
       alu(cpu, ALU_MUL, operandA, operandB);
       break;
     case POP:
