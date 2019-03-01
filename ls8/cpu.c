@@ -162,6 +162,7 @@ void cpu_run(struct cpu *cpu)
     {
       cpu->PC += next_pc;
     }
+    
 
   }
 }
