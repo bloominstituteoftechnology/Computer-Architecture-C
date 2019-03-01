@@ -24,7 +24,8 @@ enum alu_op
   ALU_DIV,
   ALU_INC,
   ALU_MOD,
-  ALU_MUL
+  ALU_MUL,
+  ALU_NOT
 };
 
 // Instructions
@@ -53,8 +54,8 @@ enum alu_op
 #define LDI 0b10000010
 #define MOD 0b10100100
 #define MUL 0b10100010
-#define NOP
-#define NOT
+#define NOP 0b00000000
+#define NOT 0b01101001
 #define OR
 #define POP 0b01000110
 #define PRA 0b01001000

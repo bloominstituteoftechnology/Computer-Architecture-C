@@ -209,6 +209,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // Multiply the values in two registers together and store the result in registerA.
     cpu->reg[regA] *= cpu->reg[regB];
     break;
+  case ALU_NOT:
+    // Perform a bitwise-NOT on the value in a register.
+    cpu->reg[regA] = ~cpu->reg[regA];
+    break;
   default:
     break;
   }
@@ -407,6 +411,13 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       // *This is an instruction handled by the ALU.*
       alu(cpu, ALU_MUL, operandA, operandB);
+      break;
+    case NOP:
+      // No operation. Do nothing for this instruction.
+      break;
+    case NOT:
+      // *This is an instruction handled by the ALU.*
+      alu(cpu, ALU_NOT, operandA, operandB);
       break;
     case POP:
       // Pop the value at the top of the stack into the given register.
