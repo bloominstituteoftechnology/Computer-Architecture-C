@@ -67,6 +67,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       printf("\nMULTIPLY CALLED\n");
       cpu->registers[regA] *= cpu->registers[regB]; // sets registerA to registerA times registerB
       break;
+    
+    case CMP:
+      if(cpu->registers[regA] == cpu->registers[regB]){
+        //If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
+        cpu->E = 1;
+      }else{
+        cpu->E = 0;
+      }
 
     // TODO: implement more ALU ops
     
@@ -146,7 +154,10 @@ void cpu_run(struct cpu *cpu)
         // Pop the value from the top of the stack and store it in the `PC`.
         cpu->pc = pop(cpu); 
         break; 
-
+      
+      case CMP:
+        alu(cpu, CMP, operandA, operandB);
+        cpu->pc += num_of_operations + 1;
       default:
         break;
     }
