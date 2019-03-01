@@ -239,13 +239,3 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(cpu->ram));
   
 }
-
-//unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-//{
-//  return cpu->ram[address];
-//}
-
-//void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-//{
-//  cpu->ram[address] = value;
-//}
