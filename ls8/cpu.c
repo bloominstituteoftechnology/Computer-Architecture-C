@@ -288,6 +288,11 @@ void cpu_run(struct cpu *cpu)
       // *This is an instruction handled by the ALU.*
       alu(cpu, ALU_INC, operandA, operandB);
       break;
+    case INT:
+      // Issue the interrupt number stored in the given register.
+      // This will set the _n_th bit in the `IS` register to the value in the given register.
+      cpu->reg[IS_REG] |= cpu->reg[operandA];
+      break;
     case IRET:
       // Return from an interrupt handler.
       handle_IRET(cpu, interrupt_flag);

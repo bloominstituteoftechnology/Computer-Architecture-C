@@ -39,7 +39,7 @@ enum alu_op
 #define DIV 0b10100011
 #define HLT 0b00000001
 #define INC 0b01100101
-#define INT
+#define INT 0b01010010
 #define IRET 0b00010011
 #define JEQ 0b01010101
 #define JGE
