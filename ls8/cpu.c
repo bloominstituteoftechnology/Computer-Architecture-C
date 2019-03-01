@@ -49,7 +49,6 @@ void handle_ST(struct cpu *cpu)
 {
   unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
   unsigned char MDR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 2))];
-  printf("A: %d, B:%d\n", MAR, MDR);
   cpu_ram_write(cpu, MAR, MDR);
 }
 
@@ -64,6 +63,21 @@ void handle_PRA(struct cpu *cpu)
 {
   unsigned char regA = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
   printf("%c\n", regA);
+}
+
+// ================= Handle functions ==================
+void handle_interupt(struct cpu *cpu, int location)
+{
+  cpu->registers[6] = 0;
+
+  cpu_ram_write(cpu, --cpu->registers[7], cpu->pc);
+  cpu_ram_write(cpu, --cpu->registers[7], cpu->fl);
+  for (int i = 0; i < 7; i++)
+  {
+    cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[i]);
+  }
+  cpu->pc = cpu->ram[0xF8 + location];
+  cpu->registers[5] = 0;
 }
 
 void handle_IRET(struct cpu *cpu)
@@ -197,16 +211,7 @@ void cpu_run(struct cpu *cpu)
         int interrupt_happened = ((interrupts >> i) & 1) == 1;
         if (interrupt_happened)
         {
-          cpu->registers[6] = 0;
-
-          cpu_ram_write(cpu, --cpu->registers[7], cpu->pc);
-          cpu_ram_write(cpu, --cpu->registers[7], cpu->fl);
-          for (int i = 0; i < 7; i++)
-          {
-            cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[i]);
-          }
-          cpu->pc = cpu->ram[0xF8 + i];
-          cpu->registers[5] = 0;
+          handle_interupt(cpu, i);
           break;
         }
       }
