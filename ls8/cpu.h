@@ -19,6 +19,7 @@ enum alu_op
 {
   ALU_ADD,
   ALU_CMP,
+  ALU_INC,
   ALU_MUL
 };
 
@@ -32,7 +33,7 @@ enum alu_op
 #define CMP 0b10100111
 #define DEC
 #define HLT 0b00000001
-#define INC
+#define INC 0b01100101
 #define IRET 0b00010011
 #define JEQ 0b01010101
 #define JMP 0b01010100

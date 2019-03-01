@@ -179,6 +179,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->FL = cpu->FL | 1;
     }
     break;
+  case ALU_INC:
+    cpu->reg[regA]++;
+    break;
   case ALU_MUL:
     cpu->reg[regA] *= cpu->reg[regB];
     break;
@@ -245,6 +248,11 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       // Halt the CPU (and exit the emulator).
       running = 0;
+      break;
+    case INC:
+      // *This is an instruction handled by the ALU.*
+      // Increment (add 1 to) the value in the given register.
+      alu(cpu, ALU_INC, operandA, operandB);
       break;
     case IRET:
       // Return from an interrupt handler.
