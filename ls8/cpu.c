@@ -152,6 +152,22 @@ void handle_POP(struct cpu *cpu)
   cpu->registers[regA] = value;
 }
 
+void handle_CMP(struct cpu *cpu, unsigned char regA, unsigned char regB)
+{
+  if (cpu->registers[regA] == cpu->registers[regB])
+  {
+    cpu->fl = 0b00000001;
+  }
+  else if (cpu->registers[regA] > cpu->registers[regB])
+  {
+    cpu->fl = 0b00000010;
+  }
+  else
+  {
+    cpu->fl = 0b00000100;
+  }
+}
+
 // ================== CPU functions ===================
 
 /**
@@ -187,7 +203,6 @@ void alu(struct cpu *cpu, enum alu_op op)
 {
   unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
   unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
-
   switch (op)
   {
   case ALU_MUL:
@@ -200,18 +215,13 @@ void alu(struct cpu *cpu, enum alu_op op)
     cpu->registers[regA]++;
     break;
   case ALU_CMP:
-    if (cpu->registers[regA] == cpu->registers[regB])
-    {
-      cpu->fl = 0b00000001;
-    }
-    else if (cpu->registers[regA] > cpu->registers[regB])
-    {
-      cpu->fl = 0b00000010;
-    }
-    else
-    {
-      cpu->fl = 0b00000100;
-    }
+    handle_CMP(cpu, regA, regB);
+    break;
+  case ALU_NOT:
+    cpu->registers[regA] = ~cpu->registers[regA];
+    break;
+  case ALU_AND:
+    cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
