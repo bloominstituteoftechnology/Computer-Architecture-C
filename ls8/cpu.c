@@ -160,7 +160,11 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += num_of_operations + 1;
 
       case JNE:
+        if(cpu->E == 0){
+          cpu->pc = cpu->registers[operandA]; //-2 ?
+        }
         break;
+        
       default:
         break;
     }
