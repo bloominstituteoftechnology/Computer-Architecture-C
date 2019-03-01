@@ -160,6 +160,25 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->reg[regA] += cpu->reg[regB];
     break;
+  case ALU_CMP:
+    // Set FL to 0
+    cpu->FL = cpu->FL & 0x00;
+    // if A less than B set flag L 00000100 = 4
+    if (cpu->reg[regA] < cpu->reg[regB])
+    {
+      cpu->FL = cpu->FL | 4;
+    }
+    // if A greater than B set flag G 00000010 = 2
+    else if (cpu->reg[regA] > cpu->reg[regB])
+    {
+      cpu->FL = cpu->FL | 2;
+    }
+    // else if equal set flag E 00000001 = 1
+    else
+    {
+      cpu->FL = cpu->FL | 1;
+    }
+    break;
   case ALU_MUL:
     cpu->reg[regA] *= cpu->reg[regB];
     break;
@@ -217,6 +236,11 @@ void cpu_run(struct cpu *cpu)
       push(cpu, (cpu->PC + num_operands + 1));
       // 2. PC is set to address stored in given register
       cpu->PC = cpu->reg[operandA];
+      break;
+    case CMP:
+      // *This is an instruction handled by the ALU.*
+      // Compare the values in two registers.
+      alu(cpu, ALU_CMP, operandA, operandB);
       break;
     case HLT:
       // Halt the CPU (and exit the emulator).
