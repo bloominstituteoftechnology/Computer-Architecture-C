@@ -250,6 +250,18 @@ void cpu_run(struct cpu *cpu)
       // Return from an interrupt handler.
       handle_IRET(cpu, interrupt_flag);
       break;
+    case JEQ:
+      // If `equal` flag is set (true), jump to the address stored in the given register.
+      if (cpu->FL & 1)
+      {
+        cpu->PC = cpu->reg[operandA];
+      }
+      // Else manually increment PC if it isn't set
+      else
+      {
+        cpu->PC += num_operands + 1;
+      }
+      break;
     case JMP:
       // Jump to the address stored in the given register.
       // Set the `PC` to the address stored in the given register.
