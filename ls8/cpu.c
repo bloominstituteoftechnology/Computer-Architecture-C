@@ -69,10 +69,29 @@ void handle_PRA(struct cpu *cpu)
 void handle_JEQ(struct cpu *cpu)
 {
   unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
-  if (cpu->fl)
+
+  if ((0b00000001 & cpu->fl))
   {
-    printf("hi\n");
     cpu->pc = MAR;
+  }
+  else
+  {
+    cpu->pc += 2;
+  }
+}
+
+// JNE function: If E flag is clear (false, 0), jump to the address stored in the given register.
+void handle_JNE(struct cpu *cpu)
+{
+  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+
+  if (!(0b00000001 & cpu->fl))
+  {
+    cpu->pc = MAR;
+  }
+  else
+  {
+    cpu->pc += 2;
   }
 }
 
@@ -185,7 +204,7 @@ void alu(struct cpu *cpu, enum alu_op op)
     {
       cpu->fl = 0b00000001;
     }
-    if (cpu->registers[regA] > cpu->registers[regB])
+    else if (cpu->registers[regA] > cpu->registers[regB])
     {
       cpu->fl = 0b00000010;
     }
@@ -280,6 +299,10 @@ void cpu_run(struct cpu *cpu)
       case JEQ:
         handle_JEQ(cpu);
         continue;
+      case JNE:
+        handle_JNE(cpu);
+        continue;
+
       // Subroutine instructions
       case CALL:
         handle_CALL(cpu);
