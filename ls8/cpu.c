@@ -12,6 +12,7 @@
 // https://stackoverflow.com/questions/1658530/load-numbers-from-text-file-in-c
 void cpu_load(struct cpu *cpu, char *argv[])//argv will come in from main according to step 8
 {
+  printf("\nCPU LOAD START\n");
   FILE *f;
   f = fopen(argv[1], "r"); //reads the second argument passed
   if(f == NULL){
@@ -33,6 +34,7 @@ void cpu_load(struct cpu *cpu, char *argv[])//argv will come in from main accord
       cpu->ram[address++] = data;
     }
     fclose(f);
+    printf("\nCPU LOAD FINISHED\n");
   }
   // TODO: Replace this with something less hard-coded
 }
@@ -68,13 +70,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->registers[regA] *= cpu->registers[regB]; // sets registerA to registerA times registerB
       break;
     
-    case CMP:
+    case ALU_CMP:
+      printf("\n Comaparing in ALU \n");
       if(cpu->registers[regA] == cpu->registers[regB]){
         //If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
         cpu->E = 1;
       }else{
         cpu->E = 0;
       }
+      printf("cpu->E : %d", cpu->E);
 
     // TODO: implement more ALU ops
     
@@ -88,7 +92,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  printf("RUNNING : ");
+  printf("RUNNING : \n");
   while (running) {
     unsigned int IR = cpu_ram_read(cpu, cpu->pc); //Instruction Register
     unsigned int num_of_operations = IR>>6; // bitwise shift operator I found / get the last two numbers 
@@ -104,13 +108,12 @@ void cpu_run(struct cpu *cpu)
     switch (IR)
     {
       case LDI:/* Set the value of a register to an integer. */
+        printf("\nLDI\n");
         cpu->registers[operandA] = operandB;
         // cpu->pc += 3;
         cpu->pc += num_of_operations + 1;
         break;
 
-      // case NOP://does nothing
-      //   break;
       case HLT: //exits the program
         running = 0;
         break;
@@ -156,25 +159,35 @@ void cpu_run(struct cpu *cpu)
         break; 
       
       case CMP:
-        alu(cpu, CMP, operandA, operandB);
+        alu(cpu, ALU_CMP, operandA, operandB);
         cpu->pc += num_of_operations + 1;
+        break;
 
       case JNE:
+      printf("\n JNE \n");
         if(cpu->E == 0){
-          cpu->pc = cpu->registers[operandA]; //-2 ?
+          cpu->pc = cpu->registers[operandA] - 2; 
         }
+        cpu->pc += num_of_operations + 1;
         break;
+
       case JMP:
+        printf("\n JMP \n");
         //Jump to the address stored in the given register.
         //Set the `PC` to the address stored in the given register.
         cpu->pc = cpu->registers[operandA] - 2;
+
+        // cpu->pc += num_of_operations + 1;
         break;
         
       case JEQ:
-        if(cpu->E){
+        printf("\n JEQ \n");
+        if(cpu->E == 1){
           cpu->pc = cpu->registers[operandA] - 2;
         }
+        cpu->pc += num_of_operations + 1;
         break;
+
       default:
         break;
     }
@@ -194,5 +207,8 @@ void cpu_init(struct cpu *cpu)
   cpu->pc = 0;
   memset(cpu->registers, 0, sizeof(cpu->registers));
   memset(cpu->ram, 0, sizeof(cpu->ram));
+  cpu->E = 0;
 }
+
+//1, 4, 5
 
