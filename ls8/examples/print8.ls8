@@ -1,6 +1,6 @@
-10000010 # LDI R0,8
-00000000
-00001000
-01000111 # PRN R0
-00000000
-00000001 # HLT
+10000010 # LDI R0,8; Call LDI instruction; this also tells cpu to interpret next two lines as numeric value parameters for LDI
+00000000 # == 0; this is the register R0 utilized by LDI
+00001000 # == 8; this is the value that gets put into cpu->reg[0]
+01000111 # PRN R0; call PRN instrunction to print value at register index given on next line
+00000000 # == 0; this is the register index with the value to be printed; the result of all this is print(cpu->reg[0])
+00000001 # HLT; HLT instruction to halt and exit

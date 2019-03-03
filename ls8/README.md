@@ -14,7 +14,7 @@ where something is in memory), computations, and instructions. With 8 bits, our
 CPU has a total of 256 bytes of memory and can only compute values up to 255.
 The CPU could support 256 instructions, as well, but we won't need them.
 
-For starters, we'll execute code that stores the value 8 in a register,
+For starters, we'll execute code that stores the value 8 in a register,f
 then prints it out:
 
 ```
@@ -61,6 +61,13 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+in folder 'ls8':
+- folder 'examples'
+- file 'cpu.c' is where you actually run the cpu
+- file 'cpu.h' contains cpu struct, list of ALU operations, and binary definitions of Instructions
+- file 'ls8.c' I think this is the "program that runs programs"
+- file 'Makefile' this runs when you compile; it compiles code in all directory files
+- file 'README.md' project instructions
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
