@@ -27,6 +27,11 @@ void cpu_load(struct cpu *cpu)
   unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
     return cpu->ram[address]; /* reads the cpu struct's contents at this specific location in memory */
   }
+
+  unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char new_data) {
+    cpu->ram[address] = new_data; /* set new data in memory */
+  }
+
 }
 
 /**
