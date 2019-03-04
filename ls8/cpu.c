@@ -27,25 +27,26 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = { // make load to read file from command line
-    // From print8.ls8
-    0b10000010, // LDI R0, 8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
-
-  // TODO: Replace this with something less hard-coded
+    FILE *file = fopen(filename, "r");
+    
+    int address = 0;
+    char line[8000];
+    
+    while (fgets(line, sizeof(line), file) != NULL)
+    {
+        char *end;
+        unsigned char value = strtoul(line, &end, 2) & 0xFF;
+        if (end == line)
+        {
+            continue;
+        }
+        cpu_ram_write(cpu, address++, value);
+    }
+    
+    fclose(file);
+    
 }
 
 /**
@@ -53,15 +54,22 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB) // does math and operations
 {
-    (void)cpu;
-    (void)regA;
-    (void)regB;
+    unsigned int a = cpu->registers[regA];
+    unsigned int b = cpu->registers[regB];
+    
     switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[a] *= cpu->registers[b];
       break;
-
-    // TODO: implement more ALU ops
+    case CMP:
+        if (cpu->registers[a] == cpu->registers[b]) {
+            cpu->flag = 1;
+        }
+        else {
+            cpu->flag = 0;
+        }
+        cpu->pc = cpu->pc + op + 1;
+        break;
   }
 }
 
@@ -78,6 +86,7 @@ void cpu_run(struct cpu *cpu)
         unsigned char ir = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
         
+        unsigned int num_ops = ir >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
         unsigned char operand0 = cpu_ram_read(cpu, cpu->pc + 1); // register number
         unsigned char operand1 = cpu_ram_read(cpu, cpu->pc + 2); // value
@@ -94,6 +103,25 @@ void cpu_run(struct cpu *cpu)
                   printf("%d\n", cpu->registers[operand0]);
                   // 6. Move the PC to the next instruction.
                   cpu->pc += 2;
+                  break;
+              case MUL:
+                  alu(cpu,ALU_MUL,operand0, operand1);
+                  cpu->pc = cpu->pc + num_ops + 1;
+                  break;
+              case JMP:
+                  cpu->pc = cpu->registers[operand0];
+                  break;
+              case JEQ:
+                  if (cpu->flag == 1) {
+                      cpu->pc = cpu->registers[operand0];
+                  }
+                  cpu->pc = cpu->pc + num_ops + 1;
+                  break;
+              case JNE:
+                  if (cpu->flag != 1) {
+                      cpu->pc = cpu->registers[operand0];
+                  }
+                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case HLT:
                   running = 0;
@@ -117,4 +145,6 @@ void cpu_init(struct cpu *cpu)
     cpu->pc = 0;
     // Init RAM
     memset(cpu->ram, 0, sizeof(cpu->ram));
+    
+    cpu->flag = 0;
 }
