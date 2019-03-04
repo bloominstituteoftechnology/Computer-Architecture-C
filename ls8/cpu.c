@@ -75,18 +75,18 @@ void cpu_load(struct cpu *cpu, char *filename)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
 
-  unsigned char firstValue = cpu->reg[regA];
-  unsigned char secondValue = cpu->reg[regB];
+  unsigned char firstValue = cpu->registers[regA];
+  unsigned char secondValue = cpu->registers[regB];
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu->reg[regA] = firstValue * secondValue;
+      cpu->registers[regA] = firstValue * secondValue;
       break;
     case ALU_ADD:
-      cpu->reg[regA] = firstValue + secondValue;
+      cpu->registers[regA] = firstValue + secondValue;
       break;
     // TODO: implement more ALU ops
-    case CMP:
+    case ALU_CMP:
       if (firstValue == secondValue) {
         cpu->FL = 0;
       }
@@ -133,7 +133,7 @@ void cpu_run(struct cpu *cpu)
         break;
       //Jumps to the address stored in the given register
       case CMP:
-        alu(cpu, operandA, operandB);
+        alu(cpu, ALU_CMP, operandA, operandB);
         cpu->pc += 3;
         break;
       case JMP:
