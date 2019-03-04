@@ -66,6 +66,27 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+## File Structure
+
+* Examples - holds multiple files that gives us CPU word, instructions, register and operand examples
+
+### Cpu.c
+
+1. cpu_load - will load the binary bytes that are in .lsa source into an array
+
+2. alu - will handle the numeric values
+
+3. cpu_run - will handle processing all the instructions we feed it 
+
+4. cpu_init - creates a cpu struct and starts the PC and all its registers
+
+### Cpu.h
+
+1. struct cpu - holds all info about CPU the registers and ram
+
+2. enum alu_op - all the ALU numeric operations 
+
+
 ## Step 1: Implement `struct cpu` in `cpu.h`
 
 This structure holds information about the CPU and associated components.
