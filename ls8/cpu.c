@@ -53,12 +53,33 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char ir = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
     // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
+    switch (ir)
+    {
+    case HLT:
+      running = 0;
+      break;
+    case LDI:
+      cpu->registers[operandA] = operandB;
+      cpu->pc += 3;
+      break;
+    case PRN:
+      printf("%d\n", cpu->registers[operandA]);
+      cpu->pc += 2;
+      break;
+    default:
+      printf("Unknown Command. Exiting...\n");
+      exit(3);
+    }
   }
+
+  // 5. Do whatever the instruction should do according to the spec.
+  // 6. Move the PC to the next instruction.
 }
 
 /**
@@ -67,8 +88,18 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  // Init Registers
+  for (int i = 0; i < 7; i++)
+  {
+    cpu->registers[i] = 0;
+  }
+
+  cpu->registers[7] = 0xF4;
+  // Init PC
   cpu->pc = 0;
-  memset(cpu->ram, 0, 8 * sizeof(char));
+  // Init Ram
+  memset(cpu->ram, 0, sizeof(cpu->ram));
+
   memset(cpu->registers, 0, 256 * sizeof(char));
   return 0;
 }
