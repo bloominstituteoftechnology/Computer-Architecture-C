@@ -24,6 +24,9 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
+  unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
+    return cpu->ram[address]; /* reads the cpu struct's contents at this specific location in memory */
+  }
 }
 
 /**
