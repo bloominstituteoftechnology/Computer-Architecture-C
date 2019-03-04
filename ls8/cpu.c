@@ -1,5 +1,6 @@
 #include "cpu.h"
-
+#include <stdio.h>
+#include <string.h>
 #define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -66,24 +67,26 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
     // 4. switch() over it to decide on a course of action.
-    switch(ir)
+    switch (ir)
     {
-      case LDI
+      case LDI:
       {
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+      }
+      case PRN:
+      {
+        printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
       }
-      case PRN
-      {
-        cpu->PC += 1;
-        break;
-      }
-      case HLT
+      case HLT:
       {
         running = 0;
         break;
       }
-      default
+      default:
       {
         break;
       }
@@ -98,7 +101,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  cpu->pc = 0;
+  cpu->PC = 0;
   memset(cpu->ram, 0, 8 * sizeof(unsigned char));
   memset(cpu->registers, 0, 256 * sizeof(unsigned char));
 }
