@@ -64,4 +64,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->pc = 0;
+  memset(cpu->reg, 0, sizeof(unsigned char)*8);  //just use size of cpu reg? 
+  memset(cpu->ram, 0, sizeof(unsigned char)*256);
 }
