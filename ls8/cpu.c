@@ -40,6 +40,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char read_ram(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+//set value at address in ram to new value 
+void ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] =  value;
+}
+
 /**
  * Run the CPU
  */
