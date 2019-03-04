@@ -2,15 +2,15 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
-typedef struct cpu {
+struct cpu {
   // TODO
   // PC
-  unsigned int PC;
+  unsigned char PC;
   // registers (array)
   unsigned char registers[6];
   // ram (array)
   unsigned char ram[256];
-} CPU;
+};
 
 // Instructions
 
@@ -18,6 +18,8 @@ typedef struct cpu {
 // literals should be used.
 
 #define LDI  0b10000010
+#define PRN  0b01000111
+#define HTL  0b00000001
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
