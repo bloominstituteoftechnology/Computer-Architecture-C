@@ -47,14 +47,35 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  int PC = cpu->PC;
+  int value;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction = cpu->ram[PC];
     // 2. Figure out how many operands this next instruction requires
+
+    //int num_operands = instruction[0];
+
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    switch(instruction) {
+      case HLT:
+        PC++;
+        break;
+      case LDI:
+        cpu->registers[PC] = value;
+        PC++;
+        break;
+      case PRN:
+        int reg_value = cpu->registers[PC];
+        printf("%d", reg_value);
+        PC++;
+        break;
+    }
   }
 }
 
@@ -66,7 +87,7 @@ void cpu_init(struct cpu *cpu)
   // TODO: Initialize the PC and other special registers
   cpu->PC = 0;
 
-  memset(cpu->registers, 0, 8*sizeof(int));
+  memset(cpu->registers, 0, 8*sizeof(unsigned char));
 
   memset(cpu->ram, 0, 8*(sizeof(unsigned char)));
 
