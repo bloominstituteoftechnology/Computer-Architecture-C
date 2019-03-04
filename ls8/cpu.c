@@ -2,6 +2,14 @@
 
 #define DATA_LEN 6
 
+unsigned cpu_ram_read(struct cpu *cpu, char address){
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, char address, char val){
+  cpu->ram[address] = val;
+};
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -50,6 +58,7 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
