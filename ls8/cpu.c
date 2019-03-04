@@ -24,6 +24,7 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
+  
 }
 
 /**
