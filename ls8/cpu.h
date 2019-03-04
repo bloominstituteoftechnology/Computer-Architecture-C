@@ -6,7 +6,9 @@ struct cpu {
   // TODO
   // PC
   // registers (array)
+  char **registers;
   // ram (array)
+  char **ram;
 };
 
 // Instructions
