@@ -7,8 +7,11 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char PC;
   // registers (array)
+  unsigned char registers[8]; /* covers R0-R7 */
   // ram (array)
+  unisnged char *ram;
 };
 
 // ALU operations
