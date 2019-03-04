@@ -1,6 +1,8 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+/* initial commit */
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
