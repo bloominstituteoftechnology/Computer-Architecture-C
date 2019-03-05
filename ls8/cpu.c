@@ -74,3 +74,7 @@ void cpu_init(struct cpu *cpu)
 
   cpu->reg[7] = 0;
   cpu->pc = 0;
+
+  // set everything in ram to 0
+  memset(cpu->ram, 0, sizeof cpu->ram);
+}
