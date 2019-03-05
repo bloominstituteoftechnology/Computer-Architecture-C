@@ -5,11 +5,11 @@
 
 #define DATA_LEN 6
 
-unsigned cpu_ram_read(struct cpu *cpu, char address){
+unsigned cpu_ram_read(struct cpu *cpu, unsigned char address){
   return cpu->ram[address];
 }
 
-void cpu_ram_write(struct cpu *cpu, char address, char val){
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val){
   cpu->ram[address] = val;
 };
 
@@ -67,6 +67,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char op0 = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char op1 = cpu_ram_read(cpu, cpu->PC + 2);
+    printf("trace: %02X: %02X    %02X   %02X\n", cpu->PC, instruction, op0, op1);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
@@ -83,7 +84,8 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       default:
-        break;
+        printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
+        exit(1);
     }
   }
 }
@@ -98,6 +100,8 @@ void cpu_init(struct cpu *cpu)
     cpu->regs[i] = 0;
   }
   cpu->regs[7] = 0xF4;
+
   cpu->PC = 0;
+  cpu->FL = 0;
   memset(cpu->ram, 0, sizeof cpu->ram);
 }
