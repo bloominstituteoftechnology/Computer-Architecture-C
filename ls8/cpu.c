@@ -26,16 +26,15 @@ void cpu_load(struct cpu *cpu)
   }
 
   // TODO: Replace this with something less hard-coded
-  unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address) {
     return cpu->ram[address]; /* reads the cpu struct's contents at this specific location in memory */
   }
 
-  unsigned char cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char new_data) {
-    cpu->ram[address] = new_data; /* set new data in memory */
-  }
-
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value) {
+    cpu->ram[address] = value; /* set new data in memory */
 }
-
 /**
  * ALU
  */
@@ -77,23 +76,31 @@ void cpu_run(struct cpu *cpu)
     switch(IR) {
 
       case LDI:
-      cpu->registers[op0] = op1;
-      cpu->PC += 3;
-      break;
+      {
+        cpu->registers[op0] = op1;
+        cpu->PC += 3;
+        break;
+      }
 
       case PRN:
-      printf("%d\n", cpu->registers[op0]);
-      cpu->PC += 2;
-      break;
+      {
+        printf("%d\n", cpu->registers[op0]);
+        cpu->PC += 2;
+        break;
+      }
 
       case HLT:
-      running = 0;
-      break;
+      {
+        running = 0;
+        break;
+      }
 
       default:
-      printf("Command 0x%02x\n not recognized.", IR);
-      running = 0;
-      break;
+      {
+        printf("Command 0x%02x\n not recognized.", IR);
+        running = 0;
+        break;
+      }
     }
     // 6. Move the PC to the next instruction.
     /* removed previous code and added this step to cases */
