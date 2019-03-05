@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "string.h"
+#include "stdio.h"
 
 #define DATA_LEN 6
 
@@ -26,6 +28,16 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+{
+  return cpu->ram[address];
+}
+
+void cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
+
 /**
  * ALU
  */
@@ -47,14 +59,20 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  int PC = cpu->PC;
-  int value;
+  //int PC = cpu->PC;
+  //unsigned char value;
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char instruction = cpu->ram[PC];
+    //unsigned char instruction = cpu->ram[PC];
+
+    unsigned char instruction = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
+    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+
+    //bitwise right shift
 
     //int num_operands = instruction[0];
 
@@ -64,16 +82,15 @@ void cpu_run(struct cpu *cpu)
     // 6. Move the PC to the next instruction.
     switch(instruction) {
       case HLT:
-        PC++;
+        running = 0;
         break;
       case LDI:
-        cpu->registers[PC] = value;
-        PC++;
+        cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
         break;
       case PRN:
-        int reg_value = cpu->registers[PC];
-        printf("%d", reg_value);
-        PC++;
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
         break;
     }
   }
@@ -89,16 +106,6 @@ void cpu_init(struct cpu *cpu)
 
   memset(cpu->registers, 0, 8*sizeof(unsigned char));
 
-  memset(cpu->ram, 0, 8*(sizeof(unsigned char)));
+  memset(cpu->ram, 0, 8*sizeof(unsigned char));
 
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, int address)
-{
-  return cpu->ram[address];
-}
-
-void cpu_ram_write(struct cpu *cpu, int address, unsigned char value)
-{
-  cpu->ram[address] = value;
 }
