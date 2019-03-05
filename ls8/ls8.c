@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "cpu.h"
 
 /**
@@ -6,10 +7,19 @@
  */
 int main(int argc, char *argv[])
 {
+  if (argc < 2)
+  {
+    fprintf(stderr, "Not enough arguments.\nUsage: ./ls8 {file path from current directory}\n");
+    exit(1);
+  }
 
-  (void)argc;
-  (void)argv;
-
+  FILE *fptr;
+  if ((fptr = fopen(argv[1], "r")) == NULL)
+  {
+    printf("No such file.\n");
+    exit(1);
+  }
+  fclose(fptr);
   struct cpu cpu;
 
   cpu_init(&cpu);

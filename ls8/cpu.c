@@ -1,87 +1,86 @@
 #include "cpu.h"
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
-#define DATA_LEN 6
+// ================== RAM functions ===================
+
+/**  Read from the CPU's ram at the specifc location 
+ */
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
+{
+  return cpu->ram[MAR];
+}
+
+/**  Writes at index specified for the CPU's ram
+ */
+void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char num)
+{
+  cpu->ram[MAR] = num;
+}
+
+// ================== Instrcution Handlers ===================
+
+// LDI function: Set the value of a register to an integer
+void handle_LDI(struct cpu *cpu)
+{
+  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  unsigned char value = cpu_ram_read(cpu, (cpu->pc + 2));
+  cpu->registers[regA] = value;
+};
+
+// PRN function: Print numeric value stored in the given register
+void handle_PRN(struct cpu *cpu)
+{
+  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  printf("%d\n", cpu->registers[regA]);
+}
+
+// HLT function: Halt the CPU (and exit the emulator)
+void handle_HLT()
+{
+  exit(0);
+}
+
+// ================== CPU functions ===================
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, char *path)
+void cpu_load(struct cpu *cpu, char *argv)
 {
-  FILE *src;
-  int lines = 0;
-  src = fopen(path, "r");
-
-  if (src == NULL)
-  {
-    printf("File %s could not be opened.\n", path);
-    exit(1);
-  }
-
-  for (char c = getc(src); c != EOF; c = getc(src))
-  {
-    if (c == '\n')
-    {
-      lines += 1;
-    }
-  }
-
-  fseek(src, 0L, SEEK_SET);
-
-  char data[lines + 1];
-  char line[255];
-  char *cut;
-  int count = 0;
-
-  while (fgets(line, sizeof(line), src) != NULL)
-  {
-    if (line[0] == '0' || line[0] == '1')
-    {
-      data[count] = strtol(line, &cut, 2);
-      count += 1;
-    }
-    else
-    {
-      continue;
-    }
-  }
-
-  fclose(src);
+  FILE *ptr = fopen(argv, "r");
+  char c[100];
+  long ret;
 
   int address = 0;
-
-  for (int i = 0; i < count + 1; i++)
+  while (fgets(c, 100, ptr) != NULL)
   {
-    cpu->ram[address++] = data[i];
+    if (c[0] == '1' || c[0] == '0')
+    {
+      ret = strtoul(c, NULL, 2);
+      cpu_ram_write(cpu, address++, ret);
+    }
   }
+
+  fclose(ptr);
+
   // TODO: Replace this with something less hard-coded
-}
-
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
-{
-  return cpu->ram[address];
-}
-
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
-{
-  cpu->ram[address] = value;
 }
 
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op)
 {
-  (void)cpu;
-  (void)regA;
-  (void)regB;
+  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
 
   switch (op)
   {
   case ALU_MUL:
     // TODO
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
 
     // TODO: implement more ALU ops
@@ -93,46 +92,45 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
+
   int running = 1; // True until we get a HLT instruction
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
-
     // 2. Figure out how many operands this next instruction requires
-    unsigned char ops = (IR & 0xC0) >> 6;
-
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char op0 = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char op1 = cpu_ram_read(cpu, cpu->PC + 2);
-
     // 4. switch() over it to decide on a course of action.
+    // 5. Do whatever the instruction should do according to the spec.
+    // 6. Move the PC to the next instruction.
+    unsigned char IR = cpu_ram_read(cpu, (cpu->pc));
+
     switch (IR)
     {
-
-      // 5. Do whatever the instruction should do according to the spec.
     case LDI:
-      cpu->registers[op0] = op1;
+      handle_LDI(cpu);
       break;
 
     case PRN:
-      printf("%d\n", cpu->registers[op0]);
+      handle_PRN(cpu);
       break;
 
     case HLT:
-      running = 0;
+      handle_HLT();
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL);
       break;
 
     default:
-      printf("Unkown Instruction: 0x%02x\n", IR);
-      running = 0;
-      break;
+      printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
+      exit(1);
     }
 
-    // 6. Move the PC to the next instruction.
-    cpu->PC += (ops + 1);
+    int opNum = (11000000 & IR) >> 6;
+    cpu->pc += (opNum + 1);
   }
 }
 
@@ -141,7 +139,9 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  cpu->PC = 0;
-  memset(cpu->registers, 0, 8);
-  memset(cpu->ram, 0, 256);
+  // TODO: Initialize the PC and other special registers
+  cpu->pc = 0;
+  memset(cpu->registers, 0, sizeof(cpu->registers));
+  cpu->registers[7] = 0xF4;
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
