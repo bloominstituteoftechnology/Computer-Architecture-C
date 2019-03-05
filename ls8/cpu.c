@@ -60,16 +60,20 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->PC); /* IR = Instruction Register */
+    
     // 2. Figure out how many operands this next instruction requires
 
     // 3. Get the appropriate value(s) of the operands following this instruction
+    
     // 4. switch() over it to decide on a course of action.
     /* case pseudocode for instruction handlers:
     LDI -- set cpu->registers first value to next value
     HLT -- set running to 0 and break
     PRN -- print current register value (same as first value in LDI)
+    */
     
     // 5. Do whatever the instruction should do according to the spec.
+    
     // 6. Move the PC to the next instruction.
     cpu->PC += (ops + 1);
   }
