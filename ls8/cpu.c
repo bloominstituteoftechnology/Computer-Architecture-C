@@ -1,3 +1,7 @@
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h> //need for printf
+
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -40,13 +44,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-unsigned char read_ram(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
 }
 
-//set value at address in ram to new value 
-void ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+//address is index in ram so set to new value 
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
   cpu->ram[address] =  value;
 }
@@ -61,10 +65,32 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
+    printf("TRACE: %0X2: %0X2  %0X2  %0X2 \n", cpu->pc, IR, operandA, operandB);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    switch(IR)
+    {
+      case LDI:
+        cpu->reg[operandA] = operandB;
+        //increment by 3 since 3 arguments (CP+2)
+        cpu->pc += 3;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operandA]);
+        cpu->pc += 2;
+        break;
+      case HLT:
+        running = 0;
+        break;
+      default:
+        printf("unexpected instruction: 0x%0X2 at 0x%0X2 \n", IR, cpu->pc);
+        exit(1);
+    }
     // 6. Move the PC to the next instruction.
   }
 }
@@ -79,3 +105,9 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->reg, 0, sizeof(unsigned char)*8);  //just use size of cpu reg? 
   memset(cpu->ram, 0, sizeof(unsigned char)*256);
 }
+// When the LS-8 is booted, the following steps occur:
+
+// * `R0`-`R6` are cleared to `0`.
+// * `R7` is set to `0xF4`.
+// * `PC` and `FL` registers are cleared to `0`.
+// * RAM is cleared to `0`.
