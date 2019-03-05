@@ -13,9 +13,6 @@ struct cpu
 
   // ram (array)
   unsigned char ram[256];
-
-  // flag
-  unsigned char FL;
 };
 
 // ALU operations
@@ -37,7 +34,7 @@ enum alu_op
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *path);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
