@@ -53,6 +53,7 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    cpu->ram[running];
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -65,6 +66,11 @@ void cpu_run(struct cpu *cpu)
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
 {
   return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned mar, unsigned char mdr)
+{
+  cpu->ram[mar] = mdr;
 }
 
 /**
