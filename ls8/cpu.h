@@ -13,6 +13,9 @@ struct cpu
 
   // ram (array)
   unsigned char ram[256];
+
+  // flag
+  unsigned char FL;
 };
 
 // ALU operations
