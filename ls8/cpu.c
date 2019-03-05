@@ -79,6 +79,11 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     switch (ir)
     {
+      case HLT:
+      {
+        running = 0;
+        break;
+      }
       case LDI:
       {
         cpu->registers[operandA] = operandB;
@@ -91,15 +96,23 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       }
+      case POP:
+      {
+        cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->ram[cpu->registers[7]++] = 0x00;
+        cpu->PC += 2;
+        break;
+      }
       case PRN:
       {
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
       }
-      case HLT:
+      case PUSH:
       {
-        running = 0;
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[operandA]);
+        cpu->PC += 2;
         break;
       }
       default:
@@ -120,4 +133,5 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->ram, 0, 8 * sizeof(unsigned char));
   memset(cpu->registers, 0, 256 * sizeof(unsigned char));
+  cpu->registers[7] = 0xF4;
 }
