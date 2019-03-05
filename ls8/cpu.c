@@ -23,7 +23,23 @@ void cpu_load(struct cpu *cpu)
     cpu->ram[address++] = data[i];
   }
 
-  // TODO: Replace this with something less hard-coded
+  // TODO: Replace this with something less hard-codedmake
+}
+// I assume this is to read address locations stored in ram
+// cpu struct and index
+cpu_ram_read(struct cpu *cpu, index)
+{
+}
+
+// I assume this is to store address locations in ram
+  // pass in cpu struct
+  // pass in value to write to ram and index to value you write
+void cpu_ram_write(struct cpu *cpu, , value)
+{
+  // write a value to ram
+
+  // cpu struct
+  // index
 }
 
 /**
@@ -64,4 +80,5 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  // PC cpu
 }
