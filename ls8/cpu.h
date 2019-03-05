@@ -7,9 +7,12 @@ struct cpu {
   // PC: Program Counter, address of the currently executing instruction
   unsigned int PC;
   // registers (array)
-  unsigned char registers[8];
+  unsigned char reg[8]; // R0-R7
   // ram (array)
-  unsigned char ram[256];
+  unsigned char ram[256]; // 0-255
+  // flag
+  unsigned char FL;
+
 };
 
 // ALU operations
