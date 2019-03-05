@@ -18,23 +18,22 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
-
+  FILE *fp; 
+  char line[1024];
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
+  fp = fopen(file, "r");
+  while(fgets(line, sizeof(line), fp) != NULL){
+    char *endptr; 
+    unsigned char value;
+    value = strtoul(line, &endptr, 2);
 
-  // TODO: Replace this with something less hard-coded
+    if(value == HLT) {
+      cpu->ram[address++] = value;
+      break;
+    }
+    cpu->ram[address++] = value;
+  }
 }
 
 /**
@@ -57,7 +56,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
