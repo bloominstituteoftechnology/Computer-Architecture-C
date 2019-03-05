@@ -37,10 +37,12 @@ void cpu_load(struct cpu *cpu, char *file)
     unsigned char value;
     value = strtoul(line, &endptr, 2);
 
-    if(value == HLT) {
-      cpu->ram[address++] = value;
-      break;
+    if(endptr == line){
+      // printf("Ignoring this line.\n");
+      continue; 
     }
+
+    // printf("'line' - %s\n'value' - %d\n'address' - %d", line, value, address);
     cpu->ram[address++] = value;
   }
 }
@@ -65,6 +67,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  // printf("in run");
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
@@ -79,6 +82,12 @@ void cpu_run(struct cpu *cpu)
       case LDI:
       {
         cpu->registers[operandA] = operandB;
+        cpu->PC += 3;
+        break;
+      }
+      case MUL:
+      {
+        cpu->registers[operandA] *= cpu->registers[operandB];
         cpu->PC += 3;
         break;
       }
