@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h> //need for printf
+#include <stdio.h> 
 
 #include "cpu.h"
 
@@ -9,20 +9,34 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
   //open file
-  FILE *fptr = fopen("", "r")
+  FILE *fptr = fopen("filename", "r");
 
-  //read line by line until returns null, ignore blank lines and comments
-  while(fgets() != NULL)
+  if (fptr == NULL)
   {
-    
+    printf("File %s is not recognized.\n", filename);
+    exit(2);
   }
 
-  //save data into ram, have to convert binary strings to int values to store in ram with strtoul
+  //read line by line until returns null, ignore blank lines and comments
+  char line[1000];
+  int address = 0;
 
+  while(fgets(line, sizeof line, fptr) != NULL)
+  {
+    char *endpointer;
+    unsigned char value = strtoul(line, endpointer, 2);
 
+    if (endpointer == NULL)
+    {
+      continue;
+    }
+    //save data into ram, have to convert binary strings to int values to store in ram with strtoul
+    //cpu_ram_write(cpu, address++, value);
+    cpu->ram[address++] = value;
+  }
   fclose(fptr);
 
   //original hard code we're refactoring
@@ -85,7 +99,7 @@ void cpu_run(struct cpu *cpu)
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
     unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
-    printf("TRACE: %0X2: %0X2  %0X2  %0X2 \n", cpu->pc, IR, operandA, operandB);
+    printf("TRACE: %02X: %02X  %02X  %02X \n", cpu->pc, IR, operandA, operandB);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch(IR)

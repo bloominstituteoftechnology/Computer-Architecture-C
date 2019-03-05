@@ -9,12 +9,21 @@ int main(int argc, char *argv[]) //changed from void for command line processing
 {
   struct cpu cpu;
 
+  if (argc != 2)
+  {
+    fprintf(stderr, "This function requires two arguments.");
+    return 1;  //same as exit(1)
+  }
+
+  char *filename = argv[1];
+
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu, filename);  //also update prototype to include char pointer
   cpu_run(&cpu);
 
   return 0;
 }
+
 
 //argv[0] == "./ls8"
 //argv[1] == "examples/mult.ls8"
