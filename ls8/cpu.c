@@ -76,10 +76,10 @@ void cpu_run(struct cpu *cpu)
     
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
 
     // print out hex letters, 2 means it'll be two characters long
-    // printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operandA, operandB);
+    printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operandA, operandB);
     
     // 4. switch() over it to decide on a course of action.
   switch(IR) {
@@ -101,8 +101,6 @@ void cpu_run(struct cpu *cpu)
 
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
-    
-    break;
   }
 }
 
