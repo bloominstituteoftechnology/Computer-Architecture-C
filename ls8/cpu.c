@@ -42,6 +42,21 @@ void handle_HLT()
   exit(0);
 }
 
+// ================= Stack functions ==================
+
+void handle_PUSH(struct cpu *cpu)
+{
+  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[regA]);
+}
+
+void handle_POP(struct cpu *cpu)
+{
+  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  unsigned char value = cpu_ram_read(cpu, cpu->registers[7]++);
+  cpu->registers[regA] = value;
+}
+
 // ================== CPU functions ===================
 
 /**
@@ -51,16 +66,18 @@ void cpu_load(struct cpu *cpu, char *argv)
 {
   FILE *ptr = fopen(argv, "r");
   char c[100];
-  long ret;
+  unsigned char ret;
 
   int address = 0;
   while (fgets(c, 100, ptr) != NULL)
   {
-    if (c[0] == '1' || c[0] == '0')
+    char *endptr;
+    ret = strtoul(c, &endptr, 2);
+    if (endptr == c)
     {
-      ret = strtoul(c, NULL, 2);
-      cpu_ram_write(cpu, address++, ret);
+      continue;
     }
+    cpu_ram_write(cpu, address++, ret);
   }
 
   fclose(ptr);
@@ -111,19 +128,23 @@ void cpu_run(struct cpu *cpu)
     case LDI:
       handle_LDI(cpu);
       break;
-
     case PRN:
       handle_PRN(cpu);
       break;
-
     case HLT:
       handle_HLT();
       break;
-
+      // ALU Instructions
     case MUL:
       alu(cpu, ALU_MUL);
       break;
-
+      //  Stack Instructions
+    case PUSH:
+      handle_PUSH(cpu);
+      break;
+    case POP:
+      handle_POP(cpu);
+      break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
       exit(1);
