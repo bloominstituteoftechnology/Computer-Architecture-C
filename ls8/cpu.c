@@ -46,16 +46,19 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   void(op);
+//   void(regA);
+//   void(regB);
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -76,7 +79,7 @@ void cpu_run(struct cpu *cpu)
     unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 1);
 
     // print out hex letters, 2 means it'll be two characters long
-    printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operandA, operandB);
+    // printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operandA, operandB);
     
     // 4. switch() over it to decide on a course of action.
   switch(IR) {
