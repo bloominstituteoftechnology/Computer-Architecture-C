@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
@@ -18,8 +19,16 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
  */
 void cpu_load(struct cpu *cpu, char *file)
 {
+  
   FILE *fp; 
   char line[1024];
+
+  if ((fp = fopen(file, "r")) == NULL)
+  {
+    fprintf(stderr, "File not found.\n");
+    exit(1);
+  }
+
   int address = 0;
 
   fp = fopen(file, "r");
