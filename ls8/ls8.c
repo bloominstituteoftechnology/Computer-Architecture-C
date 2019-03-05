@@ -24,5 +24,9 @@ int main(int argc, char **argv)
     cpu_run(&cpu);
   }
 
+  //cpu_init(&cpu);
+  //cpu_load(&cpu);
+  //cpu_run(&cpu);
+
   return 0;
 }
