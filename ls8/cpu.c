@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <string.h>
+#include <stdio.h>
 
 #define DATA_LEN 6
 
@@ -62,7 +63,8 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC); /* IR = Instruction Register */
     
     // 2. Figure out how many operands this next instruction requires
-
+    unsigned char op0 = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char op1 = cpu_ram_read(cpu, cpu->PC + 2);
     // 3. Get the appropriate value(s) of the operands following this instruction
     
     // 4. switch() over it to decide on a course of action.
@@ -71,11 +73,30 @@ void cpu_run(struct cpu *cpu)
     HLT -- set running to 0 and break
     PRN -- print current register value (same as first value in LDI)
     */
-    
     // 5. Do whatever the instruction should do according to the spec.
-    
+    switch(IR) {
+
+      case LDI:
+      cpu->registers[op0] = op1;
+      cpu->PC += 3;
+      break;
+
+      case PRN:
+      printf("%d\n", cpu->registers[op0]);
+      cpu->PC += 2;
+      break;
+
+      case HLT:
+      running = 0;
+      break;
+
+      default:
+      printf("Command 0x%02x\n not recognized.", IR);
+      running = 0;
+      break;
+    }
     // 6. Move the PC to the next instruction.
-    cpu->PC += (ops + 1);
+    /* removed previous code and added this step to cases */
   }
 }
 
