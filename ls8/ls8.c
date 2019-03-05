@@ -4,7 +4,8 @@
 /**
  * Main
  */
-int main(void)
+//the way this is set up shows us the order that this should be built out
+int main(int argc, char *argv[]) //changed from void for command line processing. arg count and array of strings that hold indiv args.
 {
   struct cpu cpu;
 
@@ -14,3 +15,6 @@ int main(void)
 
   return 0;
 }
+
+//argv[0] == "./ls8"
+//argv[1] == "examples/mult.ls8"

@@ -11,21 +11,36 @@
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  //open file
+  FILE *fptr = fopen("", "r")
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  //read line by line until returns null, ignore blank lines and comments
+  while(fgets() != NULL)
+  {
+    
   }
+
+  //save data into ram, have to convert binary strings to int values to store in ram with strtoul
+
+
+  fclose(fptr);
+
+  //original hard code we're refactoring
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
@@ -44,15 +59,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
-  return cpu->ram[address];
+  return cpu->ram[mar];
 }
 
-//address is index in ram so set to new value 
-void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+//mar is index in ram so set to new value 
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
-  cpu->ram[address] =  value;
+  cpu->ram[mar] =  mdr;
 }
 
 /**
@@ -76,18 +91,20 @@ void cpu_run(struct cpu *cpu)
     switch(IR)
     {
       case LDI:
+        //sets value in given register to value specified 
         cpu->reg[operandA] = operandB;
         //increment by 3 since 3 arguments (CP+2)
         cpu->pc += 3;
         break;
       case PRN:
+        //print out numerically in given register 
         printf("%d\n", cpu->reg[operandA]);
         cpu->pc += 2;
         break;
-      case HLT:
-        running = 0;
+      case HLT:  //why is this needed when have break ? 
+        running = 0;  //set running to false
         break;
-      default:
+      default:  //program stops if gets instruction it doesnt know
         printf("unexpected instruction: 0x%0X2 at 0x%0X2 \n", IR, cpu->pc);
         exit(1);
     }
