@@ -61,6 +61,12 @@ void cpu_run(struct cpu *cpu)
   }
 }
 
+// ram functions
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index)
+{
+  return cpu->ram[index];
+}
+
 /**
  * Initialize a CPU struct
  */
