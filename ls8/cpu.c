@@ -60,10 +60,18 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operand0 = cpu_ram_read(cpu, cpu->PC + 1);
+    unsigned char operand1 = cpu_ram_read(cpu, cpu->PC + 2);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    switch (IR) {
+      default:
+        // beej printed IR & cpu->PC
+        printf("unexpected command")
+    }
     // 6. Move the PC to the next instruction.
   }
 }
