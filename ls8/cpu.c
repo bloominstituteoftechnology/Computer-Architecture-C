@@ -59,11 +59,12 @@ void cpu_load(struct cpu *cpu, char *program)
 
   int i = 0;
   while( fgets(line, 8*sizeof(unsigned char), fp) != NULL ) {
+    printf("%s", line);
     cpu_ram_write(cpu, i, line);
     i++;
   }
 
-  fclose(fp);
+  //fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
