@@ -4,11 +4,14 @@
 
 #define DATA_LEN 6
 
+FILE *fp;
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *program)
 {
+  /*
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -24,6 +27,22 @@ void cpu_load(struct cpu *cpu)
   for (int i = 0; i < DATA_LEN; i++) {
     cpu->ram[address++] = data[i];
   }
+  */
+
+  unsigned char line[8];
+
+  fp = fopen(program, "r");
+
+  if( fp == NULL) {
+    fprintf(stderr, "Error opening file.\n");
+  }
+
+  int i;
+  while( fgets(line, 8, fp) != NULL ) {
+    cpu_ram_write(cpu, i, line);
+  }
+
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
