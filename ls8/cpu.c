@@ -121,3 +121,24 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof(unsigned char)*256);
   // PC cpu
 }
+
+
+// FILE *fp;
+// char line[1024];
+
+// fp = fopen("print8.ls8", "r");
+// // read a line at a time until the end of the file.
+// while (fgets(line, sizeof line, fp) {
+//   printf("%s\n", line);
+//   char *endprt;
+//   unsigned char value;
+//   // by default strtoul skips leading spaces
+//   value = strtoul(line, &endptr, 2);
+
+//   // if no numbers were read, strtol() sets endptr to be equal to line
+//   if (endptr == line) {
+//     printf("Ignoring this line.\n");
+//     continue;
+//   }
+//   printf("%02X\n", value);
+// }
