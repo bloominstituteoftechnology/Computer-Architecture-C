@@ -5,11 +5,11 @@
 
 // unsigned char RAM[256];
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) {
-  cpu->ram[index];
+  return cpu->ram[index];
 }
 
 unsigned char cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char value) {
-  cpu->ram[index] = value;
+  return cpu->ram[index] = value;
 }
 
 /**
@@ -67,13 +67,7 @@ void cpu_run(struct cpu *cpu)
     // 6. Move the PC to the next instruction.
   }
 }
-/*
-This is the workhorse function of the entire processor. It's the most difficult
-part to write.
-
-It needs to read the memory address that's stored in register `PC`, and store
-that result in `IR`, the _Instruction Register_. This can just be a local
-variable in `cpu_run()`.
+/* It needs to read the memory address that's stored in register `PC`, and store that result in `IR`, the _Instruction Register_. This can just be a local variable in `cpu_run()`.
 
 Some instructions requires up to the next two bytes of data _after_ the `PC` in
 memory to perform operations on. Sometimes the byte value is a register number,
