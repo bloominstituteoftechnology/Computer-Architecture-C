@@ -26,6 +26,16 @@ void cpu_load(struct cpu *cpu)
   // TODO: Replace this with something less hard-coded
 }
 
+// MAR - memory address register | where does is go
+// MDR - memory data register | what it is
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr) {
+  cpu->ram[mar] = mdr;
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
+  return cpu->ram[mar];
+}
+
 /**
  * ALU
  */
