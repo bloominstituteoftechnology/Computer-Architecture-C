@@ -113,6 +113,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         cpu->PC += 3;
         break;
+      case POP:
+        cpu->registers[operandA] = pop(cpu);
+        cpu->PC += 2;
+        break;
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
@@ -121,9 +125,6 @@ void cpu_run(struct cpu *cpu)
         push(cpu, cpu->registers[operandA]);
         cpu->PC += 2;
         break;
-      case POP:
-        cpu->registers[operandA] = pop(cpu);
-        cpu->PC += 2;
       case HTL:
         running = 0;
         cpu->PC += 1;
