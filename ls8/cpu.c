@@ -9,20 +9,23 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(char *filename, struct cpu *cpu)
 {
   // get the file | will get file path via argument later
   // per guided demo
   FILE *fp;
   char line[1024];
 
-  char data[DATA_LEN];
+  int address = 0x00;
 
-  fp = fopen("./examples/print8.ls8", "r");
+  if((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Unable to open file %s\n", filename);
+    exit(2);
+  }
+
   while (fgets(line, sizeof line, fp) != NULL) {
     char *endpoint;
     unsigned char value;
-    unsigned char data_index;
 
     value = strtoul(line, &endpoint, 2);
 
@@ -30,20 +33,9 @@ void cpu_load(struct cpu *cpu)
       continue;
     }
 
-    else if (value) {
-      data[data_index] = value;
-      data_index++;
-    }
-    else {
-      data[data_index] = "0";
-      data_index++;
-    }
-  }
+    cpu->ram[address++] = value;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  
   }
 
   // TODO: Replace this with something less hard-coded
