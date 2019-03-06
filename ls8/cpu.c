@@ -63,6 +63,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void push(struct cpu *cpu){
+  // R7 is the stack pointer
+}
+
 /**
  * Run the CPU
  */
