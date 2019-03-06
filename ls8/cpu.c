@@ -5,57 +5,11 @@
 
 #define DATA_LEN 6
 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
-void cpu_load(struct cpu *cpu char *argv[])
-{
-  // insert data from external file as an argument to ./ls-8
-    FILE *fp; 
-  char line[1024];
-
-  fp = fopen("print8.ls8", "r");
-  //read a line at a time until the end of the file. 
-  while(fgets(line, sizeof line, fp) != NULL){
-    printf("%s\n", line); 
-
-    char *endptr; 
-    unsigned char value; 
-    //by default strtoul skips leading spaces 
-    value = strtoul(line, &endptr, 2);
-
-    //if no numbers were read, strtol() sets endptr to be equal to line. 
-    if(endptr == line){
-      // printf("Ignoring this line.\n");
-      continue; 
-    }
-    if(value)
-    printf("\n%02X\n", value); 
-  }
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000,
-  //   0b00001000,
-  //   0b01000111, // PRN R0
-  //   0b00000000,
-  //   0b00000001  // HLT
-  // };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
-  }
-
-  // TODO: Replace this with something less hard-codedmake
-}
-
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
   // mdr is value to set to ram
   // mar is the index of where the data is or will be
-  // return mar which is the index of data in the ram
+  // return mar which is the index (address) of data in the ram
   return cpu->ram[mar];
 }
 
@@ -66,21 +20,60 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 }
 
 /**
+ * Load the binary bytes from a .ls8 source file into a RAM array
+ */
+void cpu_load(char *filename, struct cpu *cpu)
+{
+  // insert data from external file as an argument to ./ls-8
+  FILE *fp;
+  // buffer
+  char line[1024];
+
+  int address = ADDR_PROGRAM_ENTRY;
+  
+  // open source file
+  if ((fp = fopen(filename, "r")) == NULL) {
+    fprintf(stderr, "Cannot open file %s\n", filename);
+    exit(2);
+  };
+
+  // Read all the lines and store them in ram
+  while(fgets(line, sizeof line, fp) != NULL) {
+
+    // converts string to a number
+    char *endchar;
+    unsigned char byte = strtoul(line, &endchar, 2);
+
+    // ignore lines from which no numbers were read
+    if (endchar == line) {
+      continue;
+    }
+
+    // store in ram use cpu_ram_write, pass in index and value
+    cpu->ram[address++] = byte;
+  }
+  // TODO: Replace this with something less hard-codedmake
+}
+
+
+
+/**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   void(op);
-//   void(regA);
-//   void(regB);
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
-
-//     // TODO: implement more ALU ops
-//   }
-// }
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  unsigned char *reg = cpu->reg;
+  unsigned char valA = reg[regA];
+  unsigned char valB = reg[regB];
+  switch (op) {
+    case ALU_MUL:
+      reg[valA] *= valB;
+      break;
+    case ALU_ADD:
+      reg[valA] += valB;
+    // TODO: implement more ALU ops
+  }
+}
 
 /**
  * Run the CPU
@@ -115,6 +108,14 @@ void cpu_run(struct cpu *cpu)
       break;
     case HLT:
       running = 0;
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      cpu->PC += 3;
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      cpu->PC += 3;
       break;
     default:
       printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->PC);
