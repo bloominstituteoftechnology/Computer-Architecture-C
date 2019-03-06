@@ -6,6 +6,7 @@
   },
   "files.associations": {
     "*.js": "javascriptreact",
-    "cpu.h": "c"
+    "cpu.h": "c",
+    "stdlib.h": "c"
   }
 }

@@ -85,6 +85,14 @@ void cpu_run(struct cpu *cpu)
       printf("%d\n", cpu->registers[operandA]);
       cpu->pc += 2;
       break;
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
+      cpu->pc += 3;
+      break;
+    case ADD:
+      alu(cpu, ALU_ADD, operandA, operandB);
+      cpu->pc += 3;
+      break;
     default:
       printf("Unknown instruction 0x%02X at 0x%02X\n", ir, cpu->pc);
       exit(1);
