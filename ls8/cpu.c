@@ -42,6 +42,21 @@ void handle_HLT()
   exit(0);
 }
 
+void handle_CALL(struct cpu *cpu)
+{
+  // Saves next PC at the correct spot
+  cpu_ram_write(cpu, --cpu->registers[7], (cpu->pc + 2));
+
+  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
+  cpu->pc = cpu->registers[regA];
+}
+
+void handle_RET(struct cpu *cpu)
+{
+  char unsigned newPc = cpu_ram_read(cpu, cpu->registers[7]++);
+  cpu->pc = newPc;
+}
+
 // ================= Stack functions ==================
 
 void handle_PUSH(struct cpu *cpu)
@@ -99,6 +114,8 @@ void alu(struct cpu *cpu, enum alu_op op)
     // TODO
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
+  case ALU_ADD:
+    cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
 
     // TODO: implement more ALU ops
   }
@@ -134,11 +151,24 @@ void cpu_run(struct cpu *cpu)
     case HLT:
       handle_HLT();
       break;
-      // ALU Instructions
+
+    // Subroutine instructions
+    case CALL:
+      handle_CALL(cpu);
+      break;
+    case RET:
+      handle_RET(cpu);
+      break;
+
+    // ALU Instructions
     case MUL:
       alu(cpu, ALU_MUL);
       break;
-      //  Stack Instructions
+    case ADD:
+      alu(cpu, ALU_ADD);
+      break;
+
+    //  Stack Instructions
     case PUSH:
       handle_PUSH(cpu);
       break;
@@ -150,8 +180,11 @@ void cpu_run(struct cpu *cpu)
       exit(1);
     }
 
-    int opNum = (11000000 & IR) >> 6;
-    cpu->pc += (opNum + 1);
+    if (IR != CALL && IR != RET)
+    {
+      int opNum = (11000000 & IR) >> 6;
+      cpu->pc += (opNum + 1);
+    }
   }
 }
 
