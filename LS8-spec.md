@@ -73,7 +73,9 @@ Memory map:
 
 The SP points at the value at the top of the stack (most recently pushed), or at
 address `F4` if the stack is empty.
-
+- R7 is reserved as the stack pointer (SP)
+- Stack is empty if R7 points to 0xF4
+- decriment to 0xF3, etc.
 
 ## Interrupts
 

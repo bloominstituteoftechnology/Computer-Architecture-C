@@ -42,6 +42,9 @@ enum alu_op {
 #define XOR  0b10101011 // 00000aaa 00000bbb
 #define SHL  0b10101100 // 00000aaa 00000bbb
 #define SHR  0b10101101 // 00000aaa 00000bbb
+
+#define PUSH 0b01000101 // 00000rrr
+#define POP  0b01000110 // 00000rrr
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

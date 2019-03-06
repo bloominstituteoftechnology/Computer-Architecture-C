@@ -41,7 +41,9 @@ void cpu_load(struct cpu *cpu, char *filename)
     cpu_ram_write(cpu, address++, val);
   }
 
-  // TODO: Replace this with something less hard-coded
+
+
+  // Replace this with something less hard-coded -- Done see above
   // char data[DATA_LEN] = {
   //   // From print8.ls8
   //   0b10000010, // LDI R0,8
@@ -57,6 +59,17 @@ void cpu_load(struct cpu *cpu, char *filename)
   // for (int i = 0; i < DATA_LEN; i++) {
   //   cpu->ram[address++] = data[i];
   // }
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val) {
+  cpu->reg[7]--;
+  cpu_ram_write(cpu, cpu->reg[7], val);
+}
+
+unsigned char cpu_pop(struct cpu *cpu) {
+  unsigned char val = cpu_ram_read(cpu, cpu->reg[7]);
+  cpu->reg[7]++;
+  return val;
 }
 
 /**
@@ -127,6 +140,14 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operand0, operand1);
         cpu->PC +=3;
         break;
+      case PUSH:
+        cpu_push(cpu, cpu->reg[operand0]);
+        cpu->PC += 2;
+        break;
+      case POP:
+        cpu->reg[operand0] = cpu_pop(cpu);
+        cpu->PC += 2;
+        break;
       case HLT:
         running = 0;
         break;
@@ -136,22 +157,6 @@ void cpu_run(struct cpu *cpu)
     }
   }
 }
-/* It needs to read the memory address that's stored in register `PC`, and store that result in `IR`, the _Instruction Register_. This can just be a local variable in `cpu_run()`.
-
-Some instructions requires up to the next two bytes of data _after_ the `PC` in
-memory to perform operations on. Sometimes the byte value is a register number,
-other times it's a constant value (in the case of `LDI`). Using
-`cpu_ram_read()`, read the bytes at `PC+1` and `PC+2` from RAM into variables
-`operandA` and `operandB` in case the instruction needs them.
-
-Then, depending on the value of the opcode, perform the actions needed for the
-instruction per the LS-8 spec. Maybe a `switch` statement...? Plenty of options.
-
-After the handler returns, the `PC` needs to be updated to point to the next
-instruction for the next iteration of the loop in `cpu_run()`. The number of
-bytes an instruction uses can be determined from the two high bits (bits 6-7) of
-the instruction opcode. See the LS-8 spec for details.
-*/
 
 /**
  * Initialize a CPU struct
