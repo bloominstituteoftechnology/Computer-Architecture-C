@@ -71,6 +71,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+void push_to_stack(struct cpu *cpu, int val) {
+  cpu->reg[7]--;
+  cpu->ram[cpu->reg[7]] = val;
+}
+
+int pop_from_stack(struct cpu *cpu) {
+  int val = cpu->ram[cpu->reg[7]];
+  cpu->reg[7]++;
+  return val;
+}
+
 /**
  * Run the CPU
  */
