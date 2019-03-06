@@ -3,7 +3,7 @@
 
 // Holds all information about the CPU
 struct cpu {
-  // PC
+  // PC - index in the array of the currently executing instruction
     unsigned char pc;
   // registers (array)
     unsigned char registers[8];
@@ -33,6 +33,8 @@ enum alu_op {
 #define JMP  0b01010100
 #define JEQ  0b01010101
 #define JNE  0b01010110
+#define PUSH  0b01000101
+#define POP  0b01000110
 
 // TODO: more instructions here. These can be used in cpu_run().
 
