@@ -63,8 +63,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
-void push(struct cpu *cpu){
-  // R7 is the stack pointer
+void push(struct cpu *cpu, unsigned char value)
+{
+  cpu->regs[7]--;
+  cpu_ram_write(cpu, cpu->regs[7], cpu->regs[value]);
+  cpu->PC += 2;
+}
+
+void pop(struct cpu *cpu, unsigned char value)
+{
+  cpu->regs[7]++;
+  cpu->regs[value] = cpu_ram_read(cpu, cpu->regs[7]);
+  cpu->PC += 2;
 }
 
 /**
@@ -106,6 +116,12 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         alu(cpu, ALU_ADD, op0, op1);
         cpu->PC += 3;
+        break;
+      case PUSH:
+        push(cpu, op0);
+        break;
+      case POP:
+        pop(cpu, op1);
         break;
       default:
         printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
