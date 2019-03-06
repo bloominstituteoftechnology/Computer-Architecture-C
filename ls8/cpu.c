@@ -1,7 +1,9 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
-
+#define LR 7
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
