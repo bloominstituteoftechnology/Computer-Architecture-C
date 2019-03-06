@@ -10,22 +10,30 @@
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  FILE *fp = fopen(path, "r");
+  char line[8000];
+
+  if (fp == NULL)
+  {
+    printf("Couldn't open program: %s\n", path);
+    exit(2);
+  }
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++)
+  while (fgets(line, sizeof(line), fp) != NULL)
   {
-    cpu->ram[address++] = data[i];
+    char *endptr;
+
+    unsigned char value = strtoul(line, &endptr, 2) & 0xFF;
+    if (endptr == line)
+    {
+      continue;
+    }
+    cpu_ram_write(cpu, address++, value);
   }
+
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
@@ -35,13 +43,15 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void)cpu;
-  (void)regA;
-  (void)regB;
+  unsigned int a = cpu->registers[regA];
+  unsigned int b = cpu->registers[regB];
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = a * b;
+    break;
+  case ALU_ADD:
+    cpu->registers[regA] = a + b;
     break;
 
     // TODO: implement more ALU ops

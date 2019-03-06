@@ -14,7 +14,7 @@ int main(int argc, char *argv)
     return 1;
   }
 
-  char *filename = argv[1];
+  char filename = argv[1];
 
   cpu_init(&cpu);
   cpu_load(&cpu, filename);
