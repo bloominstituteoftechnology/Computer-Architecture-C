@@ -126,7 +126,25 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_XOR:
-      cpu->reg[regA] = valA + valB - (2 * valA * valB);
+      cpu->reg[regA] = valA ^ valB;
+      break;
+
+    case ALU_INC:
+      cpu->reg[regA] = valA + 1;
+      break;
+
+    case ALU_DEC:
+      cpu->reg[regA] = valA - 1;
+      break;
+
+    case ALU_CMP:
+      if (valA > valB) {
+        cpu->FL = 2;
+      } else if (valA < valB) {
+        cpu->FL = 4;
+      } else {
+        cpu->FL = 1;
+      }    
       break;
 
     // TODO: implement more ALU ops
@@ -158,15 +176,11 @@ void cpu_run(struct cpu *cpu)
     unsigned char operand1 = cpu_ram_read(cpu, cpu->PC + 2);
 
     printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, IR, operand0, operand1);
-// Bit Shifting 
-// x = 0b10000000
-// y = x >> 6  // y is 0b00000010
-// 1 is shifted to the right 6 times
+
     switch(IR) {
       case LDI:
         cpu->reg[operand0] = operand1;
-        // cpu->PC = alu(cpu, ALU_SHR, IR, 00000110);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case PRN:
         printf("%d\n", cpu->reg[operand0]);
@@ -198,11 +212,17 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MOD, operand0, operand1);
         cpu->PC +=3;
         break;
+      case INC:
+        alu(cpu, ALU_INC, operand0, 0);
+        cpu->PC += 2;
+      case DEC:
+        alu(cpu, ALU_DEC, operand0, 0);
+        cpu->PC += 2;
       case AND:
         alu(cpu, ALU_AND, operand0, operand1);
         cpu->PC += 3;
       case NOT:
-        alu(cpu, ALU_NOT, operand0, '\0');
+        alu(cpu, ALU_NOT, operand0, 0);
         cpu->PC += 2;
       case OR:
         alu(cpu, ALU_OR, operand0, operand1);
