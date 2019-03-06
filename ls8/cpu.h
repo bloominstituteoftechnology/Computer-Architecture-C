@@ -12,7 +12,16 @@ struct cpu {
 // ALU operations
 enum alu_op {
 	ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_SUB,
+  ALU_DIV,
+  ALU_MOD,
+  ALU_SHL,
+  ALU_SHR,
+  ALU_AND,
+  ALU_NOT,
+  ALU_OR,
+  ALU_XOR,
 	// Add more here
 };
 
@@ -24,6 +33,12 @@ enum alu_op {
 #define LDI  0b10000010
 #define HLT  0b00000001
 #define PRN  0b01000111
+
+#define PUSH 0b01000101 // 00000rrr
+#define POP  0b01000110 // 00000rrr
+#define CALL 0b01010000 // 00000rrr
+#define RET  0b00010001
+
 // ALU ops
 #define ADD  0b10100000 // 00000aaa 00000bbb
 #define SUB  0b10100001 // 00000aaa 00000bbb
@@ -40,11 +55,9 @@ enum alu_op {
 #define NOT  0b01101001 // 00000rrr
 #define OR   0b10101010 // 00000aaa 00000bbb
 #define XOR  0b10101011 // 00000aaa 00000bbb
-#define SHL  0b10101100 // 00000aaa 00000bbb
-#define SHR  0b10101101 // 00000aaa 00000bbb
+#define SHL  0b10101100 // 00000aaa 00000bbb shift left
+#define SHR  0b10101101 // 00000aaa 00000bbb shift right
 
-#define PUSH 0b01000101 // 00000rrr
-#define POP  0b01000110 // 00000rrr
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

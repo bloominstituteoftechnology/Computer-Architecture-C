@@ -122,7 +122,7 @@ No arguments (just points to an address)
 No return values
 The return address of a subroutines stored is stored onto the stack
 CALL pushes the address of the instruction *after it* onto the stack, then move the PC to the subroutine address.
-RET will pop the return address of the stack and store it in the PC.
+RET will pop the return address of the stack and store it at the PC.
 
 Example of a Subroutine
 
@@ -137,7 +137,7 @@ Parent routine
 Subroutine
 --------------
 0B: ADD R0, 10  (Adds 10 (a value) to R0)
-0E: RET         (return to address stored on the stack (which is 08))
+0E: RET         (POP return address of stack (which is 08) and stores it at the PC)
 
 Stack:  08  POP => empty
 R0:     15  + 10 => 25

@@ -5,7 +5,7 @@
 
 #define DATA_LEN 6
 
-// unsigned char RAM[256];
+
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR) {
   return cpu->ram[MAR];
 }
@@ -93,6 +93,42 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] = valA + valB;
       break;
 
+    case ALU_SUB:
+      cpu->reg[regA] = valA - valB;
+      break;
+
+    case ALU_DIV:
+      cpu->reg[regA] = valA / valB;
+      break;
+
+    case ALU_MOD:
+      cpu->reg[regA] = valA % valB;
+      break;
+
+    case ALU_SHR:
+      cpu->reg[regA] = valA >> valB;
+      break;
+
+    case ALU_SHL:
+      cpu->reg[regA] = valA << valB;
+      break;
+
+    case ALU_AND:
+      cpu->reg[regA] = valA & valB;
+      break;
+
+    case ALU_NOT:
+      cpu->reg[regA] = ~valA;
+      break;
+
+    case ALU_OR:
+      cpu->reg[regA] = valA | valB;
+      break;
+
+    case ALU_XOR:
+      cpu->reg[regA] = valA + valB - (2 * valA * valB);
+      break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -122,24 +158,58 @@ void cpu_run(struct cpu *cpu)
     unsigned char operand1 = cpu_ram_read(cpu, cpu->PC + 2);
 
     printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, IR, operand0, operand1);
-
+// Bit Shifting 
+// x = 0b10000000
+// y = x >> 6  // y is 0b00000010
+// 1 is shifted to the right 6 times
     switch(IR) {
       case LDI:
         cpu->reg[operand0] = operand1;
+        // cpu->PC = alu(cpu, ALU_SHR, IR, 00000110);
         cpu->PC +=3;
         break;
       case PRN:
         printf("%d\n", cpu->reg[operand0]);
         cpu->PC += 2;
         break;
+      case SHR:
+        alu(cpu, ALU_SHR, operand0, operand1);
+        cpu->PC += 3;
+      case SHL:
+        alu(cpu, ALU_SHL, operand0, operand1);
+        cpu->PC += 3;      
       case ADD:
         alu(cpu, ALU_ADD, operand0, operand1);
+        cpu->PC +=3;
+        break;
+      case SUB:
+        alu(cpu, ALU_SUB, operand0, operand1);
         cpu->PC +=3;
         break;
       case MUL:
         alu(cpu, ALU_MUL, operand0, operand1);
         cpu->PC +=3;
         break;
+      case DIV:
+        alu(cpu, ALU_DIV, operand0, operand1);
+        cpu->PC +=3;
+        break;
+      case MOD:
+        alu(cpu, ALU_MOD, operand0, operand1);
+        cpu->PC +=3;
+        break;
+      case AND:
+        alu(cpu, ALU_AND, operand0, operand1);
+        cpu->PC += 3;
+      case NOT:
+        alu(cpu, ALU_NOT, operand0, '\0');
+        cpu->PC += 2;
+      case OR:
+        alu(cpu, ALU_OR, operand0, operand1);
+        cpu->PC += 3;
+      case XOR:
+        alu(cpu, ALU_XOR, operand0, operand1);
+        cpu->PC += 3;
       case PUSH:
         cpu_push(cpu, cpu->reg[operand0]);
         cpu->PC += 2;
@@ -147,6 +217,13 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->reg[operand0] = cpu_pop(cpu);
         cpu->PC += 2;
+        break;
+      case CALL:
+        cpu_push(cpu, cpu->PC + 2);
+        cpu->PC = cpu->reg[operand0];
+        break;
+      case RET:
+        cpu->PC = cpu_pop(cpu);
         break;
       case HLT:
         running = 0;
