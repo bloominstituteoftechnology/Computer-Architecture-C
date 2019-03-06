@@ -21,6 +21,8 @@ enum alu_op {
 };
 
 // Instructions
+//memory locations !!!!!!!!!!!!!!!!!
+
 
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
