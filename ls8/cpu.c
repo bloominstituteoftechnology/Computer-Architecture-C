@@ -110,7 +110,7 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   int stack[256];
-  int sp = 0xf4;
+  int sp = 0;
 
   //int PC = cpu->PC;
   //unsigned char value;
@@ -159,12 +159,14 @@ void cpu_run(struct cpu *cpu)
       case PUSH:
         sp--;
         stack[sp] = cpu->registers[operandA];
+        cpu->PC += 2;
         break;
 
       case POP:
         cpu->registers[operandA] = stack[sp];
         sp++;
         //printf("%d\n", cpu->registers[operandA]);
+        cpu->PC += 2;
         break;
     }
   }
