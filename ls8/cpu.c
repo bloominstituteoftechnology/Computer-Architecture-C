@@ -53,7 +53,7 @@ void cpu_run(struct cpu *cpu)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    cpu->ram[running];
+    unsigned char IR = cpu_ram_read(cpu, cpu->pc);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
