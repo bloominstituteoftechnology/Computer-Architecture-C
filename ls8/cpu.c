@@ -8,15 +8,33 @@
  */
 
 #define DATA_LEN 6
+#define SP 7
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned mar)
 {
   return cpu->ram[mar];
 }
 
+
+
+
 void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
   cpu->ram[mar] = mdr;
+}
+
+void push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[SP]--;
+  cpu_ram_write(cpu, cpu->registers[SP], value);  
+}
+
+unsigned char pop(struct cpu *cpu) 
+{
+  unsigned char value = cpu_ram_read(cpu, cpu->registers[SP]);
+
+  cpu->registers[SP]++;
+  return value;
 }
 
 
@@ -54,14 +72,14 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void)cpu;
-  (void)regA;
-  (void)regB;
+
+  unsigned char num_A = cpu->registers[regA];
+  unsigned char num_B = cpu->registers[regB];
+  
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] = num_A * num_B;
       break;
-
     // TODO: implement more ALU ops
   }
 }
@@ -91,10 +109,21 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[operandA] = operandB;
         cpu->PC += 3;
         break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->PC += 3;
+        break;
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
+      case PUSH:
+        push(cpu, cpu->registers[operandA]);
+        cpu->PC += 2;
+        break;
+      case POP:
+        cpu->registers[operandA] = pop(cpu);
+        cpu->PC += 2;
       case HTL:
         running = 0;
         cpu->PC += 1;
