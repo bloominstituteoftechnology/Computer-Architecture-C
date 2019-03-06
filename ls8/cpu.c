@@ -105,6 +105,10 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operand0, operand1);
         cpu->PC += 3;
         break;
+      case PUSH:
+        break;
+      case POP:
+        break;
 
       default:
         // beej printed IR & cpu->PC
