@@ -75,7 +75,7 @@ void cpu_run(struct cpu *cpu)
       cpu->reg[operandA] = operandB;
       break;
     case PRN:
-      printf("%d\n", cou - reg[operandA]);
+      printf("%d\n", cpu->reg[operandA]);
       break;
     case HLT:
       running = 0;
