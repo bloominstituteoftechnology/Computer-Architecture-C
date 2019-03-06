@@ -35,7 +35,6 @@ void cpu_load(char *filename, struct cpu *cpu)
 
     cpu->ram[address++] = value;
 
-  
   }
 
   // TODO: Replace this with something less hard-coded
