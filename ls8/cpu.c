@@ -62,13 +62,11 @@ void cpu_load(struct cpu *cpu, char *program)
   int i = 0;
   while( fgets(line, sizeof(line), fp) != NULL ) {
     char *endPtr;
-    
     unsigned char byte = strtol(line, &endPtr, 2);
 
     if(endPtr == line) {
       continue;
     }
-
 
     //printf("%d", byte);
     cpu_ram_write(cpu, i, byte);
@@ -110,6 +108,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+
+  int stack[256];
+  int sp = 0xf4;
 
   //int PC = cpu->PC;
   //unsigned char value;
@@ -155,6 +156,16 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
 
+      case PUSH:
+        sp--;
+        stack[sp] = cpu->registers[operandA];
+        break;
+
+      case POP:
+        cpu->registers[operandA] = stack[sp];
+        sp++;
+        //printf("%d\n", cpu->registers[operandA]);
+        break;
     }
   }
 }
