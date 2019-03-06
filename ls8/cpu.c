@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -68,9 +72,12 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     switch (IR) {
+      // BE SURE CASE IS SAVED AS BINARY LITERALS IN CPU.H FILE
+      case LDI:
       default:
         // beej printed IR & cpu->PC
-        printf("unexpected command")
+        printf("unexpected command\n");
+        exit(1);
     }
     // 6. Move the PC to the next instruction.
   }
