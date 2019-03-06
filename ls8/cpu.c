@@ -11,15 +11,34 @@
  */
 void cpu_load(struct cpu *cpu)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // get the file | will get file path via argument later
+  // per guided demo
+  FILE *fp;
+  char line[1024];
+
+  char data[DATA_LEN];
+
+  fp = fopen("./examples/print8.ls8", "r");
+  while (fgets(line, sizeof line, fp) != NULL) {
+    char *endpoint;
+    unsigned char value;
+    unsigned char data_index;
+
+    value = strtoul(line, &endpoint, 2);
+
+    if(endpoint == line) {
+      continue;
+    }
+
+    else if (value) {
+      data[data_index] = value;
+      data_index++;
+    }
+    else {
+      data[data_index] = "0";
+      data_index++;
+    }
+  }
 
   int address = 0;
 
