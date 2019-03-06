@@ -8,17 +8,39 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // insert data from external file as an argument to ./ls-8
+    FILE *fp; 
+  char line[1024];
+
+  fp = fopen("print8.ls8", "r");
+  //read a line at a time until the end of the file. 
+  while(fgets(line, sizeof line, fp) != NULL){
+    printf("%s\n", line); 
+
+    char *endptr; 
+    unsigned char value; 
+    //by default strtoul skips leading spaces 
+    value = strtoul(line, &endptr, 2);
+
+    //if no numbers were read, strtol() sets endptr to be equal to line. 
+    if(endptr == line){
+      // printf("Ignoring this line.\n");
+      continue; 
+    }
+    if(value)
+    printf("\n%02X\n", value); 
+  }
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
   int address = 0;
 
