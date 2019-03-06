@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "string.h"
 #include "stdio.h"
+#include <stdlib.h>
 
 #define DATA_LEN 12
 
@@ -48,23 +49,33 @@ void cpu_load(struct cpu *cpu, char *program)
   }
   */
 
-  char line[8*sizeof(unsigned char)];
+  char line[1024];
   //char *read;
 
   fp = fopen(program, "r");
 
   if( fp == NULL) {
     fprintf(stderr, "Error opening file.\n");
+    exit(1);
   }
 
   int i = 0;
-  while( fgets(line, 8*sizeof(unsigned char), fp) != NULL ) {
-    printf("%s", line);
-    cpu_ram_write(cpu, i, line);
+  while( fgets(line, sizeof(line), fp) != NULL ) {
+    char *endPtr;
+    
+    unsigned char byte = strtol(line, &endPtr, 2);
+
+    if(endPtr == line) {
+      continue;
+    }
+
+
+    //printf("%d", byte);
+    cpu_ram_write(cpu, i, byte);
     i++;
   }
 
-  //fclose(fp);
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
@@ -139,6 +150,8 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         cpu->registers[operandA] = (cpu->registers[operandA] * cpu->registers[operandB]);
+        //test that MUL completed successfully
+        printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
 
