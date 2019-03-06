@@ -5,9 +5,9 @@
 
 #define DATA_LEN 6
 
-unsigned cpu_ram_read(struct cpu *cpu, unsigned char address){
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address){
   return cpu->ram[address];
-}
+};
 
 void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val){
   cpu->ram[address] = val;
@@ -20,26 +20,32 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val){
 void cpu_load(struct cpu *cpu, char *path)
 {
   FILE *filepointer = fopen(path, "r");
-  if(filepointer == NULL){
+    
+  if (filepointer == NULL){
     printf("Couldn't open the program you entered: %s\n", path);
     exit(2);
   }
+
   int address = 0;
   char line[8000];
   while(fgets(line, sizeof(line), filepointer) != NULL){
-    char *endpointer;
-    if(endpointer == line){
+    char *endpoint;
+    unsigned char val = strtoul(line, &endpoint, 2) & 0xFF;
+    if(endpoint == line){
       continue;
     }
-    
+    cpu_ram_write(cpu, address++, val);
   }
+  fclose(filepointer);
 }
-
 /**
  * ALU
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  (void) cpu;
+  (void)regA;
+  (void)regB;
   switch (op) {
     case ALU_MUL:
       // TODO
