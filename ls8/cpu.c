@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -32,6 +35,9 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  (void)cpu;
+  (void)regA;
+  (void)regB;
   switch (op)
   {
   case ALU_MUL:
@@ -41,7 +47,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
-
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char MAR)
+{
+  return cpu->ram[MAR];
+}
+unsigned char cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
+{
+  return cpu->ram[MAR] = MDR;
+}
 /**
  * Run the CPU
  */
@@ -73,8 +86,8 @@ void cpu_run(struct cpu *cpu)
       cpu->pc += 2;
       break;
     default:
-      printf("Unknown Command. Exiting...\n");
-      exit(3);
+      printf("Unknown instruction 0x%02X at 0x%02X\n", ir, cpu->pc);
+      exit(1);
     }
   }
 
@@ -100,6 +113,6 @@ void cpu_init(struct cpu *cpu)
   // Init Ram
   memset(cpu->ram, 0, sizeof(cpu->ram));
 
-  memset(cpu->registers, 0, 256 * sizeof(char));
-  return 0;
+  // memset(cpu->registers, 0, 256 * sizeof(char));
+  // return 0;
 }
