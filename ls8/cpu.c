@@ -88,6 +88,15 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
   cpu->ram[mar] =  mdr;
 }
 
+void push(struct cpu *cpu, unsigned char val)
+{
+  //push the value in the given register to top of the stack
+  //decrement the sp
+  cpu->reg[7]--;
+  //copy the value in the given register to the address pointed to by the sp
+  cpu_ram_write(cpu, cpu->reg[7], cpu->reg[val]);
+}
+
 /**
  * Run the CPU
  */
@@ -127,7 +136,11 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->pc += 3;
         break;
-      case HLT:  //why is this needed when have break ? 
+      case PUSH:  
+        push(cpu, operandA);
+        cpu->pc += 2;
+        break;
+      case HLT: 
         running = 0;  //set running to false
         break;
       default:  //program stops if gets instruction it doesnt know

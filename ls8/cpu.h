@@ -23,6 +23,7 @@ enum alu_op {
 // Instructions
 //memory locations !!!!!!!!!!!!!!!!!
 #define ADD_EMPTY_STACK 0xf4
+#define ADD_PROGRAM_ENTRY 0x00
 
 
 // These use binary literals. If these aren't available with your compiler, hex
@@ -34,6 +35,8 @@ enum alu_op {
 // TODO: more instructions here. These can be used in cpu_run().
 #define MUL  0b10100010
 #define ADD  0b10100000
+#define PUSH 0b01000101
+#define POP  0b01000110
 
 // Function declarations
 
