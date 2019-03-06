@@ -74,6 +74,17 @@ void cpu_run(struct cpu *cpu)
     switch (IR) {
       // BE SURE CASE IS SAVED AS BINARY LITERALS IN CPU.H FILE
       case LDI:
+        cpu->reg[operand0] = operand1;
+        cpu->PC += 3;
+        break;
+      case PRN:
+        printf("%d\n", cpu->reg[operand0]);
+        cpu->PC += 2;
+        break;
+      case HLT:
+        cpu->PC++;
+        return 0;
+
       default:
         // beej printed IR & cpu->PC
         printf("unexpected command\n");
