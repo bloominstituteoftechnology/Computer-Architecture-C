@@ -7,9 +7,13 @@
  */
 int main(int argc, char **argv)
 {
+  // if(argc != 2){
+  //   fprintf(stderr, "incorrect number of arguments");
+  //   exit(1);
+  // }
   if(argc != 2){
-    printf("incorrect number of arguments");
-    exit(1);
+    fprintf(stderr, "incorrect number of arguments");
+    return 1;
   }
 
   struct cpu cpu;
@@ -20,3 +24,4 @@ int main(int argc, char **argv)
 
   return 0;
 }
+

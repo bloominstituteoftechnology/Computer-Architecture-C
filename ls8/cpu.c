@@ -20,18 +20,21 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char val){
 void cpu_load(struct cpu *cpu, char *path)
 {
   FILE *filepointer = fopen(path, "r");
-    
-  if (filepointer == NULL){
+
+  if (filepointer == NULL)
+  {
     printf("Couldn't open the program you entered: %s\n", path);
     exit(2);
   }
 
   int address = 0;
-  char line[8000];
-  while(fgets(line, sizeof(line), filepointer) != NULL){
+  char line[1024];
+  while (fgets(line, sizeof(line), filepointer) != NULL)
+  {
     char *endpoint;
     unsigned char val = strtoul(line, &endpoint, 2) & 0xFF;
-    if(endpoint == line){
+    if (endpoint == line)
+    {
       continue;
     }
     cpu_ram_write(cpu, address++, val);
@@ -43,14 +46,19 @@ void cpu_load(struct cpu *cpu, char *path)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  (void) cpu;
-  (void)regA;
-  (void)regB;
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+  unsigned char *reg = cpu->regs;
 
+  unsigned char valA = reg[regA];
+  unsigned char valB = reg[regB];
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    reg[regA] *= valB;
+    break;
+  case ALU_ADD:
+    reg[regA] += valB;
+    break;
     // TODO: implement more ALU ops
   }
 }
@@ -86,6 +94,14 @@ void cpu_run(struct cpu *cpu)
         break;
       case HLT: //HLT the cpu and exit the emulator
         running = 0;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, op0, op1);
+        cpu->PC += 3;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, op0, op1);
+        cpu->PC += 3;
         break;
       default:
         printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
