@@ -110,7 +110,7 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
 
   int stack[256];
-  int sp = 0;
+  int sp = 7;
 
   //int PC = cpu->PC;
   //unsigned char value;
