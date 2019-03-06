@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) //changed from void for command line processing
   if (argc != 2)
   {
     fprintf(stderr, "This function requires two arguments.");
-    return 1;  //same as exit(1)
+    return 1;  //same as exit(1) b/c normally return 0
   }
 
   char *filename = argv[1];

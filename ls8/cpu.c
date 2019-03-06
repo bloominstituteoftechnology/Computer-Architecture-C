@@ -12,7 +12,7 @@
 void cpu_load(struct cpu *cpu, char *filename)
 {
   //open file
-  FILE *fptr = fopen("filename", "r");
+  FILE *fptr = fopen(filename, "r");
 
   if (fptr == NULL)
   {
@@ -26,10 +26,11 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   while(fgets(line, sizeof line, fptr) != NULL)
   {
+    //convert string to a number. if get an error 
     char *endpointer;
-    unsigned char value = strtoul(line, &endpointer, 2);
-
-    if (endpointer == NULL)
+    unsigned char value = strtoul(line, &endpointer, 2);  //needs pointer to a pointer so need & as address of pointer
+    //ignore lines where no numbers read
+    if (endpointer == NULL)  //endpointer == line??
     {
       continue;
     }
@@ -67,7 +68,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
-      cpu->reg[regA] = cpu->reg[regA]*cpu->reg[regB];
+      cpu->reg[regA] = cpu->reg[regA]*cpu->reg[regB];  //reg[regA] *= valB??
       break;
     // TODO: implement more ALU ops
     case ALU_ADD:
@@ -144,8 +145,9 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
   cpu->pc = 0;
-  memset(cpu->reg, 0, sizeof(unsigned char)*8);  //just use size of cpu reg? 
-  memset(cpu->ram, 0, sizeof(unsigned char)*256);
+  memset(cpu->reg, 0, sizeof cpu->reg);   //R7??????
+  cpu->reg[7] = 0xf4; 
+  memset(cpu->ram, 0, sizeof cpu->ram);
 }
 // When the LS-8 is booted, the following steps occur:
 

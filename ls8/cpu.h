@@ -22,6 +22,7 @@ enum alu_op {
 
 // Instructions
 //memory locations !!!!!!!!!!!!!!!!!
+#define ADD_EMPTY_STACK 0xf4
 
 
 // These use binary literals. If these aren't available with your compiler, hex
