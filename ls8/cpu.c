@@ -8,7 +8,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *path)
 {
   FILE *fp = fopen(path, "r");
   char line[8000];
