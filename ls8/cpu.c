@@ -74,8 +74,14 @@ void cpu_run(struct cpu *cpu)
       // change the value of reg @ operanA to operandB;
       cpu->reg[operandA] = operandB;
       break;
-
+    case PRN:
+      printf("%d\n", cou - reg[operandA]);
+      break;
+    case HLT:
+      running = 0;
+      break;
     default:
+      printf("Error");
       break;
     }
     // 5. Do whatever the instruction should do according to the spec.
