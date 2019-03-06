@@ -55,8 +55,15 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar) {
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char *reg = cpu->reg;
+
+  // assign operands to values
+  unsigned char valueA = reg[regA];
+  unsigned char valueB = reg[regB];
+
   switch (op) {
     case ALU_MUL:
+      reg[regA] *= valueB;
       // TODO
       break;
 
@@ -94,6 +101,10 @@ void cpu_run(struct cpu *cpu)
       case HLT:
         cpu->PC++;
         return 0;
+      case MUL:
+        alu(cpu, ALU_MUL, operand0, operand1);
+        cpu->PC += 3;
+        break;
 
       default:
         // beej printed IR & cpu->PC
