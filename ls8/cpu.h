@@ -15,7 +15,8 @@ typedef struct cpu {
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
+  ALU_ADD
 	// Add more here
 };
 
@@ -28,6 +29,8 @@ enum alu_op {
 #define HLT  0b00000001
 #define PRN  0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
+#define MUL  0b10100010
+#define ADD  0b10100000
 
 // Function declarations
 

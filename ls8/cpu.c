@@ -27,7 +27,7 @@ void cpu_load(struct cpu *cpu, char *filename)
   while(fgets(line, sizeof line, fptr) != NULL)
   {
     char *endpointer;
-    unsigned char value = strtoul(line, endpointer, 2);
+    unsigned char value = strtoul(line, &endpointer, 2);
 
     if (endpointer == NULL)
     {
@@ -67,9 +67,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op) {
     case ALU_MUL:
       // TODO
+      cpu->reg[regA] = cpu->reg[regA]*cpu->reg[regB];
       break;
-
     // TODO: implement more ALU ops
+    case ALU_ADD:
+      cpu->reg[regA] = cpu->reg[regA]+cpu->reg[regB];
+      break;
   }
 }
 
@@ -114,6 +117,14 @@ void cpu_run(struct cpu *cpu)
         //print out numerically in given register 
         printf("%d\n", cpu->reg[operandA]);
         cpu->pc += 2;
+        break;
+      case MUL:
+        alu(cpu, ALU_MUL, operandA, operandB);
+        cpu->pc += 3;
+        break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->pc += 3;
         break;
       case HLT:  //why is this needed when have break ? 
         running = 0;  //set running to false
