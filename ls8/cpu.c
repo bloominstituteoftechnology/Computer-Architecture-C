@@ -72,12 +72,15 @@ void cpu_run(struct cpu *cpu)
     {
     case LDI:
       // change the value of reg @ operanA to operandB;
+      printf("%d\n", cpu->reg[operandB]);
       cpu->reg[operandA] = operandB;
+      printf("%d\n", cpu->reg[operandB]);
       break;
     case PRN:
       printf("%d\n", cpu->reg[operandA]);
       break;
     case HLT:
+
       running = 0;
       break;
     default:
