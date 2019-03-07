@@ -76,8 +76,8 @@ void push_to_stack(struct cpu *cpu, int val) {
   cpu->ram[cpu->reg[7]] = val;
 }
 
-int pop_from_stack(struct cpu *cpu) {
-  int val = cpu->ram[cpu->reg[7]];
+unsigned char pop_from_stack(struct cpu *cpu) {
+  unsigned char val = cpu->ram[cpu->reg[7]];
   cpu->reg[7]++;
   return val;
 }
@@ -117,8 +117,12 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3;
         break;
       case PUSH:
+        push_to_stack(cpu, cpu->reg[operand0]);
+        cpu->PC += 2;
         break;
       case POP:
+        pop_from_stack(cpu);
+        cpu->PC += 2;
         break;
 
       default:
