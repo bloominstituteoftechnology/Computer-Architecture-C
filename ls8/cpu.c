@@ -95,30 +95,34 @@ void push(struct cpu *cpu, unsigned char val)
   cpu->reg[7]--;
   //copy the value in the given register to the address pointed to by the sp
   //another variable? add sp to struct? 
-  cpu_ram_write(cpu, cpu->reg[7], cpu->reg[val]);
+  cpu_ram_write(cpu, cpu->reg[7], val);
 }
 
-void pop(struct cpu *cpu, unsigned char val)
+unsigned char pop(struct cpu *cpu)
 {
   //pop the value at the top of the stack into given register
   //copy the value from the address pointed to by sp to given register
   //put value in register take it out of ram (by reading) get address reg7 and store it in given register
-  cpu->reg[val] = cpu_ram_read(cpu, cpu->reg[7]);
+  //unsigned char pop_val = cpu_ram_read(cpu, cpu->reg[7]);
+  unsigned char val = cpu->ram[cpu->reg[7]];
   //increment sp
-  cpu->reg[7]++;
+  cpu->reg[7]++; 
+  return val;
 }
 
 void call(struct cpu *cpu, unsigned char registerAddress)
 {
   //push address of instruction on to stack so we can return to where we left off after subroutine executes
   unsigned char address = cpu->reg[registerAddress];
-  //stack grows down so make room on stack to store address
-  cpu->reg[7]--;  
-  //add return location to stack.
-  cpu->ram[cpu->reg[7]];
+  push(cpu, cpu->pc+2);
   //set program counter to location of subroutine
   cpu->pc = address;
   //pc is set to address stored in given register. jump to that location and execute the instruction in the subroutine.
+}
+
+void ret(struct cpu *cpu)
+{
+  cpu->pc = pop(cpu);
 }
 
 /**
@@ -161,16 +165,18 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
       case PUSH:  
-        push(cpu, operandA);
+        push(cpu, cpu->reg[operandA]);
         cpu->pc += 2;
         break;
       case POP:
-        pop(cpu, operandA);
+        cpu->reg[operandA] = pop(cpu);
         cpu->pc += 2;
         break;
       case CALL:
         call(cpu, operandA);
-        cpu->pc += 2;
+        break;
+      case RET:
+        ret(cpu);
         break;
       case HLT: 
         running = 0;  //set running to false
