@@ -122,6 +122,7 @@ void call(struct cpu *cpu, unsigned char registerAddress)
 
 void ret(struct cpu *cpu)
 {
+  //return from subroutine. pop value from top of stack and store in pc.
   cpu->pc = pop(cpu);
 }
 
@@ -143,6 +144,7 @@ void cpu_run(struct cpu *cpu)
     printf("TRACE: %02X: %02X  %02X  %02X \n", cpu->pc, IR, operandA, operandB);
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    //int instruction_set_pc = (IR >> 4);
     switch(IR)
     {
       case LDI:
@@ -186,6 +188,10 @@ void cpu_run(struct cpu *cpu)
         exit(1);
     }
     // 6. Move the PC to the next instruction.
+    // if (!instruction_set_pc) 
+    // {
+    //   cpu->pc+= ((IR >> 6) & 0x3) + 1;
+    // }
   }
 }
 
