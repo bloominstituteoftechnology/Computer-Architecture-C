@@ -39,6 +39,7 @@ void cpu_load(struct cpu *cpu, char *file)
     endpoint = strtoul(line, NULL, 2);
     cpu_ram_write(cpu, data++, endpoint);
   }
+  fclose(fptr);
 }
 
 /**
