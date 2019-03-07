@@ -192,6 +192,7 @@ void cpu_run(struct cpu *cpu)
         break;
       case LD:
         cpu->reg[operand0] = cpu->ram[currVal];
+        cpu->reg[operand0] = cpu->ram[cpu->reg[operand1]];
         cpu->PC += 1 + (IR >> 6);
         break;
       case PRN:
@@ -272,6 +273,41 @@ void cpu_run(struct cpu *cpu)
         break;
       case JEQ:
         if (cpu->FL == 0b00000001) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JGE:
+        if (cpu->FL == 0b00000001 || cpu->FL 0b00000010) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JGT:
+        if (cpu->FL == 0b00000010) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JLE:
+        if (cpu->FL == 0b00000001 || cpu->FL 0b00000100) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JLT:
+        if (cpu->FL == 0b00000100) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JEQ:
+        if (cpu->FL == 0b00000000) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);

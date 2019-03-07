@@ -148,6 +148,15 @@ Subroutines keep things dry
 ## Interupts
 Handle interruption from a peripherals (keyboards, external storage)
 
+Building Truth Tables from NAND
+NAND  ~(A AND B)
+NOT   A NAND A
+AND   NOT(A NAND B)
+OR    NAND(NOT A, NOT B)
+NOR   NOT(OR)
+XOR   OR(AND(NOT A, B) AND(A NOT B)))
+
+
 
 ### Half Adder
 A and/or B in
@@ -161,13 +170,17 @@ A  B    Carry Out   Sum
 1  0        0        1
 1  1        1        0
 
+C = AND(A, B)
+S = XOR(A, B)
+
+
 ### Full Adder
 A and/or B and/or Carry In
 Sum and/or Carry out
 
 
 Full Adder Truth Table
-Inputs      Outputs
+Inputs                  Outputs
 A  B  Carry In    Carry Out   Sum
 0  0      0           0        0
 0  0      1           0        1
@@ -177,6 +190,27 @@ A  B  Carry In    Carry Out   Sum
 1  0      1           1        0
 1  1      0           1        0
 1  1      1           1        1
+
+C = AND(A, B)
+S = XOR(A, B)
+
+CARRY-OUT = A AND B OR Cin(A XOR B) = A.B + Cin(A ⊕ B) = 
+SUM = (A XOR B) XOR Cin = (A ⊕ B) ⊕ Cin = XOR(XOR(a, b), c)
+Karnaugh Map
+
+Full-Adder
+Half-Adder with carry and the sum of the first
+
+# Equivalent Equations
+The 2nd equation replaces the no carry with a zero
+
+  1   1 11      100010110
+  010101001     010101001
++ 010001011   + 010001011
+-----------   -----------
+  100110100     100110100
+
+
 
 Bit Shifting 
 x = 0b10000000
@@ -257,15 +291,5 @@ Binary Coded Decimal
 1000 1001
 
 
-Full-Adder
-Half-Adder with carry and the sum of the first
 
-# Equivalent Equations
-The 2nd equation replaces the no carry with a zero
-
-  1   1 11      100010110
-  010101001     010101001
-+ 010001011   + 010001011
------------   -----------
-  100110100     100110100
 
