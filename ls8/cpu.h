@@ -33,14 +33,27 @@ enum alu_op {
 // These use binary literals. If these aren't available with your compiler, hex
 // literals should be used.
 
-#define LDI  0b10000010
+#define LDI  0b10000010 // 00000rrr iiiiiiii
+#define LD   0b10000011 // 00000aaa 00000bbb
 #define HLT  0b00000001
 #define PRN  0b01000111
+#define PRA  0b01001000 // 00000rrr
 
 #define PUSH 0b01000101 // 00000rrr
 #define POP  0b01000110 // 00000rrr
 #define CALL 0b01010000 // 00000rrr
 #define RET  0b00010001
+
+#define INT  0b01010010 // 00000rrr
+#define IRET 0b00010011
+
+#define JMP  0b01010100 // 00000rrr
+#define JEQ  0b01010101 // 00000rrr
+#define JNE  0b01010110 // 00000rrr
+#define JGT  0b01010111 // 00000rrr
+#define JLT  0b01011000 // 00000rrr
+#define JLE  0b01011001 // 00000rrr
+#define JGE  0b01011010 // 00000rrr
 
 // ALU ops
 #define ADD  0b10100000 // 00000aaa 00000bbb

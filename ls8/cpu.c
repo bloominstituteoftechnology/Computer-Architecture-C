@@ -98,6 +98,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_DIV:
+      if (valB == 0) {
+        printf("Dividing by zero is undefined.");
+        exit(1);
+      }
       cpu->reg[regA] = valA / valB;
       break;
 
@@ -138,12 +142,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_CMP:
-      if (valA > valB) {
-        cpu->FL = 2;
+      if (valA == valB) {
+        cpu->FL = 0b00000001;
+      } else if (valA > valB) {
+        cpu->FL = 0b00000010;
       } else if (valA < valB) {
-        cpu->FL = 4;
+        cpu->FL = 0b00000100;
       } else {
-        cpu->FL = 1;
+        printf("Comparison Issue");
+        exit(1);
       }    
       break;
 
@@ -174,72 +181,103 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operand0 = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operand1 = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char currVal = cpu->reg[operand1];
 
-    printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, IR, operand0, operand1);
+    // printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, IR, operand0, operand1);
 
     switch(IR) {
       case LDI:
         cpu->reg[operand0] = operand1;
         cpu->PC += 1 + (IR >> 6);
         break;
+      case LD:
+        cpu->reg[operand0] = cpu->ram[currVal];
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case PRN:
         printf("%d\n", cpu->reg[operand0]);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
+        break;
+      case PRA:
+        printf("%c\n", cpu->reg[operand0]);
+        cpu->PC += 1 + (IR >> 6);
         break;
       case SHR:
         alu(cpu, ALU_SHR, operand0, operand1);
-        cpu->PC += 3;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case SHL:
         alu(cpu, ALU_SHL, operand0, operand1);
-        cpu->PC += 3;      
+        cpu->PC += 1 + (IR >> 6);     
+        break; 
       case ADD:
         alu(cpu, ALU_ADD, operand0, operand1);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case SUB:
         alu(cpu, ALU_SUB, operand0, operand1);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case MUL:
         alu(cpu, ALU_MUL, operand0, operand1);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case DIV:
         alu(cpu, ALU_DIV, operand0, operand1);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case MOD:
         alu(cpu, ALU_MOD, operand0, operand1);
-        cpu->PC +=3;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case INC:
         alu(cpu, ALU_INC, operand0, 0);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case DEC:
         alu(cpu, ALU_DEC, operand0, 0);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case AND:
         alu(cpu, ALU_AND, operand0, operand1);
-        cpu->PC += 3;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case NOT:
         alu(cpu, ALU_NOT, operand0, 0);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case OR:
         alu(cpu, ALU_OR, operand0, operand1);
-        cpu->PC += 3;
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case XOR:
         alu(cpu, ALU_XOR, operand0, operand1);
-        cpu->PC += 3;
+        cpu->PC += 1 + (IR >> 6);
+        break;
+      case CMP:
+        alu(cpu, ALU_CMP, operand0, operand1);
+        cpu->PC += 1 + (IR >> 6);
+        break;
       case PUSH:
         cpu_push(cpu, cpu->reg[operand0]);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case POP:
         cpu->reg[operand0] = cpu_pop(cpu);
-        cpu->PC += 2;
+        cpu->PC += 1 + (IR >> 6);
         break;
       case CALL:
         cpu_push(cpu, cpu->PC + 2);
+        cpu->PC = cpu->reg[operand0];
+        break;
+      case JEQ:
+        if (cpu->FL == 0b00000001) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 1 + (IR >> 6);
+        }
+        break;
+      case JMP:
         cpu->PC = cpu->reg[operand0];
         break;
       case RET:
