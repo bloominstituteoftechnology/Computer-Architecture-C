@@ -79,6 +79,11 @@ void cpu_run(struct cpu *cpu)
     // 4. switch() over it to decide on a course of action.
     switch (ir)
     {
+      case ADD:
+      {
+        cpu->registers[operandA] += cpu->registers[operandB];
+        break;
+      }
       case HLT:
       {
         running = 0;
