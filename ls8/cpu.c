@@ -77,6 +77,23 @@ void pop(struct cpu *cpu, unsigned char value)
   cpu->PC += 2;
 }
 
+
+void call(struct cpu *cpu, unsigned char registerOfAddress)
+{
+  char address = cpu->regs[registerOfAddress];
+  char nextInstruction = cpu->PC + 2;
+
+  cpu->regs[7]--;
+  cpu_ram_write(cpu, cpu->regs[7], nextInstruction);
+  cpu->PC = address;
+}
+
+void ret(struct cpu *cpu)
+{
+  unsigned char address = cpu_ram_read(cpu, cpu->regs[7]);
+  cpu->regs[7]++;
+  cpu->PC = address;
+}
 /**
  * Run the CPU
  */
@@ -123,7 +140,12 @@ void cpu_run(struct cpu *cpu)
       case POP:
         pop(cpu, op1);
         break;
-
+      case CALL:
+        call(cpu, op0);
+        break;
+      case RET:
+        ret(cpu);
+        break;
       default:
         printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
         exit(1);
