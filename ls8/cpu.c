@@ -58,7 +58,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char *reg = cpu->reg;
 
   // assign operands to values
-  unsigned char valueA = reg[regA];
+  // unsigned char valueA = reg[regA]; // unused variable
   unsigned char valueB = reg[regB];
 
   switch (op) {
@@ -113,7 +113,8 @@ void cpu_run(struct cpu *cpu)
         break;
       case HLT:
         cpu->PC++;
-        return 0;
+        exit(1);
+        // return 0;
       case MUL:
         alu(cpu, ALU_MUL, operand0, operand1);
         cpu->PC += 3;
@@ -129,6 +130,13 @@ void cpu_run(struct cpu *cpu)
       case POP:
         cpu->reg[operand0] = pop_from_stack(cpu);
         cpu->PC += 2;
+        break;
+      case CALL:
+        push_to_stack(cpu, cpu->PC + 2);
+        cpu->PC = cpu->reg[operand0];
+        break;
+      case RET:
+        cpu->PC = pop_from_stack(cpu);
         break;
 
       default:
