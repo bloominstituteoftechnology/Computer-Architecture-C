@@ -74,8 +74,21 @@ void cpu_run(struct cpu *cpu)
     unsigned char ir = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
-    unsigned char operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    unsigned char operandB = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned char operandA;
+    unsigned char operandB;
+    int next_line = 1;
+
+    if (ir & 0x80)
+    {
+      operandA = cpu->ram[(cpu->PC + 1) & 0xff];
+      operandB = cpu->ram[(cpu->PC + 2) & 0xff];
+      next_line = 3;
+    }
+    else if (ir & 0x40)
+    {
+      operandA = cpu->ram[(cpu->PC + 1) & 0xff];
+      next_line = 2;
+    }
     // 4. switch() over it to decide on a course of action.
     switch (ir)
     {
@@ -84,6 +97,13 @@ void cpu_run(struct cpu *cpu)
         cpu->registers[operandA] += cpu->registers[operandB];
         break;
       }
+      case CALL:
+        cpu->ram[--cpu->registers[7]] = cpu->PC + next_line;
+        cpu->PC = cpu->registers[operandA];
+        continue;
+      case RET:
+        cpu->PC = cpu->ram[cpu->registers[7]++];
+        continue;
       case HLT:
       {
         running = 0;
@@ -92,32 +112,27 @@ void cpu_run(struct cpu *cpu)
       case LDI:
       {
         cpu->registers[operandA] = operandB;
-        cpu->PC += 3;
         break;
       }
       case MUL:
       {
         cpu->registers[operandA] *= cpu->registers[operandB];
-        cpu->PC += 3;
         break;
       }
       case POP:
       {
         cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->ram[cpu->registers[7]++] = 0x00;
-        cpu->PC += 2;
         break;
       }
       case PRN:
       {
         printf("%d\n", cpu->registers[operandA]);
-        cpu->PC += 2;
         break;
       }
       case PUSH:
       {
         cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[operandA]);
-        cpu->PC += 2;
         break;
       }
       default:
@@ -125,6 +140,7 @@ void cpu_run(struct cpu *cpu)
         break;
       }
     }
+    cpu->PC = cpu->PC + next_line;
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }
