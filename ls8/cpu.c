@@ -91,10 +91,25 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 3; /* another +3 for a two-argument operation */
         break;
       }
-      
+
       case PRN:
       {
         printf("%d\n", cpu->registers[op0]);
+        cpu->PC += 2;
+        break;
+      }
+
+      case POP:
+      {
+        cpu->registers[op0] = cpu_ram_read(cpu, cpu->registers[7]);
+        cpu->ram[cpu->registers[7]++] = 0x00;
+        cpu->PC += 2;
+        break;
+      }
+
+      case PUSH:
+      {
+        cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[op0]);
         cpu->PC += 2;
         break;
       }
