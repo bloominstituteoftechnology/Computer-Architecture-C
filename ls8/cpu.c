@@ -46,7 +46,6 @@ void cpu_load(struct cpu *cpu, char *filename)
     }
     
     fclose(file);
-    
 }
 
 /**
@@ -60,8 +59,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     switch (op) {
     case ALU_MUL:
       cpu->registers[a] *= cpu->registers[b];
-        
       break;
+    case ALU_ADD:
+        cpu->registers[a] += cpu->registers[b];
+        break;
     case CMP:
         if (cpu->registers[a] == cpu->registers[b]) {
             cpu->flag = 1;
@@ -72,6 +73,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->pc = cpu->pc + op + 1;
         break;
   }
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+    cpu->registers[7]--;
+    cpu_ram_write(cpu, cpu->registers[7], val);
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+    unsigned char val = cpu_ram_read(cpu, cpu->registers[7]);
+    cpu->registers[7]++;
+    return val;
 }
 
 /**
@@ -98,32 +112,37 @@ void cpu_run(struct cpu *cpu)
           switch (ir) {
               case LDI:
                   cpu->registers[operand0] = operand1;
-                  cpu->pc += 3;
+                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case PRN:
                   printf("%d\n", cpu->registers[operand0]);
                   // 6. Move the PC to the next instruction.
-                  cpu->pc += 2;
+                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case MUL:
                   //alu(cpu, ALU_MUL, operand0, operand1);
                   cpu->registers[operand0] *= cpu->registers[operand1];
                   cpu->pc = cpu->pc + num_ops + 1;
                   break;
+              case ADD:
+                  //alu(cpu, ALU_ADD, operand0, operand1);
+                  cpu->registers[operand0] += cpu->registers[operand1];
+                  cpu->pc = cpu->pc + num_ops + 1;
+                  break;
               case POP:
-                  cpu->registers[operand0] = cpu_ram_read(cpu, cpu->registers[7]);
-                  cpu->registers[7]++;
-                  if (cpu->registers[7] > 244) {
-                      exit(4);
-                  }
+                  cpu->registers[operand0] = cpu_pop(cpu);
+                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case PUSH:
-                  cpu->registers[7]--;
-                  cpu_ram_write(cpu, cpu->registers[7], cpu->registers[operand0]);
-                  if (cpu->registers[7] != 0x00) {
-                      printf("Stack overflow\n");
-                      exit(4);
-                  }
+                  cpu_push(cpu, cpu->registers[operand0]);
+                  cpu->pc = cpu->pc + num_ops + 1;
+                  break;
+              case CALL:
+                  cpu_push(cpu, cpu->pc + 2);
+                  cpu->pc = cpu->registers[operand0];
+                  break;
+              case RET:
+                  cpu->pc = cpu_pop(cpu);
                   break;
               case JMP:
                   cpu->pc = cpu->registers[operand0];
