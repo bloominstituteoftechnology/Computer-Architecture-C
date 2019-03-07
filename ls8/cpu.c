@@ -65,10 +65,27 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC); /* IR = Instruction Register */
     
     // 2. Figure out how many operands this next instruction requires
+
+    /* commenting these out with CALL/RET, will enable usage without pre-loaded values)
     unsigned char op0 = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char op1 = cpu_ram_read(cpu, cpu->PC + 2);
+    */
+
+    unsigned char op0;
+    unsigned char op1;
+    unsigned int next;
+
     // 3. Get the appropriate value(s) of the operands following this instruction
-    
+    if(IR & 0x80) {
+      op0 = cpu->ram[(cpu->PC + 1) & 0xff];
+      op1 = cpu->ram[(cpu->PC + 2) & 0xff];
+      next = 3;
+    }
+
+    else if(IR & 0x40) {
+      op0 = cpu->ram[(cpu->PC + 1) & 0xff];
+      next = 2;
+    }
     // 4. switch() over it to decide on a course of action.
     /* case pseudocode for instruction handlers:
     LDI -- set cpu->registers first value to next value
@@ -122,13 +139,13 @@ void cpu_run(struct cpu *cpu)
 
       default:
       {
-        printf("Command 0x%02x\n not recognized.", IR);
+        printf("Command 0x%02x not recognized.\n", IR);
         running = 0;
         break;
       }
     }
     // 6. Move the PC to the next instruction.
-    /* removed previous code and added this step to cases */
+    cpu->PC = cpu->PC + next;
   }
 }
 
