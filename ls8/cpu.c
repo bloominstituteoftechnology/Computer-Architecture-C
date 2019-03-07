@@ -94,7 +94,17 @@ void push(struct cpu *cpu, unsigned char val)
   //decrement the sp
   cpu->reg[7]--;
   //copy the value in the given register to the address pointed to by the sp
+  //another variable? add sp to struct? 
   cpu_ram_write(cpu, cpu->reg[7], cpu->reg[val]);
+}
+
+void pop(struct cpu *cpu, unsigned char val)
+{
+  //pop the value at the top of the stack into given register
+  //copy the value from the address pointed to by sp to given register
+  cpu->reg[val] = cpu_ram_read(cpu, cpu->reg[7]);
+  //increment sp
+  cpu->reg[7]++;
 }
 
 /**
@@ -138,6 +148,10 @@ void cpu_run(struct cpu *cpu)
         break;
       case PUSH:  
         push(cpu, operandA);
+        cpu->pc += 2;
+        break;
+      case POP:
+        pop(cpu, operandA);
         cpu->pc += 2;
         break;
       case HLT: 
