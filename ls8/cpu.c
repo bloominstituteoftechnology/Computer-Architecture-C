@@ -121,7 +121,7 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 2;
         break;
       case POP:
-        pop_from_stack(cpu);
+        cpu->reg[operand0] = pop_from_stack(cpu);
         cpu->PC += 2;
         break;
 
