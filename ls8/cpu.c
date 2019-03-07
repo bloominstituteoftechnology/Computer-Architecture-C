@@ -102,9 +102,23 @@ void pop(struct cpu *cpu, unsigned char val)
 {
   //pop the value at the top of the stack into given register
   //copy the value from the address pointed to by sp to given register
+  //put value in register take it out of ram (by reading) get address reg7 and store it in given register
   cpu->reg[val] = cpu_ram_read(cpu, cpu->reg[7]);
   //increment sp
   cpu->reg[7]++;
+}
+
+void call(struct cpu *cpu, unsigned char registerAddress)
+{
+  //push address of instruction on to stack so we can return to where we left off after subroutine executes
+  unsigned char address = cpu->reg[registerAddress];
+  //stack grows down so make room on stack to store address
+  cpu->reg[7]--;  
+  //add return location to stack.
+  cpu->ram[cpu->reg[7]];
+  //set program counter to location of subroutine
+  cpu->pc = address;
+  //pc is set to address stored in given register. jump to that location and execute the instruction in the subroutine.
 }
 
 /**
@@ -154,6 +168,10 @@ void cpu_run(struct cpu *cpu)
         pop(cpu, operandA);
         cpu->pc += 2;
         break;
+      case CALL:
+        call(cpu, operandA);
+        cpu->pc += 2;
+        break;
       case HLT: 
         running = 0;  //set running to false
         break;
@@ -177,7 +195,6 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, sizeof cpu->ram);
 }
 // When the LS-8 is booted, the following steps occur:
-
 // * `R0`-`R6` are cleared to `0`.
 // * `R7` is set to `0xF4`.
 // * `PC` and `FL` registers are cleared to `0`.
