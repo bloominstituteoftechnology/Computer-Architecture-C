@@ -126,13 +126,16 @@ void cpu_run(struct cpu *cpu)
       case CALL:
         sp--;
         stack[sp] = cpu->registers[operandA];
-        cpu->PC = operandA;
-        stack[operandA];
+        cpu->PC = cpu->registers[operandA];
+
+        cpu_ram_read(cpu, cpu->PC);
         break;
 
       case RET:
-        cpu->PC = stack[sp];
+        cpu->registers[operandA] = stack[sp];
         sp++;
+
+        cpu->PC = cpu->registers[operandA];
         break;
 
 
