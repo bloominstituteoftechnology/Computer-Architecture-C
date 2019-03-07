@@ -123,6 +123,7 @@ void cpu_run(struct cpu *cpu)
       case POP:
         pop(cpu, op1);
         break;
+
       default:
         printf("unexpected instruction 0x%02X at 0x%02X\n", instruction, cpu->PC);
         exit(1);
