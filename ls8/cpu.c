@@ -98,21 +98,18 @@ void cpu_run(struct cpu *cpu)
       case LDI:
       {
         cpu->registers[op0] = op1;
-        cpu->PC += 3;
         break;
       }
 
       case MUL:
       {
         cpu->registers[op0] *= cpu->registers[op1];
-        cpu->PC += 3; /* another +3 for a two-argument operation */
         break;
       }
 
       case PRN:
       {
         printf("%d\n", cpu->registers[op0]);
-        cpu->PC += 2;
         break;
       }
 
@@ -120,17 +117,27 @@ void cpu_run(struct cpu *cpu)
       {
         cpu->registers[op0] = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->ram[cpu->registers[7]++] = 0x00;
-        cpu->PC += 2;
         break;
       }
 
       case PUSH:
       {
         cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[op0]);
-        cpu->PC += 2;
         break;
       }
 
+      case CALL:
+      {
+        cpu->ram[--cpu->registers[7]] = cpu->PC + next;
+        cpu->PC = cpu->registers[op0];
+        continue;
+      }
+
+      case RET:
+      {
+        cpu->PC = cpu->ram[cpu->registers[7]++];
+        continue;
+      }
       case HLT:
       {
         running = 0;
