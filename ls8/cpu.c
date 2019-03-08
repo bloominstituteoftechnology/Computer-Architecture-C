@@ -219,6 +219,14 @@ void cpu_run(struct cpu *cpu)
         {
           cpu->pc = cpu->reg[operandA];
         }
+        break;
+      case JNE:
+        //if equal flag is clear/false/0 jump to address stored at given register.
+        if ((cpu->fl & 0b00000001) == 0)
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
+        break;
       case HLT: 
         running = 0;  //set running to false
         break;
