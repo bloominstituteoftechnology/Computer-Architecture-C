@@ -9,6 +9,8 @@ struct cpu
   unsigned int PC;
   // stack pointer
   unsigned int SP;
+  // flag
+  unsigned char FL;
   // registers (array)
   // 8 for 0-7
   unsigned char reg[8];

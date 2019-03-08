@@ -108,6 +108,21 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_ADD:
     cpu->reg[regA] += cpu->reg[regB];
     break;
+
+  case ALU_CMP:
+    if (cpu->reg[regA] == cpu->reg[regB])
+    {
+      cpu->FL = 0b00000001;
+    }
+    else if (cpu->reg[regA] > cpu->reg[regB])
+    {
+      cpu->FL = 0b00000010;
+    }
+    else
+    {
+      cpu->FL = 0b00000100;
+    }
+    break;
   }
 }
 
