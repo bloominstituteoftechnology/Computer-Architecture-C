@@ -66,8 +66,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_ADD:
       reg[valA] += valB & 0xFF;
-    default:
-      printf("ALU ERROR");
     // TODO: implement more ALU ops
   }
 }
@@ -106,7 +104,7 @@ void cpu_run(struct cpu *cpu)
     }
 
     // print out hex letters, 2 means it'll be two characters long
-    printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operand_a, operand_b);
+    // printf("TRACE: %02X   %02X   %02X   %02X\n", cpu->PC, IR, operand_a, operand_b);
     
     // 4. switch() over it to decide on a course of action.
     switch(IR) {
