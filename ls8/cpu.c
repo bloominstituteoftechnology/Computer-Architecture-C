@@ -58,7 +58,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char *reg = cpu->reg;
 
   // assign operands to values
-  // unsigned char valueA = reg[regA]; // unused variable
+  unsigned char valueA = reg[regA];
   unsigned char valueB = reg[regB];
 
   switch (op) {
@@ -67,6 +67,18 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
     case ALU_ADD:
       reg[regA] += valueB;
+      break;
+    case ALU_CMP:
+      if (valueA == valueB) {
+        cpu->FL = 1;
+        // printf("even %d\n", cpu->FL);
+      } else if (valueA < valueB) {
+        cpu->FL = 2;
+        // printf("less %d\n", cpu->FL);
+      } else {
+        cpu->FL = 3;
+        // printf("greater %d\n", cpu->FL);
+      }
       break;
 
     // TODO: implement more ALU ops
@@ -138,6 +150,27 @@ void cpu_run(struct cpu *cpu)
       case RET:
         cpu->PC = pop_from_stack(cpu);
         break;
+      case CMP:
+        alu(cpu, ALU_CMP, operand0, operand1);
+        cpu->PC += 3;
+        break;
+      case JMP:
+        cpu->PC = cpu->reg[operand0];
+        break;
+      case JEQ:
+        if (cpu->FL == 1) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
+      case JNE:
+        if (cpu->FL != 1) {
+          cpu->PC = cpu->reg[operand0];
+        } else {
+          cpu->PC += 2;
+        }
+        break;
 
       default:
         // beej printed IR & cpu->PC
@@ -160,8 +193,9 @@ void cpu_init(struct cpu *cpu)
   }
   // set r7 to 0xF4
   cpu->reg[7] = 0xF4;
-  // set PC to 0 | no flags yet
+  // set PC & flag to 0
   cpu->PC = 0;
+  cpu->FL = 0;
   // set ram to 0
   memset(cpu->ram, 0, sizeof cpu->ram);
 
