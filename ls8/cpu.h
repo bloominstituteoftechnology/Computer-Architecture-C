@@ -6,18 +6,26 @@ struct cpu
 {
   // TODO
   // PC
-  unsigned int pc;
+  unsigned int PC;
+  // stack pointer
+  unsigned int SP;
   // registers (array)
+  // 8 for 0-7
   unsigned char reg[8];
   // ram (array)
   unsigned char ram[256];
 };
 
+#define ADDR_PROGRAM_ENTRY 0x00 // program gets loaded
+#define ADDR_EMPTY_STACK 0xF4   // sp is empty
+
 // ALU operations
 enum alu_op
 {
-  ALU_MUL
+  ALU_MUL,
   // Add more here
+  ALU_ADD,
+  ALU_CMP
 };
 
 // Instructions
@@ -29,10 +37,16 @@ enum alu_op
 #define HLT 0b00000001
 #define PRN 0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
+#define MUL 0b10100010
+#define PUSH 0b01000101
+#define POP 0b01000110
+#define ADD 0b10100000
+#define CALL 0b01010000
+#define RET 0b00010001
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, int argc, char *argv[]);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
