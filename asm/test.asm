@@ -1,0 +1,15 @@
+LDI R0, 8
+LDI R1, 1
+
+LDI R2, 16
+LDI R3, 2
+
+SHR R0, R1
+SHR R2, R3
+
+ADDI R0, R1, 8
+
+PRN R0
+PRN R2
+
+HLT

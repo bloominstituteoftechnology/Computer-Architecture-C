@@ -18,10 +18,24 @@ struct cpu
 // ALU operations
 enum alu_op
 {
+  // Mathmatical operations
   ALU_MUL = 0b10100010,
-  // Add more here
   ALU_ADD = 0b10100000,
-  ALU_INC = 0b01100101
+  ALU_SUB = 0b10100001,
+  ALU_MOD = 0b10100100,
+  ALU_DIV = 0b10100011,
+  ALU_INC = 0b01100101,
+  ALU_DEC = 0b01100110,
+  ALU_CMP = 0b10100111,
+  // Logic operations
+  ALU_NOT = 0b01101001,
+  ALU_AND = 0b10101000,
+  ALU_OR = 0b10101010,
+  ALU_XOR = 0b10101011,
+  // Shifts operations
+  ALU_SHL = 0b10101100,
+  ALU_SHR = 0b10101101,
+  ALU_ADDI = 0b11101000
 };
 
 // Instructions
@@ -40,6 +54,8 @@ enum alu_op
 #define JMP 0b01010100
 #define PRA 0b01001000
 #define IRET 0b00010011
+#define JEQ 0b01010101
+#define JNE 0b01010110
 
 // TODO: more instructions here. These can be used in cpu_run().
 

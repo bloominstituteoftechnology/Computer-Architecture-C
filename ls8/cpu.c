@@ -23,18 +23,15 @@ void cpu_ram_write(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 // ================== Instrcution Handlers ===================
 
 // LDI function: Set the value of a register to an integer
-void handle_LDI(struct cpu *cpu)
+void handle_LDI(struct cpu *cpu, unsigned char MAR, unsigned char MDR)
 {
-  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  unsigned char value = cpu_ram_read(cpu, (cpu->pc + 2));
-  cpu->registers[regA] = value;
+  cpu->registers[MAR] = MDR;
 };
 
 // PRN function: Print numeric value stored in the given register
-void handle_PRN(struct cpu *cpu)
+void handle_PRN(struct cpu *cpu, unsigned char MAR)
 {
-  unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  printf("%d\n", cpu->registers[regA]);
+  printf("%d\n", cpu->registers[MAR]);
 }
 
 // HLT function: Halt the CPU (and exit the emulator)
@@ -45,27 +42,69 @@ void handle_HLT()
 
 // ST function: Store value in registerB in the address stored in registerA
 // This opcode writes to memory
-void handle_ST(struct cpu *cpu)
+void handle_ST(struct cpu *cpu, unsigned char regA, unsigned char regB)
 {
-  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
-  unsigned char MDR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 2))];
+  unsigned char MAR = cpu->registers[regA];
+  unsigned char MDR = cpu->registers[regB];
   cpu_ram_write(cpu, MAR, MDR);
 }
 
 //  JMP function: Jump to the address stored in the given register
-void handle_JMP(struct cpu *cpu)
+void handle_JMP(struct cpu *cpu, unsigned char regA)
 {
-  unsigned char MAR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
+  unsigned char MAR = cpu->registers[regA];
   cpu->pc = MAR;
 }
 
-void handle_PRA(struct cpu *cpu)
+void handle_PRA(struct cpu *cpu, unsigned char MAR)
 {
-  unsigned char regA = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
-  printf("%c\n", regA);
+  printf("%c\n", cpu->registers[MAR]);
 }
 
-// ================= Handle functions ==================
+// JEQ function: If equal flag is set (true), jump to the address stored in the given register
+void handle_JEQ(struct cpu *cpu, unsigned char regA, unsigned char nextOpcode)
+{
+  unsigned char MAR = cpu->registers[regA];
+
+  if ((0b00000001 & cpu->fl))
+  {
+    cpu->pc = MAR;
+  }
+  else
+  {
+    cpu->pc += nextOpcode;
+  }
+}
+
+// JNE function: If E flag is clear (false, 0), jump to the address stored in the given register.
+void handle_JNE(struct cpu *cpu, unsigned char regA, unsigned char nextOpcode)
+{
+  unsigned char MAR = cpu->registers[regA];
+
+  if (!(0b00000001 & cpu->fl))
+  {
+    cpu->pc = MAR;
+  }
+  else
+  {
+    cpu->pc += nextOpcode;
+  }
+}
+
+// ================= Stack functions ==================
+
+void handle_PUSH(struct cpu *cpu, unsigned char MDR)
+{
+  cpu_ram_write(cpu, --cpu->registers[7], MDR);
+}
+
+void handle_POP(struct cpu *cpu, unsigned char regA)
+{
+  unsigned char value = cpu_ram_read(cpu, cpu->registers[7]++);
+  cpu->registers[regA] = value;
+}
+
+// ================= Interrupt Handle functions ==================
 void handle_interupt(struct cpu *cpu, int location)
 {
   cpu->registers[6] = 0;
@@ -74,7 +113,7 @@ void handle_interupt(struct cpu *cpu, int location)
   cpu_ram_write(cpu, --cpu->registers[7], cpu->fl);
   for (int i = 0; i < 7; i++)
   {
-    cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[i]);
+    handle_PUSH(cpu, i);
   }
   cpu->pc = cpu->ram[0xF8 + location];
   cpu->registers[5] = 0;
@@ -84,7 +123,7 @@ void handle_IRET(struct cpu *cpu)
 {
   for (int i = 6; i >= 0; i--)
   {
-    cpu->registers[i] = cpu_ram_read(cpu, cpu->registers[7]++);
+    handle_POP(cpu, i);
   }
   cpu->fl = cpu_ram_read(cpu, cpu->registers[7]++);
   cpu->pc = cpu_ram_read(cpu, cpu->registers[7]++);
@@ -92,34 +131,32 @@ void handle_IRET(struct cpu *cpu)
 }
 
 // ================= SubRoutine functions ==================
-void handle_CALL(struct cpu *cpu)
+void handle_CALL(struct cpu *cpu, char unsigned MAR, char unsigned nextPC)
 {
   // Saves next PC at the correct spot
-  cpu_ram_write(cpu, --cpu->registers[7], (cpu->pc + 2));
-
-  char unsigned regAVal = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
-  cpu->pc = regAVal;
+  handle_PUSH(cpu, nextPC);
+  cpu->pc = cpu->registers[MAR];
 }
 
 void handle_RET(struct cpu *cpu)
 {
-  char unsigned newPc = cpu_ram_read(cpu, cpu->registers[7]++);
-  cpu->pc = newPc;
+  cpu->pc = cpu_ram_read(cpu, cpu->registers[7]++);
 }
 
-// ================= Stack functions ==================
-
-void handle_PUSH(struct cpu *cpu)
+void handle_CMP(struct cpu *cpu, unsigned char regA, unsigned char regB)
 {
-  char unsigned MDR = cpu->registers[cpu_ram_read(cpu, (cpu->pc + 1))];
-  cpu_ram_write(cpu, --cpu->registers[7], MDR);
-}
-
-void handle_POP(struct cpu *cpu)
-{
-  char unsigned regA = cpu_ram_read(cpu, (cpu->pc + 1));
-  unsigned char value = cpu_ram_read(cpu, cpu->registers[7]++);
-  cpu->registers[regA] = value;
+  if (cpu->registers[regA] == cpu->registers[regB])
+  {
+    cpu->fl = 0b00000001;
+  }
+  else if (cpu->registers[regA] > cpu->registers[regB])
+  {
+    cpu->fl = 0b00000010;
+  }
+  else
+  {
+    cpu->fl = 0b00000100;
+  }
 }
 
 // ================== CPU functions ===================
@@ -157,7 +194,7 @@ void alu(struct cpu *cpu, enum alu_op op)
 {
   unsigned char regA = cpu_ram_read(cpu, (cpu->pc + 1));
   unsigned char regB = cpu_ram_read(cpu, (cpu->pc + 2));
-
+  unsigned char addiVal = cpu_ram_read(cpu, (cpu->pc + 3));
   switch (op)
   {
   case ALU_MUL:
@@ -166,8 +203,44 @@ void alu(struct cpu *cpu, enum alu_op op)
   case ALU_ADD:
     cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
     break;
+  case ALU_SUB:
+    cpu->registers[regA] = cpu->registers[regA] - cpu->registers[regB];
+    break;
+  case ALU_MOD:
+    cpu->registers[regA] = cpu->registers[regA] % cpu->registers[regB];
+    break;
+  case ALU_DIV:
+    cpu->registers[regA] = cpu->registers[regA] / cpu->registers[regB];
+    break;
   case ALU_INC:
     cpu->registers[regA]++;
+    break;
+  case ALU_DEC:
+    cpu->registers[regA]--;
+    break;
+  case ALU_CMP:
+    handle_CMP(cpu, regA, regB);
+    break;
+  case ALU_NOT:
+    cpu->registers[regA] = ~cpu->registers[regA];
+    break;
+  case ALU_AND:
+    cpu->registers[regA] = cpu->registers[regA] & cpu->registers[regB];
+    break;
+  case ALU_OR:
+    cpu->registers[regA] = cpu->registers[regA] | cpu->registers[regB];
+    break;
+  case ALU_XOR:
+    cpu->registers[regA] = cpu->registers[regA] ^ cpu->registers[regB];
+    break;
+  case ALU_SHL:
+    cpu->registers[regA] = cpu->registers[regA] >> cpu->registers[regB];
+    break;
+  case ALU_SHR:
+    cpu->registers[regA] = cpu->registers[regA] << cpu->registers[regB];
+    break;
+  case ALU_ADDI:
+    cpu->registers[regA] = cpu->registers[regB] + cpu->registers[addiVal];
     break;
 
     // TODO: implement more ALU ops
@@ -218,6 +291,9 @@ void cpu_run(struct cpu *cpu)
     }
 
     unsigned char IR = cpu_ram_read(cpu, (cpu->pc));
+    unsigned char operandA = cpu_ram_read(cpu, (cpu->pc + 1));
+    unsigned char operandB = cpu_ram_read(cpu, (cpu->pc + 2));
+    int nextOpcode = ((0b11000000 & IR) >> 6) + 1;
 
     // printf("ALU find IR: %d\n", (IR));
     unsigned char ALUNUM = (0b00100000 & IR) >> 5;
@@ -232,31 +308,36 @@ void cpu_run(struct cpu *cpu)
       switch (IR)
       {
       case LDI:
-        handle_LDI(cpu);
+        handle_LDI(cpu, operandA, operandB);
         break;
       case PRN:
-        handle_PRN(cpu);
+        handle_PRN(cpu, operandA);
         break;
       case HLT:
         handle_HLT();
         break;
       case ST:
-        handle_ST(cpu);
+        handle_ST(cpu, operandA, operandB);
         break;
       case JMP:
-        handle_JMP(cpu);
+        handle_JMP(cpu, operandA);
         continue;
       case PRA:
-        handle_PRA(cpu);
+        handle_PRA(cpu, operandA);
         break;
-
+      case JEQ:
+        handle_JEQ(cpu, operandA, nextOpcode);
+        continue;
+      case JNE:
+        handle_JNE(cpu, operandA, nextOpcode);
+        continue;
       case IRET:
         handle_IRET(cpu);
         continue;
 
       // Subroutine instructions
       case CALL:
-        handle_CALL(cpu);
+        handle_CALL(cpu, operandA, (cpu->pc + nextOpcode));
         continue;
       case RET:
         handle_RET(cpu);
@@ -264,10 +345,10 @@ void cpu_run(struct cpu *cpu)
 
       //  Stack Instructions
       case PUSH:
-        handle_PUSH(cpu);
+        handle_PUSH(cpu, cpu->registers[operandA]);
         break;
       case POP:
-        handle_POP(cpu);
+        handle_POP(cpu, operandA);
         break;
       default:
         printf("unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->pc);
@@ -275,8 +356,7 @@ void cpu_run(struct cpu *cpu)
       }
     }
 
-    int opNum = (0b11000000 & IR) >> 6;
-    cpu->pc += (opNum + 1);
+    cpu->pc += nextOpcode;
   }
 }
 
