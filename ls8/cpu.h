@@ -13,15 +13,18 @@ typedef struct cpu {
   unsigned char ram[256];
 } cpu;
 
+//add flag somewhere else below? instructions? 
+
 // ALU operations
 enum alu_op {
 	ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_CMP
 	// Add more here
 };
 
 // Instructions
-//memory locations !!!!!!!!!!!!!!!!!
+//memory locations !!!!!!!!!!!!!!!!!  
 #define ADD_EMPTY_STACK 0xf4
 #define ADD_PROGRAM_ENTRY 0x00
 
