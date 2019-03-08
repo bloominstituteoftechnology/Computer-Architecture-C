@@ -7,12 +7,11 @@
  */
 int main(int argc, char **argv)
 {
-
   struct cpu cpu;
 
   if (argc != 2)
   {
-    fprintf(stderr, "usage: <ls8 filename.ls8>\n");
+    fprintf(stderr, "usage: ls8 <filename.ls8>\n");
     return 1;
   }
 
