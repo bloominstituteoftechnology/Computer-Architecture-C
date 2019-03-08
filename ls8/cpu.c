@@ -127,6 +127,29 @@ void cpu_run(struct cpu *cpu)
         running = 0;
         break;
       }
+      case JEQ:
+      {
+        if (cpu->E == 1)
+        {
+          cpu->PC = cpu->registers[operandA];
+          continue;
+        }
+        break;
+      }
+      case JMP:
+      {
+        cpu->PC = cpu->registers[operandA];
+        continue;
+      }
+      case JNE:
+      {
+        if (cpu->E != 1)
+        {
+          cpu->PC = cpu->registers[operandA];
+          continue;
+        }
+        break;
+      }
       case LDI:
       {
         cpu->registers[operandA] = operandB;
