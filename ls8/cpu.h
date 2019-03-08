@@ -18,6 +18,8 @@ struct cpu {
 
 // ALU operations
 enum alu_op {
+  ALU_ADD,
+  ALU_CMP,
 	ALU_MUL
 	// Add more here
 };

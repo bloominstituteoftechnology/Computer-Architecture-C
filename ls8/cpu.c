@@ -53,8 +53,27 @@ void cpu_load(struct cpu *cpu, char *file)
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
+    case ALU_CMP:
+      if (cpu->registers[regA] == cpu->registers[regB])
+      {
+        cpu->E = 1;
+        break;
+      }
+      else if (cpu->registers[regA] > cpu->registers[regB])
+      {
+        cpu->G = 1;
+        break;
+      }
+      else
+      {
+        cpu->L = 1;
+        break;
+      }
     case ALU_MUL:
-      // TODO
+      cpu->registers[regA] *= cpu->registers[regB];
       break;
 
     // TODO: implement more ALU ops
@@ -93,10 +112,8 @@ void cpu_run(struct cpu *cpu)
     switch (ir)
     {
       case ADD:
-      {
-        cpu->registers[operandA] += cpu->registers[operandB];
+        alu(cpu, ALU_ADD, operandA, operandB);
         break;
-      }
       case CALL:
         cpu->ram[--cpu->registers[7]] = cpu->PC + next_line;
         cpu->PC = cpu->registers[operandA];
@@ -105,81 +122,46 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->ram[cpu->registers[7]++];
         continue;
       case CMP:
-      {
-        if (cpu->registers[operandA] == cpu->registers[operandB])
-        {
-          cpu->E = 1;
-          break;
-        }
-        else if (cpu->registers[operandA] > cpu->registers[operandB])
-        {
-          cpu->G = 1;
-          break;
-        }
-        else
-        {
-          cpu->L = 1;
-          break;
-        }
-      }
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
       case HLT:
-      {
         running = 0;
         break;
-      }
       case JEQ:
-      {
         if (cpu->E == 1)
         {
           cpu->PC = cpu->registers[operandA];
           continue;
         }
         break;
-      }
       case JMP:
-      {
         cpu->PC = cpu->registers[operandA];
         continue;
-      }
       case JNE:
-      {
         if (cpu->E != 1)
         {
           cpu->PC = cpu->registers[operandA];
           continue;
         }
         break;
-      }
       case LDI:
-      {
         cpu->registers[operandA] = operandB;
         break;
-      }
       case MUL:
-      {
-        cpu->registers[operandA] *= cpu->registers[operandB];
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
-      }
       case POP:
-      {
         cpu->registers[operandA] = cpu_ram_read(cpu, cpu->registers[7]);
         cpu->ram[cpu->registers[7]++] = 0x00;
         break;
-      }
       case PRN:
-      {
         printf("%d\n", cpu->registers[operandA]);
         break;
-      }
       case PUSH:
-      {
         cpu_ram_write(cpu, --cpu->registers[7], cpu->registers[operandA]);
         break;
-      }
       default:
-      {
         break;
-      }
     }
     cpu->PC = cpu->PC + next_line;
     // 5. Do whatever the instruction should do according to the spec.
