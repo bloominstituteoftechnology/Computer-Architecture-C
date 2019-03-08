@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define DATA_LEN 6
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
@@ -13,13 +12,8 @@ void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
 {
     cpu->ram[address] = value;
 }
- 
-/**
- * Load the binary bytes from a .ls8 source file into a RAM array
- */
 void cpu_load(struct cpu *cpu, char *file)
 {
-  
   FILE *fp; 
   char line[1024];
 
@@ -38,18 +32,13 @@ void cpu_load(struct cpu *cpu, char *file)
     value = strtoul(line, &endptr, 2);
 
     if(endptr == line){
-      // printf("Ignoring this line.\n");
       continue; 
     }
 
-    // printf("'line' - %s\n'value' - %d\n'address' - %d", line, value, address);
     cpu->ram[address++] = value;
   }
 }
 
-/**
- * ALU
- */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
   switch (op) {
@@ -75,24 +64,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
       break;
-
-    // TODO: implement more ALU ops
   }
 }
 
-/**
- * Run the CPU
- */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
-  // printf("in run");
+  int running = 1; 
+  
   while (running) {
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
     unsigned char ir = cpu_ram_read(cpu, cpu->PC);
-    // 2. Figure out how many operands this next instruction requires
-    // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA;
     unsigned char operandB;
     int next_line = 1;
@@ -108,7 +88,7 @@ void cpu_run(struct cpu *cpu)
       operandA = cpu->ram[(cpu->PC + 1) & 0xff];
       next_line = 2;
     }
-    // 4. switch() over it to decide on a course of action.
+
     switch (ir)
     {
       case ADD:
@@ -164,14 +144,9 @@ void cpu_run(struct cpu *cpu)
         break;
     }
     cpu->PC = cpu->PC + next_line;
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
   }
 }
 
-/**
- * Initialize a CPU struct
- */
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
