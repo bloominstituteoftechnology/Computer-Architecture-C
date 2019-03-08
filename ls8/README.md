@@ -19,7 +19,7 @@ then prints it out:
 
 ```
 # print8.ls8: Print the number 8 on the screen
-
+ 
 10000010 # LDI R0,8
 00000000
 00001000
