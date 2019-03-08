@@ -40,25 +40,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     cpu_ram_write(cpu, address++, val);
   }
-
-
-
-  // Replace this with something less hard-coded -- Done see above
-  // char data[DATA_LEN] = {
-  //   // From print8.ls8
-  //   0b10000010, // LDI R0,8
-  //   0b00000000, // R0
-  //   0b00001000, // 8
-  //   0b01000111, // PRN R0
-  //   0b00000000, // R0
-  //   0b00000001  // HLT
-  // };
-
-  // int address = 0;
-
-  // for (int i = 0; i < DATA_LEN; i++) {
-  //   cpu->ram[address++] = data[i];
-  // }
 }
 
 void cpu_push(struct cpu *cpu, unsigned char val) {
@@ -77,9 +58,6 @@ unsigned char cpu_pop(struct cpu *cpu) {
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
-  // (void)cpu;  // define type later
-  // (void)regA; // define type later
-  // (void)regB; // define type later
 
   unsigned char valA = cpu->reg[regA];
   unsigned char valB = cpu->reg[regB];
@@ -143,11 +121,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
     case ALU_CMP:
       if (valA == valB) {
-        cpu->FL = 0b00000001;
+        cpu->FL = 1;
       } else if (valA > valB) {
-        cpu->FL = 0b00000010;
+        cpu->FL = 2;
       } else if (valA < valB) {
-        cpu->FL = 0b00000100;
+        cpu->FL = 4;
       } else {
         printf("Comparison Issue");
         exit(1);
@@ -181,7 +159,6 @@ void cpu_run(struct cpu *cpu)
     unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     unsigned char operand0 = cpu_ram_read(cpu, cpu->PC + 1);
     unsigned char operand1 = cpu_ram_read(cpu, cpu->PC + 2);
-    unsigned char currVal = cpu->reg[operand1];
 
     // printf("TRACE: %02X: %02X   %02X %02X\n", cpu->PC, IR, operand0, operand1);
 
@@ -191,8 +168,13 @@ void cpu_run(struct cpu *cpu)
         cpu->PC += 1 + (IR >> 6);
         break;
       case LD:
-        cpu->reg[operand0] = cpu->ram[currVal];
-        cpu->reg[operand0] = cpu->ram[cpu->reg[operand1]];
+        cpu->reg[operand0] = cpu_ram_read(cpu, cpu->reg[operand1]);
+        // cpu->reg[operand0] = cpu->ram[cpu->reg[operand1]];
+        cpu->PC += 1 + (IR >> 6);
+        break;
+      case ST:
+        // cpu_ram_write(cpu, operand0, cpu_ram_read(cpu, cpu->reg[operand1]));
+        cpu_ram_write(cpu, cpu->reg[operand0], cpu->reg[operand1]);
         cpu->PC += 1 + (IR >> 6);
         break;
       case PRN:
@@ -272,42 +254,42 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[operand0];
         break;
       case JEQ:
-        if (cpu->FL == 0b00000001) {
+        if (cpu->FL == 1) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
         }
         break;
       case JGE:
-        if (cpu->FL == 0b00000001 || cpu->FL 0b00000010) {
+        if (cpu->FL == 1 || cpu->FL == 2) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
         }
         break;
       case JGT:
-        if (cpu->FL == 0b00000010) {
+        if (cpu->FL == 2) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
         }
         break;
       case JLE:
-        if (cpu->FL == 0b00000001 || cpu->FL 0b00000100) {
+        if (cpu->FL == 1 || cpu->FL == 4) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
         }
         break;
       case JLT:
-        if (cpu->FL == 0b00000100) {
+        if (cpu->FL == 4) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
         }
         break;
-      case JEQ:
-        if (cpu->FL == 0b00000000) {
+      case JNE:
+        if (cpu->FL != 1) {
           cpu->PC = cpu->reg[operand0];
         } else {
           cpu->PC += 1 + (IR >> 6);
@@ -317,6 +299,10 @@ void cpu_run(struct cpu *cpu)
         cpu->PC = cpu->reg[operand0];
         break;
       case RET:
+        cpu->PC = cpu_pop(cpu);
+        break;
+      case IRET:
+        cpu_ram_read(cpu, cpu->reg[7]);
         cpu->PC = cpu_pop(cpu);
         break;
       case HLT:

@@ -35,6 +35,7 @@ enum alu_op {
 
 #define LDI  0b10000010 // 00000rrr iiiiiiii
 #define LD   0b10000011 // 00000aaa 00000bbb
+#define ST   0b10000100 // 00000aaa 00000bbb
 #define HLT  0b00000001
 #define PRN  0b01000111
 #define PRA  0b01001000 // 00000rrr

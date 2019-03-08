@@ -194,12 +194,22 @@ A  B  Carry In    Carry Out   Sum
 C = AND(A, B)
 S = XOR(A, B)
 
-CARRY-OUT = A AND B OR Cin(A XOR B) = A.B + Cin(A ⊕ B) = 
-SUM = (A XOR B) XOR Cin = (A ⊕ B) ⊕ Cin = XOR(XOR(a, b), c)
+CARRY-OUT = A AND B OR Cin(A XOR B) 
+          = A.B + Cin(A ⊕ B) 
+          = A AND B OR Cin AND (A XOR B)
+ 
+SUM       = (A XOR B) XOR Cin 
+          = (A ⊕ B) ⊕ Cin 
+          = XOR(XOR(a, b), c)
+
 Karnaugh Map
 
 Full-Adder
 Half-Adder with carry and the sum of the first
+
+
+
+
 
 # Equivalent Equations
 The 2nd equation replaces the no carry with a zero
