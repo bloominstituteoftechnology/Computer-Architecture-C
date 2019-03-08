@@ -32,7 +32,11 @@ enum alu_op {
 #define PUSH 0b01000101
 #define ADD  0b10100000
 #define CALL 0b01010000
-#define RET  0b00010001 
+#define RET  0b00010001
+#define CMP  0b10100111
+#define JEQ  0b01010101
+#define JMP  0b01010100
+#define JNE  0b01010110
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations
