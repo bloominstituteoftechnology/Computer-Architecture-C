@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
   struct cpu cpu;
   if (argc < 2)
   {
-    printf("ERROR: Syntax: ./ls8 <name>.<ext>\n");
+    printf("ERROR: Invalid file/directory. EXAMPLE: ./ls8 examples/print8.ls8\n");
 
     return 1;
   }
