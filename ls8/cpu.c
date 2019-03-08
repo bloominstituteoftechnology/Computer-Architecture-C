@@ -137,6 +137,7 @@ void cpu_run(struct cpu *cpu)
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char IR = cpu_ram_read(cpu, cpu->pc);
+    printf("IR is here 0x%02X\n", IR);
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
@@ -163,6 +164,7 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
       case ADD:
+        printf("got here\n");
         alu(cpu, ALU_ADD, operandA, operandB);
         cpu->pc += 3;
         break;
@@ -175,10 +177,14 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 2;
         break;
       case CALL:
-        call(cpu, operandA);
+        //call(cpu, operandA);
+        push(cpu, cpu->pc + 2);
+        cpu->pc = cpu->reg[operandA];
+        printf("TRACE: 0x%02X\n", cpu->pc);
         break;
       case RET:
-        ret(cpu);
+        //ret(cpu);
+        cpu->pc = pop(cpu);
         break;
       case HLT: 
         running = 0;  //set running to false
