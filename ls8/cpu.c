@@ -22,7 +22,7 @@ void cpu_load(struct cpu *cpu, char *program)
     exit(1);
   }
 
-  int i = 0;
+  int i = 0x00;
   while( fgets(line, sizeof(line), fp) != NULL ) {
     char *endPtr;
     unsigned char byte = strtol(line, &endPtr, 2);
@@ -31,8 +31,8 @@ void cpu_load(struct cpu *cpu, char *program)
       continue;
     }
 
-    cpu_ram_write(cpu, i, byte);
-    i++;
+    cpu_ram_write(cpu, i++, byte);
+  
   }
 
   fclose(fp);
@@ -70,8 +70,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  int stack[256];
-  int sp = 7;
+  //int stack[256];
+  //int sp = cpu->registers[7];
 
   //int PC = cpu->PC;
   //unsigned char value;
@@ -110,34 +110,77 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->registers[operandA]);
         cpu->PC += 2;
         break;
-
+/*
       case PUSH:
         sp--;
-        stack[sp] = cpu->registers[operandA];
+        //cpu->registers[sp] = cpu->registers[operandA];
+        cpu_ram_write(cpu, sp, cpu->registers[operandA]);
         cpu->PC += 2;
         break;
 
       case POP:
-        cpu->registers[operandA] = stack[sp];
+        cpu->registers[operandA] = cpu_ram_read(cpu, sp);
         sp++;
         cpu->PC += 2;
         break;
 
       case CALL:
         sp--;
-        stack[sp] = cpu->registers[operandA];
-        cpu->PC = cpu->registers[operandA];
-
-        cpu_ram_read(cpu, cpu->PC);
+        cpu->registers[sp] = cpu->registers[operandA];
+        cpu_ram_write(cpu, cpu->PC, operandA);
+        cpu->PC = cpu->registers[sp];
         break;
 
       case RET:
-        cpu->registers[operandA] = stack[sp];
+        cpu->registers[operandA] = cpu_ram_read(cpu, sp);
+        cpu->PC = cpu->registers[operandA];
         sp++;
-
+        break;
+        */
+        
+      case JMP:
+        //printf("jumping to instruction\n");
         cpu->PC = cpu->registers[operandA];
         break;
 
+      case CMP:
+        if(cpu->registers[operandA] == cpu->registers[operandB]) {
+          //printf("setting FL to 1\n");
+          cpu->FL = 1;
+          cpu->PC += 3;
+          break;
+
+        } else {
+          //printf("setting FL to 0\n");
+          cpu->FL = 0;
+          cpu->PC += 3;
+          break;
+        }
+        //break;
+      
+      case JEQ:
+        if(cpu->FL == 1) {
+          cpu->PC = cpu->registers[operandA];
+          break;
+        } else {
+          cpu->PC += 2;
+          break;
+        }
+        //break;
+
+      case JNE:
+        if(cpu->FL == 0) {
+          cpu->PC = cpu->registers[operandA];
+          break;
+        } else {
+          cpu->PC += 2;
+          break;
+        }
+        //break;
+
+      default:
+       fprintf(stderr, "PC %02x: unknown instruction %02x\n", cpu->PC, instruction);
+       exit(3);
 
     }
   }
@@ -149,9 +192,12 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->FL = 0;
 
   memset(cpu->registers, 0, 8*sizeof(unsigned char));
 
   memset(cpu->ram, 0, 8*sizeof(unsigned char));
+
+  //cpu->registers[7] = 0xF4;
 
 }
