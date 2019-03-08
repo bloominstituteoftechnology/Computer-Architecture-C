@@ -77,22 +77,22 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regA]+cpu->reg[regB];
       break;
-    case ALU_CMP:
-      if (valA < valB)
+    case ALU_CMP:  //compare values in two registers w limited subtraction. 
+      if (valA < valB)  //if less than flag to 1
       {
-        flag = 0b00000100;
+        flag = 0b00000100;  
       }
-      else if (valA > valB)
+      else if (valA > valB)  //if greater than flag to 1
       {
         flag = 0b00000010;
       }
-      else if (valA == valB)
+      else if (valA == valB) //if equal flag to 1
       {
         flag = 0b00000001;
       }
       else
       {
-        flag = 0b00000000;
+        flag = 0b00000000;  //otherwise set to 0
       }
       cpu->fl = flag;
       break;
@@ -210,8 +210,15 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_CMP, operandA, operandB);
         break;
       case JMP:
+        //jump to address stored in given register. set pc to address stored in given register. 
         cpu->pc = cpu->reg[operandA];
         break;
+      case JEQ:
+        //if equal flag set to true jump to address stored at given register.
+        if (cpu->fl == 1)
+        {
+          cpu->pc = cpu->reg[operandA];
+        }
       case HLT: 
         running = 0;  //set running to false
         break;
