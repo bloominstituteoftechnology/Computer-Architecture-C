@@ -65,6 +65,9 @@ void cpu_load(struct cpu *cpu, char *filename)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
 {
+  unsigned char valA = cpu->reg[regA];
+  unsigned char valB = cpu->reg[regB];
+  unsigned char flag;
   switch (op) {
     case ALU_MUL:
       // TODO
@@ -73,6 +76,25 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
     case ALU_ADD:
       cpu->reg[regA] = cpu->reg[regA]+cpu->reg[regB];
+      break;
+    case ALU_CMP:
+      if (valA < valB)
+      {
+        flag = 0b00000100;
+      }
+      else if (valA > valB)
+      {
+        flag = 0b00000010;
+      }
+      else if (valA == valB)
+      {
+        flag = 0b00000001;
+      }
+      else
+      {
+        flag = 0b00000000;
+      }
+      cpu->fl = flag;
       break;
   }
 }
@@ -185,6 +207,9 @@ void cpu_run(struct cpu *cpu)
       case RET:
         //ret(cpu);
         cpu->pc = pop(cpu);
+        break;
+      case CMP: 
+        alu(cpu, ALU_CMP, operandA, operandB);
         break;
       case HLT: 
         running = 0;  //set running to false
