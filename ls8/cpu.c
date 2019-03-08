@@ -61,13 +61,13 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   unsigned char valA = reg[regA];
   unsigned char valB = reg[regB];
   switch (op) {
-    default:
-      printf("ALU ERROR");
     case ALU_MUL:
       reg[valA] *= valB & 0xFF;
       break;
     case ALU_ADD:
       reg[valA] += valB & 0xFF;
+    default:
+      printf("ALU ERROR");
     // TODO: implement more ALU ops
   }
 }
