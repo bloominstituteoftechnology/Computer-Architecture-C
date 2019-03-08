@@ -144,20 +144,33 @@ void cpu_run(struct cpu *cpu)
               case RET:
                   cpu->pc = cpu_pop(cpu);
                   break;
+              case CMP:
+                  //alu(cpu, CMP, operand0, operand1);
+                  
+                  if (cpu->registers[operand0] == cpu->registers[operand1]) {
+                      cpu->flag = 1;
+                  }
+                  else {
+                      cpu->flag = 0;
+                  }
+                  cpu->pc = cpu->pc + num_ops + 1;
+                  break;
               case JMP:
                   cpu->pc = cpu->registers[operand0];
                   break;
               case JEQ:
                   if (cpu->flag == 1) {
                       cpu->pc = cpu->registers[operand0];
+                  } else {
+                      cpu->pc = cpu->pc + num_ops + 1;
                   }
-                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case JNE:
                   if (cpu->flag != 1) {
                       cpu->pc = cpu->registers[operand0];
+                  } else {
+                      cpu->pc = cpu->pc + num_ops + 1;
                   }
-                  cpu->pc = cpu->pc + num_ops + 1;
                   break;
               case HLT:
                   running = 0;
