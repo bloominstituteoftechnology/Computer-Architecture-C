@@ -104,6 +104,24 @@ void cpu_run(struct cpu *cpu)
       case RET:
         cpu->PC = cpu->ram[cpu->registers[7]++];
         continue;
+      case CMP:
+      {
+        if (cpu->registers[operandA] == cpu->registers[operandB])
+        {
+          cpu->E = 1;
+          break;
+        }
+        else if (cpu->registers[operandA] > cpu->registers[operandB])
+        {
+          cpu->G = 1;
+          break;
+        }
+        else
+        {
+          cpu->L = 1;
+          break;
+        }
+      }
       case HLT:
       {
         running = 0;
@@ -153,6 +171,9 @@ void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
   cpu->FL = 0;
+  cpu->E = 0;
+  cpu->L = 0;
+  cpu->G = 0;
   memset(cpu->ram, 0, 8 * sizeof(unsigned char));
   memset(cpu->registers, 0, 256 * sizeof(unsigned char));
   cpu->registers[7] = 0xF4;
