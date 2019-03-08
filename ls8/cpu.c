@@ -30,7 +30,7 @@ void cpu_load(struct cpu *cpu, char *filename)
     char *endpointer;
     unsigned char value = strtoul(line, &endpointer, 2);  //needs pointer to a pointer so need & as address of pointer
     //ignore lines where no numbers read
-    if (endpointer == NULL)  //endpointer == line??
+    if (endpointer == line) 
     {
       continue;
     }
