@@ -134,6 +134,264 @@ similar to how `PC` works.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What are the registers for, and what do they do?</b></summary><p>
+
+You can think of the registers as the CPU's variables. They hold numbers. You
+use them like you would variable in another langauge.
+
+In a high-level language, you can make all the variables you need. But in a CPU,
+there are a fixed number of them, and they have fixed names, and they only hold
+numbers. You cannot make more.
+
+(The reason you can't make more is because registers are literally built out of
+the hardware--you can't make more without changing the hardware.)
+
+Most operations (like math) in the CPU work on registers.
+
+But if we have RAM, why do we need registers?
+
+While some CPUs like the x86 can use either values in RAM or registers to do
+work, RAM is far, far slower to access. Nothing is faster to access in the CPU
+than a register. For that reason, assembly language programs use registers
+whenever possible to keep speed up.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>If RAM is faster than an SSD, why not just store everything in RAM?</b></summary><p>
+
+Cost. 1 TB SSD is orders of magnitude cheaper than 1 TB of RAM. And finding a
+motherboard that supports 1 TB of RAM is a challenge.
+
+Also the SSD continues to store data even if power is removed, unlike RAM.
+
+Someday someone will discover RAM that is cheap, fast, and will permanently
+store data, and when that happens, SSDs will vanish.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Do CPUs get hot because of the power constantly running through them?</b></summary><p>
+
+Yup. When you run current through any regular conductor, heat is generated.
+
+In that regard, a CPU is like a tiny, expensive electric blanket that is capable
+of arbitrary computation but really bad at giving you a good night's sleep.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why is hex base 16? Seems so random.</b></summary><p>
+
+Conveniently, one hex digit represents exactly 4 bits (AKA a _nibble_).
+
+This means a byte can be represented by exactly 2 hex digits (assuming you put a
+leading zero on numbers less than `0x10`). And the biggest byte's value roundly
+ends at `0xff`.
+
+It's compact, and easy to convert to and from binary.
+
+Compare to decimal, where one decimal digit represents somewhere between 3 and 4
+bits. And a byte is represented by 3 digits, isn't easily convertible to binary,
+and ends quite unroundly on `255` for the largest value.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What's the <tt>NULL</tt> in the <tt>strtoul()</tt> call?</b></summary><p>
+
+That's part of a mechanism where `strtoul()` can tell you the first invalid
+character it found, or if it found no digits to convert at all.
+
+If you pass a pointer to a `char*` into the function there, it will point to the
+first bad character, or to the beginning of the string if no digits were found.
+
+If we call this:
+
+```c
+char *endchar;
+
+unsigned val = strtoul("1030", &endchar, 2); // convert to base 2
+```
+
+then `endchar` will point at the `3` in `"1030"`, because `3` is an invalid
+digit in base 2.
+
+If we call this:
+
+```c
+char *endchar;
+
+unsigned val = strtoul("# Hello, world!", &endchar, 10); // convert to base 10
+```
+
+then `endchar` will point at the `#` because no digits were found at all.
+
+You might find this useful for parsing data from the `.ls8` input files.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Can we use <tt>memset()</tt> to clear RAM and the registers in <tt>cpu_init()</tt>, or do we have to use a loop?</b></summary><p>
+
+You can use `memset()`. It's probably faster than a hand-rolled loop, anyway.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How do I move the <tt>PC</tt> to the next instruction without hardcoding the instruction length?</b></summary><p>
+
+Check out the spec where it talks about instruction layout.
+
+The two high bits of the instruction tell you how many operands the instruction
+has. The value of those two bits plus one is the number of bytes you have to
+move the `PC`.
+
+Use `>>` and an `&` mask to extract those two bits, then add one to the result,
+then add that to the `PC` to get to the next instruction.
+
+> Note that some instructions (like `CALL`, `RET`, and all the `JMP` variants)
+> move the `PC` to a specific destination. In those cases, you _do not_ want to
+> advance the PC to the next instruction.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Can I use <tt>getline()</tt> instead of <tt>fgets()</tt> for reading lines from the files?</b></summary><p>
+
+We recommend `fgets()` because it's more standard, and also because it does
+fewer things behind your back.
+
+But if you use `getline()`, we won't stop you.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why are the ALU and the RAM read/write functions broken out? Can we just code the lines to do the work directly?</b></summary><p>
+
+Because the ALU is a separate component on the CPU, and the RAM is a separate
+component off the CPU, it makes logical sense from a learning perspective to
+have different pieces of code handle the work.
+
+Plus having the RAM access function there makes the code easier to read, and
+easier to change if the structure of RAM were to change somehow in the future.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Do you have some handy code for helping trace what the CPU is doing?</b></summary><p>
+
+If you call this before your `switch`, it'll print out the CPU state just before
+the instruction executes.
+
+```c
+void trace(struct cpu *cpu)
+{
+    printf("%02X | ", cpu->PC);
+
+    printf("%02X %02X %02X |",
+        cpu_ram_read(cpu, cpu->PC),
+        cpu_ram_read(cpu, cpu->PC + 1),
+        cpu_ram_read(cpu, cpu->PC + 2));
+
+    for (int i = 0; i < 8; i++) {
+        printf(" %02X", cpu->reg[i]);
+    }
+
+    printf("\n");
+}
+```
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why is <tt>R7</tt> set to something other than zero?</b></summary><p>
+
+`R7` has additional meaning: it is the _stack pointer_. So it needs to start
+just past the top of the stack so that the `PUSH` and `POP` (and `CALL` and
+`RET`) functions operate normally.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why do opcodes have the numeric values that they do?</b></summary><p>
+
+See the "Instruction Layout" part of the LS-8 spec for what the specific bits
+mean in any particular instruction.
+
+In a real CPU, these bits correspond to wires that will have voltage or
+no-voltage on them depending on whether or not the bit in the instruction is `0`
+or `1`.
+
+So the instruction bits are close
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What is a "cache hit" or "cache miss"?</b></summary><p>
+
+If a program accesses a byte of RAM at some address that's in the cache already,
+that's a _cache hit_. The byte is returned immediately.
+
+If a program accesses a byte of RAM at some address that's not in the cache,
+that's a _cache miss_, and the cache must be updated by going out to RAM to get
+that data.
+
+The cache is fast memory that sits between main RAM and the CPU.
+
+It's common that if you access a byte of RAM, that you will soon access
+subsequent bytes in RAM. (E.g. like when printing a string, or doing a
+`strlen()`.) The cache makes use of this assumption.
+
+The cache figures, if you're going to spend the time making a relatively slow
+RAM request for a single byte, why not go ahead and transfer the next, say 128
+bytes at the same time into the faster cache. If the user then goes on to access
+the subsequent bytes, like they probably will, the data will already be in cache
+ready to use.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How are logic gates built?</b></summary><p>
+
+They're made out of transistors. Details are getting into the realm of materials
+science and is beyond the scope of the course.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How does the CPU use logic gates?</b></summary><p>
+
+Logic gates can be composed into circuits that can do far more than Boolean
+logical operations.
+
+You can build an ALU, for example, that does arithmetic and comparisons using
+only logic gates.
+
+You can even build [circuits that store
+data](https://en.wikipedia.org/wiki/Flip-flop_(electronics)).
+
+The fantastic book [_The Elements of Computing
+Systems_](https://www.nand2tetris.org/) talks about this in great detail from
+the ground up.
+
+</p></details></p>
 
 <!--
 
@@ -147,4 +405,5 @@ Template:
 
 <p><details><summary><b></b></summary><p>
 </p></details></p>
+
 -->
