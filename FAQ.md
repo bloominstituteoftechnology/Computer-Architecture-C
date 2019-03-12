@@ -336,7 +336,8 @@ In a real CPU, these bits correspond to wires that will have voltage or
 no-voltage on them depending on whether or not the bit in the instruction is `0`
 or `1`.
 
-So the instruction bits are close
+So the instruction bits are close to the metal, literally. Their exact meanings
+are closely tied with how the CPU will be physically constructed.
 
 </p></details></p>
 
