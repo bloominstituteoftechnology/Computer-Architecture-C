@@ -61,6 +61,12 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+cpu.c - loads data addresses, more alus go here?
+cpu.h - Holds information about the CPU and associated components.
+ls8.c - defines struct cpu and runs 3 functions:
+cpu_init, cpu_load, cpu_run found in cpu-c
+Holds "ram functions"
+
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
@@ -72,7 +78,7 @@ This structure holds information about the CPU and associated components.
 
 The type for a single unsigned byte in C is:
 
-```c
+```
 unsigned char x;
 ```
 
