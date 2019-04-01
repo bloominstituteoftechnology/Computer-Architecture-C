@@ -394,6 +394,122 @@ the ground up.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why is half a byte called a <i>nibble</i>?</b></summary><p>
+
+It's a pun, playing off byte/bite. Sometimes it's spelled _nybble_.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What are the <tt>&lt;&lt;</tt> and <tt>&gt;&gt;</tt> shift operators useful for?</b></summary><p>
+
+Most commonly, they're used to get or set individual bits within a number.
+
+This is useful if multiple values are packed into a single byte. Bytes hold
+numbers from 0 to 255, but parts of a byte can hold smaller numbers. For
+example, if you have 4 values that you know only go from 0-3 each, you can pack
+that into a byte as four 2-bit numbers.
+
+Packing the numbers 3, 0, 2, and 1 into a single byte:
+
+```
+  First
+  ||
+  ||  Third
+  vv  vv
+0b11001001
+    ^^  ^^
+    ||  Fourth
+    ||
+  Second
+```
+
+This technique is normally only used in high-performance situations where you
+absolutely must save space or bandwidth.
+
+For example, if we wanted to extract these 3 bits from this number:
+
+```
+    vvv
+0b10110101
+```
+
+We'd get `110`, which is 6 decimal. But the whole number is 181 decimal. How to
+extract the 6?
+
+First, we can shift right by 3:
+
+```
+       vvv
+0b00010110
+```
+
+Then we can bitwise-AND with the mask `0b111` to filter out just the bits we
+want:
+
+```
+         vvv
+  0b00010110   <-- Right-shifted original number
+& 0b00000111   <-- AND mask
+------------
+         110
+```
+
+And there's our 6!
+
+On the flip side, what if we wanted to set these bits to the value 2 (`0b010`)?
+Right now the three bits have the value 7 (`0b111`):
+
+```
+    vvv
+0b10111101
+```
+
+First let's take our 2:
+
+```
+0b010
+```
+
+and left shift it by 3:
+
+```
+0b010000
+```
+
+Secondly, let's use a bitwise-AND on the original number to mask out those bits
+and set them all to zero:
+
+```
+      vvv
+  0b10111101   <-- original number
+& 0b11000111   <-- AND mask
+------------
+  0b10000101
+      ^^^
+  These three bits set to 0, others unchanged
+```
+
+Lastly, let's bitwise-OR the shifted value with the result from the previous step:
+
+```
+      vvv
+  0b10000101   <-- masked-out original number from previous step
+| 0b00010000   <-- our left-shifted 2
+------------
+  0b10010101
+      ^^^
+  Now these three bits set to 2, others unchanged
+```
+
+And there we have it. The three bits in the middle of the number have been
+changed from the value 7 to the value 2.
+
+</p></details></p>
+
 <!--
 
 TODO:
