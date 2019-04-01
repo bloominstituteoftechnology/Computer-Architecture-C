@@ -68,3 +68,12 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
 }
+
+//We'll make use of these helper function later
+void cpu_ram_read()
+{
+}
+
+void cpu_ram_write()
+{
+}
