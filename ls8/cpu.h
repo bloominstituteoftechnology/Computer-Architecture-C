@@ -9,12 +9,12 @@ struct cpu {
   // registers (array)
   unsigned char registers[10];
   // ram (array)
-  unsigned char ram[];
+  unsigned char ram[10];
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL // what is this???
 	// Add more here
 };
 
@@ -30,8 +30,22 @@ enum alu_op {
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
-extern void cpu_init(struct cpu *cpu);
-extern void cpu_run(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu){
+
+}; // what is this??
+extern void cpu_init(struct cpu *cpu){
+    // The `cpu_init()` function takes a pointer to
+    //  a `struct cpu` and initializes it                                                         as necessary.At first,
+    // the PC, registers, and RAM should be cleared 
+    // to zero.(`memset()` might help you clear 
+    // registers and RAM.)
+    for (int i = 0; i < sizeof(cpu->ram); i++) {
+     void memset(cpu, '\0', sizeof(cpu) );
+    }
+      
+    };
+extern void cpu_run(struct cpu *cpu){
+
+};
 
 #endif

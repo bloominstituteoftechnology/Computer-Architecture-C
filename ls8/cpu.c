@@ -7,6 +7,24 @@
 #define HLT 0b00000001
 #define STR 0b00001000 // store the next value to reg
 
+// read what is in the ram
+int cpu_ram_read(struct cpu *cpu, int index) {
+  return cpu->ram[index];
+}
+
+// write to the ram
+void cpu_ram_write(struct cpu *cpu, int index) {
+  char *space = malloc(cpu->ram, sizeof(cpu->ram));
+  for (int i =0; i < sizeof(cpu->ram); i++) {
+    if (cpu->ram[i] == '/0') {
+      cpu->ram[i] = space;
+    }
+    else {
+      printf("No space available");
+    }
+  }
+}
+
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
@@ -41,7 +59,7 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB) // what are these?
 {
   switch (op) {
     case ALU_MUL:
