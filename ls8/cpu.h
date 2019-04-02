@@ -1,15 +1,14 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-// Holds all information about the CPU
+// DONE✔: Holds all information about the CPU
 struct cpu
 {
-  // TODO
-  // PC
+  // DONE✔: PC
   unsigned int PC;
-  // registers (array) // R0 - R7
+  // DONE✔: registers (array) // R0 - R7
   unsigned char registers[8];
-  // ram (array) // 8 bit address
+  // DONE✔: ram (array) // 8 bit address
   // that can hold up to 256 bytes of RAM total
   unsigned char ram[256];
 };
@@ -19,6 +18,7 @@ enum alu_op
 {
   ALU_MUL, // what is this???
   ALU_ADD, // Add more here
+  // not done yet, just added
   ALU_NOP,
   ALU_NOT,
   ALU_POP,
