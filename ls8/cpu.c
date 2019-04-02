@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+//really do hope I did this correctly
 #define DATA_LEN 6
 // stack pointer
 #define SP 7
