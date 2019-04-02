@@ -24,6 +24,26 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mdr)
  */
 void cpu_load(struct cpu *cpu, char *filename)
 {
+
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
+
+  // int address = 0;
+
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  // TODO: Replace this with something less hard-coded
+
   // open the file
   FILE *fp = fopen(filename, "r");
   // check if the file is empty and return error
@@ -114,9 +134,9 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   // init current instructions
   unsigned char IR;
-  // init operand 0 and 1
-  unsigned char operand0;
+  // init operand 1 and 2
   unsigned char operand1;
+  unsigned char operand2;
 
   while (running)
   {
@@ -124,9 +144,33 @@ void cpu_run(struct cpu *cpu)
     // 1. Get the value of the current instruction (in address PC).
     IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
-
+    operand1 = cpu_ram_read(cpu, cpu->PC + 1);
+    operand2 = cpu_ram_read(cpu, cpu->PC + 2);
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
+    switch (IR)
+    {
+      // LDI
+    case 0b10000010:
+      // TODO: finish this
+      // cpu->registers[operand1] =
+      break;
+      // PRN
+    case 0b01000111:
+      printf("%d", cpu->registers[operand1]);
+      printf("%d", cpu->registers[operand2]);
+      break;
+      // HLT
+    case 0b00000001:
+      running = 0; // stops the while loop
+      break;
+      // TODO: if I have time to do it
+      // MUL
+    case 0b10100010:
+      break;
+    default:
+      printf("Your code does not work bruhh %d", IR);
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }

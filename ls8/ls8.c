@@ -15,9 +15,11 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  // save input
   char *filename = argv[1];
 
   cpu_init(&cpu);
+  // pass input to load
   cpu_load(&cpu, filename);
   cpu_run(&cpu);
 

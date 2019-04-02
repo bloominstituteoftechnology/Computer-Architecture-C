@@ -6,7 +6,11 @@ struct cpu
 {
   // DONE✔: PC
   unsigned int PC;
-  // DONE✔: registers (array) // R0 - R7
+  /* DONE✔: registers (array) // R0 - R7
+  R5 is reserved for the interrupt mask (IM)
+  R6 is reserved for the interrupt status (IS)
+  R7 is reserved for the stack pointer (SP)
+  */
   unsigned char registers[8];
   // DONE✔: ram (array) // 8 bit address
   // that can hold up to 256 bytes of RAM total
@@ -34,8 +38,8 @@ enum alu_op
 // literals should be used.
 
 #define LDI 0b10000010
-#define HLT 0b00000001
 #define PRN 0b01000111
+#define HLT 0b00000001
 // TODO: more instructions here. These can be used in cpu_run().
 #define MUL 0b10100010
 #define PUSH 0b01000101
