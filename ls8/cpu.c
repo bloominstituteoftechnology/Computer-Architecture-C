@@ -8,26 +8,17 @@
 #define STR 0b00001000 // store the next value to reg
 
 // read what is in the ram
-int cpu_ram_read(struct cpu *cpu, int index)
+// `MAR`: Memory Address Register, holds the memory address we're reading or writing
+int cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
-  return cpu->ram[index];
+  return cpu->ram[mar];
 }
 
 // write to the ram
-void cpu_ram_write(struct cpu *cpu, int index)
+// * `MDR`: Memory Data Register, holds the value to write or the value just read
+void cpu_ram_write(struct cpu *cpu, unsigned char mdr)
 {
-  char *space = malloc(cpu->ram, sizeof(cpu->ram));
-  for (int i = 0; i < sizeof(cpu->ram); i++)
-  {
-    if (cpu->ram[i] == '\0')
-    {
-      cpu->ram[i] = space;
-    }
-    else
-    {
-      printf("No space available");
-    }
-  }
+  cpu->ram[mdr] = mdr
 }
 
 /**
