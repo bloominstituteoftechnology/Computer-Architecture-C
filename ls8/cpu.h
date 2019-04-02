@@ -18,7 +18,14 @@ struct cpu
 enum alu_op
 {
   ALU_MUL, // what is this???
-  ALU_ADD  // Add more here
+  ALU_NOP,
+  ALU_NOT,
+  ALU_POP,
+  ALU_PRA,
+  ALU_PRN,
+  ALU_PUSH,
+  ALU_RET,
+  ALU_ADD // Add more here
 };
 
 // Instructions
@@ -32,6 +39,9 @@ enum alu_op
 // TODO: more instructions here. These can be used in cpu_run().
 #define MUL 0b10100010
 #define PUSH 0b01000101
+//POP register - pop the value at the top of the stack into the given reg.
+// 1 copy the value from the address pointed to by `SP` to the given registrer
+// 2 Increment `SP`
 #define POP 0b01000110
 #define CALL 0b01010000
 #define RET 0b00010001

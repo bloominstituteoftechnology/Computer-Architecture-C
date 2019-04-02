@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
@@ -12,46 +15,46 @@
 int cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
   return cpu->ram[mar];
-}
+};
 
 // write to the ram
 // * `MDR`: Memory Data Register, holds the value to write or the value just read
 void cpu_ram_write(struct cpu *cpu, unsigned char mdr)
 {
-  cpu->ram[mdr] = mdr
-}
+  cpu->ram[mdr] = mdr;
+};
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      //LDI load immediate, store a value in reg or set this reg to this value
-      LDI, // LDI R0,8
-      NOP,
-      STR, //README says this is value of 8
-      8,   // make STR store this to registry
-      //PRN prints the numberic value stored in a reg
-      PRN, // PRN R0
-      NOP,
-      // halt the cpu and exit the emulator
-      HLT // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  // open the file
+  FILE *fp = fopen(filename, "r");
+  // check if the file is empty and return error
+  if (fp == NULL)
   {
-    if (data[i] == STR)
-    {
-      cpu->registers[address] = data[i + 1];
-    }
-    cpu->ram[address++] = data[i];
+    fprintf(stderr, "ls8: error opening file:  %s\n", filename);
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
+  char line[9999]; // hold lines
+  int address = 0;
+  // while fgets still has stuff
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    char *endptr; // grabs none int lines
+    // converts string to ints
+    unsigned char val = strtoul(line, &endptr, 2);
+    // prevents collecting none int lines
+    if (line == endptr)
+    {
+      continue;
+    }
+    // store in memory
+    cpu->ram[address++] = val;
+  }
+  fclose(fp);
 }
 
 /**
@@ -62,10 +65,46 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    //Multiply the values in two registers together and store the result in registerA.
+    cpu->reg[regA] = regA * regB;
     break;
-
+  case ALU_NOP:
+    // No operation. Do nothing for this instruction
+    break;
+  case ALU_NOT:
+    break;
     // TODO: implement more ALU ops
+  case ALU_POP:
+    // Pop the value at the top of the stack into the given register.
+    // 1. Copy the value from the address pointed to by `SP` to the given register.2. Increment `SP`.
+    break;
+  case ALU_PRA:
+    // `PRA register` pseudo - instruction
+    //Print alpha character value stored in the given register.
+    //Print to the console the ASCII character corresponding to the value in the register.
+    break;
+  case ALU_PRN:
+    /* `PRN register` pseudo-instruction
+
+    Print numeric value stored in the given register.
+Print to the console the decimal integer value that is stored in the given register.
+
+Machine code :
+``` 01000111 00000rrr 47 0r
+```*/
+    break;
+  case ALU_PUSH:
+    /*`PUSH register`
+
+Push the value in the given register on the stack.
+
+1. Decrement the `SP`.
+2. Copy the value in the given register to the address pointed to by
+   `SP`.*/
+    break;
+  case ALU_RET:
+    /*Pop the value from the top of the stack and store it in the `PC`.*/
+    break;
   }
 }
 
