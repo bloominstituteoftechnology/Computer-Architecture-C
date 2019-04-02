@@ -4,11 +4,6 @@
 #include "cpu.h"
 
 #define DATA_LEN 6
-#define LDI 0b10000010
-#define NOP 0b00000000
-#define PRN 0b01000111
-#define HLT 0b00000001
-#define STR 0b00001000 // store the next value to reg
 
 // read what is in the ram
 // `MAR`: Memory Address Register, holds the memory address we're reading or writing
@@ -66,14 +61,17 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     //Multiply the values in two registers together and store the result in registerA.
-    cpu->reg[regA] = regA * regB;
+    cpu->registers[regA] = regA * regB;
     break;
+  case ALU_ADD:
+    cpu->registers[regA] = regA + regB;
+    break;
+    // TODO: implement more ALU ops
   case ALU_NOP:
     // No operation. Do nothing for this instruction
     break;
   case ALU_NOT:
     break;
-    // TODO: implement more ALU ops
   case ALU_POP:
     // Pop the value at the top of the stack into the given register.
     // 1. Copy the value from the address pointed to by `SP` to the given register.2. Increment `SP`.
@@ -139,7 +137,7 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
+  // DONE: Initialize the PC and other special registers
   // R0 - R6 are cleared to 0
   for (int i = 0; i < 6; i++)
   {
@@ -147,9 +145,9 @@ void cpu_init(struct cpu *cpu)
     cpu->registers[i] = 0;
   }
   // R7 is set to 0xF4
-  cpu->registers[7] = '0xF4';
+  cpu->registers[7] = 0xF4;
   // PC is set to 0
   cpu->PC = 0;
   // RAM is set to 0
-  void memset(cpu->ram, 0, sizeof(cpu->ram));
+  memset(cpu->ram, 0, sizeof(cpu->ram));
 }
