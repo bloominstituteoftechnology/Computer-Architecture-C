@@ -7,10 +7,11 @@ struct cpu
   // TODO
   // PC
   unsigned int PC;
-  // registers (array)
-  unsigned char registers[10];
-  // ram (array)
-  unsigned char ram[10];
+  // registers (array) // R0 - R7
+  unsigned char registers[8];
+  // ram (array) // 8 bit address
+  // that can hold up to 256 bytes of RAM total
+  unsigned char ram[256];
 };
 
 // ALU operations
@@ -38,32 +39,8 @@ enum alu_op
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu){
-
-}; // what is this??
-extern void cpu_init(struct cpu *cpu)
-{
-  // The `cpu_init()` function takes a pointer to
-  // a `struct cpu` and initializes it as necessary.At first,
-  // the PC, registers, and RAM should be cleared
-  // to zero.(`memset()` might help you clear
-  // registers and RAM.)
-
-  // R0 - R6 are cleared to 0
-  for (int i = 0; i < 6; i++)
-  {
-    // cpu->PC = '0';
-    cpu->registers[i] = 0;
-  }
-  // R7 is set to 0xF4
-  cpu->registers[7] = '0xF4';
-  // PC is set to 0
-  cpu->PC = 0;
-  // RAM is set to 0
-  void memset(cpu->ram, 0, sizeof(cpu->ram));
-};
-extern void cpu_run(struct cpu *cpu){
-
-};
+extern void cpu_load(struct cpu *cpu);
+extern void cpu_init(struct cpu *cpu);
+extern void cpu_run(struct cpu *cpu);
 
 #endif
