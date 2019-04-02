@@ -132,8 +132,24 @@ arbitrary nesting level. Indeed, it is what allows for recursion at all.
 It's a special purpose register that can be added separately to the `struct cpu`
 similar to how `PC` works.
 
+In `struct cpu`, it's convenient to have an array to store `R0` through `R7`,
+but the other registers are just fields in the `struct`.
+
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What about the <tt>IR</tt>, <tt>MAR</tt>, and <tt>MDR</tt> registers?</b></summary><p>
+
+You can store those special-purpose registers similar to how `PC` and `FL` are
+stored in the `struct`.
+
+...Or, if you're not using them in any place except a single function, maybe
+they can be locals or function parameters.
+
+It's a matter of which way you think produces more readable code.
+
+</p></details></p>
 <!-- ============================================================================= -->
 
 <p><details><summary><b>What are the registers for, and what do they do?</b></summary><p>
