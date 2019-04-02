@@ -8,18 +8,23 @@
 #define STR 0b00001000 // store the next value to reg
 
 // read what is in the ram
-int cpu_ram_read(struct cpu *cpu, int index) {
+int cpu_ram_read(struct cpu *cpu, int index)
+{
   return cpu->ram[index];
 }
 
 // write to the ram
-void cpu_ram_write(struct cpu *cpu, int index) {
+void cpu_ram_write(struct cpu *cpu, int index)
+{
   char *space = malloc(cpu->ram, sizeof(cpu->ram));
-  for (int i =0; i < sizeof(cpu->ram); i++) {
-    if (cpu->ram[i] == '/0') {
+  for (int i = 0; i < sizeof(cpu->ram); i++)
+  {
+    if (cpu->ram[i] == '\0')
+    {
       cpu->ram[i] = space;
     }
-    else {
+    else
+    {
       printf("No space available");
     }
   }
@@ -31,23 +36,25 @@ void cpu_ram_write(struct cpu *cpu, int index) {
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
-    // From print8.ls8
-    //LDI load immediate, store a value in reg or set this reg to this value
-    LDI, // LDI R0,8 
-    NOP,
-    STR, //README says this is value of 8
-    8, // make STR store this to registry
-    //PRN prints the numberic value stored in a reg
-    PRN, // PRN R0
-    NOP,
-    // halt the cpu and exit the emulator
-    HLT  // HLT
+      // From print8.ls8
+      //LDI load immediate, store a value in reg or set this reg to this value
+      LDI, // LDI R0,8
+      NOP,
+      STR, //README says this is value of 8
+      8,   // make STR store this to registry
+      //PRN prints the numberic value stored in a reg
+      PRN, // PRN R0
+      NOP,
+      // halt the cpu and exit the emulator
+      HLT // HLT
   };
 
   int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    if (data[i] == STR) {
+  for (int i = 0; i < DATA_LEN; i++)
+  {
+    if (data[i] == STR)
+    {
       cpu->registers[address] = data[i + 1];
     }
     cpu->ram[address++] = data[i];
@@ -61,10 +68,11 @@ void cpu_load(struct cpu *cpu)
  */
 void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB) // what are these?
 {
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+  switch (op)
+  {
+  case ALU_MUL:
+    // TODO
+    break;
 
     // TODO: implement more ALU ops
   }
@@ -77,7 +85,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  while (running) {
+  while (running)
+  {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     // 2. Figure out how many operands this next instruction requires
