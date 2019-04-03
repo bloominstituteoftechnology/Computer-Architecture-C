@@ -569,9 +569,11 @@ In `struct cpu`, it's convenient to represent the general purpose registers with
 an array for easy indexing from `0` to `7`.
 
 </p></details></p>
-<!--
 
+<!--
 TODO:
+Why allow a stack overflow at all?
+Why not use an LRU cache instead of a stack?
 -->
 
 <!-- ============================================================================= -->
