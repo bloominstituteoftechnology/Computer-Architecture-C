@@ -16,20 +16,20 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
   return cpu->ram[mar];
 }
 
-void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char mdr)
 {
   // mdr = Memory Data registersister, holds the value
   // to write or the value just read
 
   // write mdr in ram
-  cpu->ram[mar] = mdr;
+  cpu->ram[index] = mdr;
 }
 
 void cpu_push(struct cpu *cpu, unsigned char val)
 {
   // Decrement SP
   cpu->registers[SP]--;
-  // Copy the value in the given registersister to the address pointed to by SP;
+  // Copy the value in the given reg to the address pointed to by SP;
   cpu_ram_write(cpu, cpu->registers[SP], val);
 }
 
@@ -75,25 +75,6 @@ void cpu_load(struct cpu *cpu, char *filename)
 
   fclose(fp);
 }
-
-/**
- * ALU
- */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char reg1, unsigned char reg2)
-// {
-//   unsigned char valA = cpu->registers[reg1];
-//   unsigned char valB = cpu->registers[reg2];
-
-//   switch (op)
-//   {
-//   case ALU_MUL:
-//     cpu->registers[registersA] = valA * valB;
-//     break;
-//   case ALU_ADD:
-//     cpu->registers[registersA] = valA + valB;
-//     break;
-//   }
-// }
 
 /**
  * Run the CPU
