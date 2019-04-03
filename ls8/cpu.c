@@ -22,57 +22,39 @@ void cpu_ram_write(struct cpu *cpu, unsigned char mdr)
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-// void cpu_load(struct cpu *cpu, char *filename)
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
 {
-
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++)
+  if (argc < 2)
   {
-    cpu->ram[address++] = data[i];
+    fprintf(stderr, "Missing arguments. Provide: ./ls8 filename\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  FILE *fp;
+  char line[1024];
+  char *file = argv[1];
+  fp = fopen(file, "r");
+  int address = 0;
 
-  /*
-  // open the file
-  FILE *fp = fopen(filename, "r");
-  // check if the file is empty and return error
   if (fp == NULL)
   {
-    fprintf(stderr, "ls8: error opening file:  %s\n", filename);
-    exit(2);
+    fprintf(stderr, "Error: unable to open file %s\n", file);
+    exit(1);
   }
 
-  char line[9999]; // hold lines
-  int address = 0;
-  // while fgets still has stuff
   while (fgets(line, sizeof(line), fp) != NULL)
   {
-    char *endptr; // grabs none int lines
-    // converts string to ints
-    unsigned char val = strtoul(line, &endptr, 2);
-    // prevents collecting none int lines
-    if (line == endptr)
+
+    char *ptr;
+    unsigned char instruction = strtol(line, &ptr, 2);
+
+    if (ptr == line)
     {
       continue;
     }
-    // store in memory
-    cpu->ram[address++] = val;
+
+    cpu->ram[++address] = instruction;
   }
-  fclose(fp);
-  */
 }
 
 /**
@@ -84,47 +66,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   {
   case ALU_MUL:
     //Multiply the values in two registers together and store the result in registerA.
-    cpu->registers[regA] = regA * regB;
+    cpu->registers[regA] *= regB;
     break;
   case ALU_ADD:
-    cpu->registers[regA] = regA + regB;
+    cpu->registers[regA] += regB;
     break;
-    // TODO: implement more ALU ops
-  case ALU_NOP:
-    // No operation. Do nothing for this instruction
-    break;
-  case ALU_NOT:
-    break;
-  case ALU_POP:
-    // Pop the value at the top of the stack into the given register.
-    // 1. Copy the value from the address pointed to by `SP` to the given register.2. Increment `SP`.
-    break;
-  case ALU_PRA:
-    // `PRA register` pseudo - instruction
-    //Print alpha character value stored in the given register.
-    //Print to the console the ASCII character corresponding to the value in the register.
-    break;
-  case ALU_PRN:
-    /* `PRN register` pseudo-instruction
-
-    Print numeric value stored in the given register.
-Print to the console the decimal integer value that is stored in the given register.
-
-Machine code :
-``` 01000111 00000rrr 47 0r
-```*/
-    break;
-  case ALU_PUSH:
-    /*`PUSH register`
-
-Push the value in the given register on the stack.
-
-1. Decrement the `SP`.
-2. Copy the value in the given register to the address pointed to by
-   `SP`.*/
-    break;
-  case ALU_RET:
-    /*Pop the value from the top of the stack and store it in the `PC`.*/
+  default:
     break;
   }
 }
@@ -135,56 +82,59 @@ Push the value in the given register on the stack.
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  // init current instructions
-  unsigned char IR;
-  // init operand 1 and 2
-  unsigned char operand1; // location
-  unsigned char operand2; // value
 
   while (running)
   {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char instruction = cpu->ram[cpu->PC];
     // 2. Figure out how many operands this next instruction requires
-    operand1 = cpu_ram_read(cpu, cpu->PC + 1);
-    operand2 = cpu_ram_read(cpu, cpu->PC + 2);
+    unsigned int combined_operands = instruction >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
-    // 4. switch() over it to decide on a course of action.
-    switch (IR)
+    unsigned int operand1;
+    unsigned int operand2;
+    if (combined_operands == 2)
     {
-      // LDI
-    case LDI:
-      // DONE ✔: finish this
-      // first operand is the location being loaded into,
-      // second operand is the value
-      cpu->registers[operand1] = operand2;
-      // move counter to the next instruction
-      cpu->PC += 3;
-      break;
-      // PRN
-    case PRN:
-      printf("Register: %d\n", cpu->registers[operand1]);
-      printf("Register: %d\n", cpu->registers[operand2]);
-      // move counter to the next instruction
-      cpu->PC += 2;
-      break;
-      // HLT
-    case HLT:
-      running = 0; // stops the while loop
-      // move the PC to the next instruction
-      cpu->PC += 1;
-      break;
-      // TODO: if I have time to do it
-      // MUL
-    case MUL:
-      break;
-    default:
-      printf("Unexpected instruction 0x%02X at 0x%02X\n", IR, cpu->PC);
-      exit(1);
+      operand1 = cpu->ram[cpu->PC + 1];
+      operand2 = cpu->ram[cpu->PC + 2];
     }
+    else if (combined_operands == 1)
+    {
+      operand1 = cpu->ram[cpu->PC + 1];
+    }
+    // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
+    switch (instruction)
+    {
+    case HLT:
+      running = 0;
+      break;
+
+    case PRN:
+      printf("%d\n", cpu->registers[operand1]);
+      break;
+
+    case LDI:
+      cpu->registers[operand1] = operand2;
+      break;
+
+    case MUL:
+      alu(cpu, ALU_MUL, operand1, operand2);
+      break;
+
+    case POP:
+      cpu->registers[operand1] = cpu_ram_read(cpu, cpu->registers[operand1]);
+      break;
+
+    case PUSH:
+      cpu_ram_write(cpu, cpu->registers[operand1]);
+      break;
+
+    default:
+      break;
+    }
     // 6. Move the PC to the next instruction.
+    cpu->PC += combined_operands + 1;
   }
 }
 
