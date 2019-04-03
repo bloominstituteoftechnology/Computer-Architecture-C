@@ -498,5 +498,5 @@ Doing this correctly requires implementing `CMP`, and some comparative forms of
 `JMP`, such as `JLT` or `JNE` or `JEQ`.
 
 Hint: Look in the `asm/` directory and learn how to use the `asm.js` assembler.
-This way you can write you code in assembly language and use the assembler to
+This way you can write your code in assembly language and use the assembler to
 build it to machine code and then run it on your emulator.
