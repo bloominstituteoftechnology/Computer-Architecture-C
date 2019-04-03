@@ -1,141 +1,161 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cpu.h"
 
 #define DATA_LEN 6
+#define SP 7
 
-// read what is in the ram
-// `MAR`: Memory Address Register, holds the memory address we're reading or writing
-int cpu_ram_read(struct cpu *cpu, unsigned char mar)
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
 {
+  // mar = Memory Address registersister, holds the memory address
+  // we're reading or writing
+
+  // return value from ram specified by mar
   return cpu->ram[mar];
-};
+}
 
-// write to the ram
-// * `MDR`: Memory Data Register, holds the value to write or the value just read
-void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char mar, unsigned char mdr)
 {
-  cpu->ram[mdr] = val;
-};
+  // mdr = Memory Data registersister, holds the value
+  // to write or the value just read
+
+  // write mdr in ram
+  cpu->ram[mar] = mdr;
+}
+
+void cpu_push(struct cpu *cpu, unsigned char val)
+{
+  // Decrement SP
+  cpu->registers[SP]--;
+  // Copy the value in the given registersister to the address pointed to by SP;
+  cpu_ram_write(cpu, cpu->registers[SP], val);
+}
+
+unsigned char cpu_pop(struct cpu *cpu)
+{
+  // Read last value from stack
+  unsigned char val = cpu_ram_read(cpu, cpu->registers[SP]);
+  // Increment SP
+  cpu->registers[SP]++;
+  return val;
+}
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu, int argc, char *argv[])
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  if (argc < 2)
-  {
-    fprintf(stderr, "Missing arguments. Provide: ./ls8 filename\n");
-    exit(1);
-  }
-
-  FILE *fp;
-  char line[1024];
-  char *file = argv[1];
-  fp = fopen(file, "r");
-  int address = 0;
+  FILE *fp = fopen(filename, "r");
 
   if (fp == NULL)
   {
-    fprintf(stderr, "Error: unable to open file %s\n", file);
-    exit(1);
+    fprintf(stderr, "ls8: error opening file:  %s\n", filename);
+    exit(2);
   }
+
+  char line[8192]; // to hold individual lines in the file
+  int address = 0;
 
   while (fgets(line, sizeof(line), fp) != NULL)
   {
+    char *endptr; // to keep track of non-numbers in the file
+    // converts str to number
+    unsigned char byte = strtoul(line, &endptr, 2);
 
-    char *ptr;
-    unsigned char command = strtol(line, &ptr, 2);
-
-    if (ptr == line)
+    // prevents unnecessary lines being stored on ram
+    if (endptr == line)
     {
       continue;
     }
 
-    cpu->ram[++address] = command;
+    cpu->ram[address++] = byte;
   }
+
+  fclose(fp);
 }
 
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB) // what are these?
-{
-  switch (op)
-  {
-  case ALU_MUL:
-    //Multiply the values in two registers together and store the result in registerA.
-    cpu->registers[regA] *= regB;
-    break;
-  case ALU_ADD:
-    cpu->registers[regA] += regB;
-    break;
-  default:
-    break;
-  }
-}
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char reg1, unsigned char reg2)
+// {
+//   unsigned char valA = cpu->registers[reg1];
+//   unsigned char valB = cpu->registers[reg2];
+
+//   switch (op)
+//   {
+//   case ALU_MUL:
+//     cpu->registers[registersA] = valA * valB;
+//     break;
+//   case ALU_ADD:
+//     cpu->registers[registersA] = valA + valB;
+//     break;
+//   }
+// }
 
 /**
  * Run the CPU
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT command
+  // True until we get a HLT instruction
+  int running = 1;
+  unsigned char command, operand1, operand2;
 
   while (running)
   {
-    // TODO
-    // 1. Get the value of the current command (in address PC).
-    unsigned char command = cpu->ram[cpu->PC];
-    // 2. Figure out how many operands this next command requires
-    unsigned int combined_operands = command >> 6;
-    // 3. Get the appropriate value(s) of the operands following this command
-    unsigned int operand1;
-    unsigned int operand2;
-    if (combined_operands == 2)
-    {
-      operand1 = cpu->ram[cpu->PC + 1];
-      operand2 = cpu->ram[cpu->PC + 2];
-    }
-    else if (combined_operands == 1)
-    {
-      operand1 = cpu->ram[cpu->PC + 1];
-    }
-    // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the command should do according to the spec.
+    command = cpu_ram_read(cpu, cpu->PC);
+
+    operand1 = cpu_ram_read(cpu, cpu->PC + 1);
+    operand2 = cpu_ram_read(cpu, cpu->PC + 2);
+
     switch (command)
     {
-    case HLT:
-      running = 0;
+    case LDI:
+      // sets value of operand1 to the registers[operand1]
+      cpu->registers[operand1] = operand2;
+      // Move the PC to the next instruction.
+      cpu->PC += 3;
       break;
-
     case PRN:
       printf("%d\n", cpu->registers[operand1]);
+      // Move the PC to the next instruction.
+      cpu->PC += 2;
       break;
-
-    case LDI:
-      cpu->registers[operand1] = operand2;
-      break;
-
     case MUL:
-      alu(cpu, ALU_MUL, operand1, operand2);
+      cpu->registers[operand1] = operand1 * operand2;
+      cpu->PC += 3;
       break;
-
-    case POP:
-      cpu->registers[operand1] = cpu_ram_read(cpu, cpu->registers[operand1]);
+    case ADD:
+      cpu->registers[operand1] = operand1 + operand2;
+      cpu->PC += 3;
       break;
 
     case PUSH:
-      // cpu->registers[7]--;
-      cpu_ram_write(cpu, cpu->registers[operand2--]);
+      cpu_push(cpu, cpu->registers[operand1]);
+      cpu->PC += 2;
+      break;
+
+    case POP:
+      // Copy the value from the address pointed to by SP to the given registers
+      cpu->registers[operand1] = cpu_pop(cpu);
+      cpu->PC += 2;
+      break;
+
+    case HLT:
+      // Set running to false to stop program
+      running = 0;
+      // Move the PC to the next instruction.
+      cpu->PC += 1;
       break;
 
     default:
+      printf("KIT: I can't do that Michael");
+      exit(1);
       break;
     }
-    // 6. Move the PC to the next command.
-    cpu->PC += combined_operands + 1;
   }
 }
 
@@ -144,18 +164,18 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // DONE✔:
-  // Initialize the PC and other special registers
-  // DONE✔: R0 - R6 are cleared to 0
+  // R0-R6 are cleared to 0
   for (int i = 0; i < 6; i++)
   {
-    // DONE✔: cpu->PC = '0';
     cpu->registers[i] = 0;
   }
-  // DONE✔: R7 is set to 0xF4
+
+  // R7 is set to 0xF4
   cpu->registers[7] = 0xF4;
-  // DONE✔: PC is set to 0
+
+  // PC is cleared to 0
   cpu->PC = 0;
-  // DONE✔: RAM is set to 0
+
+  // RAM is cleared to 0
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
