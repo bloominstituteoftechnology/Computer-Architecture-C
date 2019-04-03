@@ -11,6 +11,9 @@ struct cpu
   R6 is reserved for the interrupt status (IS)
   R7 is reserved for the stack pointer (SP)
   */
+  unsigned int IM;
+  unsigned int IS;
+  unsigned int SP;
   unsigned char registers[8];
   // DONE✔: ram (array) // 8 bit address
   // that can hold up to 256 bytes of RAM total

@@ -14,9 +14,9 @@ int cpu_ram_read(struct cpu *cpu, unsigned char mar)
 
 // write to the ram
 // * `MDR`: Memory Data Register, holds the value to write or the value just read
-void cpu_ram_write(struct cpu *cpu, unsigned char mdr)
+void cpu_ram_write(struct cpu *cpu, unsigned char val, unsigned char mdr)
 {
-  cpu->ram[mdr] = mdr;
+  cpu->ram[mdr] = val;
 };
 
 /**
@@ -46,14 +46,14 @@ void cpu_load(struct cpu *cpu, int argc, char *argv[])
   {
 
     char *ptr;
-    unsigned char instruction = strtol(line, &ptr, 2);
+    unsigned char command = strtol(line, &ptr, 2);
 
     if (ptr == line)
     {
       continue;
     }
 
-    cpu->ram[++address] = instruction;
+    cpu->ram[++address] = command;
   }
 }
 
@@ -81,16 +81,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
  */
 void cpu_run(struct cpu *cpu)
 {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1; // True until we get a HLT command
 
   while (running)
   {
     // TODO
-    // 1. Get the value of the current instruction (in address PC).
-    unsigned char instruction = cpu->ram[cpu->PC];
-    // 2. Figure out how many operands this next instruction requires
-    unsigned int combined_operands = instruction >> 6;
-    // 3. Get the appropriate value(s) of the operands following this instruction
+    // 1. Get the value of the current command (in address PC).
+    unsigned char command = cpu->ram[cpu->PC];
+    // 2. Figure out how many operands this next command requires
+    unsigned int combined_operands = command >> 6;
+    // 3. Get the appropriate value(s) of the operands following this command
     unsigned int operand1;
     unsigned int operand2;
     if (combined_operands == 2)
@@ -103,8 +103,8 @@ void cpu_run(struct cpu *cpu)
       operand1 = cpu->ram[cpu->PC + 1];
     }
     // 4. switch() over it to decide on a course of action.
-    // 5. Do whatever the instruction should do according to the spec.
-    switch (instruction)
+    // 5. Do whatever the command should do according to the spec.
+    switch (command)
     {
     case HLT:
       running = 0;
@@ -127,13 +127,14 @@ void cpu_run(struct cpu *cpu)
       break;
 
     case PUSH:
-      cpu_ram_write(cpu, cpu->registers[operand1]);
+      // cpu->registers[7]--;
+      cpu_ram_write(cpu, cpu->registers[operand2--]);
       break;
 
     default:
       break;
     }
-    // 6. Move the PC to the next instruction.
+    // 6. Move the PC to the next command.
     cpu->PC += combined_operands + 1;
   }
 }
