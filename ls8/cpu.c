@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -40,6 +42,16 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index) 
+{
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned char index, unsigned char val) 
+{
+  cpu->ram[index] = val;
+}
+
 /**
  * Run the CPU
  */
@@ -47,10 +59,29 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  // #define LDI  0b10000010
+  // #define HLT  0b00000001
+  // #define PRN  0b01000111
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char current = cpu->ram[cpu->pc];
+
+    printf("current: %u\n", current);
     // 2. Figure out how many operands this next instruction requires
+
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc + 2);
+    unsigned char operandC = cpu_ram_read(cpu, cpu->pc + 3);
+    printf("operandA: %u\n", operandA);
+    printf("operandB: %u\n", operandB);
+    printf("operandC: %u\n", operandC);
+
+    running = 0;
+
+
+
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
@@ -64,4 +95,10 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu->pc = 0;
+  // memset(cpu->ram, 0, sizeof(cpu));
+  cpu->ram = calloc(256, sizeof(unsigned char));
+  cpu->registers = calloc(8, sizeof(unsigned char));
+  // memset(cpu->ram, 0, sizeof(unsigned char) * 256);
+  // memset(cpu->registers, 0, sizeof(unsigned char) * 8);
 }

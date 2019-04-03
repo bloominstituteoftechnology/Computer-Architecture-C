@@ -5,8 +5,11 @@
 struct cpu {
   // TODO
   // PC
+  unsigned char pc;
   // registers (array)
+  unsigned char *registers;
   // ram (array)
+  unsigned char *ram;
 };
 
 // ALU operations
