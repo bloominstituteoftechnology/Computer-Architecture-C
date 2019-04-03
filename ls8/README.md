@@ -475,3 +475,28 @@ normal:
 ```
 stty sane
 ```
+
+## Stretch Goal: Curve Histogram
+
+Write an LS-8 assembly program that prints this curve on the screen:
+
+```
+*
+**
+****
+********
+****************
+********************************
+****************************************************************
+```
+
+Each subsequent line has two-times the number of asterisks as the previous line.
+
+Use loops to get this done.
+
+Doing this correctly requires implementing `CMP`, and some comparative forms of
+`JMP`, such as `JLT` or `JNE` or `JEQ`.
+
+Hint: Look in the `asm/` directory and learn how to use the `asm.js` assembler.
+This way you can write you code in assembly language and use the assembler to
+build it to machine code and then run it on your emulator.
