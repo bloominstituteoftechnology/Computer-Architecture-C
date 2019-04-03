@@ -129,7 +129,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
     case ADD:
-      cpu->registers[operand1] = operand1 + operand2;
+      cpu->registers[operand1] += operand2;
       cpu->PC += 3;
       break;
 
