@@ -125,7 +125,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2;
       break;
     case MUL:
-      cpu->registers[operand1] = operand1 * operand2;
+      cpu->registers[operand1] *= operand2;
       cpu->PC += 3;
       break;
     case ADD:
@@ -152,7 +152,7 @@ void cpu_run(struct cpu *cpu)
       break;
 
     default:
-      printf("KIT: I can't do that Michael");
+      printf("KIT: I can't do that Michael\n");
       exit(1);
       break;
     }
