@@ -733,9 +733,9 @@ A simpler-to-comprehend example might be in base 10, decimal.
 
 For example, the components that make up the decimal number `-98.273` are:
 
-* Sign: `-1` (because it's -98, not 98)
-* Mantissa: `98273` (all the digits)
-* Exponent: `-3` (tells us where the decimal place is)
+* **Sign**: `-1` (because it's -98, not 98)
+* **Mantissa**: `98273` (all the digits)
+* **Exponent**: `-3` (tells us where the decimal place is)
 
 The result (again for base 10) is:
 
@@ -743,11 +743,29 @@ The result (again for base 10) is:
 
 or:
 
-`-1 * 98273 * 10^-3 == -98.273`
+`-1 * 98273 * 10 ^ -3 == -98.273`
 
-It works exactly the same way in binary (base 2), except the formula is:
+Basically the exponent tells us how to left (if it's negative) or right (if it's
+positive) to shift the decimal.
+
+It works exactly the same way in binary (base 2):
+
+The components that make up the binary number `0b101.11` are:
+
+* **Sign**: `0b1` (because it's 101, not -101)
+* **Mantissa**: `0b10111` (all the digits)
+* **Exponent**: `-2` (tells us where the decimal place is)
+
+Then the formula is:
 
 `sign * mantissa * 2 ^ exponent`
+
+or:
+
+`0b1 * 0b10111 * 2 ^ -2`
+
+Again, the exponent tells us how far to shift the decimal; in this case, shift
+it 2 bits left for `0b101.11`.
 
 Printing out binary floating point numbers in decimal is a bit weird because you
 have to think in fractions of two instead of 10.
