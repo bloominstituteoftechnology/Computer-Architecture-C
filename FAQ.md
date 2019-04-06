@@ -746,7 +746,7 @@ or:
 `-1 * 98273 * 10 ^ -3 == -98.273`
 
 Basically the exponent tells us how to left (if it's negative) or right (if it's
-positive) to shift the decimal.
+positive) to shift the decimal point.
 
 It works exactly the same way in binary (base 2):
 
@@ -798,10 +798,73 @@ Luckily `printf()` handles that with `%f` for us.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How are signed integers represented in binary?</b></summary><p>
+
+It's a format known as [_two's
+complement_](https://en.wikipedia.org/wiki/Two%27s_complement).
+
+Basically, about half of the bit patterns are used for negative numbers.
+
+The following is an example with 3-bit integers, though it applies equally well
+to integers of any number of bits.
+
+Unsigned, binary on the left, decimal on the right:
+
+```
+111   7
+110   6
+101   5
+100   4
+010   2
+011   3
+001   1
+000   0
+```
+
+Signed (same on the right, but in sorted numeric order):
+
+```
+111  -1          010   2
+110  -2          011   3
+101  -3          001   1
+100  -4          000   0
+011   3          111  -1
+010   2          110  -2
+001   1          101  -3
+000   0          100  -4
+```
+
+Notice how the bit pattern for `7` (unsigned) is `111`, which is the same bit
+pattern for `-1` (signed).
+
+So is `111` `-1` or is it `7`? It depends only on whether or not _you_ are
+looking at those bits as signed or unsigned.
+
+Another thing to notice is that if the high (leftmost) bit of a signed number is
+`1`, it means that number is negative.
+
+Also notice how the positive signed numbers have the same bit patterns as their
+unsigned counterparts.
+
+If you have a signed number (either sign) and you want to find it's two's
+complement opposite, first you subtract one from it and then take the
+bitwise-NOT of that result.
+
+* `2` is `0b010` binary.
+* Subtract `1` to get `0b001`.
+* Then bitwise-NOT to get `0b110`.
+* `0b110` is `-2`.
+
+Using two's complement to represent signed numbers has one great advantage: the
+exact same circuitry in the ALU can be used to add or subtract numbers
+regardless of whether they are signed or unsigned. The ALU doesn't have to care.
+
+</p></details></p>
+
 <!--
 TODO:
-How are floats represented in binary? IEEE 754
-How are negative numbers represented in binary?
 -->
 
 <!-- ============================================================================= -->
