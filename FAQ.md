@@ -82,6 +82,9 @@ overwrote some of the instructions in the program.
 With a C program, this would mean the stack grew down and impacted the heap. (Or
 that the heap grew up and impacted the stack.)
 
+If the stack grows down to address `0x00` on the LS-8, it wraps around to
+address `0xff`.
+
 On modern machines with [virtual
 memory](https://en.wikipedia.org/wiki/Virtual_memory), this isn't a practical
 concern since you'll run out of physical RAM before the stack overflow occurs.
@@ -89,6 +92,21 @@ concern since you'll run out of physical RAM before the stack overflow occurs.
 Some interpreted languages like Python track how large their internal stacks
 have grown and crash out if the stack grows too large. But this is happening
 within the Python virtual machine, not on the hardware.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>What is "stack underflow"?</b></summary><p>
+
+This means you `POP`ped more times than you `PUSH`ed. Basically you popped an
+empty stack.
+
+The CPU is more than happy to let you do this, but it's considered an error on
+the part of the programmer.
+
+If the stack pointer is at address `0xff` on the LS-8, then you `POP`, it will
+wrap around to address `0x00`.
 
 </p></details></p>
 
@@ -570,10 +588,202 @@ an array for easy indexing from `0` to `7`.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why does the CPU allow for stack overflow or underflow?</b></summary><p>
+
+It takes time for the CPU to check to see if either condition has occurred. And
+most of the time it won't have.
+
+CPUs are interested in running instructions as quickly as possible.
+
+Also, you'd need additional hardware in place to make those checks, and that
+costs money.
+
+Because assemnbly language is so low-level, the CPU is already putting basically
+ultimate trust in the developer to not do something they shouldn't do.
+
+> If you didn't want me to overflow the stack, why did you tell me to overflow
+> the stack?
+>
+> --The CPU
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Why does the CPU support a stack and not some other data structure?</b></summary><p>
+
+Turns out a stack is a really useful data structure for a number of reasons:
+
+* It's a great place to temporarily store data.
+* It's useful for holding a return address for a subroutine/function.
+* It's a place to pass arguments to subroutines.
+* It's a good place to hold a subroutine's local variables.
+* It can hold all the information that needs to be saved while the CPU is
+  servicing an interrupt.
+
+Additionally, it's pretty cheap to implement. All CPUs already come with this
+functionality:
+
+* Memory (for the stack data)
+* Registers (for the stack pointer)
+* A way to decrement and increment registers (to move the stack pointer)
+* A way to read and write data to and from RAM (to retrieve and store data on
+  the stack)
+
+Since the CPU was doing all that anyway, adding `PUSH` and `POP` instructions is
+a pretty low-hanging fruit.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>On a multicore CPU, is there some kind of overseer that coordinates between the cores?</b></summary><p>
+
+Not really, and from a programmer perspective, no.
+
+Cores have their own registers, own PCs, and generally run autonomously on their
+own.
+
+What they _do_ share is RAM (and usually at least some cache) and peripherals.
+
+The real "overseer" is the operating system, which decides which programs run on
+which core at any particular time.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>On a multicore CPU, do cores share registers or do they have their own sets?</b></summary><p>
+
+They have their own.
+
+Cores generally run autonomously on their own.
+
+What they _do_ share is RAM (and usually at least some cache) and peripherals.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Are the flags on the LS-8 stored on the stack or in a register?</b></summary><p>
+
+Flags (the `FL` register) are their own special-purpose register, similar to the
+`PC`.
+
+Each bit of the `FL` register has special meaning as laid out in the LS-8 spec.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>Does the ALU handle conditionals/<tt>CMP</tt>?</b></summary><p>
+
+Yes.
+
+The compare instruction `CMP` will set the flags register appropriately
+indicating whether or not the values of the registers compared are less-than,
+greater-than, or equal.
+
+This is actually quite similar to a subtraction, which the ALU can already do.
+
+If I give you two numbers, `a` and `b`, and you compute the difference `b - a`,
+you can look at the result and determine if the values are equal, or if one is
+greater than the other.
+
+If `b - a` is a positive number, it means that `a` is less than `b`.
+
+If `b - a` is a negative number, it means that `a` is greater than `b`.
+
+If `b - a` is zero, it means that `a` equals `b`.
+
+So the ALU can use its subtraction circuitry to do a `CMP`, saving money and
+construction complexity.
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>On the LS-8, why does <tt>POP</tt> need an operand?</b></summary><p>
+
+Because you probably want to know what the value was you popped off the stack,
+rather than just throwing it away.
+
+Basically, `POP R0` is saying "pop the value from the top of the stack and store
+it in `R0`."
+
+</p></details></p>
+
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How are floating point numbers represented in binary?</b></summary><p>
+
+There is a standard binary format for storing floating point numbers called
+[IEEE 754](https://en.wikipedia.org/wiki/IEEE_754).
+
+It basically breaks a number into three parts:
+
+* **Sign**--indicating positive or negative, 1 bit
+* **Mantissa** (AKA "Significand")--the actual binary digits of the number,
+  unsigned, e.g. 22 bits
+* **Exponent**--signed binary exponent to apply to the mantissa, e.g. 8 bits
+
+A simpler-to-comprehend example might be in base 10, decimal.
+
+For example, the components that make up the decimal number `-98.273` are:
+
+* Sign: `-1` (because it's -98, not 98)
+* Mantissa: `98273` (all the digits)
+* Exponent: `-3` (tells us where the decimal place is)
+
+The result (again for base 10) is:
+
+`sign * mantissa * 10 ^ exponent`
+
+or:
+
+`-1 * 98273 * 10^-3 == -98.273`
+
+It works exactly the same way in binary (base 2), except the formula is:
+
+`sign * mantissa * 2 ^ exponent`
+
+Printing out binary floating point numbers in decimal is a bit weird because you
+have to think in fractions of two instead of 10.
+
+Decimal example:
+
+`12.34` is written as:
+
+* `1` 10s (10 == 10<sup>1</sup>)
+* `2` 1s (1 == 10<sup>0</sup>)
+* `3` 1/10ths (1/10 == 10<sup>-1</sup>)
+* `4` 1/100ths (1/100 = 10<sup>-2</sup>)
+
+Of course you see powers of 10 all over because it's base 10.
+
+With base two, binary:
+
+`11.01` is written as:
+
+* `1` 2s (2 == 2<sup>1</sup>)
+* `1` 1s (1 == 2<sup>0</sup>)
+* `0` 1/2s (1/2 == 2<sup>-1</sup>)
+* `1` 1/4s (1/4 == 2<sup>-2</sup>)
+
+Which would give us (in decimal): `2 + 1 + 1/4` or `3.25`.
+
+`11.01` binary is `3.25` decimal.
+
+Luckily `printf()` handles that with `%f` for us.
+
+</p></details></p>
+
 <!--
 TODO:
-Why allow a stack overflow at all?
-Why not use an LRU cache instead of a stack?
+How are floats represented in binary? IEEE 754
+How are negative numbers represented in binary?
 -->
 
 <!-- ============================================================================= -->
