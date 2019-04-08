@@ -47,13 +47,31 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read;
+    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
     // 2. Figure out how many operands this next instruction requires
+    unsigned char operandA = 0;
+    unsigned char operandB = 0;
+
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
+    switch (IR)
+    {
+      case HLT:
+        running = 0;
+        break;
+      case LDI:
+        // fill this in
+        break;
+      case PRN:
+        // fill this in
+      default:
+        printf("Error command doesn't exist");
+        exit(1);
+    }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }
@@ -72,7 +90,7 @@ void cpu_init(struct cpu *cpu)
 }
 
 
-void cpu_ram_read(struct cpu *cpu, int index )
+unsigned char cpu_ram_read(struct cpu *cpu, int index )
 {
   return cpu->ram[index];
 }
