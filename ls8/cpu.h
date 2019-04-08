@@ -28,6 +28,7 @@ enum alu_op {
 #define PRN  0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
 
+
 // Function declarations
 
 extern void cpu_load(struct cpu *cpu);
