@@ -863,6 +863,46 @@ regardless of whether they are signed or unsigned. The ALU doesn't have to care.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<p><details><summary><b>How does the CPU cache work? What is L1, L2, L3 and so on?</b></summary><p>
+
+_You don't have to implement any kind of emulated cache on the LS-8._
+
+Generally speaking, the cache is some fast memory that's closer to the CPU than
+RAM.
+
+The assumption is that if a program wants a byte at address `x`, it's
+likely to very soon thereafter want the byte at address `x + 1`.
+
+(Imagine printing a string, for example. You got the first byte, printed it, and
+now you're going to print the next one.)
+
+So CPU first looks in the cache to see if the byte is there. If it's not, it
+goes out and requests a block of memory from RAM be copied into the cache. The
+block includes the byte in question, but also the subsequent bytes.
+
+Then when you go to read the subsequent bytes, they're in the super fast cache
+and you don't have to go to RAM again, thus increasing the speed of your run.
+
+In a modern CPU, cache is arranged as a hierarchy. Closest to the CPU is L1
+(_Level 1_), which is fast and doesn't hold much. If the data isn't in L1, L1
+looks to see if it's in L2. If it's not there L2 looks to see if it's in L3. If
+it's not there, it looks in the next level again for however many levels of
+cache your CPU has. Eventually if it can't be found in any level, it is obtained
+from RAM.
+
+| Level |    Capacity  | Lookup Time (nanoseconds) |
+|:-----:|:------------:|:-------------------------:|
+|  L1   |    2-8 KB    |          ~1 ns            |
+|  L2   |  256-512 KB  |          ~3 ns            |
+|  L3   | 1024-8192 KB |          ~12 ns           |
+|  RAM  |  8-32 **GB** |          ~100 ns          |
+
+> Capacities and speeds are examples only. Actual number vary.
+
+</p></details></p>
+
 <!--
 TODO:
 -->
