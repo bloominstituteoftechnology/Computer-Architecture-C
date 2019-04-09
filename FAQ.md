@@ -469,15 +469,15 @@ that into a byte as four 2-bit numbers.
 Packing the numbers 3, 0, 2, and 1 into a single byte:
 
 ```
-  First
+  Three
   ||
-  ||  Third
+  ||  Two
   vv  vv
 0b11001001
     ^^  ^^
-    ||  Fourth
+    ||  One
     ||
-  Second
+    Zero
 ```
 
 This technique is normally only used in high-performance situations where you
