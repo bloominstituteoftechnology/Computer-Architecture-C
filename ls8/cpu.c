@@ -118,6 +118,10 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->registers[operandA]);
         break;
 
+      case MUL:
+        cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+        break;
+
       default:
         printf("Error command doesn't exist\n");
         exit(1);
