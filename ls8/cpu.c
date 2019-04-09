@@ -1,29 +1,66 @@
 #include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char *argv[])
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (argc < 2)
+  {
+    printf("File does not exist.\n");
+    exit(1);
   }
 
-  // TODO: Replace this with something less hard-coded
+  char *file = argv[1];
+
+
+  FILE *fp = fopen(file, "r");
+
+
+  if (fp == NULL)
+  {
+    printf("File does not exist");
+    exit(1);
+  }
+  else
+  {
+    char file_line[1024];
+    int address = 0;
+
+    while (fgets(file_line, sizeof(file_line), fp) != NULL)
+    {
+
+      char *endptr;
+      unsigned char val = strtol(file_line, &endptr, 2);
+
+
+      if (file_line == NULL)
+      {
+        continue;
+      }
+
+      cpu->ram[address] = val;
+      address++;
+    }
+  }
+
+  fclose(fp);
+}
+
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char index )
+{
+  return cpu->ram[index];
+}
+
+unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
+{
+  return cpu->ram[index] = value;
 }
 
 /**
@@ -46,34 +83,48 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
+  unsigned char operandA;
+  unsigned char operandB;
 
 
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    unsigned char IR = cpu_ram_read(cpu, cpu->PC);
+    unsigned char IR = cpu->ram[cpu->PC];
     // 2. Figure out how many operands this next instruction requires
-    unsigned char operandA = 0;
-    unsigned char operandB = 0;
-
+    unsigned int num_operands = IR >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    if (num_operands == 2)
+    {
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
+      operandB = cpu_ram_read(cpu, (cpu->PC + 2) & 0xff);
+    }
+    else if (num_operands == 1)
+    {
+      operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
+    }
     // 4. switch() over it to decide on a course of action.
     switch (IR)
     {
       case HLT:
         running = 0;
         break;
+
       case LDI:
-        // fill this in
+        cpu->registers[operandA] = operandB;
         break;
+
       case PRN:
-        // fill this in
+        printf("%d\n", cpu->registers[operandA]);
+        break;
+
       default:
-        printf("Error command doesn't exist");
+        printf("Error command doesn't exist\n");
         exit(1);
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+    cpu->PC += num_operands + 1;
   }
 }
 
@@ -82,20 +133,8 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  cpu = malloc(sizeof(cpu));
   cpu->PC = 0;
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
-  return cpu;
 }
 
-
-unsigned char cpu_ram_read(struct cpu *cpu, int index )
-{
-  return cpu->ram[index];
-}
-
-void cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
-{
-  return cpu->ram[index] = value;
-}
