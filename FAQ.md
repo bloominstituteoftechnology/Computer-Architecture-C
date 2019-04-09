@@ -903,6 +903,40 @@ from RAM.
 
 </p></details></p>
 
+<!-- ============================================================================= -->
+
+<e><details><summary><b>When I print out the value of my <tt>LDI</tt> instruction, it prints as <tt>-126</tt> when I know the value is <tt>0b10000010</tt>, or <tt>130</tt>. What gives?</b></summary><p>
+
+Due to the fact that C uses [two's
+complement](https://en.wikipedia.org/wiki/Two%27s_complement) for representing
+signed numbers, that bit pattern actually represents _both_ numbers depending on
+how we print it.
+
+| Binary Value | Decimal `signed char` | Decimal `unsigned char` |
+|:------------:|:---------------------:|:-----------------------:|
+| `0b10000010` |        `-126`         |          `130`          |
+
+Make sure you use the right type to hold your value, and then also make sure you
+use the proper `printf()` format specifier to display it. `%d` is signed decimal
+and `%u` is unsigned decimal.
+
+Here's an example. Notice that the bit pattern is identical for both variables.
+
+```c
+#include <stdio.h>
+
+int main(void)
+{
+    signed char   x = 0b10000010;
+    unsigned char y = 0b10000010;
+
+    printf("%d\n", x); // prints -126
+    printf("%u\n", y); // prints 130
+}
+```
+
+</p></details></p>
+
 <!--
 TODO:
 -->
