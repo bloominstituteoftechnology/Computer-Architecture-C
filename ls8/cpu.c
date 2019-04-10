@@ -66,16 +66,16 @@ unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
-  switch (op) {
-    case ALU_MUL:
-      // TODO
-      break;
+// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+// {
+//   switch (op) {
+//     case ALU_MUL:
+//       // TODO
+//       break;
 
-    // TODO: implement more ALU ops
-  }
-}
+//     // TODO: implement more ALU ops
+//   }
+// }
 
 /**
  * Run the CPU
@@ -85,6 +85,7 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char operandA;
   unsigned char operandB;
+  cpu->registers[7] = sizeof(cpu->ram) / sizeof(cpu->ram[0]);
 
 
   while (running) {
@@ -120,6 +121,16 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+        break;
+      
+      case PUSH:
+        cpu->registers[7]--;
+        cpu->ram[cpu->registers[7]] = cpu->ram[operandA];
+        break;
+
+      case POP:
+        cpu->registers[7] = cpu->ram[cpu->registers[7]];
+        cpu->registers[7]++;
         break;
 
       default:
