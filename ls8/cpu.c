@@ -63,6 +63,8 @@ unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
   return cpu->ram[index] = value;
 }
 
+
+
 /**
  * ALU
  */
@@ -77,6 +79,19 @@ unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 //   }
 // }
 
+void push_stack(struct cpu *cpu, int val)
+{
+  cpu->registers[7]--;
+  cpu->ram[cpu->registers[7]] = val;
+}
+
+unsigned char pop_stack(struct cpu *cpu)
+{
+  unsigned char val = cpu->ram[cpu->registers[7]];
+  cpu->registers[7]++;
+  return val;
+}
+
 /**
  * Run the CPU
  */
@@ -85,7 +100,6 @@ void cpu_run(struct cpu *cpu)
   int running = 1; // True until we get a HLT instruction
   unsigned char operandA;
   unsigned char operandB;
-  cpu->registers[7] = sizeof(cpu->ram) / sizeof(cpu->ram[0]);
 
 
   while (running) {
@@ -124,13 +138,13 @@ void cpu_run(struct cpu *cpu)
         break;
       
       case PUSH:
-        cpu->registers[7]--;
-        cpu->ram[cpu->registers[7]] = cpu->ram[operandA];
+        push_stack(cpu, cpu->registers[operandA]);
+        printf("push: %d\n", cpu->registers[7]);
         break;
 
       case POP:
-        cpu->registers[7] = cpu->ram[cpu->registers[7]];
-        cpu->registers[7]++;
+        cpu->registers[operandA] = pop_stack(cpu);
+        printf("pop: %d\n", cpu->registers[7]);
         break;
 
       default:
@@ -151,5 +165,8 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
+
+  int total = sizeof(cpu->ram) / sizeof(unsigned char);
+  cpu->registers[7] = total;
 }
 
