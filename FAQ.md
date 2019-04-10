@@ -1,8 +1,75 @@
 # Computer Architecture FAQ
 
-<!-- ============================================================================= -->
+## Contents
 
-<p><details><summary><b>How much of the emulator do I need to implement?</b></summary><p>
+### Common Problems
+
+* [When I print out the value of my `LDI` instruction, it prints as `-126` when I know the value is `0b10000010`, or `130`. What gives?](#q3900)
+* [Do you have some handy code for helping trace what the CPU is doing?](#q2000)
+
+### General
+
+* [How much of the emulator do I need to implement?](#q100)
+* [Once we get the `HLT` instruction, what should the emulator do?](#q200)
+* [Is the flags `FL` register one of the `Rx` registers, or is it a special register?](#q900)
+* [What about the `IR`, `MAR`, and `MDR` registers?](#q1000)
+* [If RAM is faster than an SSD, why not just store everything in RAM?](#q1200)
+* [Do CPUs get hot because of the power constantly running through them?](#q1300)
+* [What's the `NULL` in the `strtoul()` call?](#q1500)
+* [Can we use `memset()` to clear RAM and the registers in `cpu_init()`, or do we have to use a loop?](#q1600)
+* [How do I move the `PC` to the next instruction without hardcoding the instruction length?](#q1700)
+* [Can I use `getline()` instead of `fgets()` for reading lines from the files?](#q1800)
+* [Why are the ALU and the RAM read/write functions broken out? Can we just code the lines to do the work directly?](#q1900)
+* [Why do opcodes have the numeric values that they do?](#q2200)
+* [What is a "cache hit" or "cache miss"?](#q2300)
+* [How are logic gates built?](#q2400)
+* [How does the CPU use logic gates?](#q2500)
+* [Why is half a byte called a _nibble_?](#q2600)
+* [What are the `<<` and `>>` shift operators useful for?](#q2700)
+* [On a multicore CPU, is there some kind of overseer that coordinates between the cores?](#q3100)
+* [On a multicore CPU, do cores share registers or do they have their own sets?](#q3200)
+* [Does the ALU handle conditionals/`CMP`?](#q3400)
+* [How are floating point numbers represented in binary?](#q3600)
+* [How are signed integers represented in binary?](#q3700)
+* [How does the CPU cache work? What is L1, L2, L3 and so on?](#q3800)
+
+### `CALL`/`RET`, Subroutines
+
+* [How do you return values from subroutines?](#q300)
+
+### Interrupts
+
+* [With interrupts, why do we push everything on the stack?](#q400)
+
+### The CPU Stack
+
+* [What is "stack overflow"?](#q500)
+* [What is "stack underflow"?](#q600)
+* [On the LS-8, why does the stack pointer start at address `F4`, when the first stack element is at `F3`?](#q700)
+* [How are stacks and subroutines used by higher-level languages like C?](#q800)
+* [Why does the CPU allow for stack overflow or underflow?](#q2900)
+* [Why does the CPU support a stack and not some other data structure?](#q3000)
+* [On the LS-8, why does `POP` need an operand?](#q3500)
+
+### Registers
+
+* [What are the registers for, and what do they do?](#q1100)
+* [What is the difference between general-purpose registers and internal, special-purpose registers?](#q2800)
+* [Is the flags `FL` register one of the `Rx` registers, or is it a special register?](#q900)
+* [What about the `IR`, `MAR`, and `MDR` registers?](#q1000)
+* [How do I move the `PC` to the next instruction without hardcoding the instruction length?](#q1700)
+* [Why is `R7` set to something other than zero?](#q2100)
+* [Are the flags on the LS-8 stored on the stack or in a register?](#q3300)
+
+### Number Bases and Conversions
+
+* [Why is hex base 16? Seems so random.](#q1400)
+* [What's the `NULL` in the `strtoul()` call?](#q1500)
+
+## Questions
+
+<a name="q100"></a>
+### How much of the emulator do I need to implement?
 
 As little as possible to get a particular LS-8 program running.
 
@@ -16,11 +83,10 @@ implement the `FL` register? If you want to use any functionality that depends
 on it, then yes. The spec will tell you if the thing you're implementing needs
 the `FL` register to work.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Once we get the <tt>HLT</tt> instruction, what should the emulator do?</b></summary><p>
+<a name="q200"></a>
+### Once we get the `HLT` instruction, what should the emulator do?
 
 You should exit the emulator.
 
@@ -29,11 +95,10 @@ If you `malloc()`d any memory, be sure to `free()` it.
 You don't need to worry about any of the LS-8 internals at that point since
 you're exiting anyway.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How do you return values from subroutines?</b></summary><p>
+<a name="q300"></a>
+### How do you return values from subroutines?
 
 Since the `RET` instruction doesn't allow you to specify a return value, you'll
 have to get the value back by other means.
@@ -49,11 +114,10 @@ values.
 There are no fixed rules when writing code in assembly language. Returning
 values in registers just happens to be a common convention.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>With interrupts, why do we push everything on the stack?</b></summary><p>
+<a name="q400"></a>
+### With interrupts, why do we push everything on the stack?
 
 The idea is that if you save the machine state on the stack, then after you
 service the interrupt you can restore it and seamlessly pick up where you left
@@ -67,11 +131,10 @@ So we push the general purpose registers and internal registers on the stack,
 then do interrupt stuff, then restore all those registers from the stack so the
 CPU can carry on with what it was doing before the interrupt occurred.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What is "stack overflow"?</b></summary><p>
+<a name="q500"></a>
+### What is "stack overflow"?
 
 Short answer: it's when the stack grows into some area of memory that something
 else was using.
@@ -93,11 +156,10 @@ Some interpreted languages like Python track how large their internal stacks
 have grown and crash out if the stack grows too large. But this is happening
 within the Python virtual machine, not on the hardware.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What is "stack underflow"?</b></summary><p>
+<a name="q600"></a>
+### What is "stack underflow"?
 
 This means you `POP`ped more times than you `PUSH`ed. Basically you popped an
 empty stack.
@@ -108,21 +170,19 @@ the part of the programmer.
 If the stack pointer is at address `0xff` on the LS-8, then you `POP`, it will
 wrap around to address `0x00`.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>On the LS-8, why does the stack pointer start at address <tt>F4</tt>, when the first stack element is at <tt>F3</tt>?</b></summary><p>
+<a name="q700"></a>
+### On the LS-8, why does the stack pointer start at address `F4`, when the first stack element is at `F3`?
 
 Since the first thing a `PUSH` instruction does is decrement the stack pointer,
 it means that the stack pointer is moved to `F3` first and _then_ the value is
 stored there. Exactly where we wanted it.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How are stacks and subroutines used by higher-level languages like C?</b></summary><p>
+<a name="q800"></a>
+### How are stacks and subroutines used by higher-level languages like C?
 
 In C, when you make a function call, a bunch of space is allocated (pushed) on
 the stack to hold a number of things:
@@ -160,11 +220,10 @@ why local variables are not persistent from call to call.
 Furthermore, using the stack to hold frames allows us to call functions to an
 arbitrary nesting level. Indeed, it is what allows for recursion at all.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Is the flags <tt>FL</tt> register one of the <tt>Rx</tt> registers, or is it a special register?</b></summary><p>
+<a name="q900"></a>
+### Is the flags `FL` register one of the `Rx` registers, or is it a special register?
 
 It's a special purpose register that can be added separately to the `struct cpu`
 similar to how `PC` works.
@@ -172,11 +231,10 @@ similar to how `PC` works.
 In `struct cpu`, it's convenient to have an array to store `R0` through `R7`,
 but the other registers are just fields in the `struct`.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What about the <tt>IR</tt>, <tt>MAR</tt>, and <tt>MDR</tt> registers?</b></summary><p>
+<a name="q1000"></a>
+### What about the `IR`, `MAR`, and `MDR` registers?
 
 You can store those special-purpose registers similar to how `PC` and `FL` are
 stored in the `struct`.
@@ -186,10 +244,10 @@ they can be locals or function parameters.
 
 It's a matter of which way you think produces more readable code.
 
-</p></details></p>
-<!-- ============================================================================= -->
+------------------------------------------------------------------------
 
-<p><details><summary><b>What are the registers for, and what do they do?</b></summary><p>
+<a name="q1100"></a>
+### What are the registers for, and what do they do?
 
 You can think of the registers as the CPU's variables. They hold numbers. You
 use them like you would variable in another langauge.
@@ -210,11 +268,10 @@ work, RAM is far, far slower to access. Nothing is faster to access in the CPU
 than a register. For that reason, assembly language programs use registers
 whenever possible to keep speed up.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>If RAM is faster than an SSD, why not just store everything in RAM?</b></summary><p>
+<a name="q1200"></a>
+### If RAM is faster than an SSD, why not just store everything in RAM?
 
 Cost. 1 TB SSD is orders of magnitude cheaper than 1 TB of RAM. And finding a
 motherboard that supports 1 TB of RAM is a challenge.
@@ -224,22 +281,20 @@ Also the SSD continues to store data even if power is removed, unlike RAM.
 Someday someone will discover RAM that is cheap, fast, and will permanently
 store data, and when that happens, SSDs will vanish.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Do CPUs get hot because of the power constantly running through them?</b></summary><p>
+<a name="q1300"></a>
+### Do CPUs get hot because of the power constantly running through them?
 
 Yup. When you run current through any regular conductor, heat is generated.
 
 In that regard, a CPU is like a tiny, expensive electric blanket that is capable
 of arbitrary computation but really bad at giving you a good night's sleep.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why is hex base 16? Seems so random.</b></summary><p>
+<a name="q1400"></a>
+### Why is hex base 16? Seems so random.
 
 Conveniently, one hex digit represents exactly 4 bits (AKA a _nibble_).
 
@@ -253,11 +308,10 @@ Compare to decimal, where one decimal digit represents somewhere between 3 and 4
 bits. And a byte is represented by 3 digits, isn't easily convertible to binary,
 and ends quite unroundly on `255` for the largest value.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What's the <tt>NULL</tt> in the <tt>strtoul()</tt> call?</b></summary><p>
+<a name="q1500"></a>
+### What's the `NULL` in the `strtoul()` call?
 
 That's part of a mechanism where `strtoul()` can tell you the first invalid
 character it found, or if it found no digits to convert at all.
@@ -288,19 +342,17 @@ then `endchar` will point at the `#` because no digits were found at all.
 
 You might find this useful for parsing data from the `.ls8` input files.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Can we use <tt>memset()</tt> to clear RAM and the registers in <tt>cpu_init()</tt>, or do we have to use a loop?</b></summary><p>
+<a name="q1600"></a>
+### Can we use `memset()` to clear RAM and the registers in `cpu_init()`, or do we have to use a loop?
 
 You can use `memset()`. It's probably faster than a hand-rolled loop, anyway.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How do I move the <tt>PC</tt> to the next instruction without hardcoding the instruction length?</b></summary><p>
+<a name="q1700"></a>
+### How do I move the `PC` to the next instruction without hardcoding the instruction length?
 
 Check out the spec where it talks about instruction layout.
 
@@ -315,22 +367,20 @@ then add that to the `PC` to get to the next instruction.
 > move the `PC` to a specific destination. In those cases, you _do not_ want to
 > advance the PC to the next instruction.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Can I use <tt>getline()</tt> instead of <tt>fgets()</tt> for reading lines from the files?</b></summary><p>
+<a name="q1800"></a>
+### Can I use `getline()` instead of `fgets()` for reading lines from the files?
 
 We recommend `fgets()` because it's more standard, and also because it does
 fewer things behind your back.
 
 But if you use `getline()`, we won't stop you.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why are the ALU and the RAM read/write functions broken out? Can we just code the lines to do the work directly?</b></summary><p>
+<a name="q1900"></a>
+### Why are the ALU and the RAM read/write functions broken out? Can we just code the lines to do the work directly?
 
 Because the ALU is a separate component on the CPU, and the RAM is a separate
 component off the CPU, it makes logical sense from a learning perspective to
@@ -339,11 +389,10 @@ have different pieces of code handle the work.
 Plus having the RAM access function there makes the code easier to read, and
 easier to change if the structure of RAM were to change somehow in the future.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Do you have some handy code for helping trace what the CPU is doing?</b></summary><p>
+<a name="q2000"></a>
+### Do you have some handy code for helping trace what the CPU is doing?
 
 If you call this before your `switch`, it'll print out the CPU state just before
 the instruction executes.
@@ -366,21 +415,19 @@ void trace(struct cpu *cpu)
 }
 ```
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why is <tt>R7</tt> set to something other than zero?</b></summary><p>
+<a name="q2100"></a>
+### Why is `R7` set to something other than zero?
 
 `R7` has additional meaning: it is the _stack pointer_. So it needs to start
 just past the top of the stack so that the `PUSH` and `POP` (and `CALL` and
 `RET`) functions operate normally.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why do opcodes have the numeric values that they do?</b></summary><p>
+<a name="q2200"></a>
+### Why do opcodes have the numeric values that they do?
 
 See the "Instruction Layout" part of the LS-8 spec for what the specific bits
 mean in any particular instruction.
@@ -392,11 +439,10 @@ or `1`.
 So the instruction bits are close to the metal, literally. Their exact meanings
 are closely tied with how the CPU will be physically constructed.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What is a "cache hit" or "cache miss"?</b></summary><p>
+<a name="q2300"></a>
+### What is a "cache hit" or "cache miss"?
 
 If a program accesses a byte of RAM at some address that's in the cache already,
 that's a _cache hit_. The byte is returned immediately.
@@ -417,20 +463,18 @@ bytes at the same time into the faster cache. If the user then goes on to access
 the subsequent bytes, like they probably will, the data will already be in cache
 ready to use.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How are logic gates built?</b></summary><p>
+<a name="q2400"></a>
+### How are logic gates built?
 
 They're made out of transistors. Details are getting into the realm of materials
 science and is beyond the scope of the course.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How does the CPU use logic gates?</b></summary><p>
+<a name="q2500"></a>
+### How does the CPU use logic gates?
 
 Logic gates can be composed into circuits that can do far more than Boolean
 logical operations.
@@ -445,19 +489,17 @@ The fantastic book [_The Elements of Computing
 Systems_](https://www.nand2tetris.org/) talks about this in great detail from
 the ground up.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why is half a byte called a <i>nibble</i>?</b></summary><p>
+<a name="q2600"></a>
+### Why is half a byte called a _nibble_?
 
 It's a pun, playing off byte/bite. Sometimes it's spelled _nybble_.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What are the <tt>&lt;&lt;</tt> and <tt>&gt;&gt;</tt> shift operators useful for?</b></summary><p>
+<a name="q2700"></a>
+### What are the `<<` and `>>` shift operators useful for?
 
 Most commonly, they're used to get or set individual bits within a number.
 
@@ -561,11 +603,10 @@ Lastly, let's bitwise-OR the shifted value with the result from the previous ste
 And there we have it. The three bits in the middle of the number have been
 changed from the value 7 to the value 2.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>What is the difference between general-purpose registers and internal, special-purpose registers?</b></summary><p>
+<a name="q2800"></a>
+### What is the difference between general-purpose registers and internal, special-purpose registers?
 
 The general-purpose registers are `R0` through `R7`.
 
@@ -586,11 +627,10 @@ ADD FL,R0  ; INVALID--FL is not a general-purpose register
 In `struct cpu`, it's convenient to represent the general purpose registers with
 an array for easy indexing from `0` to `7`.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why does the CPU allow for stack overflow or underflow?</b></summary><p>
+<a name="q2900"></a>
+### Why does the CPU allow for stack overflow or underflow?
 
 It takes time for the CPU to check to see if either condition has occurred. And
 most of the time it won't have.
@@ -608,11 +648,10 @@ ultimate trust in the developer to not do something they shouldn't do.
 >
 > --The CPU
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Why does the CPU support a stack and not some other data structure?</b></summary><p>
+<a name="q3000"></a>
+### Why does the CPU support a stack and not some other data structure?
 
 Turns out a stack is a really useful data structure for a number of reasons:
 
@@ -635,11 +674,10 @@ functionality:
 Since the CPU was doing all that anyway, adding `PUSH` and `POP` instructions is
 a pretty low-hanging fruit.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>On a multicore CPU, is there some kind of overseer that coordinates between the cores?</b></summary><p>
+<a name="q3100"></a>
+### On a multicore CPU, is there some kind of overseer that coordinates between the cores?
 
 Not really, and from a programmer perspective, no.
 
@@ -651,11 +689,10 @@ What they _do_ share is RAM (and usually at least some cache) and peripherals.
 The real "overseer" is the operating system, which decides which programs run on
 which core at any particular time.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>On a multicore CPU, do cores share registers or do they have their own sets?</b></summary><p>
+<a name="q3200"></a>
+### On a multicore CPU, do cores share registers or do they have their own sets?
 
 They have their own.
 
@@ -663,22 +700,20 @@ Cores generally run autonomously on their own.
 
 What they _do_ share is RAM (and usually at least some cache) and peripherals.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Are the flags on the LS-8 stored on the stack or in a register?</b></summary><p>
+<a name="q3300"></a>
+### Are the flags on the LS-8 stored on the stack or in a register?
 
 Flags (the `FL` register) are their own special-purpose register, similar to the
 `PC`.
 
 Each bit of the `FL` register has special meaning as laid out in the LS-8 spec.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>Does the ALU handle conditionals/<tt>CMP</tt>?</b></summary><p>
+<a name="q3400"></a>
+### Does the ALU handle conditionals/`CMP`?
 
 Yes.
 
@@ -701,11 +736,10 @@ If `b - a` is zero, it means that `a` equals `b`.
 So the ALU can use its subtraction circuitry to do a `CMP`, saving money and
 construction complexity.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>On the LS-8, why does <tt>POP</tt> need an operand?</b></summary><p>
+<a name="q3500"></a>
+### On the LS-8, why does `POP` need an operand?
 
 Because you probably want to know what the value was you popped off the stack,
 rather than just throwing it away.
@@ -713,11 +747,10 @@ rather than just throwing it away.
 Basically, `POP R0` is saying "pop the value from the top of the stack and store
 it in `R0`."
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How are floating point numbers represented in binary?</b></summary><p>
+<a name="q3600"></a>
+### How are floating point numbers represented in binary?
 
 There is a standard binary format for storing floating point numbers called
 [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754).
@@ -796,11 +829,10 @@ Which would give us (in decimal): `2 + 1 + 1/4` or `3.25`.
 
 Luckily `printf()` handles that with `%f` for us.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How are signed integers represented in binary?</b></summary><p>
+<a name="q3700"></a>
+### How are signed integers represented in binary?
 
 It's a format known as [_two's
 complement_](https://en.wikipedia.org/wiki/Two%27s_complement).
@@ -861,11 +893,10 @@ Using two's complement to represent signed numbers has one great advantage: the
 exact same circuitry in the ALU can be used to add or subtract numbers
 regardless of whether they are signed or unsigned. The ALU doesn't have to care.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<p><details><summary><b>How does the CPU cache work? What is L1, L2, L3 and so on?</b></summary><p>
+<a name="q3800"></a>
+### How does the CPU cache work? What is L1, L2, L3 and so on?
 
 _You don't have to implement any kind of emulated cache on the LS-8._
 
@@ -901,11 +932,10 @@ from RAM.
 
 > Capacities and speeds are examples only. Actual number vary.
 
-</p></details></p>
+------------------------------------------------------------------------
 
-<!-- ============================================================================= -->
-
-<e><details><summary><b>When I print out the value of my <tt>LDI</tt> instruction, it prints as <tt>-126</tt> when I know the value is <tt>0b10000010</tt>, or <tt>130</tt>. What gives?</b></summary><p>
+<a name="q3900"></a>
+### When I print out the value of my `LDI` instruction, it prints as `-126` when I know the value is `0b10000010`, or `130`. What gives?
 
 Due to the fact that C uses [two's
 complement](https://en.wikipedia.org/wiki/Two%27s_complement) for representing
@@ -935,18 +965,4 @@ int main(void)
 }
 ```
 
-</p></details></p>
-
-<!--
-TODO:
--->
-
-<!-- ============================================================================= -->
-
-<!--
-Template:
-
-<p><details><summary><b></b></summary><p>
-</p></details></p>
-
--->
+------------------------------------------------------------------------
