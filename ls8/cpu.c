@@ -68,16 +68,16 @@ unsigned char cpu_ram_write(struct cpu *cpu, int index, unsigned char value)
 /**
  * ALU
  */
-// void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-// {
-//   switch (op) {
-//     case ALU_MUL:
-//       // TODO
-//       break;
+void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
+{
+  switch (op) {
+    case ALU_MUL:
+      cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
+      break;
 
-//     // TODO: implement more ALU ops
-//   }
-// }
+    // TODO: implement more ALU ops
+  }
+}
 
 void push_stack(struct cpu *cpu, int val)
 {
@@ -134,7 +134,7 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case MUL:
-        cpu->registers[operandA] = cpu->registers[operandA] * cpu->registers[operandB];
+        alu(cpu, ALU_MUL, operandA, operandB);
         break;
       
       case PUSH:
