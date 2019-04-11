@@ -74,6 +74,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
       break;
+
+    case ALU_ADD:
+      cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+      break;
   }
 }
 
@@ -125,6 +129,7 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
+        printf("leaving LDI\n");
         break;
 
       case PRN:
@@ -133,6 +138,10 @@ void cpu_run(struct cpu *cpu)
 
       case MUL:
         alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
         break;
       
       case PUSH:
@@ -146,11 +155,15 @@ void cpu_run(struct cpu *cpu)
         break;
 
       case CALL:
-
+        printf("in call\n");
+        push_stack(cpu, cpu->PC + 2);
+        cpu->PC = cpu->registers[operandA];
+        printf("in call end\n");
         break;
 
       case RET:
-      
+        printf("in ret\n");
+        cpu->PC = pop_stack(cpu);
         break;
 
       default:
