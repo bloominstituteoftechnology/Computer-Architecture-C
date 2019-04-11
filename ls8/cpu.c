@@ -145,6 +145,14 @@ void cpu_run(struct cpu *cpu)
         printf("pop: %d\n", cpu->registers[7]);
         break;
 
+      case CALL:
+
+        break;
+
+      case RET:
+      
+        break;
+
       default:
         printf("Error command doesn't exist\n");
         exit(1);
