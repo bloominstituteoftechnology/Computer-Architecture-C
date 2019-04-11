@@ -84,7 +84,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 void push_stack(struct cpu *cpu, int val)
 {
   cpu->registers[7]--;
-  cpu->ram[cpu->registers[7]] = val;
+  cpu_ram_write(cpu, cpu->registers[7], val);
 }
 
 unsigned char pop_stack(struct cpu *cpu)
@@ -129,7 +129,6 @@ void cpu_run(struct cpu *cpu)
 
       case LDI:
         cpu->registers[operandA] = operandB;
-        printf("leaving LDI\n");
         break;
 
       case PRN:
@@ -140,31 +139,27 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_MUL, operandA, operandB);
         break;
 
-      case ADD:
-        alu(cpu, ALU_ADD, operandA, operandB);
-        break;
-      
       case PUSH:
         push_stack(cpu, cpu->registers[operandA]);
-        printf("push: %d\n", cpu->registers[7]);
         break;
 
       case POP:
         cpu->registers[operandA] = pop_stack(cpu);
-        printf("pop: %d\n", cpu->registers[7]);
         break;
 
       case CALL:
-        printf("in call\n");
-        push_stack(cpu, cpu->PC + 2);
-        cpu->PC = cpu->registers[operandA];
-        printf("in call end\n");
+        push_stack(cpu, cpu->PC + 1);
+        cpu->PC = cpu->registers[operandA] - 1;
         break;
 
       case RET:
-        printf("in ret\n");
         cpu->PC = pop_stack(cpu);
         break;
+      
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      
 
       default:
         printf("Error command doesn't exist\n");
