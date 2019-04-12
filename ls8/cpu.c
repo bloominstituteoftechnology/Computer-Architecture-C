@@ -160,7 +160,6 @@ void cpu_run(struct cpu *cpu)
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
       
-
       default:
         printf("Error command doesn't exist\n");
         exit(1);
@@ -177,6 +176,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
+  cpu->flag = 0;
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
 
