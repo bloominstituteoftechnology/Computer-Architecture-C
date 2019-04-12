@@ -78,6 +78,25 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_ADD:
       cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
       break;
+
+    case ALU_CMP:
+      if(cpu->registers[regA] < cpu->registers[regB])
+      {
+        cpu->FL = 1;
+      }
+      else if(cpu->registers[regA] > cpu->registers[regB])
+      {
+        cpu->FL = 1;
+      }
+      else if(cpu->registers[regA] == cpu->registers[regB])
+      {
+        cpu->FL = 1;
+      }
+      else
+      {
+        cpu->FL = 0;
+      }
+      break;
   }
 }
 
@@ -159,6 +178,10 @@ void cpu_run(struct cpu *cpu)
       case ADD:
         alu(cpu, ALU_ADD, operandA, operandB);
         break;
+
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
       
       default:
         printf("Error command doesn't exist\n");
@@ -176,7 +199,7 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   cpu->PC = 0;
-  cpu->flag = 0;
+  cpu->FL = 0;
   memset(cpu->ram, 0, sizeof(cpu->ram));
   memset(cpu->registers, 0, sizeof(cpu->registers));
 
