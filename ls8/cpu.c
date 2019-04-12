@@ -80,22 +80,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     case ALU_CMP:
-      if(cpu->registers[regA] < cpu->registers[regB])
+      if(cpu->registers[regA] == cpu->registers[regB])
       {
         cpu->FL = 1;
       }
       else if(cpu->registers[regA] > cpu->registers[regB])
       {
-        cpu->FL = 1;
-      }
-      else if(cpu->registers[regA] == cpu->registers[regB])
-      {
-        cpu->FL = 1;
-      }
-      else
-      {
         cpu->FL = 0;
       }
+
       break;
   }
 }
@@ -139,6 +132,9 @@ void cpu_run(struct cpu *cpu)
     {
       operandA = cpu_ram_read(cpu, (cpu->PC + 1) & 0xff);
     }
+
+    // printf("%d\n", IR);
+
     // 4. switch() over it to decide on a course of action.
     switch (IR)
     {
@@ -182,10 +178,28 @@ void cpu_run(struct cpu *cpu)
       case CMP:
         alu(cpu, ALU_CMP, operandA, operandB);
         break;
+
+      case JMP:
+        cpu->PC = cpu->registers[operandA];
+        cpu->PC += 1;
+        break;
+
+      case JEQ:
+        if (cpu->FL == 1)
+        {
+          cpu->PC = cpu->registers[operandA];
+        }
+        break;
+
+      case JNE:
+        if (cpu->FL != 1)
+        {
+          cpu->PC = cpu->registers[operandA];
+        }
+        break;
       
       default:
-        printf("Error command doesn't exist\n");
-        exit(1);
+        break;
     }
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
