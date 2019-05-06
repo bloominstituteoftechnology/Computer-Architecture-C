@@ -2,13 +2,13 @@
 
 ## Project
 
-* [Implement the LS-8 Emulator](ls8/)
+- [Implement the LS-8 Emulator](ls8/)
 
 ## Task List: add this to the first comment of your Pull Request
 
 ### Day 1: Get `print8.ls8` running
 
-- [ ] Inventory what is here
+- [DONE] Inventory what is here
 - [ ] Implement `struct cpu` in `cpu.h`
 - [ ] Add RAM functions `cpu_ram_read` and `cpu_ram_write`
 - [ ] Implement `cpu_init()`
