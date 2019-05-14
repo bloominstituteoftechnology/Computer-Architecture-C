@@ -70,6 +70,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->FL[5] = 0;
         cpu->FL[6] = 0;
       }
+  case ALU_MOD:
+      if (cpu->registers[regB] != 0) {
+        cpu->registers[regA] %= cpu->registers[regB];
+      }
       break;
   
 

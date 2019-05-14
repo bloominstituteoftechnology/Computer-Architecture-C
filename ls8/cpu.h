@@ -14,7 +14,8 @@ struct cpu {
 enum alu_op {
 	ALU_MUL,
 	ALU_ADD,
-  ALU_CMP
+  ALU_CMP,
+  ALU_MOD
 };
 #define SP 5
 #define EMPTY_STACK  0xf4
@@ -36,6 +37,7 @@ enum alu_op {
 #define JEQ  0b01010101
 #define JNE  0b01010110
 #define JMP  0b01010100
+#define MOD  0b10100100
 // Function declarations
 
 extern void cpu_load(char *filename, struct cpu *cpu);
