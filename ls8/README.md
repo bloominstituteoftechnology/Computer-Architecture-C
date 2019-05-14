@@ -178,7 +178,7 @@ so you can look in `argv[1]` for the name of the file to load.
 > Bonus: check to make sure the user has put a command line argument where you
 > expect, and print an error and exit if they didn't.
 
-In `load_cpu()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
+In `cpu_load()`, you will now want to use those command line arguments to open a file, read in its contents line by line, and save appropriate data into RAM. 
 
 As you process lines from the file, you should be on the lookout for blank lines
 (ignore them), and you should ignore everything after a `#`, since that's a
