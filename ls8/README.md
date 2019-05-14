@@ -120,7 +120,7 @@ the instruction opcode. See the LS-8 spec for details.
 
 ## Step 5: Implement the `HLT` instruction handler
 
-Add the `HLT` instruction to `cpu.h`.
+Add the `HLT` instruction define to `cpu.h`.
 
 In `cpu_run()` in your switch, exit the loop if a `HLT` instruction is
 encountered, regardless of whether or not there are more lines of code in the LS-8 program you loaded. 
