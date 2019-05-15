@@ -71,9 +71,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
         cpu->FL[6] = 0;
       }
   case ALU_MOD:
-      if (cpu->registers[regB] != 0) {
         cpu->registers[regA] %= cpu->registers[regB];
-      }
       break;
   
 
@@ -185,8 +183,16 @@ void cpu_run(struct cpu *cpu)
     case JMP:
       cpu->PC = cpu->registers[operandA]-1;
       break;
+    
+    case MOD:
+      if (cpu->registers[operandB] != 0) {
+        alu(cpu, ALU_MOD, operandA, operandB);
+      }
+      else{
+        printf("Divide by zero error\n");
+      }
+      break;
     }
-
     // 4. Move the PC to the next instruction.
     //printf("%d!! %d??\n", IR, cpu->PC);
     cpu->PC += 1;
