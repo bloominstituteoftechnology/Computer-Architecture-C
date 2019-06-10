@@ -5,8 +5,7 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
-{
+void cpu_load(struct cpu *cpu) {
   char data[DATA_LEN] = {
     // From print8.ls8
     0b10000010, // LDI R0,8
@@ -29,8 +28,7 @@ void cpu_load(struct cpu *cpu)
 /**
  * ALU
  */
-void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB)
-{
+void alu(struct cpu *cpu, enum alu_op op, byte regA, byte regB) {
   switch (op) {
     case ALU_MUL:
       // TODO
@@ -43,8 +41,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 /**
  * Run the CPU
  */
-void cpu_run(struct cpu *cpu)
-{
+void cpu_run(struct cpu *cpu) {
   int running = 1; // True until we get a HLT instruction
 
   while (running) {
@@ -61,7 +58,6 @@ void cpu_run(struct cpu *cpu)
 /**
  * Initialize a CPU struct
  */
-void cpu_init(struct cpu *cpu)
-{
+void cpu_init(struct cpu *cpu) {
   // TODO: Initialize the PC and other special registers
 }

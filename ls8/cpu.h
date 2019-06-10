@@ -1,12 +1,19 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+typedef unsigned char byte;
+
 // Holds all information about the CPU
 struct cpu {
-  // TODO
-  // PC
-  // registers (array)
-  // ram (array)
+  // https://github.com/johnoro/Computer-Architecture/blob/master/LS8-spec.md#internal-registers
+  int pc;
+  byte ir;
+  byte mar;
+  byte mdr;
+  byte fl;
+  
+  byte *registers;
+  byte *ram;
 };
 
 // ALU operations

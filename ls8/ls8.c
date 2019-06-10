@@ -4,8 +4,7 @@
 /**
  * Main
  */
-int main(void)
-{
+int main(void) {
   struct cpu cpu;
 
   cpu_init(&cpu);
