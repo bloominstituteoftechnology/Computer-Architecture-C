@@ -1,18 +1,26 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+#define SP 7
+
 // Holds all information about the CPU
 struct cpu {
   // TODO
   // PC
+  unsigned char PC;
   // registers (array)
+  unsigned char reg[8];
   // ram (array)
+  unsigned char ram[256];
+  // flag
+  unsigned char FL;
 };
 
 // ALU operations
 enum alu_op {
-	ALU_MUL
+	ALU_MUL,
 	// Add more here
+  ALU_ADD
 };
 
 // Instructions
@@ -23,10 +31,21 @@ enum alu_op {
 #define LDI  0b10000010
 #define PRN  0b01000111
 // TODO: more instructions here. These can be used in cpu_run().
+#define MUL  0b10100010
+#define ADD  0b10100000
+#define PUSH 0b01000101
+#define POP  0b01000110
+#define CALL 0b01010000
+
+// SPRINT
+#define CMP  0b10100111
+#define JMP  0b01010100
+#define JEQ  0b01010101
+#define JNE  0b01010110
 
 // Function declarations
 
-extern void cpu_load(struct cpu *cpu);
+extern void cpu_load(struct cpu *cpu, char *filename);
 extern void cpu_init(struct cpu *cpu);
 extern void cpu_run(struct cpu *cpu);
 
