@@ -5,54 +5,46 @@
 #define DATA_LEN 6
 
 // #include "./examples/print8.ls8"
-#define FILENAME "./examples/print8.ls8"
+// #define FILENAME "./examples/print8.ls8"
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-
-void cpu_load(struct cpu *cpu)
+char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
-  // struct stat st;
-  // stat(FILENAME, &st);
-  // int strlen = st.st_size;
+  return cpu->ram[address];
+}
 
-  // printf("strlen: %d\n", strlen);
+void cpu_ram_write(struct cpu *cpu, unsigned char address, unsigned char value)
+{
+  cpu->ram[address] = value;
+}
 
-  // FILE *file;
-  // file = fopen(FILENAME, "r");
-  // int c;
-  // int index;
-
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
-  // while (1)
-  // {
-  //   c = fgetint(file);
-  //   if (feof(file))
-  //   {
-  //     break;
-  //   }
-  //   data[index] = c;
-  //   index++;
-  // }
-
+void cpu_load(struct cpu *cpu, char *argv[])
+{
+  FILE *fp;
+  char file_data[1024];
   int address = 0;
+  // printf("argv[1]: %s\n", argv[1]);
+  fp = fopen(argv[1], "r");
 
-  for (int i = 0; i < DATA_LEN; i++)
+  if (fp == NULL)
   {
-    cpu->ram[address++] = data[i];
+    fprintf(stderr, "file not found\n");
+    exit(1);
   }
 
-  // fclose(file);
-  // TODO: Replace this with something less hard-coded
+  while (fgets(file_data, sizeof file_data, fp) != NULL)
+  {
+    char *endptr;
+    unsigned char line_value = strtol(file_data, &endptr, 2);
+    if (endptr == file_data)
+    {
+      continue;
+    }
+    cpu_ram_write(cpu, address, line_value);
+    address++;
+  }
+  fclose(fp);
 }
 
 /**
@@ -63,23 +55,11 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] *= cpu->registers[regB];
     break;
-
     // TODO: implement more ALU ops
   }
 }
-
-
-char cpu_ram_read(struct cpu *cpu, int i){
-  return cpu->ram[i];
-}
-
-void cpu_ram_write(struct cpu *cpu, int i, unsigned char value){
-  cpu->ram[i] = value;
-  return 0;
-}
-
 
 /**
  * Run the CPU
@@ -87,55 +67,43 @@ void cpu_ram_write(struct cpu *cpu, int i, unsigned char value){
 void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
-  int reg;
-  int reg_value;
-  unsigned char value;
-  int pc;
 
   while (running)
   {
-    printf("Running\n");
     // TODO
     // 1. Get the value of the current instruction (in address PC).
-    pc = cpu->pc;
-    value = cpu->ram[pc];
-    printf("pc: %d\n", pc);
-    printf("value: %d\n", value);
+    // pc = cpu->pc;
+    // value = cpu->ram[pc];
     // 2. Figure out how many operands this next instruction requires
-
-    switch (value)
-    {
-    case LDI:
-      reg = cpu->ram[pc + 1];
-      printf("pc LDI1: %d\n", cpu->pc);
-      printf("pc 1: %d\n", pc);
-      reg_value = cpu->ram[pc + 2];
-      printf("pc LDI2: %d\n", cpu->pc);
-      printf("pc 2: %d\n", pc);
-      cpu->registers[reg] = reg_value;
-      printf("LDI\n");
-      cpu->pc += 3;
-      printf("pc LDI: %d\n", cpu->pc);
-      break;
-    case PRN:
-      printf("PRN\n");
-      reg = cpu->ram[pc + 1];
-      reg_value = cpu->registers[reg];
-      cpu->pc += 2;
-      printf("Register Value: %d\n", reg_value);
-      break;
-    case HLT:
-      running = 0;
-      cpu->pc++;
-      break;
-    default:
-      printf("Unknown instruction %02x at address %02x\n", value, pc);
-      exit(1);
-    }
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
+
+    unsigned char current_value = cpu_ram_read(cpu, cpu->pc);
+    unsigned char index_value_1 = cpu_ram_read(cpu, cpu->pc + 1);
+    unsigned char index_value_2 = cpu_ram_read(cpu, cpu->pc + 2);
+    int inc_pc = (current_value >> 6) + 1;
+
+    switch (current_value)
+    {
+    case LDI:
+      cpu->registers[index_value_1] = index_value_2;
+      break;
+    case PRN:
+      printf("%d \n", cpu->registers[index_value_1]);
+      break;
+    case HLT:
+      running = 0;
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, index_value_1, index_value_2);
+      break;
+    default:
+      printf("Unknown instruction %02x at address %02x\n", cpu->ram[current_value], current_value);
+      exit(1);
+    }
+    cpu->pc += inc_pc;
   }
 }
 
@@ -144,10 +112,8 @@ void cpu_run(struct cpu *cpu)
  */
 void cpu_init(struct cpu *cpu)
 {
-  // TODO: Initialize the PC and other special registers
-  // struct cpu *cpu = malloc(sizeof(struct cpu));
+  // TODO: Initialize the pc and other special registers => zero ram and registers
   cpu->pc = 0;
-  cpu->registers = malloc(8 * sizeof(unsigned char));
-  cpu->ram = malloc(DATA_LEN * sizeof(unsigned char));
-  return cpu;
+  memset(cpu->ram, 0, sizeof cpu->ram);
+  memset(cpu->registers, 0, sizeof cpu->registers);
 }
