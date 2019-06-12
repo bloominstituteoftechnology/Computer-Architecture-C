@@ -1,14 +1,11 @@
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#define DATA_LEN 6
 
-// #include "./examples/print8.ls8"
-// #define FILENAME "./examples/print8.ls8"
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+
 char cpu_ram_read(struct cpu *cpu, unsigned char address)
 {
   return cpu->ram[address];
@@ -61,6 +58,19 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   }
 }
 
+unsigned char pop(struct cpu *cpu)
+{
+  unsigned char pop_value = cpu->ram[cpu->registers[cpu->sp]];
+  cpu->registers[cpu->sp]++;
+  return pop_value;
+}
+
+unsigned char push(struct cpu *cpu, unsigned char value)
+{
+  cpu->registers[cpu->sp]--;
+  cpu->ram[cpu->registers[cpu->sp]] = value;
+}
+
 /**
  * Run the CPU
  */
@@ -99,6 +109,12 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, index_value_1, index_value_2);
       break;
+    case POP:
+      cpu->registers[index_value_1] = pop(cpu);
+      break;
+    case PUSH:
+      push(cpu, cpu->registers[index_value_1]);
+      break;
     default:
       printf("Unknown instruction %02x at address %02x\n", cpu->ram[current_value], current_value);
       exit(1);
@@ -114,6 +130,8 @@ void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the pc and other special registers => zero ram and registers
   cpu->pc = 0;
+  cpu->sp = 7;
+  cpu->registers[cpu->sp] = 0xF4;
   memset(cpu->ram, 0, sizeof cpu->ram);
   memset(cpu->registers, 0, sizeof cpu->registers);
 }
