@@ -54,6 +54,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   case ALU_MUL:
     cpu->registers[regA] *= cpu->registers[regB];
     break;
+  case ALU_ADD:
+    cpu->registers[regA] += cpu->registers[regB];
+    break;
     // TODO: implement more ALU ops
   }
 }
@@ -109,11 +112,23 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, index_value_1, index_value_2);
       break;
+    case ADD:
+      alu(cpu, ALU_ADD, index_value_1, index_value_2);
+      break;
     case POP:
       cpu->registers[index_value_1] = pop(cpu);
       break;
     case PUSH:
       push(cpu, cpu->registers[index_value_1]);
+      break;
+    case CALL:
+      push(cpu, cpu->pc + 2);
+      cpu->pc = cpu->registers[index_value_1];
+      inc_pc = 0;
+      break;
+    case RET:
+      cpu->pc = pop(cpu);
+      inc_pc = 0;
       break;
     default:
       printf("Unknown instruction %02x at address %02x\n", cpu->ram[current_value], current_value);
