@@ -1,4 +1,7 @@
 #include "cpu.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define DATA_LEN 6
 
@@ -39,6 +42,14 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     // TODO: implement more ALU ops
   }
 }
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned int index) {
+  return cpu->ram[index];
+}
+
+void cpu_ram_write(struct cpu *cpu, unsigned int index, unsigned char value) {
+  cpu->ram[index] = value;
+}
+
 
 /**
  * Run the CPU
@@ -50,11 +61,33 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char ir = cpu->ram[cpu->pc];
     // 2. Figure out how many operands this next instruction requires
+    unsigned char operands = ir >> 6;
     // 3. Get the appropriate value(s) of the operands following this instruction
+    unsigned char operandA = cpu_ram_read(cpu, cpu->pc+1);
+    unsigned char operandB = cpu_ram_read(cpu, cpu->pc+2);
     // 4. switch() over it to decide on a course of action.
+    switch (ir) {
     // 5. Do whatever the instruction should do according to the spec.
+    case HLT:
+      return;
+
+    case LDI:
+      handle_LDI(cpu, operandA, operandB);
+      break;
+    
+    case PRN:
+      handle_PRN(cpu, operandA);
+      break;
+
+    default:
+      printf("Error Unknown Instruction");
+      break;
+    }
+    
     // 6. Move the PC to the next instruction.
+     cpu->pc += (operands+1);
   }
 }
 
@@ -64,4 +97,8 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+  cpu = malloc(sizeof(struct cpu));
+  cpu->pc = 0;
+  memset(cpu->reg, 0, 8);
+  memset(cpu->ram, 0 , 256);
 }
