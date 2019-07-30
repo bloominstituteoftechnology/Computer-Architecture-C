@@ -39,6 +39,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       break;
 
     // TODO: implement more ALU ops
+    // ADD, AND, CMP, DEC, DIV, INC, MOD, MUL, NOT, OR, SHL, SHR, SUB, XOR
   }
 }
 
@@ -49,12 +50,71 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char reg_num1, reg_num2;
+
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+    unsigned char ir = cpu->ram[cpu->pc];
+
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
+
     // 4. switch() over it to decide on a course of action.
+
+    switch (ir) {
+      // case CALL:
+      //   break;
+      case HLT:
+        running = 0;
+        cpu->pc++;
+        break;
+      // case INT:
+      //   break;
+      // case IRET:
+      //   break;
+      // case JEQ:
+      //   break;
+      // case JGE:
+      //   break;
+      // case JGT:
+      //   break;
+      // case JLE:
+      //   break;
+      // case JLT:
+      //   break;
+      // case JMP:
+      //   break;
+      // case JNE:
+      //   break;
+      // case LD:
+      //   break;
+      case LDI:
+        // Set the value of a register to an integer.
+        cpu->registers[0] = 8;
+        break;
+
+      // case NOP:
+      //   break;
+      // case POP:
+      //   break;
+      // case PRA:
+      //   break;
+      case PRN:
+      // Print numeric value stored in the given register.
+        printf("%d\n", cpu->registers[0]);
+      // Print to the console the decimal integer value that is stored in the given register.
+        break;
+
+      // case PUSH:
+      //   break;
+      // case RET:
+      //   break;
+      // case ST:
+      //   break;
+    }
+
+
     // 5. Do whatever the instruction should do according to the spec.
     // 6. Move the PC to the next instruction.
   }
@@ -71,12 +131,12 @@ void cpu_init(struct cpu *cpu)
   memset(cpu->ram, 0, 256);
 }
 
-char cpu_ram_read(struct cpu *cpu)
+char cpu_ram_read(struct cpu *cpu, int index)
 {
-  return cpu->ram[cpu->pc];
+  return cpu->ram[index];
 }
 
-void cpu_ram_write(struct cpu *cpu, char input)
+void cpu_ram_write(struct cpu *cpu, unsigned char input)
 {
 
   int index = 0;
