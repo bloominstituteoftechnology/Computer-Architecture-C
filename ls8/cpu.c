@@ -60,21 +60,20 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  cpu->registers[7] = 0xF4;
+  unsigned char *sp;
+
+  sp = &cpu->registers[7];
+
   unsigned char operandA, operandB;
 
   while (running) {
-    //trace(cpu);
-    // TODO
-    // 1. Get the value of the current instruction (in address PC).
+    // trace(cpu);
+
     unsigned char ir = cpu->ram[cpu->pc];
 
     operandA = cpu->ram[cpu->pc+1];
     operandB = cpu->ram[cpu->pc+2];
-
-    // 2. Figure out how many operands this next instruction requires
-    // 3. Get the appropriate value(s) of the operands following this instruction
-
-    // 4. switch() over it to decide on a course of action.
 
     switch (ir) {
       // case CALL:
@@ -117,28 +116,31 @@ void cpu_run(struct cpu *cpu)
 
       // case NOP:
       //   break;
-      // case POP:
-      //   break;
+
+      case POP:
+        cpu->registers[operandA] = cpu->ram[*sp]; // Copy the value from the address pointed to by SP to the given register.
+        *sp += 1; // Increment SP.
+        cpu->pc += 2;
+        break;
+
+      case PUSH:
+        *sp -= 1; // Decrement the SP.
+        cpu->ram[*sp] = cpu->registers[operandA]; // Copy the value in the given register to the address pointed to by SP.
+        cpu->pc += 2;
+        break;
+
       // case PRA:
       //   break;
       case PRN:
-      // Print numeric value stored in the given register.
         printf("%d\n", cpu->registers[operandA]);
         cpu->pc += 2;
-      // Print to the console the decimal integer value that is stored in the given register.
         break;
 
-      // case PUSH:
-      //   break;
       // case RET:
       //   break;
       // case ST:
       //   break;
     }
-
-
-    // 5. Do whatever the instruction should do according to the spec.
-    // 6. Move the PC to the next instruction.
   }
 }
 
