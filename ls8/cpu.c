@@ -7,6 +7,8 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
+void trace(struct cpu *cpu);
+
 void cpu_load(struct cpu *cpu)
 {
   char data[DATA_LEN] = {
@@ -50,12 +52,16 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  unsigned char reg_num1, reg_num2;
+  unsigned char operandA, operandB;
 
   while (running) {
+    trace(cpu);
     // TODO
     // 1. Get the value of the current instruction (in address PC).
     unsigned char ir = cpu->ram[cpu->pc];
+
+    operandA = cpu->ram[cpu->pc+1];
+    operandB = cpu->ram[cpu->pc+2];
 
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
@@ -91,7 +97,8 @@ void cpu_run(struct cpu *cpu)
       //   break;
       case LDI:
         // Set the value of a register to an integer.
-        cpu->registers[0] = 8;
+        cpu->registers[operandA] = operandB;
+        cpu->pc += 3;
         break;
 
       // case NOP:
@@ -102,7 +109,8 @@ void cpu_run(struct cpu *cpu)
       //   break;
       case PRN:
       // Print numeric value stored in the given register.
-        printf("%d\n", cpu->registers[0]);
+        printf("%d\n", cpu->registers[operandA]);
+        cpu->pc += 2;
       // Print to the console the decimal integer value that is stored in the given register.
         break;
 
@@ -156,4 +164,20 @@ void cpu_ram_write(struct cpu *cpu, unsigned char input)
       break;
     }
   }
+}
+
+void trace(struct cpu *cpu)
+{
+    printf("%02X | ", cpu->pc);
+
+    printf("%02X %02X %02X |",
+        cpu_ram_read(cpu, cpu->pc),
+        cpu_ram_read(cpu, cpu->pc + 1),
+        cpu_ram_read(cpu, cpu->pc + 2));
+
+    for (int i = 0; i < 8; i++) {
+        printf(" %02X", cpu->registers[i]);
+    }
+
+    printf("\n");
 }
