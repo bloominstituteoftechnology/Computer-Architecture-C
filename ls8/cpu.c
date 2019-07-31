@@ -9,23 +9,44 @@
  */
 void trace(struct cpu *cpu);
 
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, char *file_name)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+
+  FILE *fp = fopen(file_name, "r");
+
+  if (fp == NULL) {
+    fprintf(stderr, "Error opening file: %s\n", file_name);
+    return;
+  }
+
+  // char data[DATA_LEN] = {
+  //   // From print8.ls8
+  //   0b10000010, // LDI R0,8
+  //   0b00000000,
+  //   0b00001000,
+  //   0b01000111, // PRN R0
+  //   0b00000000,
+  //   0b00000001  // HLT
+  // };
 
   int address = 0;
+  char line[128];
 
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  while (fgets(line, sizeof line, fp) != NULL) {
+    char *endptr;
+
+    unsigned char value = strtoul(line, &endptr, 10);
+
+    if (endptr == line) {
+      continue;
+    }
+
+    cpu->ram[address++] = value;
   }
+
+  // for (int i = 0; i < DATA_LEN; i++) {
+  //   cpu->ram[address++] = data[i];
+  // }
 
   // TODO: Replace this with something less hard-coded
 }
