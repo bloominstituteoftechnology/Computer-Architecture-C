@@ -47,6 +47,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     case ALU_MUL:
       cpu->registers[regA] *= cpu->registers[regB];
       break;
+    case ALU_ADD:
+      cpu->registers[regA] += cpu->registers[regB];
+      break;
 
     // TODO: implement more ALU ops
     // ADD, AND, CMP, DEC, DIV, INC, MOD, MUL, NOT, OR, SHL, SHR, SUB, XOR
@@ -76,8 +79,18 @@ void cpu_run(struct cpu *cpu)
     operandB = cpu->ram[cpu->pc+2];
 
     switch (ir) {
-      // case CALL:
-      //   break;
+
+      case CALL:
+
+        //The address of the instruction directly after CALL is pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+        (*sp)--;
+        cpu->ram[*sp] = cpu->pc+2;
+        
+        //The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+        cpu->pc = cpu->registers[operandA];
+
+        break;
+
       case HLT:
         running = 0;
         cpu->pc++;
@@ -88,58 +101,43 @@ void cpu_run(struct cpu *cpu)
         cpu->pc += 3;
         break;
 
-      // case INT:
-      //   break;
-      // case IRET:
-      //   break;
-      // case JEQ:
-      //   break;
-      // case JGE:
-      //   break;
-      // case JGT:
-      //   break;
-      // case JLE:
-      //   break;
-      // case JLT:
-      //   break;
-      // case JMP:
-      //   break;
-      // case JNE:
-      //   break;
-      // case LD:
-      //   break;
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        cpu->pc += 3;
+        break;
+
       case LDI:
         // Set the value of a register to an integer.
         cpu->registers[operandA] = operandB;
         cpu->pc += 3;
         break;
 
-      // case NOP:
-      //   break;
-
       case POP:
         cpu->registers[operandA] = cpu->ram[*sp]; // Copy the value from the address pointed to by SP to the given register.
-        *sp += 1; // Increment SP.
+        (*sp)++; // Increment SP.
         cpu->pc += 2;
         break;
 
       case PUSH:
-        *sp -= 1; // Decrement the SP.
+        (*sp)--; // Decrement the SP.
         cpu->ram[*sp] = cpu->registers[operandA]; // Copy the value in the given register to the address pointed to by SP.
         cpu->pc += 2;
         break;
 
-      // case PRA:
-      //   break;
       case PRN:
         printf("%d\n", cpu->registers[operandA]);
         cpu->pc += 2;
         break;
 
-      // case RET:
-      //   break;
-      // case ST:
-      //   break;
+      case RET:
+        // Pop the value from the top of the stack and store it in the PC.
+        cpu->pc = cpu->ram[*sp]; // Copy the value from the address pointed to by SP to the given register.
+        (*sp)++; // Increment SP.
+        break;
+
+      default:
+        printf("Error: found instruction %x at location %x\n", ir, cpu->pc);
+        exit(1);
     }
   }
 }
