@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #define DATA_LEN 6
 
@@ -9,6 +10,15 @@
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
 void trace(struct cpu *cpu);
+
+double getcurtime(void)
+{
+    struct timeval tv;
+​
+    gettimeofday(&tv, NULL);
+​
+    return tv.tv_sec + tv.tv_usec / 1000000.0;
+}
 
 void cpu_load(struct cpu *cpu, char *file_name)
 {
@@ -133,6 +143,12 @@ void cpu_run(struct cpu *cpu)
         // Pop the value from the top of the stack and store it in the PC.
         cpu->pc = cpu->ram[*sp]; // Copy the value from the address pointed to by SP to the given register.
         (*sp)++; // Increment SP.
+        break;
+
+      case ST:
+        cpu->ram[cpu->registers[operandA]] = cpu->registers[operandB];
+        cpu->pc += 3;
+        // Store value in registerB in the address stored in registerA.
         break;
 
       default:
