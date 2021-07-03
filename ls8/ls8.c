@@ -4,12 +4,19 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char **argv)
 {
   struct cpu cpu;
 
+  if(argc != 2) {
+    fprintf(stderr, "usage: ls8 filename.ls8\n");
+    return 1;
+  }
+
+  char *filename = argv[1];
+
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu, filename);
   cpu_run(&cpu);
 
   return 0;
