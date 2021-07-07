@@ -1,6 +1,8 @@
 ls8/ls8
 ls8/ls8.exe
 
+/.DS_Store
+
 # Prerequisites
 *.d
 
